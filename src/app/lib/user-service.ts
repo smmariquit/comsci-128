@@ -9,12 +9,19 @@ const MOCK_DATA: User[] = [
 ];
 
 export const getProfile = async (userId: string): Promise<User | null> => {
-    const user = MOCK_DATA.find((u) => u.id === userId);
+    try {
+        const user = MOCK_DATA.find((u) => u.id === userId);
 
-    if (!user) {
-        return null;
+        if (!user) {
+            return null;
+        }
+
+        return user;
+    } catch (error) {
+        console.error("Error: ", error);
+        throw new Error("Error");
     }
-    return user;
+    
 }
 
 getProfile("1").then(user => console.log("User Profile Found: ", user));
