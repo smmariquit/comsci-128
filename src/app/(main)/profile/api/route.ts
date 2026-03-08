@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { getProfile } from "@/app/lib/services/user-service";
+import { getProfile } from "@/services/user-service";
 
 // For retrieving profile information of current user
 // Default route for /profile/api

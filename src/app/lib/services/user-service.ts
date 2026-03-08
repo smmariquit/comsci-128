@@ -1,5 +1,5 @@
-import { findUserById } from "@/lib/data/user";
-import { User } from "../models/user";
+import { findUserById } from "@/data/user";
+import { User } from "@/models/user";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 export const getProfile = async (userId: string): Promise<User | null> => {
