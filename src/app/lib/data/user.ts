@@ -1,4 +1,4 @@
-import { User } from "@/lib/models/user";
+import { User } from "@/models/user";
 
 //This serves as the mock 'Database' to test functions
 const MOCK_USERS: User[] = [
