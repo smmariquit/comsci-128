@@ -73,6 +73,18 @@ type User = Tables<'user'>;
 // 	},
 // ];
 
+export async function findAllUsers(): Promise<User[]> {
+	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
+
+	const { data, error } = await supabase.from('user').select();
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	return data ?? null;
+}
+
 export async function findUserById(userId: string): Promise<User | null> {
 	//This function takes a USERID of type STRING.
 	// RETURNS a USER object when found in the DB, otherwise return null.
