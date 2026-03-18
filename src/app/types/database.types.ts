@@ -16,73 +16,81 @@ export type Database = {
     Tables: {
       application: {
         Row: {
-          account_number: number | null
-          actual_move_out_date: string | null
-          application_date: string | null
+          actual_moveout_date: string | null
           application_id: number
-          expected_moveout_date: string | null
-          housing_address: string | null
+          application_status: Database["public"]["Enums"]["ApplicationStatus"]
+          expected_moveout_date: string
           housing_name: string | null
-          move_in_date: string | null
-          preferred_room_bed_space: string | null
-          status: string | null
-          student_information: string | null
+          is_deleted: boolean | null
+          manager_account_number: number | null
+          preferred_room_type: Database["public"]["Enums"]["RoomType"] | null
+          room_id: number | null
+          student_account_number: number | null
         }
         Insert: {
-          account_number?: number | null
-          actual_move_out_date?: string | null
-          application_date?: string | null
+          actual_moveout_date?: string | null
           application_id?: never
-          expected_moveout_date?: string | null
-          housing_address?: string | null
+          application_status?: Database["public"]["Enums"]["ApplicationStatus"]
+          expected_moveout_date: string
           housing_name?: string | null
-          move_in_date?: string | null
-          preferred_room_bed_space?: string | null
-          status?: string | null
-          student_information?: string | null
+          is_deleted?: boolean | null
+          manager_account_number?: number | null
+          preferred_room_type?: Database["public"]["Enums"]["RoomType"] | null
+          room_id?: number | null
+          student_account_number?: number | null
         }
         Update: {
-          account_number?: number | null
-          actual_move_out_date?: string | null
-          application_date?: string | null
+          actual_moveout_date?: string | null
           application_id?: never
-          expected_moveout_date?: string | null
-          housing_address?: string | null
+          application_status?: Database["public"]["Enums"]["ApplicationStatus"]
+          expected_moveout_date?: string
           housing_name?: string | null
-          move_in_date?: string | null
-          preferred_room_bed_space?: string | null
-          status?: string | null
-          student_information?: string | null
+          is_deleted?: boolean | null
+          manager_account_number?: number | null
+          preferred_room_type?: Database["public"]["Enums"]["RoomType"] | null
+          room_id?: number | null
+          student_account_number?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "application_account_number_fkey"
-            columns: ["account_number"]
+            foreignKeyName: "application_manager_account_number_fkey"
+            columns: ["manager_account_number"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "manager"
+            referencedColumns: ["account_number"]
+          },
+          {
+            foreignKeyName: "application_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "room"
+            referencedColumns: ["room_id"]
+          },
+          {
+            foreignKeyName: "application_student_account_number_fkey"
+            columns: ["student_account_number"]
+            isOneToOne: false
+            referencedRelation: "student"
             referencedColumns: ["account_number"]
           },
         ]
       }
-      application_required_documents: {
+      application_required_document: {
         Row: {
-          application_id: number | null
-          id: number
-          required_documents: string
+          application_id: number
+          required_document: string
         }
         Insert: {
-          application_id?: number | null
-          id?: never
-          required_documents: string
+          application_id: number
+          required_document: string
         }
         Update: {
-          application_id?: number | null
-          id?: never
-          required_documents?: string
+          application_id?: number
+          required_document?: string
         }
         Relationships: [
           {
-            foreignKeyName: "application_required_documents_application_id_fkey"
+            foreignKeyName: "application_required_document_application_id_fkey"
             columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "application"
@@ -90,172 +98,188 @@ export type Database = {
           },
         ]
       }
-      audit_logs: {
+      audit_log: {
         Row: {
           account_number: number | null
-          action_type: string
+          action_type: Database["public"]["Enums"]["ActionType"] | null
           audit_description: string | null
           audit_id: number
           timestamp: string | null
-          user_id: string | null
+          user_id: number | null
           user_name: string | null
         }
         Insert: {
           account_number?: number | null
-          action_type: string
+          action_type?: Database["public"]["Enums"]["ActionType"] | null
           audit_description?: string | null
           audit_id?: never
           timestamp?: string | null
-          user_id?: string | null
+          user_id?: number | null
           user_name?: string | null
         }
         Update: {
           account_number?: number | null
-          action_type?: string
+          action_type?: Database["public"]["Enums"]["ActionType"] | null
           audit_description?: string | null
           audit_id?: never
           timestamp?: string | null
-          user_id?: string | null
+          user_id?: number | null
           user_name?: string | null
+        }
+        Relationships: []
+      }
+      bill: {
+        Row: {
+          amount: number
+          bill_type: Database["public"]["Enums"]["BillType"]
+          date_paid: string | null
+          due_date: string
+          is_deleted: boolean | null
+          issue_date: string
+          manager_account_number: number | null
+          status: Database["public"]["Enums"]["PaymentStatus"]
+          student_account_number: number | null
+          transaction_id: number
+        }
+        Insert: {
+          amount: number
+          bill_type?: Database["public"]["Enums"]["BillType"]
+          date_paid?: string | null
+          due_date: string
+          is_deleted?: boolean | null
+          issue_date?: string
+          manager_account_number?: number | null
+          status?: Database["public"]["Enums"]["PaymentStatus"]
+          student_account_number?: number | null
+          transaction_id?: number
+        }
+        Update: {
+          amount?: number
+          bill_type?: Database["public"]["Enums"]["BillType"]
+          date_paid?: string | null
+          due_date?: string
+          is_deleted?: boolean | null
+          issue_date?: string
+          manager_account_number?: number | null
+          status?: Database["public"]["Enums"]["PaymentStatus"]
+          student_account_number?: number | null
+          transaction_id?: number
         }
         Relationships: [
           {
-            foreignKeyName: "audit_logs_account_number_fkey"
-            columns: ["account_number"]
+            foreignKeyName: "bill_manager_account_number_fkey"
+            columns: ["manager_account_number"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "manager"
+            referencedColumns: ["account_number"]
+          },
+          {
+            foreignKeyName: "bill_student_account_number_fkey"
+            columns: ["student_account_number"]
+            isOneToOne: false
+            referencedRelation: "student"
             referencedColumns: ["account_number"]
           },
         ]
+      }
+      document: {
+        Row: {
+          id: number
+          storage_link: string | null
+          type: Database["public"]["Enums"]["DocumentType"]
+        }
+        Insert: {
+          id?: number
+          storage_link?: string | null
+          type: Database["public"]["Enums"]["DocumentType"]
+        }
+        Update: {
+          id?: number
+          storage_link?: string | null
+          type?: Database["public"]["Enums"]["DocumentType"]
+        }
+        Relationships: []
       }
       housing: {
         Row: {
-          account_number: number | null
-          housing_address: string | null
-          housing_application_period: string | null
+          end_application_date: string | null
+          housing_address: string
           housing_id: number
           housing_name: string
-          housing_type: string | null
-          rent_price: number | null
+          housing_type: Database["public"]["Enums"]["HousingType"]
+          is_deleted: boolean | null
+          manager_account_number: number | null
+          rent_price: number
+          start_application_date: string | null
         }
         Insert: {
-          account_number?: number | null
-          housing_address?: string | null
-          housing_application_period?: string | null
-          housing_id?: never
+          end_application_date?: string | null
+          housing_address: string
+          housing_id?: number
           housing_name: string
-          housing_type?: string | null
-          rent_price?: number | null
+          housing_type?: Database["public"]["Enums"]["HousingType"]
+          is_deleted?: boolean | null
+          manager_account_number?: number | null
+          rent_price: number
+          start_application_date?: string | null
         }
         Update: {
-          account_number?: number | null
-          housing_address?: string | null
-          housing_application_period?: string | null
-          housing_id?: never
+          end_application_date?: string | null
+          housing_address?: string
+          housing_id?: number
           housing_name?: string
-          housing_type?: string | null
-          rent_price?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "housing_account_number_fkey"
-            columns: ["account_number"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["account_number"]
-          },
-        ]
-      }
-      housing_manager: {
-        Row: {
-          account_email: string
-          account_number: number
-          birthday: string | null
-          contact_email: string | null
-          first_name: string
-          home_address: string | null
-          last_name: string
-          middle_name: string | null
-          phone_number: string | null
-          sex: string | null
-        }
-        Insert: {
-          account_email: string
-          account_number: number
-          birthday?: string | null
-          contact_email?: string | null
-          first_name: string
-          home_address?: string | null
-          last_name: string
-          middle_name?: string | null
-          phone_number?: string | null
-          sex?: string | null
-        }
-        Update: {
-          account_email?: string
-          account_number?: number
-          birthday?: string | null
-          contact_email?: string | null
-          first_name?: string
-          home_address?: string | null
-          last_name?: string
-          middle_name?: string | null
-          phone_number?: string | null
-          sex?: string | null
+          housing_type?: Database["public"]["Enums"]["HousingType"]
+          is_deleted?: boolean | null
+          manager_account_number?: number | null
+          rent_price?: number
+          start_application_date?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "housing_manager_account_number_fkey"
+            columns: ["manager_account_number"]
+            isOneToOne: false
+            referencedRelation: "manager"
+            referencedColumns: ["account_number"]
+          },
+        ]
+      }
+      housing_admin: {
+        Row: {
+          account_number: number
+        }
+        Insert: {
+          account_number: number
+        }
+        Update: {
+          account_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "housing_admin_account_number_fkey"
             columns: ["account_number"]
             isOneToOne: true
-            referencedRelation: "user"
+            referencedRelation: "manager"
             referencedColumns: ["account_number"]
           },
         ]
       }
       landlord: {
         Row: {
-          account_email: string
           account_number: number
-          birthday: string | null
-          contact_email: string | null
-          first_name: string
-          home_address: string | null
-          last_name: string
-          middle_name: string | null
-          phone_number: string | null
-          sex: string | null
         }
         Insert: {
-          account_email: string
           account_number: number
-          birthday?: string | null
-          contact_email?: string | null
-          first_name: string
-          home_address?: string | null
-          last_name: string
-          middle_name?: string | null
-          phone_number?: string | null
-          sex?: string | null
         }
         Update: {
-          account_email?: string
           account_number?: number
-          birthday?: string | null
-          contact_email?: string | null
-          first_name?: string
-          home_address?: string | null
-          last_name?: string
-          middle_name?: string | null
-          phone_number?: string | null
-          sex?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "landlord_account_number_fkey"
             columns: ["account_number"]
             isOneToOne: true
-            referencedRelation: "user"
+            referencedRelation: "manager"
             referencedColumns: ["account_number"]
           },
         ]
@@ -263,15 +287,15 @@ export type Database = {
       manager: {
         Row: {
           account_number: number
-          manager_type: string | null
+          manager_type: Database["public"]["Enums"]["ManagerType"]
         }
         Insert: {
-          account_number: number
-          manager_type?: string | null
+          account_number?: number
+          manager_type?: Database["public"]["Enums"]["ManagerType"]
         }
         Update: {
           account_number?: number
-          manager_type?: string | null
+          manager_type?: Database["public"]["Enums"]["ManagerType"]
         }
         Relationships: [
           {
@@ -283,24 +307,39 @@ export type Database = {
           },
         ]
       }
+      manager_bank: {
+        Row: {
+          bank_name: string
+          bank_number: number
+          bank_type: string
+        }
+        Insert: {
+          bank_name: string
+          bank_number: number
+          bank_type: string
+        }
+        Update: {
+          bank_name?: string
+          bank_number?: number
+          bank_type?: string
+        }
+        Relationships: []
+      }
       manager_payment_details: {
         Row: {
           account_number: number
-          bank_name: string | null
-          bank_number: string
-          bank_type: string | null
+          bank_number: number
+          bank_type: string
         }
         Insert: {
-          account_number: number
-          bank_name?: string | null
-          bank_number: string
-          bank_type?: string | null
+          account_number?: number
+          bank_number: number
+          bank_type: string
         }
         Update: {
           account_number?: number
-          bank_name?: string | null
-          bank_number?: string
-          bank_type?: string | null
+          bank_number?: number
+          bank_type?: string
         }
         Relationships: [
           {
@@ -314,34 +353,37 @@ export type Database = {
       }
       room: {
         Row: {
-          housing_id: number | null
-          maximum_number_of_occupants: number | null
-          number_of_available_bed_space: number | null
-          occupancy_status: string | null
-          payment_status: string | null
+          housing_id: number
+          is_deleted: boolean | null
+          maximum_occupants: number | null
+          occupancy_status:
+            | Database["public"]["Enums"]["OccupancyStatus"]
+            | null
+          payment_status: Database["public"]["Enums"]["PaymentStatus"]
           room_id: number
-          room_number: string
-          room_type: string | null
+          room_type: Database["public"]["Enums"]["RoomType"]
         }
         Insert: {
-          housing_id?: number | null
-          maximum_number_of_occupants?: number | null
-          number_of_available_bed_space?: number | null
-          occupancy_status?: string | null
-          payment_status?: string | null
-          room_id?: never
-          room_number: string
-          room_type?: string | null
+          housing_id: number
+          is_deleted?: boolean | null
+          maximum_occupants?: number | null
+          occupancy_status?:
+            | Database["public"]["Enums"]["OccupancyStatus"]
+            | null
+          payment_status?: Database["public"]["Enums"]["PaymentStatus"]
+          room_id?: number
+          room_type?: Database["public"]["Enums"]["RoomType"]
         }
         Update: {
-          housing_id?: number | null
-          maximum_number_of_occupants?: number | null
-          number_of_available_bed_space?: number | null
-          occupancy_status?: string | null
-          payment_status?: string | null
-          room_id?: never
-          room_number?: string
-          room_type?: string | null
+          housing_id?: number
+          is_deleted?: boolean | null
+          maximum_occupants?: number | null
+          occupancy_status?:
+            | Database["public"]["Enums"]["OccupancyStatus"]
+            | null
+          payment_status?: Database["public"]["Enums"]["PaymentStatus"]
+          room_id?: number
+          room_type?: Database["public"]["Enums"]["RoomType"]
         }
         Relationships: [
           {
@@ -355,46 +397,28 @@ export type Database = {
       }
       student: {
         Row: {
-          accommodation_history: string | null
           account_number: number
-          degree_program: string | null
           emergency_contact_name: string | null
-          emergency_contact_phone_number: string | null
+          emergency_contact_number: string | null
           emergency_contact_relationship: string | null
-          housing_status: string | null
-          room_id: number | null
-          room_number: string | null
-          standing: string | null
-          status: string | null
-          student_number: string
+          housing_status: Database["public"]["Enums"]["HousingStatus"]
+          student_number: number
         }
         Insert: {
-          accommodation_history?: string | null
-          account_number: number
-          degree_program?: string | null
+          account_number?: number
           emergency_contact_name?: string | null
-          emergency_contact_phone_number?: string | null
+          emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
-          housing_status?: string | null
-          room_id?: number | null
-          room_number?: string | null
-          standing?: string | null
-          status?: string | null
-          student_number: string
+          housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          student_number: number
         }
         Update: {
-          accommodation_history?: string | null
           account_number?: number
-          degree_program?: string | null
           emergency_contact_name?: string | null
-          emergency_contact_phone_number?: string | null
+          emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
-          housing_status?: string | null
-          room_id?: number | null
-          room_number?: string | null
-          standing?: string | null
-          status?: string | null
-          student_number?: string
+          housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          student_number?: number
         }
         Relationships: [
           {
@@ -404,30 +428,55 @@ export type Database = {
             referencedRelation: "user"
             referencedColumns: ["account_number"]
           },
+        ]
+      }
+      student_academic: {
+        Row: {
+          degree_program: string
+          standing: Database["public"]["Enums"]["StudentStanding"]
+          status: Database["public"]["Enums"]["StudentStatus"]
+          student_number: number
+        }
+        Insert: {
+          degree_program: string
+          standing?: Database["public"]["Enums"]["StudentStanding"]
+          status?: Database["public"]["Enums"]["StudentStatus"]
+          student_number?: number
+        }
+        Update: {
+          degree_program?: string
+          standing?: Database["public"]["Enums"]["StudentStanding"]
+          status?: Database["public"]["Enums"]["StudentStatus"]
+          student_number?: number
+        }
+        Relationships: [
           {
-            foreignKeyName: "student_room_id_fkey"
-            columns: ["room_id"]
-            isOneToOne: false
-            referencedRelation: "room"
-            referencedColumns: ["room_id"]
+            foreignKeyName: "student_academic_student_number_fkey"
+            columns: ["student_number"]
+            isOneToOne: true
+            referencedRelation: "student"
+            referencedColumns: ["student_number"]
           },
         ]
       }
       student_accommodation_history: {
         Row: {
-          accommodation_history: string
-          account_number: number | null
-          id: number
+          account_number: number
+          movein_date: string
+          moveout_date: string
+          room_id: number
         }
         Insert: {
-          accommodation_history: string
-          account_number?: number | null
-          id?: never
+          account_number: number
+          movein_date: string
+          moveout_date: string
+          room_id: number
         }
         Update: {
-          accommodation_history?: string
-          account_number?: number | null
-          id?: never
+          account_number?: number
+          movein_date?: string
+          moveout_date?: string
+          room_id?: number
         }
         Relationships: [
           {
@@ -437,51 +486,31 @@ export type Database = {
             referencedRelation: "student"
             referencedColumns: ["account_number"]
           },
+          {
+            foreignKeyName: "student_accommodation_history_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "room"
+            referencedColumns: ["room_id"]
+          },
         ]
       }
       system_admin: {
         Row: {
-          account_email: string
           account_number: number
-          birthday: string | null
-          contact_email: string | null
-          first_name: string
-          home_address: string | null
-          last_name: string
-          middle_name: string | null
-          phone_number: string | null
-          sex: string | null
         }
         Insert: {
-          account_email: string
           account_number: number
-          birthday?: string | null
-          contact_email?: string | null
-          first_name: string
-          home_address?: string | null
-          last_name: string
-          middle_name?: string | null
-          phone_number?: string | null
-          sex?: string | null
         }
         Update: {
-          account_email?: string
           account_number?: number
-          birthday?: string | null
-          contact_email?: string | null
-          first_name?: string
-          home_address?: string | null
-          last_name?: string
-          middle_name?: string | null
-          phone_number?: string | null
-          sex?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "system_admin_account_number_fkey"
             columns: ["account_number"]
             isOneToOne: true
-            referencedRelation: "user"
+            referencedRelation: "manager"
             referencedColumns: ["account_number"]
           },
         ]
@@ -494,11 +523,12 @@ export type Database = {
           contact_email: string | null
           first_name: string
           home_address: string | null
+          is_deleted: boolean | null
           last_name: string
           middle_name: string | null
           phone_number: string | null
-          sex: string | null
-          user_type: string
+          sex: Database["public"]["Enums"]["Sex"] | null
+          user_type: Database["public"]["Enums"]["UserType"]
         }
         Insert: {
           account_email: string
@@ -507,11 +537,12 @@ export type Database = {
           contact_email?: string | null
           first_name: string
           home_address?: string | null
+          is_deleted?: boolean | null
           last_name: string
           middle_name?: string | null
           phone_number?: string | null
-          sex?: string | null
-          user_type: string
+          sex?: Database["public"]["Enums"]["Sex"] | null
+          user_type?: Database["public"]["Enums"]["UserType"]
         }
         Update: {
           account_email?: string
@@ -520,11 +551,12 @@ export type Database = {
           contact_email?: string | null
           first_name?: string
           home_address?: string | null
+          is_deleted?: boolean | null
           last_name?: string
           middle_name?: string | null
           phone_number?: string | null
-          sex?: string | null
-          user_type?: string
+          sex?: Database["public"]["Enums"]["Sex"] | null
+          user_type?: Database["public"]["Enums"]["UserType"]
         }
         Relationships: []
       }
@@ -536,7 +568,20 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      Sex: "Male" | "Female" | "Non-binary" | "Prefer not to say"
+      ActionType: "Application Status" | "Bill Status"
+      ApplicationStatus: "Pending" | "Rejected" | "Approved" | "Cancelled"
+      BillType: "Rent" | "Utility" | "WiFi"
+      DocumentType: "Form 5" | "Payment Receipt" | "Contract" | "Waiver"
+      HousingStatus: "Assigned" | "Not Assigned"
+      HousingType: "Non-UP Housing" | "UP Housing"
+      ManagerType: "Housing Administrator" | "Landlord"
+      OccupancyStatus: "Fully Occupied" | "Empty" | "Partially Occupied"
+      PaymentStatus: "Pending" | "Paid" | "Overdue"
+      RoomType: "Single" | "Double" | "Shared"
+      Sex: "Male" | "Female" | "Prefer not to say"
+      StudentStanding: "Freshman" | "Sophomore" | "Junior" | "Senior"
+      StudentStatus: "Active" | "Delayed" | "Graduating"
+      UserType: "Student" | "Manager" | "System Admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -664,7 +709,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      Sex: ["Male", "Female", "Non-binary", "Prefer not to say"],
+      ActionType: ["Application Status", "Bill Status"],
+      ApplicationStatus: ["Pending", "Rejected", "Approved", "Cancelled"],
+      BillType: ["Rent", "Utility", "WiFi"],
+      DocumentType: ["Form 5", "Payment Receipt", "Contract", "Waiver"],
+      HousingStatus: ["Assigned", "Not Assigned"],
+      HousingType: ["Non-UP Housing", "UP Housing"],
+      ManagerType: ["Housing Administrator", "Landlord"],
+      OccupancyStatus: ["Fully Occupied", "Empty", "Partially Occupied"],
+      PaymentStatus: ["Pending", "Paid", "Overdue"],
+      RoomType: ["Single", "Double", "Shared"],
+      Sex: ["Male", "Female", "Prefer not to say"],
+      StudentStanding: ["Freshman", "Sophomore", "Junior", "Senior"],
+      StudentStatus: ["Active", "Delayed", "Graduating"],
+      UserType: ["Student", "Manager", "System Admin"],
     },
   },
 } as const
