@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -14,12 +15,14 @@ export default function LoginPage() {
             placeholder="Password"
             className="w-full rounded border px-3 py-2"
           />
-          <button
-            type="submit"
-            className="w-full rounded bg-black py-2 text-white"
-          >
-            Log in
-          </button>
+          <Link href="/student">
+            <button
+              type="submit"
+              className="w-full rounded bg-black py-2 text-white"
+            >
+              Log in
+            </button>
+          </Link>
         </form>
       </div>
     </div>
