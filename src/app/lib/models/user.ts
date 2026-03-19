@@ -11,25 +11,24 @@ export type AccountStatus = "Active" | "Inactive";
 
 export interface User {
 	// For Audit Trails
-	userId: string;
+	account_number: number;
 
 	// Authentication: must be UP Mail / Google
-	email: string;
+	account_email: string;
 
 	// User Profile fields
-	firstName: string;
-	middleName?: string; // optional
-	lastName: string;
-	permAddress: string;
-	contactNumber: string;
-	contactEmail?: string; // optional
-	sex?: string; // optional
+	first_name: string;
+	middle_name?: string; // optional
+	last_name: string;
 	birthday?: Date; // optional
-	age?: number; // optional
+	home_address?: string;
+	phone_number?: string;
+	contact_email?: string; // optional
+	sex?: string; // optional
 
 	// Role-Based Access Control
-	role: UserRole;
+	user_type: UserRole;
 
 	// Status for account deactivation
-	status: AccountStatus;
+	is_deleted?: boolean;
 }
