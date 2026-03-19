@@ -1,13 +1,12 @@
 //User Model Interface
 
-export type UserRole =
-	| "Student"
-	| "Dormitory Manager"
-	| "Housing Administrator"
-	| "Landlord"
-	| "System Administrator";
+export type UserType = "Student" | "Manager" | "System Admin";
+export type ManagerType = 'Housing Administrator' | 'Landlord';
+export type Sex = 'Male' | 'Female' | 'Prefer not to say';
+export type HousingStatus = 'Assigned' | 'Not Assigned';
+export type StudentStanding = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior';
+export type StudentStatus = 'Active' | 'Delayed' | 'Graduating';
 
-export type AccountStatus = "Active" | "Inactive";
 
 export interface User {
 	// For Audit Trails
@@ -24,10 +23,10 @@ export interface User {
 	home_address?: string;
 	phone_number?: string;
 	contact_email?: string; // optional
-	sex?: string; // optional
+	sex?: Sex; // optional
 
 	// Role-Based Access Control
-	user_type: UserRole;
+	user_type: UserType;
 
 	// Status for account deactivation
 	is_deleted?: boolean;
