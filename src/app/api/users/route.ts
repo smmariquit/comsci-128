@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 	try {
 		// Check auth
 		const headersList = await headers();
-		const userId = headersList.get("x-user-id"); //must be added by middleware after user auth
+		const userId = headersList.get("account_number"); //must be added by middleware after user auth
 
 		if (!userId) {
 			return NextResponse.json(
