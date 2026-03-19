@@ -68,3 +68,19 @@ export async function findUserById(userId: number): Promise<User | null> {
 	const user = MOCK_USERS.find((u) => u.account_number === userId);
 	return user ?? null;
 }
+
+// READ - find by email (to prevent duplicate)
+export async function findUserByEmail(account_email: string): Promise<User | null> {
+	// TODO: replace with actual Supabase queries when available
+	const user = MOCK_USERS.find((u) => u.account_email === account_email);
+	return user ?? null;
+}
+
+// CREATE - add new user to the MOCK database
+export async function addUser(newUser: Omit<User, "account_number">): Promise<User> {
+	// TODO: replace with actual Supabase queries when available
+	const newId = MOCK_USERS.length + 1;
+	const created: User = { account_number: newId, ...newUser };
+	MOCK_USERS.push(created);
+	return created;
+}
