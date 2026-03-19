@@ -31,3 +31,21 @@ export interface User {
 	// Status for account deactivation
 	is_deleted?: boolean;
 }
+
+export interface Student extends User {
+  user_type: 'Student';
+  student_number: number;
+  housing_status: HousingStatus;
+  
+  academic: {
+    degree_program: string;
+    standing: StudentStanding;
+    status: StudentStatus;
+  };
+
+  emergency_contact?: {
+    name?: string;
+    number?: string;
+    relationship?: string;
+  };
+}
