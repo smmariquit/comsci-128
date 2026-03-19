@@ -49,3 +49,12 @@ export interface Student extends User {
     relationship?: string;
   };
 }
+
+export interface Manager extends User {
+  user_type: 'Manager';
+  manager_type: ManagerType;
+}
+
+export interface SystemAdmin extends User {
+  user_type: 'System Admin';
+}
