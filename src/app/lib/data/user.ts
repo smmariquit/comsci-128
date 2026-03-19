@@ -81,8 +81,8 @@ export async function findUserById(userId: string): Promise<User | null> {
 	return user ?? null;
 }
 
-export async function mockUpdateUser(userId: string, updates: Partial<User>): Promise<User | null> {
-	const userIndex = MOCK_USERS.findIndex((u) => u.userId === userId);
+export async function mockUpdateUser(userId: number, updates: Partial<User>): Promise<User | null> {
+	const userIndex = MOCK_USERS.findIndex((u) => u.account_number === userId);
 
 	if (userIndex === -1) {
 		return null;
