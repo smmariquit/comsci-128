@@ -71,13 +71,13 @@ const MOCK_USERS: User[] = [
 	},
 ];
 
-export async function findUserById(userId: string): Promise<User | null> {
+export async function findUserById(userId: number): Promise<User | null> {
 	//This function takes a USERID of type STRING.
 	// RETURNS a USER object when found in the DB, otherwise return null.
 
 	//TODO: replace with actual Supabase queries when available
 
-	const user = MOCK_USERS.find((u) => u.userId === userId);
+	const user = MOCK_USERS.find((u) => u.account_number === userId);
 	return user ?? null;
 }
 
@@ -97,9 +97,10 @@ export async function mockUpdateUser(userId: number, updates: Partial<User>): Pr
 }
 
 // mockUpdateUser test
-const testId = "1"
+const testId = 1
 const updatedFname = { first_name: "Mahorago" };
 
+console.log("Before: ", (await findUserById(1))?.first_name);
 mockUpdateUser(testId, updatedFname).then((updatedUser) => {
 	if (updatedUser) {
 		console.log("Success: ", updatedUser.first_name);
@@ -107,3 +108,4 @@ mockUpdateUser(testId, updatedFname).then((updatedUser) => {
 		console.error("Error!");
 	}
 });
+console.log("After: ", (await findUserById(1))?.first_name);

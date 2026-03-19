@@ -2,7 +2,7 @@ import { findUserById } from "@/data/user";
 import { User } from "@/models/user";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-export const getProfile = async (userId: string): Promise<User | null> => {
+export const getProfile = async (userId: number): Promise<User | null> => {
 	try {
 		const userProfile = await findUserById(userId);
 

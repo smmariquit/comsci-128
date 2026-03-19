@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import "@/lib/data/user";
 
 export default function Page() {
   return (
