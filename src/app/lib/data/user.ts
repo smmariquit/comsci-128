@@ -1,4 +1,5 @@
 import { User } from "@/models/user";
+import test from "node:test";
 
 //This serves as the mock 'Database' to test functions
 const MOCK_USERS: User[] = [
@@ -79,3 +80,30 @@ export async function findUserById(userId: string): Promise<User | null> {
 	const user = MOCK_USERS.find((u) => u.userId === userId);
 	return user ?? null;
 }
+
+export async function mockUpdateUser(userId: string, updates: Partial<User>): Promise<User | null> {
+	const userIndex = MOCK_USERS.findIndex((u) => u.userId === userId);
+
+	if (userIndex === -1) {
+		return null;
+	}
+
+	MOCK_USERS[userIndex] = {
+		...MOCK_USERS[userIndex],
+		...updates
+	}
+
+	return MOCK_USERS[userIndex];
+}
+
+// mockUpdateUser test
+const testId = "1"
+const updatedFname = { firstName: "Mahorago" };
+
+mockUpdateUser(testId, updatedFname).then((updatedUser) => {
+	if (updatedUser) {
+		console.log("Success: ", updatedUser.first_name);
+	} else {
+		console.error("Error!");
+	}
+});
