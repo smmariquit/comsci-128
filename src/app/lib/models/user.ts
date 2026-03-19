@@ -50,9 +50,15 @@ export interface Student extends User {
   };
 }
 
+export interface ManagerPaymentDetails {
+  bank_number: number;   
+  bank_type: string;
+}
+
 export interface Manager extends User {
   user_type: 'Manager';
   manager_type: ManagerType;
+  payment_details?: ManagerPaymentDetails[];
 }
 
 export interface SystemAdmin extends User {
