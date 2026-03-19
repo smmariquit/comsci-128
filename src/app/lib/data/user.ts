@@ -4,16 +4,16 @@ import test from "node:test";
 //This serves as the mock 'Database' to test functions
 const MOCK_USERS: User[] = [
 	{
-		userId: "1",
-		email: "nahidadapt@mappa.com",
+		account_number: 1,
+		account_email: "nahidadapt@mappa.com",
 
-		firstName: "Mahoraga",
-		lastName: "Shikigami",
-		permAddress: "Shibuya, Tokyo, Japan",
-		contactNumber: "+81-90-0000-0001",
+		first_name: "Mahoraga",
+		last_name: "Shikigami",
+		home_address: "Shibuya, Tokyo, Japan",
+		phone_number: "+81-90-0000-0001",
 
-		role: "Student",
-		status: "Active",
+		user_type: "Student",
+		is_deleted: false,
 	},
 	{
 		userId: "2",
@@ -98,7 +98,7 @@ export async function mockUpdateUser(userId: string, updates: Partial<User>): Pr
 
 // mockUpdateUser test
 const testId = "1"
-const updatedFname = { firstName: "Mahorago" };
+const updatedFname = { first_name: "Mahorago" };
 
 mockUpdateUser(testId, updatedFname).then((updatedUser) => {
 	if (updatedUser) {
