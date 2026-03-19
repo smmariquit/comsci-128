@@ -14,15 +14,12 @@ export default function Page() {
 			try {
 				// from sample
 				const userId = "17";
-				const response = await fetch(
-					"http://localhost:3000/api/users",
-					{
-						method: "GET",
-						headers: {
-							account_number: userId,
-						},
+				const response = await fetch("/api/users", {
+					method: "GET",
+					headers: {
+						account_number: userId,
 					},
-				);
+				});
 
 				const user: User = await response.json();
 				setFirstName(user.first_name);
