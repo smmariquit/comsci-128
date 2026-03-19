@@ -1,4 +1,4 @@
-import { findUserById } from "@/data/user";
+import { findUserById, mockUpdateUser } from "@/data/user";
 import { User } from "@/models/user";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
@@ -14,3 +14,32 @@ export const getProfile = async (userId: number): Promise<User | null> => {
 		throw new Error("Error");
 	}
 };
+
+type ServiceResponse<T> = { data?: T; error?: string};
+
+export const updateProfile = async (userId: number, updates: any): Promise<ServiceResponse<User>> => {
+	try {
+		const {
+			account_number,
+			account_email,
+			user_type,
+			is_deleted,
+			...allowedUpdates
+		} = updates;
+
+		if (Object.keys(allowedUpdates).length === 0) {
+			return { error: "No updates provided" };
+		}
+
+		const updatedUser = await mockUpdateUser(userId, allowedUpdates);
+		if (!updatedUser) {
+			return { error: "User not found"};
+		}
+
+		return { data: updatedUser };
+
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+}
