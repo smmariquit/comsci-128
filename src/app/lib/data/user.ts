@@ -24,7 +24,7 @@ export async function findUserById(userId: string): Promise<User | null> {
 	const { data, error } = await supabase
 		.from("user")
 		.select()
-		.eq("account_number", userId)
+		.eq("account_number", Number(userId))
 		.single();
 
 	if (error) {
