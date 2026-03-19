@@ -3,79 +3,68 @@ import { User } from "@/models/user";
 //This serves as the mock 'Database' to test functions
 const MOCK_USERS: User[] = [
 	{
-		userId: "1",
-		email: "nahidadapt@mappa.com",
-
-		firstName: "Mahoraga",
-		lastName: "Shikigami",
-		permAddress: "Shibuya, Tokyo, Japan",
-		contactNumber: "+81-90-0000-0001",
-
-		role: "Student",
-		status: "Active",
+		account_number: 1,
+		account_email: "mahoraga@mappa.com",
+		first_name: "Mahoraga",
+		last_name: "Shikigami",
+		home_address: "Shibuya, Tokyo, Japan",
+		phone_number: "+81-90-0000-0001",
+		user_type: "Student",
+		is_deleted: false,
 	},
 	{
-		userId: "2",
-		email: "johnkaisen@mappa.com",
-
-		firstName: "John",
-		lastName: "Kaisen",
-		permAddress: "Shinjuku, Tokyo, Japan",
-		contactNumber: "+81-90-0000-0002",
-		contactEmail: "john.personal@example.com",
-
-		role: "Student",
-		status: "Inactive",
+		account_number: 2,
+		account_email: "johnkaisen@mappa.com",
+		first_name: "John",
+		last_name: "Kaisen",
+		home_address: "Shinjuku, Tokyo, Japan",
+		phone_number: "+81-90-0000-0002",
+		contact_email: "john.personal@example.com",
+		user_type: "Student",
+		is_deleted: false,
 	},
 	{
-		userId: "3",
-		email: "susangrotto@mgmail.com",
-
-		firstName: "Susan",
-		lastName: "Grotto",
-		permAddress: "Kyoto, Japan",
-		contactNumber: "+81-90-0000-0003",
+		account_number: 3,
+		account_email: "susangrotto@mgmail.com",
+		first_name: "Susan",
+		last_name: "Grotto",
+		home_address: "Kyoto, Japan",
+		phone_number: "+81-90-0000-0003",
 		sex: "Female",
-
-		role: "Landlord",
-		status: "Active",
+		user_type: "Manager",
+		is_deleted: false,
 	},
 	{
-		userId: "4",
-		email: "alfredbuttler@wayne.com",
-
-		firstName: "Bruce",
-		middleName: "Thomas",
-		lastName: "Wayne",
-		permAddress: "Gotham City",
-		contactNumber: "+1-202-555-0104",
+		account_number: 4,
+		account_email: "alfredbuttler@wayne.com",
+		first_name: "Bruce",
+		middle_name: "Thomas",
+		last_name: "Wayne",
+		home_address: "Gotham City",
+		phone_number: "+1-202-555-0104",
 		birthday: new Date("1985-02-19"),
-		age: 40,
-
-		role: "Housing Administrator",
-		status: "Active",
+		user_type: "Manager",
+		is_deleted: false,
 	},
 	{
-		userId: "5",
-		email: "allancruz@gov.ph",
-
-		firstName: "Allan",
-		lastName: "Cruz",
-		permAddress: "Quezon City, Philippines",
-		contactNumber: "+63-917-000-0005",
+		account_number: 5,
+		account_email: "allancruz@gov.ph",
+		first_name: "Allan",
+		last_name: "Cruz",
+		home_address: "Quezon City, Philippines",
+		phone_number: "+63-917-000-0005",
 		sex: "Male",
-
-		role: "Dormitory Manager",
-		status: "Active",
+		user_type: "Manager",
+		is_deleted: false,
 	},
 ];
 
-export async function findUserById(userId: string): Promise<User | null> {
+export async function findUserById(userId: number): Promise<User | null> {
 	//This function takes a USERID of type STRING.
 	// RETURNS a USER object when found in the DB, otherwise return null.
 
 	//TODO: replace with actual Supabase queries when available
 
-	const user = MOCK_USERS.find((u) => u.userId === userId);
+	const user = MOCK_USERS.find((u) => u.account_number === userId);
 	return user ?? null;
 }
