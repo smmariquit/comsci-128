@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { getProfile } from "@/services/user-service";
 
 // For retrieving profile information of current user
@@ -9,6 +8,11 @@ export async function GET(
 	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
+		/*
+            TODO:
+            - authentication middleware
+            - role access (role guard) middleware
+        */
 		const { id } = await params;
 
 		// Check request/call user service
