@@ -73,33 +73,15 @@ type User = Tables<'user'>;
 // 	},
 // ];
 
-export async function createUser(userDetails: any[], userType: string): Promise<User> {
-	// RETURNS the PK of the newly inserted USER
-
-	// DO NOT DELETE (this is for returning the PK)
-	// const { data, error } = await supabase
-	// 	.from('user')
-	// 	.insert([{ 
-	// 		account_email: userDetails[0],
-	// 		first_name: userDetails[1],
-	// 		middle_name: userDetails[2] ?? null, // unless null can be passed
-	// 		last_name: userDetails[3],
-	// 		birthday: userDetails[4] ?? null,
-	// 		home_address: userDetails[5] ?? null,
-	// 		phone_number: userDetails[6] ?? null,
-	// 		contact_email: userDetails[7] ?? null,
-	// 		sex: userDetails[8],
-	// 		userType: userType,
-	// 		is_deleted: false
-	// 	}])
-	// 	.select('account_number')
-	// 	.single();
+export async function createUser(userDetails: any[], userType: string, password: string): Promise<User> {
+	// RETURNS the newly inserted USER
 
 	// this is for returning the newly inserted user
 	const { data, error } = await supabase
 		.from('user')
 		.insert([{ 
 			account_email: userDetails[0],
+			password: password,
 			first_name: userDetails[1],
 			middle_name: userDetails[2] ?? null, // unless null can be passed
 			last_name: userDetails[3],
@@ -119,7 +101,6 @@ export async function createUser(userDetails: any[], userType: string): Promise<
 	}
 
 	return data;
-	// return data.account_number if PK
 }
 
 export async function updateUser(userId: string, userDetails: any[]): Promise<User> {
