@@ -75,29 +75,6 @@ export type Database = {
           },
         ]
       }
-      application_required_document: {
-        Row: {
-          application_id: number
-          required_document: string
-        }
-        Insert: {
-          application_id: number
-          required_document: string
-        }
-        Update: {
-          application_id?: number
-          required_document?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "application_required_document_application_id_fkey"
-            columns: ["application_id"]
-            isOneToOne: false
-            referencedRelation: "application"
-            referencedColumns: ["application_id"]
-          },
-        ]
-      }
       audit_log: {
         Row: {
           account_number: number | null
@@ -184,21 +161,32 @@ export type Database = {
       }
       document: {
         Row: {
-          id: number
+          application_Id: number
+          document_id: number
           storage_link: string | null
           type: Database["public"]["Enums"]["DocumentType"]
         }
         Insert: {
-          id?: number
+          application_Id: number
+          document_id?: number
           storage_link?: string | null
           type: Database["public"]["Enums"]["DocumentType"]
         }
         Update: {
-          id?: number
+          application_Id?: number
+          document_id?: number
           storage_link?: string | null
           type?: Database["public"]["Enums"]["DocumentType"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "document_application_Id_fkey"
+            columns: ["application_Id"]
+            isOneToOne: false
+            referencedRelation: "application"
+            referencedColumns: ["application_id"]
+          },
+        ]
       }
       housing: {
         Row: {
@@ -432,30 +420,30 @@ export type Database = {
       }
       student_academic: {
         Row: {
+          account_number: number
           degree_program: string
           standing: Database["public"]["Enums"]["StudentStanding"]
           status: Database["public"]["Enums"]["StudentStatus"]
-          student_number: number
         }
         Insert: {
+          account_number?: number
           degree_program: string
           standing?: Database["public"]["Enums"]["StudentStanding"]
           status?: Database["public"]["Enums"]["StudentStatus"]
-          student_number?: number
         }
         Update: {
+          account_number?: number
           degree_program?: string
           standing?: Database["public"]["Enums"]["StudentStanding"]
           status?: Database["public"]["Enums"]["StudentStatus"]
-          student_number?: number
         }
         Relationships: [
           {
-            foreignKeyName: "student_academic_student_number_fkey"
-            columns: ["student_number"]
+            foreignKeyName: "student_academic_account_number_fkey"
+            columns: ["account_number"]
             isOneToOne: true
             referencedRelation: "student"
-            referencedColumns: ["student_number"]
+            referencedColumns: ["account_number"]
           },
         ]
       }
@@ -526,8 +514,9 @@ export type Database = {
           is_deleted: boolean | null
           last_name: string
           middle_name: string | null
+          password: string
           phone_number: string | null
-          sex: Database["public"]["Enums"]["Sex"] | null
+          sex: Database["public"]["Enums"]["Sex"]
           user_type: Database["public"]["Enums"]["UserType"]
         }
         Insert: {
@@ -540,8 +529,9 @@ export type Database = {
           is_deleted?: boolean | null
           last_name: string
           middle_name?: string | null
+          password: string
           phone_number?: string | null
-          sex?: Database["public"]["Enums"]["Sex"] | null
+          sex?: Database["public"]["Enums"]["Sex"]
           user_type?: Database["public"]["Enums"]["UserType"]
         }
         Update: {
@@ -554,8 +544,9 @@ export type Database = {
           is_deleted?: boolean | null
           last_name?: string
           middle_name?: string | null
+          password?: string
           phone_number?: string | null
-          sex?: Database["public"]["Enums"]["Sex"] | null
+          sex?: Database["public"]["Enums"]["Sex"]
           user_type?: Database["public"]["Enums"]["UserType"]
         }
         Relationships: []
