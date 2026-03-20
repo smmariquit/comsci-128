@@ -18,7 +18,7 @@ export const getAllProfile = async (): Promise<User[] | null> => {
 	try {
 		const userProfiles = await findAllUsers();
 
-		if (!userProfiles) return null;
+		if (!userProfiles) return [];
 
 		return userProfiles;
 	} catch (error) {
