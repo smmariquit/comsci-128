@@ -1,13 +1,10 @@
-import { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
+import { Housing, HousingInsert, HousingUpdate } from "@/models/housing";
 import { supabase } from "@/lib/supabase";
 
 // Define Housing record based on DB schema
-export type Housing = Tables<"housing">;
-export type HousingInsert = TablesInsert<"housing">;
-export type HousingUpdate = TablesUpdate<"housing">;
 
 // Inserts a new record and returns the created object with its new ID
-export async function createHousing(data: Housing) {
+export async function createHousing(data: Housing): Promise<Housing> {
 	const { data: newRecord, error } = await supabase
 		.from("housing")
 		.insert(data)
@@ -19,7 +16,7 @@ export async function createHousing(data: Housing) {
 }
 
 // Fetches all active dorms, sorted alphabetically
-export async function getAllHousing() {
+export async function findAllHousing() {
 	const { data, error } = await supabase
 		.from("housing")
 		.select("*")
@@ -31,7 +28,7 @@ export async function getAllHousing() {
 }
 
 // Fetches a specific dorm by its unique ID
-export async function getHousingById(id: string) {
+export async function findHousingById(id: string) {
 	const { data, error } = await supabase
 		.from("housing")
 		.select("*")
