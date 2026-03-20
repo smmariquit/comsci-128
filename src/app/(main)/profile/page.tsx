@@ -41,7 +41,7 @@ export default function Page() {
 			</h1>
 			<div>
 				{/* Only shows some field for demonstration purpose */}
-				Name: {firstName} {middleName ? middleName : ""} {lastName}{" "}
+				Name: {firstName} {middleName ? middleName : ""} {lastName}
 				<br />
 				Email: {email}
 			</div>
