@@ -5,6 +5,11 @@ import { getAllProfile } from "@/services/user-service";
 // Default route for /profile/api
 export async function GET(request: NextRequest) {
 	try {
+		/*
+            TODO:
+            - authentication middleware
+            - role access (role guard) middleware
+        */
 		// Check request/call user service
 		const users = await getAllProfile();
 
