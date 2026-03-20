@@ -139,7 +139,25 @@ export async function findUserById(userId: string): Promise<User | null> {
 	// RETURNS a USER object when found in the DB, otherwise return null.
 
 	userId = '1'; // test
-	const { data, error } = await supabase.from('user').select().eq('account_number', userId).single();
+		const { data, error } = await supabase
+		.from('user')
+		.select()
+		.eq('account_number', userId)
+		.single();
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	return data;
+}
+
+export async function findUserByEmail(userEmail: string): Promise<User | null> {
+	const { data, error } = await supabase
+		.from('user')
+		.select()
+		.eq('account_email', userEmail)
+		.single();
 
 	if (error) {
 		throw new Error(error.message);
