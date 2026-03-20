@@ -16,7 +16,7 @@ export async function GET(
 		const { id } = await params;
 
 		// Check request/call user service
-		const user = await getProfile(id);
+		const user = await getProfile(Number(id));
 
 		// Send Response
 		if (!user) {
