@@ -16,7 +16,7 @@ export async function createHousing(data: Housing): Promise<Housing> {
 }
 
 // Fetches all active dorms, sorted alphabetically
-export async function findAllHousing() {
+export async function findAllHousing(): Promise<Housing[]> {
 	const { data, error } = await supabase
 		.from("housing")
 		.select("*")
@@ -24,7 +24,7 @@ export async function findAllHousing() {
 		.order("housing_name", { ascending: true });
 
 	if (error) throw new Error(error.message);
-	return data;
+	return data ?? null;
 }
 
 // Fetches a specific dorm by its unique ID
