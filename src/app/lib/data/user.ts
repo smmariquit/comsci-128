@@ -122,6 +122,24 @@ export async function createUser(userDetails: any[], userType: string): Promise<
 	// return data.account_number if PK
 }
 
+export async function updateUser(userId: string, userDetails: any[]): Promise<User> {
+	// update all attributes of the user based on their account number
+	// RETURNS the updated object (user)
+
+	const { data, error } = await supabase
+		.from('user')
+		.update(userDetails)
+		.eq('account_number', userId)
+		.select()
+		.single();
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	return data;
+}
+
 export async function deactivateUser(userId: string): Promise<User> {
 	// soft delete a user based on their user ID
 	// returns the user
