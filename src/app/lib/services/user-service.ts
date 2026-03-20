@@ -1,7 +1,7 @@
 import { findUserById, findAllUsers, User } from "@/data/user";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-export const getProfile = async (userId: string): Promise<User | null> => {
+export const getProfile = async (userId: Number): Promise<User | null> => {
 	try {
 		const userProfile = await findUserById(userId);
 

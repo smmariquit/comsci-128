@@ -17,14 +17,14 @@ export async function findAllUsers(): Promise<User[]> {
 	return data ?? null;
 }
 
-export async function findUserById(userId: string): Promise<User | null> {
+export async function findUserById(userId: Number): Promise<User | null> {
 	//This function takes a USERID of type STRING.
 	// RETURNS a USER object when found in the DB, otherwise return null.
 
 	const { data, error } = await supabase
 		.from("user")
 		.select()
-		.eq("account_number", Number(userId))
+		.eq("account_number", userId)
 		.single();
 
 	if (error) {
