@@ -31,15 +31,21 @@ export const addHousing = async (
 };
 
 export const modifyHousing = async (
-	housingId: Number,
-	HousingDetail: Housing,
+	housingId: number,
+	housingDetail: Partial<Housing>,
 ): Promise<Housing | null> => {
 	try {
-		const housingDetail = await updateHousing(housingId, HousingDetail);
+		const { housing_id, ...allowedUpdates } = housingDetail;
+		allowedUpdates;
 
-		return housingDetail ?? null;
+		console.log(allowedUpdates);
+		const updatedHousing = await updateHousing(housingId, allowedUpdates);
+
+		if (!updatedHousing) return null;
+
+		return updatedHousing;
 	} catch (error) {
 		console.error("Error: ", error);
-		throw new Error("Error");
+		throw new Error("Failed to update housing");
 	}
 };

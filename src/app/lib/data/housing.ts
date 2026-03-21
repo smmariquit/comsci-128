@@ -42,7 +42,7 @@ export async function findHousingById(id: string) {
 
 export async function updateHousing(
 	housingId: Number,
-	housingDetails: Housing,
+	housingDetails: Partial<Housing>,
 ) {
 	const { data, error } = await supabase
 		.from("housing")
