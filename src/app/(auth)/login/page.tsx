@@ -1,18 +1,18 @@
 "use client";
 
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
-// import { User } from "@supabase/supabase-js";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-// import { error } from "node:console";
+import { User } from "@supabase/supabase-js";
+// import { useRouter } from "next/navigation";
+// import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
   const supabase = getSupabaseBrowserClient();
-  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  // const router = useRouter();
 
   async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -23,11 +23,19 @@ export default function LoginPage() {
     });
     if (error) {
       setStatus(error.message);
+      setCurrentUser(null);
     } else {
       setStatus("Signed in successfully");
-      router.push("/student");
+      setCurrentUser(data.user);
+      // router.push("/student");
     }
     console.log({ data });
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    setCurrentUser(null);
+    setStatus("Signed out successfully");
   }
 
   return (
@@ -42,7 +50,8 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form 
+        {!currentUser ? (
+          <form 
           className="space-y-3"
           onSubmit={handleSubmit}
         >
@@ -69,6 +78,14 @@ export default function LoginPage() {
             </button>
           {/* </Link> */}
         </form>
+        ) : (
+          <button
+            onClick={handleSignOut}
+            className="w-full rounded bg-red-500 py-2 text-white"
+          >
+            Sign Out
+          </button>
+        )}
       </div>
     </div>
   );
