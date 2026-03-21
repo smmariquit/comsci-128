@@ -4,16 +4,19 @@ import { User } from "@/models/user";
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 export const getProfile = async (userId: number): Promise<User | null> => {
 	try {
-		const userProfile = await findUserById(userId);
+		const userProfile = await findUserById(String(userId));
 
 		if (!userProfile) return null;
 
-		return userProfile;
-	} catch (error) {
-		console.error("Error: ", error);
+		return userProfile as unknown as User;
+	} catch (error: any) {
+		console.error("Error: ", error.message);
 		throw new Error("Error");
 	}
 };
+
+
+type ServiceResponse<T> = { data?: T; error?: string };
 
 export const updateProfile = async (userId: number, updates: any): Promise<ServiceResponse<User>> => {
 	try {
@@ -23,14 +26,16 @@ export const updateProfile = async (userId: number, updates: any): Promise<Servi
 			...allowedUpdates
 		} = updates;
 
-		const updateArray = [allowedUpdates];
+		const updatedUser = await updateUser(String(userId), allowedUpdates as any);
+		
+		if (!updatedUser) {
+			return { error: "User not found" };
+		}
 
-		const updatedUser = await updateUser(String(userId), updateArray);
+		return { data: updateUser as unknown as User };
 
-		return { data: updatedUser as unknown as User };
-
-	} catch (error) {
-		console.error("Error: ", error);
+	} catch (error: any) {
+		console.error("Error: ", error.message);
 		throw new Error("Error");
 	}
 }
