@@ -64,7 +64,7 @@ export async function PATCH(request: NextRequest) {
 			const status = result.error.includes("not found") ? 404 : 400;
 			return NextResponse.json(
 				{ message : result.error },
-				{status}
+				{ status: 400 }
 			);
 		}
 
