@@ -1,10 +1,9 @@
-import { findUserById, updateUser } from "@/data/user";
-import { User } from "@/models/user";
+import { findUserById, findAllUsers, User, updateUser } from "@/data/user";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-export const getProfile = async (userId: number): Promise<User | null> => {
+export const getProfile = async (userId: Number): Promise<User | null> => {
 	try {
-		const userProfile = await findUserById(String(userId));
+		const userProfile = await findUserById(userId);
 
 		if (!userProfile) return null;
 
@@ -32,10 +31,23 @@ export const updateProfile = async (userId: number, updates: any): Promise<Servi
 			return { error: "User not found" };
 		}
 
-		return { data: updateUser as unknown as User };
+		return { data: updatedUser as unknown as User };
 
 	} catch (error: any) {
 		console.error("Error: ", error.message);
 		throw new Error("Error");
 	}
 }
+
+export const getAllProfile = async (): Promise<User[] | null> => {
+	try {
+		const userProfiles = await findAllUsers();
+
+		if (!userProfiles) return [];
+
+		return userProfiles;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
