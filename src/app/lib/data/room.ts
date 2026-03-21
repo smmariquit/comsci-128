@@ -17,3 +17,15 @@ export async function deleteRoom(roomId: number): Promise<Room> {
 
     return data;
 }
+
+export async function findRoomById(roomId: number): Promise<Room | null> {
+    const { data, error } = await supabase
+        .from("room")
+        .select("*")
+        .eq("room_id", roomId)
+        .eq("is_deleted", false)
+        .single();
+
+    if (error) return null;
+    return data;
+}
