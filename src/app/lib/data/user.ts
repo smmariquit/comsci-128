@@ -158,8 +158,7 @@ export async function findUserById(userId: string): Promise<User | null> {
 	//This function takes a USERID of type STRING.
 	// RETURNS a USER object when found in the DB, otherwise return null.
 
-	userId = '1'; // test
-		const { data, error } = await supabase
+	const { data, error } = await supabase
 		.from('user')
 		.select()
 		.eq('account_number', userId)
