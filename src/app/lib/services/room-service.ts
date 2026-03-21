@@ -18,10 +18,32 @@ export const updateRoomDetails = async (roomId: number, updates: Partial<Room>) 
 
         console.log(`Log: Room ${roomId} details updated.`)
 
-        return data;
+        return { data };
 
     } catch (error) {
         console.error("Error: ", error);
         throw new Error("Error");
     }
 }
+
+// tester
+export const testRoomUpdate = async () => {
+    console.log("-test-");
+
+    const passTest = await updateRoomDetails(101, 
+        { room_type: 'Shared', maximum_occupants: 4}
+    )
+    console.log("First Test: ", passTest.data ? "Pass" : "Fail");
+
+    const failInvalidType = await updateRoomDetails(101, {
+        room_type: 'Suite' as any}
+    )
+    console.log("Second Test: ", failInvalidType.error ? "Pass" : "Fail");
+
+    const failMissingRoom = await updateRoomDetails(999, {
+        maximum_occupants: 2}
+    )
+    console.log("Third Test: ", failMissingRoom.error === "Room Not Found." ? "Pass" : "Fail");
+}
+
+testRoomUpdate();
