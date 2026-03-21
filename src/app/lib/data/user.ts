@@ -1,81 +1,35 @@
-import { User } from "@/models/user";
+import { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
+import { supabase } from "../supabase";
 
-//This serves as the mock 'Database' to test functions
-const MOCK_USERS: User[] = [
-	{
-		userId: "1",
-		email: "nahidadapt@mappa.com",
+export type User = Tables<"user">;
+export type NewUser = TablesInsert<"user">;
+export type UpdateUser = TablesUpdate<"user">;
 
-		firstName: "Mahoraga",
-		lastName: "Shikigami",
-		permAddress: "Shibuya, Tokyo, Japan",
-		contactNumber: "+81-90-0000-0001",
+export async function findAllUsers(): Promise<User[]> {
+	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
-		role: "Student",
-		status: "Active",
-	},
-	{
-		userId: "2",
-		email: "johnkaisen@mappa.com",
+	const { data, error } = await supabase.from("user").select();
 
-		firstName: "John",
-		lastName: "Kaisen",
-		permAddress: "Shinjuku, Tokyo, Japan",
-		contactNumber: "+81-90-0000-0002",
-		contactEmail: "john.personal@example.com",
+	if (error) {
+		throw new Error(error.message);
+	}
 
-		role: "Student",
-		status: "Inactive",
-	},
-	{
-		userId: "3",
-		email: "susangrotto@mgmail.com",
+	return data ?? null;
+}
 
-		firstName: "Susan",
-		lastName: "Grotto",
-		permAddress: "Kyoto, Japan",
-		contactNumber: "+81-90-0000-0003",
-		sex: "Female",
-
-		role: "Landlord",
-		status: "Active",
-	},
-	{
-		userId: "4",
-		email: "alfredbuttler@wayne.com",
-
-		firstName: "Bruce",
-		middleName: "Thomas",
-		lastName: "Wayne",
-		permAddress: "Gotham City",
-		contactNumber: "+1-202-555-0104",
-		birthday: new Date("1985-02-19"),
-		age: 40,
-
-		role: "Housing Administrator",
-		status: "Active",
-	},
-	{
-		userId: "5",
-		email: "allancruz@gov.ph",
-
-		firstName: "Allan",
-		lastName: "Cruz",
-		permAddress: "Quezon City, Philippines",
-		contactNumber: "+63-917-000-0005",
-		sex: "Male",
-
-		role: "Dormitory Manager",
-		status: "Active",
-	},
-];
-
-export async function findUserById(userId: string): Promise<User | null> {
+export async function findUserById(userId: Number): Promise<User | null> {
 	//This function takes a USERID of type STRING.
 	// RETURNS a USER object when found in the DB, otherwise return null.
 
-	//TODO: replace with actual Supabase queries when available
+	const { data, error } = await supabase
+		.from("user")
+		.select()
+		.eq("account_number", userId)
+		.single();
 
-	const user = MOCK_USERS.find((u) => u.userId === userId);
-	return user ?? null;
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	return data;
 }
