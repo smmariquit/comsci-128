@@ -38,6 +38,16 @@ export default function LoginPage() {
     setStatus("Signed out successfully");
   }
 
+  async function handleGoogleSignIn() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/google-login`,
+        skipBrowserRedirect: false,
+      },
+    });
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-sm space-y-4">
@@ -75,6 +85,14 @@ export default function LoginPage() {
               className="w-full rounded bg-black py-2 text-white"
             >
               Log in
+            </button>
+
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full rounded bg-black py-2 text-white"
+            >
+                Continue with Google
             </button>
           {/* </Link> */}
         </form>
