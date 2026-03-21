@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Housing } from "@/app/lib/models/housing";
 
 export default function Page() {
 	const [dorms, setDorms] = useState([]);
@@ -16,11 +17,7 @@ export default function Page() {
 	});
 
 	const [housingId, setHousingId] = useState("");
-	const [updateForm, setUpdateForm] = useState({
-		housing_name: "",
-		housing_address: "",
-		rent_price: 0,
-	});
+	const [updateForm, setUpdateForm] = useState<Partial<Housing>>({});
 
 	// Mock token to pass backend's authorization check
 	const authHeader = { Authorization: "Bearer local-dev-token" };
@@ -86,6 +83,14 @@ export default function Page() {
 	const handleUpdate = async (e: React.FormEvent) => {
 		e.preventDefault();
 
+		// for frontend, important to filter out fields for PATCH requests
+		const filteredUpdateForm = Object.fromEntries(
+			Object.entries(updateForm).filter(
+				([_, value]) =>
+					value !== undefined && value !== null && value !== "",
+			),
+		);
+
 		try {
 			const res = await fetch(`/api/housing/${housingId}`, {
 				method: "PATCH",
@@ -93,7 +98,7 @@ export default function Page() {
 					"Content-Type": "application/json",
 					...authHeader,
 				},
-				body: JSON.stringify(updateForm),
+				body: JSON.stringify(filteredUpdateForm),
 			});
 
 			if (res.ok) {
@@ -416,10 +421,10 @@ export default function Page() {
 								placeholder="Enter New Housing Name"
 								value={updateForm.housing_name}
 								onChange={(e) =>
-									setUpdateForm({
-										...updateForm,
+									setUpdateForm((prev) => ({
+										...prev,
 										housing_name: e.target.value,
-									})
+									}))
 								}
 								className="w-full outline-none"
 								style={{ color: "black" }}
@@ -434,12 +439,12 @@ export default function Page() {
 							<input
 								type="text"
 								placeholder="Enter New Housing Address"
-								value={updateForm.housing_address}
+								value={updateForm.housing_address ?? undefined}
 								onChange={(e) =>
-									setUpdateForm({
-										...updateForm,
+									setUpdateForm((prev) => ({
+										...prev,
 										housing_address: e.target.value,
-									})
+									}))
 								}
 								className="w-full outline-none"
 								style={{ color: "black" }}
@@ -454,12 +459,15 @@ export default function Page() {
 							<input
 								type="text"
 								placeholder="Enter New Rent"
-								value={updateForm.rent_price}
+								value={updateForm.rent_price ?? undefined}
 								onChange={(e) =>
-									setUpdateForm({
-										...updateForm,
-										rent_price: Number(e.target.value),
-									})
+									setUpdateForm((prev) => ({
+										...prev,
+										rent_price:
+											e.target.value === ""
+												? undefined
+												: Number(e.target.value),
+									}))
 								}
 								className="w-full outline-none"
 								style={{ color: "black" }}
