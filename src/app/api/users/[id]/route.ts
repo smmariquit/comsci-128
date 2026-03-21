@@ -1,29 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllProfile } from "@/services/user-service";
+import { getProfile } from "@/services/user-service";
 
 // For retrieving profile information of current user
 // Default route for /profile/api
-export async function GET(request: NextRequest) {
+export async function GET(
+	_request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> },
+) {
 	try {
 		/*
             TODO:
             - authentication middleware
             - role access (role guard) middleware
         */
+		const { id } = await params;
+
 		// Check request/call user service
-		const users = await getAllProfile();
+		const user = await getProfile(Number(id));
 
 		// Send Response
-		if (!users || users.length === 0) {
+		if (!user) {
 			// User not found
 			return NextResponse.json(
-				{ message: "List of users not found." },
+				{ message: "User not found." },
 				{ status: 404 },
 			);
 		}
 
 		// User found
-		return NextResponse.json(users, { status: 200 });
+		return NextResponse.json(user, { status: 200 });
 	} catch (error: any) {
 		console.error("Error fetching user profile:", error);
 		return NextResponse.json(
