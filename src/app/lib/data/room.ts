@@ -1,6 +1,6 @@
 import { supabase} from "../supabase";
 
-export type OccupancyStatus = 'Empty' | 'Fully Occupied' | 'Partially Occupied' | null
+export type OccupancyStatus = 'Empty' | 'Fully Occupied' | 'Partially Occupied' 
 
 export type PaymentStatus = 'Paid' | 'Pending' | 'Overdue'
 
