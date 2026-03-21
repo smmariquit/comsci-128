@@ -34,8 +34,25 @@ export async function findHousingById(id: string) {
 		.select("*")
 		.eq("housing_id", id)
 		.eq("is_deleted", false)
-		.single();
+		.maybeSingle();
 
 	if (error) throw new Error(error.message);
 	return data;
+}
+
+//deletes a housing 
+export async function deleteHousing(housingId: number): Promise<Housing> {
+    const { data, error } = await supabase
+        .from("housing")
+        .update({ is_deleted: true }) // Soft delete
+        .eq("housing_id", housingId)
+        .select()
+        .maybeSingle();
+
+    if (error) {
+        console.error("Database Error (deleteHousing):", error.message);
+        throw new Error(error.message);
+    }
+
+    return data;
 }
