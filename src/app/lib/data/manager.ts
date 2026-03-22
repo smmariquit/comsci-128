@@ -2,18 +2,13 @@ import { supabase } from '../supabase';
 import { User } from "@/models/user";
 import { createUser } from './user';
 
-// manager
-
-// CREATE manager
-
 export const createManager = async (
   userDetails: User, 
-  userType: string, 
   password: string, 
-  manager_type: string = 'Landlord'
+  manager_type: string
 ) => {
 
-  const userAccountNumber = await createUser(userDetails, userType, password);
+  const userAccountNumber = await createUser(userDetails, "Manager", password);
   
   const { data, error } = await supabase.from('manager')
     .insert([{
