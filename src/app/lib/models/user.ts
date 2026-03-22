@@ -1,35 +1,30 @@
-//User Model Interface
+import { Enums } from "../../types/database.types";
 
-export type UserRole =
-	| "Student"
-	| "Dormitory Manager"
-	| "Housing Administrator"
-	| "Landlord"
-	| "System Administrator";
-
-export type AccountStatus = "Active" | "Inactive";
+type UserType = Enums<'UserType'>;
+type Sex = Enums<'Sex'>;
+type AccountDeletionStatus = true | false;
 
 export interface User {
 	// For Audit Trails
-	userId: string;
+	userId: number;
 
 	// Authentication: must be UP Mail / Google
-	email: string;
+	accountEmail: string;
 
 	// User Profile fields
 	firstName: string;
 	middleName?: string; // optional
 	lastName: string;
-	permAddress: string;
-	contactNumber: string;
+	permAddress?: string; // optional
+	contactNumber?: string; // optional
 	contactEmail?: string; // optional
-	sex?: string; // optional
+	Sex?: Sex; // optional
 	birthday?: Date; // optional
 	age?: number; // optional
 
 	// Role-Based Access Control
-	role: UserRole;
+	userRole: UserType;
 
 	// Status for account deactivation
-	status: AccountStatus;
+	status: AccountDeletionStatus;
 }
