@@ -4,15 +4,14 @@ import { supabase } from "@/lib/supabase";
 // Define Housing record based on DB schema
 
 // Inserts a new record and returns the created object with its new ID
-export async function createHousing(data: Housing): Promise<Housing> {
+export async function createHousing(data: Housing): Promise<Housing | null> {
 	const { data: newRecord, error } = await supabase
 		.from("housing")
 		.insert(data)
-		.select()
-		.single();
+		.select();
 
 	if (error) throw new Error(error.message);
-	return newRecord;
+	return newRecord && newRecord.length > 0 ? newRecord[0] : null;
 }
 
 // Fetches all active dorms, sorted alphabetically
@@ -24,20 +23,19 @@ export async function findAllHousing(): Promise<Housing[]> {
 		.order("housing_name", { ascending: true });
 
 	if (error) throw new Error(error.message);
-	return data ?? null;
+	return data ?? [];
 }
 
 // Fetches a specific dorm by its unique ID
-export async function findHousingById(id: string) {
+export async function findHousingById(id: string): Promise<Housing | null> {
 	const { data, error } = await supabase
 		.from("housing")
 		.select("*")
-		.eq("housing_id", id)
-		.eq("is_deleted", false)
-		.single();
+		.eq("housing_id", Number(id))
+		.eq("is_deleted", false);
 
 	if (error) throw new Error(error.message);
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
 
 export async function getHousingWithRooms(id: string) {
@@ -48,7 +46,7 @@ export async function getHousingWithRooms(id: string) {
 			*,
 			room:room(*)
 		`)
-		.eq("housing_id", id)
+		.eq("housing_id", Number(id))
 		.eq("is_deleted", false)
 		.single();
 
@@ -59,15 +57,14 @@ export async function getHousingWithRooms(id: string) {
 }
 
 //Soft delete determined by boolean flag; record remains in DB
-export async function deleteHousing(id: string) {
+export async function deleteHousing(id: string): Promise<Housing | null> {
 	const { data, error } = await supabase
 		.from("housing")
 		.update({ is_deleted: true })
-		.eq("housing_id", id)
+		.eq("housing_id", Number(id))
 		.eq("is_deleted", false)
-		.select()
-		.single();
+		.select();
 
 	if (error) throw new Error(error.message);
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
