@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { User } from "@/app/lib/models/user";
 import { createUser } from './user';
 
 // manager
@@ -6,7 +7,7 @@ import { createUser } from './user';
 // CREATE manager
 
 export const createManager = async (
-  userDetails: any[], 
+  userDetails: User, 
   userType: string, 
   password: string, 
   manager_type: string = 'Landlord'
