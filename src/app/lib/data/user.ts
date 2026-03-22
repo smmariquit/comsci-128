@@ -1,7 +1,7 @@
 import { Database, Tables, Enums } from "../../types/database.types";
 import { supabase } from "../supabase";
 
-type User = Tables<'user'>;
+export type User = Tables<'user'>;
 
 //This serves as the mock 'Database' to test functions
 // const MOCK_USERS: User[] = [
@@ -62,8 +62,7 @@ type User = Tables<'user'>;
 // 	},
 // ];
 
-export async function findUserById(userId: string): Promise<User | null> {
-    userId = '1'; // test
+export async function findUserById(userId: Number): Promise<User | null> {
 
     const { data, error } = await supabase
         .from('user')
@@ -87,7 +86,7 @@ export async function findUserByEmail(userEmail: string): Promise<User | null> {
 		.single();
 
 	if (error) {
-		throw new Error(error.message);
+		return null;
 	}
 
 	return data;
