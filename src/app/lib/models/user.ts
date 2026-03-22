@@ -18,7 +18,7 @@ export interface User {
 	permAddress?: string; // optional
 	contactNumber?: string; // optional
 	contactEmail?: string; // optional
-	Sex?: Sex; // optional
+	sex?: Sex; // optional
 	birthday?: Date; // optional
 	age?: number; // optional
 
