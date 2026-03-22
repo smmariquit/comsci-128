@@ -73,10 +73,9 @@ type User = Tables<'user'>;
 // 	},
 // ];
 
-export async function createUser(userDetails: any[], userType: string, password: string): Promise<User> {
-	// RETURNS the newly inserted USER
+export async function createUser(userDetails: any[], userType: string, password: string): Promise<number | null> {
+	// RETURNS the PK of the newly inserted user
 
-	// this is for returning the newly inserted user
 	const { data, error } = await supabase
 		.from('user')
 		.insert([{ 
@@ -93,35 +92,33 @@ export async function createUser(userDetails: any[], userType: string, password:
 			userType: userType,
 			is_deleted: false
 		}])
-		.select()
-		.single();
+		.select('account_number');
 
 	if (error) {
 		throw new Error(error.message);
 	}
 
-	return data;
+	return data && data.length > 0 ? data[0].account_number : null;
 }
 
-export async function updateUser(userId: string, userDetails: any[]): Promise<User> {
+export async function updateUser(userId: string, userDetails: any[]): Promise<User | null> {
 	// update all attributes of the user based on their account number
 	// RETURNS the updated object (user)
 
 	const { data, error } = await supabase
 		.from('user')
 		.update(userDetails)
-		.eq('account_number', userId)
+		.eq('account_number', Number(userId))
 		.select()
-		.single();
 
 	if (error) {
 		throw new Error(error.message);
 	}
 
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
 
-export async function deactivateUser(userId: string): Promise<User> {
+export async function deactivateUser(userId: string): Promise<User | null> {
 	// soft delete a user based on their user ID
 	// returns the user
 
@@ -129,17 +126,16 @@ export async function deactivateUser(userId: string): Promise<User> {
 		.from('user')
 		.update({ is_deleted: true })
 		.eq('account_number', userId)
-		.select()
-		.single();
+		.select();
 
 	if (error) {
 		throw new Error(error.message);
 	}
 
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
 
-export async function findAllUsers(): Promise<User[]> {
+export async function getAllUsers(): Promise<User[]> {
 	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
 	const { data, error } = await supabase
@@ -159,29 +155,27 @@ export async function findUserById(userId: string): Promise<User | null> {
 	// RETURNS a USER object when found in the DB, otherwise return null.
 
 	userId = '1'; // test
-		const { data, error } = await supabase
+	const { data, error } = await supabase
 		.from('user')
 		.select()
-		.eq('account_number', userId)
-		.single();
+		.eq('account_number', userId);
 
 	if (error) {
 		throw new Error(error.message);
 	}
 
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
 
 export async function findUserByEmail(userEmail: string): Promise<User | null> {
 	const { data, error } = await supabase
 		.from('user')
 		.select()
-		.eq('account_email', userEmail)
-		.single();
+		.eq('account_email', userEmail);
 
 	if (error) {
 		throw new Error(error.message);
 	}
 
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
