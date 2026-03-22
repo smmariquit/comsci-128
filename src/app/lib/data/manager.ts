@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { User } from "@/models/user";
 import { createUser } from './user';
 
 // manager
@@ -6,18 +7,18 @@ import { createUser } from './user';
 // CREATE manager
 
 export const createManager = async (
-  userDetails: any[], 
+  userDetails: User, 
   userType: string, 
   password: string, 
   manager_type: string = 'Landlord'
 ) => {
 
-  const user=await createUser(userDetails, userType, password);
+  const userAccountNumber = await createUser(userDetails, userType, password);
   
   const { data, error } = await supabase.from('manager')
     .insert([{
-      account_number:user.account_number, 
-      manager_type:manager_type
+      account_number: userAccountNumber, 
+      manager_type: manager_type
     }])
     .select()
     .single();
