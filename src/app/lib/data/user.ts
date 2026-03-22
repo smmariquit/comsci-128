@@ -29,14 +29,25 @@ export async function createUser(userDetails: User, userType: string, userPasswo
 	return data && data.length > 0 ? data[0].account_number : null;
 }
 
-export async function updateUser(userId: string, userDetails: any[]): Promise<User | null> {
+export async function updateUser(userId: string, userDetails: User): Promise<User | null> {
 	// update all attributes of the user based on their account number
 	// RETURNS the updated object (user)
 
 	const { data, error } = await supabase
 		.from('user')
-		.update(userDetails)
-		.eq('account_number', Number(userId))
+		.update({ 
+			account_email: userDetails.accountEmail,
+			first_name: userDetails.firstName,
+			middle_name: userDetails.middleName ?? null, // unless null can be passed
+			last_name: userDetails.lastName,
+			birthday: userDetails.birthday ?? null,
+			home_address: userDetails.permAddress ?? null,
+			phone_number: userDetails.contactNumber ?? null,
+			contact_email: userDetails.contactEmail ?? null,
+			sex: userDetails.sex ?? null,
+			userType: userDetails.userRole,
+			is_deleted: false
+		})		.eq('account_number', Number(userId))
 		.select()
 
 	if (error) {
