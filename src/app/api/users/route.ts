@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { getProfile, createUser } from "@/services/user-service";
+import { getProfile, addUser } from "@/services/user-service";
 
 // For retrieving profile information of current user
 // Default route for /profile/api
@@ -44,35 +44,47 @@ export async function GET(request: NextRequest) {
 // For creating a new user record -- access endpoint when signing up
 // Default route for /api/users
 export async function POST(request: NextRequest) {
-	try {
-		// Check auth
-		const headersList = await headers();
-		const userId = headersList.get("x-user-id");
+    try {
+        // Check auth
+        const headersList = await headers();
+        const userId = headersList.get("x-user-id");
 
-		if (!userId) {
-			return NextResponse.json(
-				{ message: "Unauthorized: Invalid Token." },
-				{ status: 401 }
-			);
-		}
+        if (!userId) {
+            return NextResponse.json(
+                { message: "Unauthorized: Invalid Token." },
+                { status: 401 }
+            );
+        }
 
-		// Get request body
-		const body = await request.json();
+        // Get request body
+        const body = await request.json();
 
-		// Call user service
-		const newUser = await createUser(body);
+        const userDetails = [
+            body.account_email,   // [0]
+            body.first_name,      // [1]
+            body.middle_name,     // [2]
+            body.last_name,       // [3]
+            body.birthday,        // [4]
+            body.home_address,    // [5]
+            body.phone_number,    // [6]
+            body.contact_email,   // [7]
+            body.sex,             // [8]
+        ];
 
-		// OK Response upon successful creation
-		return NextResponse.json(
-			{ message: "User created successfully.", user: newUser },
-			{ status: 201 }
-		);
+        // Call user service
+        const newUser = await addUser(userDetails, body.user_type);
 
-	} catch (error: any) {
-		console.error("Error creating user:", error);
-		return NextResponse.json(
-			{ message: error.message || "Failed to create user." },
-			{ status: 500 }
-		);
-	}
+        // OK Response upon successful creation
+        return NextResponse.json(
+            { message: "User created successfully.", user: newUser },
+            { status: 201 }
+        );
+
+    } catch (error: any) {
+        console.error("Error creating user:", error);
+        return NextResponse.json(
+            { message: error.message || "Failed to create user." },
+            { status: 500 }
+        );
+    }
 }

@@ -1,8 +1,8 @@
-import { findUserById, findUserByEmail, addUser } from "@/data/user";
-import { User } from "@/models/user";
+import { Tables } from "../../types/database.types";
+import { findUserById, findUserByEmail, createUser, User} from "@/data/user";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-export const getProfile = async (userId: number): Promise<User | null> => {
+export const getProfile = async (userId: Number): Promise<User | null> => {
 	try {
 		const userProfile = await findUserById(userId);
 
@@ -15,21 +15,20 @@ export const getProfile = async (userId: number): Promise<User | null> => {
 	}
 };
 
-// createUser - INPUT: user data | OUTPUT: new user (if created), error (if not)
-export const createUser = async (newUser: Omit<User, "account_number">): Promise<User> => {
+export const addUser = async (userDetails: any[], userType: string): Promise<User> => {
 	try {
 		// Check if email already exists
-		const existing = await findUserByEmail(newUser.account_email);
+		const existing = await findUserByEmail(userDetails[0]);
 		if (existing) throw new Error("Email already in use.");
 
 		// Check fields that are required
-		if (!newUser.account_email) throw new Error("Email is required.");
-		if (!newUser.first_name) throw new Error("First name is required.");
-		if (!newUser.last_name) throw new Error("Last name is required.");
-		if (!newUser.user_type) throw new Error("User type is required.");
+		if (!userDetails[0]) throw new Error("Email is required.");
+		if (!userDetails[1]) throw new Error("First name is required.");
+		if (!userDetails[3]) throw new Error("Last name is required.");
+		if (!userType) throw new Error("User type is required.");
 
 		// Insert user
-		const created = await addUser(newUser);
+		const created = await createUser(userDetails, userType);
 		return created;
 
 	} catch (error) {
