@@ -4,7 +4,7 @@ import { createManager } from "@/app/lib/data/manager";
  
 
 //Create landlord
-export async function createLandlord(input: any[], password : string) {
+export async function createLandlord(input: User, password : string) {
   // Call createManager with manager_type "Landlord"
   // createManager internally calls createUser with user_type "Manager"
   const { accountNumber, error: managerError } = await createManager(input, password, "Landlord");
