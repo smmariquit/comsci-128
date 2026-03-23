@@ -67,8 +67,7 @@ export async function POST(request: NextRequest) {
             body.birthday,        
             body.home_address,    
             body.phone_number,    
-            body.contact_email,   
-            body.sex,       
+            body.contact_email,       
             body.password      
         ];
 
