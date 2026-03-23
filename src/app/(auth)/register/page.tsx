@@ -8,17 +8,16 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+  const [first_name, setFirstName] = useState("");
+  const [middle_name, setMiddleName] = useState("");
+  const [last_name, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleRegister = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    const form = e.currentTarget;
-    const first_name = (form.elements.namedItem("first_name") as HTMLInputElement).value;
-    const middle_name = (form.elements.namedItem("middle_name") as HTMLInputElement).value;
-    const last_name = (form.elements.namedItem("last_name") as HTMLInputElement).value;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     try {
       const response = await fetch("/api/users", {
@@ -43,7 +42,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // Success
       router.push("/student");
 
     } catch (err) {
@@ -60,36 +58,41 @@ export default function RegisterPage() {
         {error && <p className="text-sm text-red-500">{error}</p>}
         <form className="space-y-3" onSubmit={handleRegister}>
           <input
-            name="first_name"
             type="text"
             placeholder="First Name"
+            value={first_name}
+            onChange={(e) => setFirstName(e.target.value)}
             className="w-full rounded border px-3 py-2"
             required
           />
           <input
-            name="middle_name"
             type="text"
             placeholder="Middle Name (optional)"
+            value={middle_name}
+            onChange={(e) => setMiddleName(e.target.value)}
             className="w-full rounded border px-3 py-2"
           />
           <input
-            name="last_name"
             type="text"
             placeholder="Last Name"
+            value={last_name}
+            onChange={(e) => setLastName(e.target.value)}
             className="w-full rounded border px-3 py-2"
             required
           />
           <input
-            name="email"
             type="email"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded border px-3 py-2"
             required
           />
           <input
-            name="password"
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded border px-3 py-2"
             required
           />
