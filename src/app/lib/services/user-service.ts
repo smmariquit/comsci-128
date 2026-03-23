@@ -26,3 +26,4 @@ export const getAllProfile = async (): Promise<User[] | null> => {
 		throw new Error("Error");
 	}
 };
+
