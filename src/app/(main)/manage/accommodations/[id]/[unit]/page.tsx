@@ -11,7 +11,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
 
   const [selectedType, setSelectedType] = useState<RoomType>("Single");
-  const [maxOccupants, setMaxOccupants] = useState(1);
+  const [maxOccupants, setMaxOccupants] = useState<number>(1);
 
   const testId = 5;
 
@@ -71,7 +71,7 @@ export default function Page() {
                       <label className="block text-sm mb-1">Max Occupants</label>
                       <input 
                           type="number" 
-                          value={maxOccupants} 
+                          value={maxOccupants ?? 1} 
                           onChange={(e) => setMaxOccupants(Number(e.target.value))}
                           className="w-full p-2 bg-slate-700 rounded text-white"
                       />
