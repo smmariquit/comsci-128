@@ -1,8 +1,8 @@
-import { findRoomById, updateRoom, Room } from "../data/room";
+import { getRoomById, updateRoom, Room, RoomType, OccupancyStatus, PaymentStatus } from "../data/room";
 
 export const updateRoomDetails = async (roomId: number, updates: Partial<Room>) => {
     try {
-        const existingRoom = await findRoomById(roomId);
+        const existingRoom = await getRoomById(roomId);
         if (!existingRoom) return { error: "Room Not Found."};
 
         const validRoomTypes = ['Single', 'Double', 'Shared'];
