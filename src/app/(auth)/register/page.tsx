@@ -14,12 +14,11 @@ export default function RegisterPage() {
     setLoading(true);
 
     const form = e.currentTarget;
-    const name = (form.elements.namedItem("name") as HTMLInputElement).value;
+    const first_name = (form.elements.namedItem("first_name") as HTMLInputElement).value;
+    const middle_name = (form.elements.namedItem("middle_name") as HTMLInputElement).value;
+    const last_name = (form.elements.namedItem("last_name") as HTMLInputElement).value;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-
-    // Split name into first and last
-    const [first_name, ...rest] = name.trim().split(" ");
-    const last_name = rest.join(" ");
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     try {
       const response = await fetch("/api/users", {
@@ -31,8 +30,10 @@ export default function RegisterPage() {
         body: JSON.stringify({
           account_email: email,
           first_name: first_name,
-          last_name: last_name || "",
+          middle_name: middle_name || null,
+          last_name: last_name,
           user_type: "Student",
+          password: password,
         }),
       });
 
@@ -60,21 +61,20 @@ export default function RegisterPage() {
         {error && <p className="text-sm text-red-500">{error}</p>}
         <form className="space-y-3" onSubmit={handleRegister}>
           <input
-            name="first name"
+            name="first_name"
             type="text"
             placeholder="First Name"
             className="w-full rounded border px-3 py-2"
             required
           />
           <input
-            name="first name"
+            name="middle_name"
             type="text"
-            placeholder="Middle Name"
+            placeholder="Middle Name (optional)"
             className="w-full rounded border px-3 py-2"
-            required
           />
           <input
-            name="last name"
+            name="last_name"
             type="text"
             placeholder="Last Name"
             className="w-full rounded border px-3 py-2"
