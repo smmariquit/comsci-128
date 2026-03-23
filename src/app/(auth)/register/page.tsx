@@ -25,7 +25,6 @@ export default function RegisterPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": "temp",
         },
         body: JSON.stringify({
           account_email: email,
