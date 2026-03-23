@@ -126,8 +126,8 @@ export async function createUser(userDetails: any[], userType: string): Promise<
 			home_address: userDetails[5] ?? null,
 			phone_number: userDetails[6] ?? null,
 			contact_email: userDetails[7] ?? null,
-			sex: userDetails[8],
-			userType: userType,
+			sex: userDetails[8] ?? null,
+			user_type: userType,
 			is_deleted: false
 		}])
 		.select()
