@@ -1,4 +1,4 @@
-import { findUserById, findAllUsers, User } from "@/data/user";
+import { findUserById, findAllUsers, User, deactivateUserById } from "@/data/user";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 export const getProfile = async (userId: Number): Promise<User | null> => {
@@ -27,3 +27,15 @@ export const getAllProfile = async (): Promise<User[] | null> => {
 	}
 };
 
+export const deactivateUser = async (userId: Number): Promise<User | null> => {
+
+	try {
+		const user = await deactivateUserById(userId)
+		if (!user) return null
+		return user 
+	} catch (error) {
+
+		console.error("Error: ", error)
+		throw new Error("Error")
+	}
+}
