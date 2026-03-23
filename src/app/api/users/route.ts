@@ -60,15 +60,16 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         const userDetails = [
-            body.account_email,   // [0]
-            body.first_name,      // [1]
-            body.middle_name,     // [2]
-            body.last_name,       // [3]
-            body.birthday,        // [4]
-            body.home_address,    // [5]
-            body.phone_number,    // [6]
-            body.contact_email,   // [7]
-            body.sex,             // [8]
+            body.account_email,  
+            body.first_name,      
+            body.middle_name,     
+            body.last_name,       
+            body.birthday,        
+            body.home_address,    
+            body.phone_number,    
+            body.contact_email,   
+            body.sex,       
+            body.password      
         ];
 
         // Call user service
