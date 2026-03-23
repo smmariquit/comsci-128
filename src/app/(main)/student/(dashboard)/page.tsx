@@ -3,7 +3,7 @@ import { findUserById } from "@/app/lib/data/user";
 
 export default async function DashboardPage() {
   //placeholder data
-  const curr_user = await findUserById(5); 
+  const curr_user = await findUserById(30); 
   const notifs = ["OSH has approved your application", "Upload your payment receipt", "Successfully reserved at <dorm>"];
   const appli_steps = ["Dorm Selected", "Submitted Form", "Reviewed by OSH", "Reserved", "Submitted Receipt"];
   
