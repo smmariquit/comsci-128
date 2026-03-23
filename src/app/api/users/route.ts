@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllProfile } from "@/services/user-service";
+import { deactivateUser, getAllProfile } from "@/services/user-service";
 
 // For retrieving profile information of current user
 // Default route for /profile/api
@@ -34,3 +34,26 @@ export async function GET(request: NextRequest) {
 }
 
 
+export async function PATCH(request: NextRequest) {
+
+	try {
+		
+		const { userId } = await request.json()
+		if(!userId) {
+			return NextResponse.json({ message: "userId is required"}, {status:400})
+		}
+
+		const user = await deactivateUser(userId)
+		if (!user) return NextResponse.json({ message: "User not found."}, {status:404})
+
+		return NextResponse.json({message: "User deactivated successfully."}, {status:200})	
+
+	} catch (error: any) {
+
+		console.error("Error deactivating user:", error)
+		return NextResponse.json(
+		{ message: "Failed to deactivate user.", error: error.message },
+		{ status: 500 }
+    )
+  }
+}
