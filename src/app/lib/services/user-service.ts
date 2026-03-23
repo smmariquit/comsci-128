@@ -1,5 +1,5 @@
 import { Tables } from "../../types/database.types";
-import { findUserById, findUserByEmail, createUser, User} from "@/data/user";
+import { findUserById, findUserByEmail, findAllUsers, createUser, User} from "@/data/user";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 export const getProfile = async (userId: Number): Promise<User | null> => {
@@ -35,5 +35,17 @@ export const addUser = async (userDetails: any[], userType: string): Promise<Use
 	} catch (error) {
 		console.error("Error: ", error);
 		throw error;
+	}
+};
+export const getAllProfile = async (): Promise<User[] | null> => {
+	try {
+		const userProfiles = await findAllUsers();
+
+		if (!userProfiles) return [];
+
+		return userProfiles;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
 	}
 };

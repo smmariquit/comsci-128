@@ -1,25 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { getProfile, addUser } from "@/services/user-service";
+import { getAllProfile } from "@/services/user-service";
 
 // For retrieving profile information of current user
 // Default route for /profile/api
-export async function GET(request: NextRequest) {
+export async function GET(
+	_request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> },
+) {
 	try {
-		// Check auth
-		const headersList = await headers();
-		const userId = headersList.get("x-user-id"); //must be added by middleware after user auth
+		/*
+            TODO:
+            - authentication middleware
+            - role access (role guard) middleware
+        */
+		const { id } = await params;
 
-		if (!userId) {
-			return NextResponse.json(
-				{
-					message: "Unauthorized: Invalid Token.",
-				},
-				{ status: 401 },
-			);
-		}
 		// Check request/call user service
-		const user = await getProfile(Number(userId));
+		const user = await getProfile(Number(id));
 
 		// Send Response
 		if (!user) {
