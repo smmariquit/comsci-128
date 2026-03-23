@@ -45,16 +45,6 @@ export async function GET(request: NextRequest) {
 // Default route for /api/users
 export async function POST(request: NextRequest) {
     try {
-        // Check auth
-        const headersList = await headers();
-        const userId = headersList.get("x-user-id");
-
-        if (!userId) {
-            return NextResponse.json(
-                { message: "Unauthorized: Invalid Token." },
-                { status: 401 }
-            );
-        }
 
         // Get request body
         const body = await request.json();
