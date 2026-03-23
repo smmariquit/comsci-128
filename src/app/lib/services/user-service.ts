@@ -25,6 +25,7 @@ export const addUser = async (userDetails: any[], userType: string): Promise<Use
 		if (!userDetails[0]) throw new Error("Email is required.");
 		if (!userDetails[1]) throw new Error("First name is required.");
 		if (!userDetails[3]) throw new Error("Last name is required.");
+		if (!userDetails[9]) throw new Error("Password is required");
 		if (!userType) throw new Error("User type is required.");
 
 		// Insert user
