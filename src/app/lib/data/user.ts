@@ -33,3 +33,19 @@ export async function findUserById(userId: Number): Promise<User | null> {
 
 	return data;
 }
+
+export async function deactivateUserById(userId: Number): Promise<User | null>{
+
+	const{ data,error } = await supabase
+		.from("user")
+		.update({is_deleted: true})
+		.eq("account_number", userId)
+		.select()
+		.single()
+
+	if (error) {
+		throw new Error(error.message)
+	}
+
+	return data
+}
