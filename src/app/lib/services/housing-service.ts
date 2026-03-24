@@ -1,4 +1,4 @@
-import { createHousing, findAllHousing, updateHousing } from "@/data/housing";
+import { createHousing, findAllHousing, deleteHousing, updateHousing, findHousingById } from "@/data/housing";
 import { Housing } from "@/models/housing";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
@@ -28,6 +28,31 @@ export const addHousing = async (
 		console.error("Error: ", error);
 		throw new Error("Error");
 	}
+};
+
+export const removeHousing = async (housingId: number): Promise<Housing | null> => {
+    try {
+        const housing = await findHousingById(housingId.toString());
+        if (!housing) {
+            throw new Error("Housing record not found or already deactivated.");
+        }
+
+        /**
+         * TODO: Integration Task
+         * Once 'room-delete' PR is merged, 
+         * add cascading soft delete for rooms of housing
+         */
+
+        const deactivatedHousing = await deleteHousing(housingId);
+        return deactivatedHousing ?? null;
+    } catch (error: any) {
+        if (error.message.includes("not found")) {
+            throw error; 
+        }
+        
+        console.error("Service Error (removeHousing): ", error.message);
+        throw new Error("Failed to deactivate housing record due to a system error.");
+    }
 };
 
 export const modifyHousing = async (
