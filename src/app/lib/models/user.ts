@@ -30,6 +30,7 @@ export interface User {
 
 	// Status for account deactivation
 	is_deleted?: boolean;
+  password: string;
 }
 
 export interface Student extends User {
