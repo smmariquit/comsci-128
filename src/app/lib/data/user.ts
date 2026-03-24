@@ -125,6 +125,15 @@ export async function createUser(userDetails: any[], userType: string): Promise<
 			password: userDetails[8]
 		}])
 		.select()
+		.single();
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	return data;
+	// return data.account_number if PK
+}
 
 export async function findUserByEmail(userEmail: string): Promise<User | null> {
 	const { data, error } = await supabase
