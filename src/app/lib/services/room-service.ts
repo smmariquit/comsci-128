@@ -14,6 +14,19 @@ try {
     throw new Error("Error")
   }
 }
+export const getRoom = async (roomId: number): Promise<Room | null> => {
+
+    try {
+		const room = await findRoomById(roomId);
+
+		if (!room) return null;
+
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+
+}
 
 export const updateRoomDetails = async (roomId: number, updates: Partial<Room>) => {
     try {
