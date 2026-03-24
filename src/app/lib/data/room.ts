@@ -1,22 +1,7 @@
-import { supabase} from "../supabase";
+import { supabase } from "@/lib/supabase";
+import { Room } from "@/models/room";
 
-export type OccupancyStatus = 'Empty' | 'Fully Occupied' | 'Partially Occupied' 
-
-export type PaymentStatus = 'Paid' | 'Pending' | 'Overdue'
-
-export type RoomType = 'Single' | 'Double' | 'Shared'
-
-export interface Room {
-    room_id?: number
-    occupancy_status: OccupancyStatus
-    payment_status: PaymentStatus
-    room_type: RoomType
-    maximum_occupants: number
-    housing_id: number
-    is_deleted?: boolean
-  }
-
-export async function createRoom(room:Room) {
+export async function createRoom(room: Room) {
 
     const { data, error} = await supabase
     .from('room')
@@ -28,18 +13,17 @@ export async function createRoom(room:Room) {
     
 }
 
-//Read only shows non-deleted rooms flagged by is_deleted=false
-export async function getRoomById(room_id: number) {
+export async function findRoomById(roomId: number): Promise<Room | null> {
     const { data, error } = await supabase
-      .from('room')
-      .select('*')
-      .eq('room_id', room_id)
-      .eq('is_deleted', false)
-      .single();
-  
-    if (error) throw error;
+        .from("room")
+        .select("*")
+        .eq("room_id", roomId)
+        .eq("is_deleted", false)
+        .single();
+
+    if (error) return null;
     return data;
-  }
+}
 
 export async function getRoomsByHousingId(housing_id: number) {
     const { data, error } = await supabase
@@ -75,14 +59,19 @@ export async function updateRoom(roomId: number, updatedFields: Partial<Room>) {
     return data;
   }
 
-  
-export async function deleteRoom(roomId: number) {
+// Room Record Soft Delete
+export async function deleteRoom(roomId: number): Promise<Room> {
     const { data, error } = await supabase
-      .from('room')
-      .update({ is_deleted: true })
-      .eq('room_id', roomId)
-      .select();
-  
-    if (error) throw error;
+        .from("room")
+        .update({ is_deleted: true }) 
+        .eq("room_id", roomId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Database Error (deleteRoom):", error.message);
+        throw new Error(error.message);
+    }
+
     return data;
-  }
+}
