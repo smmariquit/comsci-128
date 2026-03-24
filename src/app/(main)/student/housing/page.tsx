@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Housing } from "@/app/lib/models/housing";
 
 export default function Page() {
 	const [dorms, setDorms] = useState([]);
@@ -14,6 +15,9 @@ export default function Page() {
 		housing_type: "Non-UP Housing", // Updated to match schema Enum
 		rent_price: 0,
 	});
+
+	const [housingId, setHousingId] = useState("");
+	const [updateForm, setUpdateForm] = useState<Partial<Housing>>({});
 
 	// Mock token to pass backend's authorization check
 	const authHeader = { Authorization: "Bearer local-dev-token" };
@@ -66,6 +70,46 @@ export default function Page() {
 					housing_type: "Non-UP Housing",
 					rent_price: 0,
 				});
+				fetchDorms();
+			} else {
+				const errData = await res.json();
+				alert(`Error: ${errData.error}`);
+			}
+		} catch (err) {
+			alert("System error. Check console.");
+		}
+	};
+
+	const handleUpdate = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		// for frontend, important to filter out fields for PATCH requests
+		const filteredUpdateForm = Object.fromEntries(
+			Object.entries(updateForm).filter(
+				([_, value]) =>
+					value !== undefined && value !== null && value !== "",
+			),
+		);
+
+		try {
+			const res = await fetch(`/api/housing/${housingId}`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+					...authHeader,
+				},
+				body: JSON.stringify(filteredUpdateForm),
+			});
+
+			if (res.ok) {
+				alert("Dormitory updated successfully!");
+
+				setUpdateForm({
+					housing_name: "",
+					housing_address: "",
+					rent_price: 0,
+				});
+
 				fetchDorms();
 			} else {
 				const errData = await res.json();
@@ -349,6 +393,100 @@ export default function Page() {
 						</tbody>
 					</table>
 				</section>
+			</div>
+			<div className="w-96 h-[548px] px-10 pt-12 pb-10 bg-zinc-300 rounded-[45px] inline-flex flex-col justify-center items-start gap-7">
+				<div className="w-72 flex flex-col justify-start items-start gap-2.5">
+					<div className="self-stretch flex flex-col justify-start items-start gap-4">
+						<div className="self-stretch justify-start text-zinc-500 text-xs font-semibold font-['Inter']">
+							Housing Id
+						</div>
+						<div className="self-stretch h-14 bg-white rounded-2xl flex items-center px-4">
+							<input
+								type="text"
+								placeholder="Enter Housing ID"
+								value={housingId}
+								onChange={(e) => setHousingId(e.target.value)}
+								className="w-full outline-none"
+								style={{ color: "black" }}
+							/>
+						</div>
+					</div>
+					<div className="self-stretch flex flex-col justify-start items-start gap-4">
+						<div className="self-stretch justify-start text-zinc-500 text-xs font-semibold font-['Inter']">
+							Name
+						</div>
+						<div className="self-stretch h-14 bg-white rounded-2xl flex items-center px-4">
+							<input
+								type="text"
+								placeholder="Enter New Housing Name"
+								value={updateForm.housing_name}
+								onChange={(e) =>
+									setUpdateForm((prev) => ({
+										...prev,
+										housing_name: e.target.value,
+									}))
+								}
+								className="w-full outline-none"
+								style={{ color: "black" }}
+							/>
+						</div>
+					</div>
+					<div className="self-stretch flex flex-col justify-start items-start gap-4">
+						<div className="self-stretch justify-start text-zinc-500 text-xs font-semibold font-['Inter']">
+							Housing Address
+						</div>
+						<div className="self-stretch h-14 bg-white rounded-2xl flex items-center px-4">
+							<input
+								type="text"
+								placeholder="Enter New Housing Address"
+								value={updateForm.housing_address ?? undefined}
+								onChange={(e) =>
+									setUpdateForm((prev) => ({
+										...prev,
+										housing_address: e.target.value,
+									}))
+								}
+								className="w-full outline-none"
+								style={{ color: "black" }}
+							/>
+						</div>
+					</div>
+					<div className="self-stretch flex flex-col justify-start items-start gap-4">
+						<div className="self-stretch justify-start text-zinc-500 text-xs font-semibold font-['Inter']">
+							Rent
+						</div>
+						<div className="self-stretch h-14 bg-white rounded-2xl flex items-center px-4">
+							<input
+								type="text"
+								placeholder="Enter New Rent"
+								value={updateForm.rent_price ?? undefined}
+								onChange={(e) =>
+									setUpdateForm((prev) => ({
+										...prev,
+										rent_price:
+											e.target.value === ""
+												? undefined
+												: Number(e.target.value),
+									}))
+								}
+								className="w-full outline-none"
+								style={{ color: "black" }}
+							/>
+						</div>
+					</div>
+				</div>
+				<button
+					onClick={handleUpdate}
+					style={{
+						cursor: "pointer",
+					}}
+				>
+					<div className="w-40 h-12 px-14 py-3 bg-stone-500 rounded-2xl inline-flex justify-start items-center gap-2.5">
+						<div className="text-center justify-start text-white text-xl font-bold font-['Inter']">
+							Save
+						</div>
+					</div>
+				</button>
 			</div>
 			<div className="flex gap-4 flex-wrap justify-center">
 				<Link
