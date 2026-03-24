@@ -1,4 +1,19 @@
-import { getRoomById, updateRoom, Room, RoomType, OccupancyStatus, PaymentStatus } from "@/data/room";
+import { findRoomById, updateRoom, Room, RoomType, OccupancyStatus, PaymentStatus, createRoom, deleteRoom } from "@/data/room";
+import { RoomInsert, Room } from "@/models/room";
+
+export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
+  
+try {
+    
+    const newRoom = await createRoom(data)
+    if (!newRoom) return null
+    return newRoom
+    
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Error")
+  }
+}
 
 export const updateRoomDetails = async (roomId: number, updates: Partial<Room>) => {
     try {
@@ -57,9 +72,6 @@ export const testRoomUpdate = async () => {
 }
 
 testRoomUpdate();
-
-import { deleteRoom, findRoomById } from "@/app/lib/data/room";
-import { Room } from "@/app/lib/models/room";
 
 // Service logic for removing a room.
 // Ensures the room exists and is empty before performing a soft delete.

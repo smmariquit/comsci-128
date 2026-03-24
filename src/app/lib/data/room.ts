@@ -1,16 +1,15 @@
 import { supabase } from "@/lib/supabase";
-import { Room } from "@/models/room";
+import {Room, RoomInsert} from "@/models/room";
 
-export async function createRoom(room: Room) {
-
-    const { data, error} = await supabase
-    .from('room')
-    .insert([room])
+export async function createRoom(data: RoomInsert): Promise<Room> {
+  const { data: newRecord, error } = await supabase
+    .from("room")
+    .insert(data)
     .select()
+    .single()
 
-    if (error) throw error
-    return data
-    
+  if (error) throw new Error(error.message)
+  return newRecord
 }
 
 export async function findRoomById(roomId: number): Promise<Room | null> {
