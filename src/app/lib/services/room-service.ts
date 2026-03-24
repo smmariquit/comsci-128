@@ -29,7 +29,7 @@ export const getRoom = async (roomId: number): Promise<Room | null> => {
 
 }
 
-export const featchAllRooms = async (): Promise<Room[]> => {
+export const fetchAllRooms = async (): Promise<Room[]> => {
 	try {
 		const rooms = await getAllRooms();
 		return rooms ?? [];
