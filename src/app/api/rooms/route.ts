@@ -1,7 +1,7 @@
 
 
 import { NextRequest, NextResponse } from "next/server";
-import { addRoom, getRoom } from "@/services/room-service";
+import { addRoom, fetchAllRooms, getRoom } from "@/services/room-service";
 
 export async function POST(request: NextRequest) {
 
@@ -31,21 +31,18 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// fetch only one room details
-export async function GET(
-	_request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> },
-) {
+// fetch all rooms
+export async function GET(_request: NextRequest) {
 	try {
 		/*
             TODO:
             - authentication middleware
             - role access (role guard) middleware
         */
-		const { id } = await params;
+
 
 		// Check request/call user service
-		const room = await getRoom(Number(id));
+		const room = await fetchAllRooms();
 
 		// Send Response
 		if (!room) {
@@ -56,7 +53,7 @@ export async function GET(
 			);
 		}
 
-		// User found
+		// Room found
 		return NextResponse.json(room, { status: 200 });
 	} catch (error: any) {
 		console.error("Error fetching room", error);
@@ -66,6 +63,4 @@ export async function GET(
 		);
 	}
 }
-
-// fetch all rooms
 
