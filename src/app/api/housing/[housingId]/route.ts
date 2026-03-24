@@ -1,28 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { getHousingById } from '@/app/lib/data/housing'; TO FIX: IMPORT FROM SERVICE
-import { removeHousing } from "@/app/lib/services/housing-service";
-
-/*
-*  TEMP: This function was commented out. getHousingById import affects DELETE endpoint
-*/
-// Retrieve a specific dorm's details using the ID from the URL
-// export async function GET(
-//   req: NextRequest, 
-//   { params }: { params: Promise<{ housingId: string }> }
-// ) {
-//   try {
-//     const { housingId } = await params;
-//     const data = await getHousingById(housingId);
-
-//     if (!data) {
-//       return NextResponse.json({ error: 'Housing record not found' }, { status: 404 });
-//     }
-
-//     return NextResponse.json({ data }, { status: 200 });
-//   } catch (error: any) {
-//     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-//   }
-// }
+import { findHousingById } from "@/app/lib/data/housing";
+import { modifyHousing, removeHousing } from "@/app/lib/services/housing-service";
 
 export async function DELETE(
     req: NextRequest,
@@ -61,4 +39,57 @@ export async function DELETE(
       { status: status }
     );
   }
+}
+
+export async function GET(
+	req: NextRequest,
+	{ params }: { params: Promise<{ housingId: string }> },
+) {
+	try {
+		const { housingId } = await params;
+		const data = await findHousingById(housingId);
+
+		if (!data) {
+			return NextResponse.json(
+				{ error: "Housing record not found" },
+				{ status: 404 },
+			);
+		}
+
+		return NextResponse.json({ data }, { status: 200 });
+	} catch (error: any) {
+		return NextResponse.json(
+			{ error: "Internal Server Error" },
+			{ status: 500 },
+		);
+	}
+}
+
+export async function PATCH(
+	req: NextRequest,
+	{ params }: { params: Promise<{ housingId: string }> },
+) {
+	try {
+		const { housingId } = await params;
+		const body = await req.json();
+
+		const updated = await modifyHousing(Number(housingId), body);
+
+		if (!updated) {
+			return NextResponse.json(
+				{ error: "Housing record not found" },
+				{ status: 404 },
+			);
+		}
+
+		return NextResponse.json(
+			{ message: "Housing updated successfully", data: updated },
+			{ status: 200 },
+		);
+	} catch (error: any) {
+		return NextResponse.json(
+			{ error: "Internal Server Error" },
+			{ status: 500 },
+		);
+	}
 }

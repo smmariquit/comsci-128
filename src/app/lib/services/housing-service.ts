@@ -1,4 +1,4 @@
-import { createHousing, findAllHousing, deleteHousing, findHousingById } from "@/data/housing";
+import { createHousing, findAllHousing, deleteHousing, updateHousing, findHousingById } from "@/data/housing";
 import { Housing } from "@/models/housing";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
@@ -53,4 +53,24 @@ export const removeHousing = async (housingId: number): Promise<Housing | null> 
         console.error("Service Error (removeHousing): ", error.message);
         throw new Error("Failed to deactivate housing record due to a system error.");
     }
+};
+
+export const modifyHousing = async (
+	housingId: number,
+	housingDetail: Partial<Housing>,
+): Promise<Housing | null> => {
+	try {
+		const { housing_id, ...allowedUpdates } = housingDetail;
+		allowedUpdates;
+
+		console.log(allowedUpdates);
+		const updatedHousing = await updateHousing(housingId, allowedUpdates);
+
+		if (!updatedHousing) return null;
+
+		return updatedHousing;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to update housing");
+	}
 };
