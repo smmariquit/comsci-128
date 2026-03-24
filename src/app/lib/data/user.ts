@@ -126,6 +126,25 @@ export async function findUserByEmail(userEmail: string): Promise<User | null> {
 	return data;
 }
 
+export async function deactivateUserById(userId: Number): Promise<User | null>{
+
+	//This function takes a USERID of type STRING.
+	// CHANGES is_deleted field to true if user is found, otherwise return null.
+
+	const{ data,error } = await supabase
+		.from("user")
+		.update({is_deleted: true})
+		.eq("account_number", userId)
+		.select()
+		.single()
+
+	if (error) {
+		throw new Error(error.message)
+	}
+
+	return data
+}
+
 export async function createUser(userDetails: any[], userType: string): Promise<User> {
 	// RETURNS the PK of the newly inserted USER
 
