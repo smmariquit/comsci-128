@@ -39,3 +39,18 @@ export async function findHousingById(id: string) {
 	if (error) throw new Error(error.message);
 	return data;
 }
+
+export async function updateHousing(
+	housingId: Number,
+	housingDetails: Partial<Housing>,
+) {
+	const { data, error } = await supabase
+		.from("housing")
+		.update(housingDetails)
+		.eq("housing_id", housingId)
+		.select()
+		.single();
+
+	if (error) throw new Error(error.message);
+	return data;
+}
