@@ -34,7 +34,7 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 };
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-const getProfile = async (userId: Number): Promise<PublicUser | null> => {
+const getProfile = async (userId: number): Promise<PublicUser | null> => {
 	try {
 		const userProfile = await userData.findUserById(userId);
 
@@ -91,7 +91,7 @@ const updateProfile = async (
 	}
 };
 
-const deactivateUser = async (userId: Number): Promise<User | null> => {
+const deactivateUser = async (userId: number): Promise<User | null> => {
 	try {
 		const user = await userData.deactivateUserById(userId);
 		if (!user) return null;

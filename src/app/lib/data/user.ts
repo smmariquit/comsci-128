@@ -29,7 +29,7 @@ async function findAllUsers(): Promise<User[]> {
 	return data ?? null;
 }
 
-async function findUserById(userId: Number): Promise<User | null> {
+async function findUserById(userId: number): Promise<User | null> {
 	const { data, error } = await supabase
 		.from("user")
 		.select()
@@ -77,7 +77,7 @@ async function updateUser(
 	return data && data.length > 0 ? data[0] : null;
 }
 
-async function deactivateUserById(userId: Number): Promise<User | null> {
+async function deactivateUserById(userId: number): Promise<User | null> {
 	//This function takes a USERID of type STRING.
 	// CHANGES is_deleted field to true if user is found, otherwise return null.
 
