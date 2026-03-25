@@ -76,7 +76,7 @@ const updateProfile = async (
 		const { account_number, account_email, ...allowedUpdates } = updates;
 
 		const updatedUser = await userData.updateUser(
-			String(userId),
+			userId,
 			allowedUpdates as any,
 		);
 
