@@ -37,3 +37,39 @@ export async function GET(
 		);
 	}
 }
+
+export async function PATCH(
+	request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> },
+) {
+	try {
+		/*
+            TODO:
+            - authentication middleware
+            - role access (role guard) middleware
+        */
+		const updates = await request.json();
+		const { id } = await params;
+
+		const result = await userService.updateProfile(Number(id), updates);
+
+		if (result.error) {
+			const status = result.error.includes("not found") ? 404 : 400;
+			return NextResponse.json(
+				{ message: result.error },
+				{ status: 400 },
+			);
+		}
+
+		return NextResponse.json(
+			{ message: "Profile updated successfully.", data: result.data },
+			{ status: 200 },
+		);
+	} catch (error: any) {
+		console.error("Error updating user profile: ", error);
+		return NextResponse.json(
+			{ message: "Failed to update user.", error: error.message },
+			{ status: 500 },
+		);
+	}
+}
