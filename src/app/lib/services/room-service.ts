@@ -1,4 +1,4 @@
-import { findRoomById, updateRoom, Room, RoomType, OccupancyStatus, PaymentStatus, createRoom, deleteRoom } from "@/data/room";
+import { findRoomById, updateRoom, Room, RoomType, OccupancyStatus, PaymentStatus, createRoom, deleteRoom, getAllRooms } from "@/data/room";
 import { RoomInsert, Room } from "@/models/room";
 
 export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
@@ -14,6 +14,32 @@ try {
     throw new Error("Error")
   }
 }
+
+export const getRoom = async (roomId: number): Promise<Room | null> => {
+
+    try {
+		const room = await findRoomById(roomId);
+
+		return room ?? null;
+
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+
+}
+
+export const fetchAllRooms = async (): Promise<Room[]> => {
+	try {
+		const rooms = await getAllRooms();
+		return rooms ?? [];
+	} catch (error) {
+		console.error("Error:", error);
+		throw new Error("Error");
+	}
+};
+
+
 
 export const updateRoomDetails = async (roomId: number, updates: Partial<Room>) => {
     try {
