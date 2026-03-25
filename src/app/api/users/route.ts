@@ -9,20 +9,8 @@ export async function POST(request: NextRequest) {
 		// Get request body
 		const body = await request.json();
 
-		const userDetails = [
-			body.account_email,
-			body.first_name,
-			body.middle_name,
-			body.last_name,
-			body.birthday,
-			body.home_address,
-			body.phone_number,
-			body.contact_email,
-			body.password,
-		];
-
 		// Call user service
-		const newUser = await userService.addUser(userDetails, body.user_type);
+		const newUser = await userService.addUser(body);
 
 		// OK Response upon successful creation
 		return NextResponse.json(
