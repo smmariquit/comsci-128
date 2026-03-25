@@ -60,7 +60,7 @@ async function findUserByEmail(userEmail: string): Promise<User | null> {
 async function updateUser(
 	userId: number,
 	userDetails: UpdateUser,
-): Promise<User | null> {
+): Promise<UpdateUser | null> {
 	// update all attributes of the user based on their account number
 	// RETURNS the updated object (user)
 
