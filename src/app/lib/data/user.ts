@@ -1,36 +1,34 @@
 import { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
+import { User, NewUser, UpdateUser } from "@/models/user";
 import { supabase } from "../supabase";
+import { format } from "path";
 
 export async function findUserById(userId: Number): Promise<User | null> {
+	const { data, error } = await supabase
+		.from("user")
+		.select()
+		.eq("account_number", userId)
+		.single();
 
-    const { data, error } = await supabase
-        .from('user')
-        .select()
-        .eq('account_number', userId)
-        .single();
+	if (error) {
+		throw new Error(error.message);
+	}
 
-    if (error) {
-        throw new Error(error.message);
-    }
-
-    return data;
-
+	return data;
 }
 
-
-export type User = Tables<"user">;
-export type NewUser = TablesInsert<"user">;
-export type UpdateUser = TablesUpdate<"user">;
-
-export async function updateUser(userId: string, userDetails: any[]): Promise<User | null> {
+export async function updateUser(
+	userId: string,
+	userDetails: any[],
+): Promise<User | null> {
 	// update all attributes of the user based on their account number
 	// RETURNS the updated object (user)
 
 	const { data, error } = await supabase
-		.from('user')
+		.from("user")
 		.update(userDetails)
-		.eq('account_number', Number(userId))
-		.select()
+		.eq("account_number", Number(userId))
+		.select();
 
 	if (error) {
 		throw new Error(error.message);
@@ -51,13 +49,11 @@ export async function findAllUsers(): Promise<User[]> {
 	return data ?? null;
 }
 
-
-
 export async function findUserByEmail(userEmail: string): Promise<User | null> {
 	const { data, error } = await supabase
-		.from('user')
+		.from("user")
 		.select()
-		.eq('account_email', userEmail)
+		.eq("account_email", userEmail)
 		.single();
 
 	if (error) {
@@ -67,32 +63,34 @@ export async function findUserByEmail(userEmail: string): Promise<User | null> {
 	return data;
 }
 
-export async function deactivateUserById(userId: Number): Promise<User | null>{
-
+export async function deactivateUserById(userId: Number): Promise<User | null> {
 	//This function takes a USERID of type STRING.
 	// CHANGES is_deleted field to true if user is found, otherwise return null.
 
-	const{ data,error } = await supabase
+	const { data, error } = await supabase
 		.from("user")
-		.update({is_deleted: true})
+		.update({ is_deleted: true })
 		.eq("account_number", userId)
 		.select()
-		.single()
+		.single();
 
 	if (error) {
-		throw new Error(error.message)
+		throw new Error(error.message);
 	}
 
-	return data
+	return data;
 }
 
-export async function createUser(userDetails: any[], userType: string): Promise<User> {
+export async function createUser(
+	userDetails: any[],
+	userType: string,
+): Promise<User> {
 	// RETURNS the PK of the newly inserted USER
 
 	// DO NOT DELETE (this is for returning the PK)
 	// const { data, error } = await supabase
 	// 	.from('user')
-	// 	.insert([{ 
+	// 	.insert([{
 	// 		account_email: userDetails[0],
 	// 		first_name: userDetails[1],
 	// 		middle_name: userDetails[2] ?? null, // unless null can be passed
@@ -110,20 +108,22 @@ export async function createUser(userDetails: any[], userType: string): Promise<
 
 	// this is for returning the newly inserted user
 	const { data, error } = await supabase
-		.from('user')
-		.insert([{ 
-			account_email: userDetails[0],
-			first_name: userDetails[1],
-			middle_name: userDetails[2] ?? null, // unless null can be passed
-			last_name: userDetails[3],
-			birthday: userDetails[4] ?? null,
-			home_address: userDetails[5] ?? null,
-			phone_number: userDetails[6] ?? null,
-			contact_email: userDetails[7] ?? null,
-			user_type: userType,
-			is_deleted: false,
-			password: userDetails[8]
-		}])
+		.from("user")
+		.insert([
+			{
+				account_email: userDetails[0],
+				first_name: userDetails[1],
+				middle_name: userDetails[2] ?? null, // unless null can be passed
+				last_name: userDetails[3],
+				birthday: userDetails[4] ?? null,
+				home_address: userDetails[5] ?? null,
+				phone_number: userDetails[6] ?? null,
+				contact_email: userDetails[7] ?? null,
+				user_type: userType,
+				is_deleted: false,
+				password: userDetails[8],
+			},
+		])
 		.select()
 		.single();
 
@@ -134,4 +134,3 @@ export async function createUser(userDetails: any[], userType: string): Promise<
 	return data;
 	// return data.account_number if PK
 }
-
