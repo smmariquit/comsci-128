@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProfile } from "@/services/user-service";
+import { userService } from "@/services/user-service";
 
 // For retrieving profile information of current user
 // Default route for /profile/api
@@ -16,7 +16,7 @@ export async function GET(
 		const { id } = await params;
 
 		// Check request/call user service
-		const user = await getProfile(Number(id));
+		const user = await userService.getProfile(Number(id));
 
 		// Send Response
 		if (!user) {
