@@ -10,7 +10,7 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 		const { account_email, first_name, last_name, password } = userDetails;
 
 		// Check if email already exists
-		const existing = await userData.findUserByEmail(account_email);
+		const existing = await userData.findByEmail(account_email);
 		if (existing) throw new Error("Email already in use.");
 
 		// Check fields that are required
@@ -25,7 +25,7 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 		userDetails.password = await bcrypt.hash(password, salt);
 
 		// Insert user
-		const createdUser = await userData.createUser(userDetails);
+		const createdUser = await userData.create(userDetails);
 		return createdUser;
 	} catch (error) {
 		console.error("Error: ", error);
@@ -34,9 +34,9 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 };
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-const getProfile = async (userId: number): Promise<Public<User> | null> => {
+const getUser = async (userId: number): Promise<Public<User> | null> => {
 	try {
-		const userProfile = await userData.findUserById(userId);
+		const userProfile = await userData.findById(userId);
 
 		if (!userProfile) return null;
 
@@ -49,9 +49,9 @@ const getProfile = async (userId: number): Promise<Public<User> | null> => {
 	}
 };
 
-const getAllProfile = async (): Promise<Public<User>[] | null> => {
+const getAllUser = async (): Promise<Public<User>[] | null> => {
 	try {
-		const userProfiles = await userData.findAllUsers();
+		const userProfiles = await userData.findAll();
 
 		if (!userProfiles) return [];
 
@@ -68,7 +68,7 @@ const getAllProfile = async (): Promise<Public<User>[] | null> => {
 	}
 };
 
-const updateProfile = async (
+const updateUser = async (
 	userId: number,
 	updates: NewUser,
 ): Promise<ServiceResponse<Public<UpdateUser>>> => {
@@ -78,7 +78,7 @@ const updateProfile = async (
 		const { account_number, account_email, is_deleted, ...allowedUpdates } =
 			updates;
 
-		const updatedUser = await userData.updateUser(userId, allowedUpdates);
+		const updatedUser = await userData.update(userId, allowedUpdates);
 
 		if (!updatedUser) {
 			return { error: "User not found" };
@@ -100,7 +100,7 @@ const deactivateUser = async (
 	userId: number,
 ): Promise<Public<UpdateUser> | null> => {
 	try {
-		const updatedUser = await userData.deactivateUserById(userId);
+		const updatedUser = await userData.deactivateById(userId);
 		if (!updatedUser) return null;
 
 		// TODO: reevaluate returning data for disable or not
@@ -115,8 +115,8 @@ const deactivateUser = async (
 
 export const userService = {
 	addUser,
-	getProfile,
-	getAllProfile,
-	updateProfile,
+	getUser,
+	getAllUser,
+	updateUser,
 	deactivateUser,
 };

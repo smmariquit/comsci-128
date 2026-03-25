@@ -16,7 +16,7 @@ export async function GET(
 		const { id } = await params;
 
 		// Check request/call user service
-		const user = await userService.getProfile(Number(id));
+		const user = await userService.getUser(Number(id));
 
 		// Send Response
 		if (!user) {
@@ -51,7 +51,7 @@ export async function PATCH(
 		const updates = await request.json();
 		const { id } = await params;
 
-		const result = await userService.updateProfile(Number(id), updates);
+		const result = await userService.updateUser(Number(id), updates);
 
 		if (result.error) {
 			const status = result.error.includes("not found") ? 404 : 400;
