@@ -73,3 +73,36 @@ export async function PATCH(
 		);
 	}
 }
+
+export async function DELETE(
+	request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> },
+) {
+	try {
+		const { id } = await params;
+		if (!id) {
+			return NextResponse.json(
+				{ message: "id is required" },
+				{ status: 400 },
+			);
+		}
+
+		const user = await userService.deactivateUser(Number(id));
+		if (!user)
+			return NextResponse.json(
+				{ message: "User not found." },
+				{ status: 404 },
+			);
+
+		return NextResponse.json(
+			{ message: "User deactivated successfully." },
+			{ status: 200 },
+		);
+	} catch (error: any) {
+		console.error("Error deactivating user:", error);
+		return NextResponse.json(
+			{ message: "Failed to deactivate user.", error: error.message },
+			{ status: 500 },
+		);
+	}
+}
