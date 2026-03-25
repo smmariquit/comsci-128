@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { userService } from "@/services/user-service";
 
 // For creating a new user record -- access endpoint when signing up
@@ -36,7 +35,7 @@ export async function GET() {
             - role access (role guard) middleware
         */
 		// Check request/call user service
-		const user = await userService.getAllProfile();
+		const user = await userService.getAllUser();
 
 		// Send Response
 		if (!user) {
