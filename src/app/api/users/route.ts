@@ -28,20 +28,15 @@ export async function POST(request: NextRequest) {
 
 // For retrieving profile information of current user
 // Default route for /profile/api
-export async function GET(
-	_request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> },
-) {
+export async function GET() {
 	try {
 		/*
             TODO:
             - authentication middleware
             - role access (role guard) middleware
         */
-		const { id } = await params;
-
 		// Check request/call user service
-		const user = await userService.getProfile(Number(id));
+		const user = await userService.getAllProfile();
 
 		// Send Response
 		if (!user) {

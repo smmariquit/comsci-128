@@ -3,6 +3,7 @@ import { userData } from "@/data/user";
 import { User, NewUser } from "@/models/user";
 
 type ServiceResponse<T> = { data?: T; error?: string };
+type PublicUser = Omit<User, "account_number" | "password">;
 
 const addUser = async (userDetails: NewUser): Promise<User> => {
 	try {
@@ -33,26 +34,34 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 };
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-const getProfile = async (userId: Number): Promise<User | null> => {
+const getProfile = async (userId: Number): Promise<PublicUser | null> => {
 	try {
 		const userProfile = await userData.findUserById(userId);
 
 		if (!userProfile) return null;
 
-		return userProfile as unknown as User;
+		const { account_number, password, ...nonSensitiveInfo } = userProfile;
+
+		return nonSensitiveInfo;
 	} catch (error: any) {
 		console.error("Error: ", error.message);
 		throw new Error("Error");
 	}
 };
 
-const getAllProfile = async (): Promise<User[] | null> => {
+const getAllProfile = async (): Promise<PublicUser[] | null> => {
 	try {
 		const userProfiles = await userData.findAllUsers();
 
 		if (!userProfiles) return [];
 
-		return userProfiles;
+		const publicInfos: PublicUser[] = [];
+		userProfiles.forEach((userDetails) => {
+			const { account_number, password, ...nonSensitiveInfo } =
+				userDetails;
+			publicInfos.push(nonSensitiveInfo);
+		});
+		return publicInfos;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
