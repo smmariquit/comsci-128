@@ -1,7 +1,5 @@
-import { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
 import { User, NewUser, UpdateUser } from "@/models/user";
 import { supabase } from "../supabase";
-import { format } from "path";
 
 export async function findUserById(userId: Number): Promise<User | null> {
 	const { data, error } = await supabase
