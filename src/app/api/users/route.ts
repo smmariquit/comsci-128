@@ -57,33 +57,3 @@ export async function GET() {
 		);
 	}
 }
-
-export async function DELETE(request: NextRequest) {
-	try {
-		const { userId } = await request.json();
-		if (!userId) {
-			return NextResponse.json(
-				{ message: "userId is required" },
-				{ status: 400 },
-			);
-		}
-
-		const user = await userService.deactivateUser(userId);
-		if (!user)
-			return NextResponse.json(
-				{ message: "User not found." },
-				{ status: 404 },
-			);
-
-		return NextResponse.json(
-			{ message: "User deactivated successfully." },
-			{ status: 200 },
-		);
-	} catch (error: any) {
-		console.error("Error deactivating user:", error);
-		return NextResponse.json(
-			{ message: "Failed to deactivate user.", error: error.message },
-			{ status: 500 },
-		);
-	}
-}
