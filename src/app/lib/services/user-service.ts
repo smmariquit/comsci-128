@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { userData } from "@/data/user";
+import { userData } from "@/app/lib/data/user-data";
 import { User, NewUser, UpdateUser } from "@/models/user";
 
 type ServiceResponse<T> = { data?: T; error?: string };
