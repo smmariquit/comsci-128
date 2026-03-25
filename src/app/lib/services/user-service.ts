@@ -1,89 +1,122 @@
-import { Tables } from "../../types/database.types";
-import { findUserById, findUserByEmail, findAllUsers, createUser, updateUser, deactivateUserById, User} from "@/data/user";
+import bcrypt from "bcrypt";
+import { userData } from "@/app/lib/data/user-data";
+import { User, NewUser, UpdateUser } from "@/models/user";
 
-// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-export const getProfile = async (userId: Number): Promise<User | null> => {
+type ServiceResponse<T> = { data?: T; error?: string };
+type Public<T> = Omit<T, "account_number" | "password">;
+
+const addUser = async (userDetails: NewUser): Promise<User> => {
 	try {
-		const userProfile = await findUserById(userId);
+		const { account_email, first_name, last_name, password } = userDetails;
 
-		if (!userProfile) return null;
-
-		return userProfile as unknown as User;
-	} catch (error: any) {
-		console.error("Error: ", error.message);
-		throw new Error("Error");
-	}
-};
-
-export const addUser = async (userDetails: any[], userType: string): Promise<User> => {
-	try {
 		// Check if email already exists
-		const existing = await findUserByEmail(userDetails[0]);
+		const existing = await userData.findByEmail(account_email);
 		if (existing) throw new Error("Email already in use.");
 
 		// Check fields that are required
-		if (!userDetails[0]) throw new Error("Email is required.");
-		if (!userDetails[1]) throw new Error("First name is required.");
-		if (!userDetails[3]) throw new Error("Last name is required.");
-		if (!userDetails[8]) throw new Error("Password is required");
-		if (!userType) throw new Error("User type is required.");
+		if (!account_email) throw new Error("Email is required.");
+		if (!first_name) throw new Error("First name is required.");
+		if (!last_name) throw new Error("Last name is required.");
+		if (!password) throw new Error("Password is required");
+		// Student default
+		userDetails.user_type = "Student";
+		// Hash pw
+		const salt = await bcrypt.genSalt(12);
+		userDetails.password = await bcrypt.hash(password, salt);
 
 		// Insert user
-		const created = await createUser(userDetails, userType);
-		return created;
-
+		const createdUser = await userData.create(userDetails);
+		return createdUser;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw error;
 	}
 };
 
-type ServiceResponse<T> = { data?: T; error?: string };
-
-export const updateProfile = async (userId: number, updates: any): Promise<ServiceResponse<User>> => {
+// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
+const getUser = async (userId: number): Promise<Public<User> | null> => {
 	try {
-		const {
-			account_number,
-			account_email,
-			...allowedUpdates
-		} = updates;
+		const userProfile = await userData.findById(userId);
 
-		const updatedUser = await updateUser(String(userId), allowedUpdates as any);
-		
-		if (!updatedUser) {
-			return { error: "User not found" };
-		}
+		if (!userProfile) return null;
 
-		return { data: updatedUser as unknown as User };
+		const { account_number, password, ...nonSensitiveInfo } = userProfile;
 
+		return nonSensitiveInfo;
 	} catch (error: any) {
 		console.error("Error: ", error.message);
 		throw new Error("Error");
 	}
-}
+};
 
-export const getAllProfile = async (): Promise<User[] | null> => {
+const getAllUser = async (): Promise<Public<User>[] | null> => {
 	try {
-		const userProfiles = await findAllUsers();
+		const userProfiles = await userData.findAll();
 
 		if (!userProfiles) return [];
 
-		return userProfiles;
+		const publicInfos: Public<User>[] = [];
+		userProfiles.forEach((userDetails) => {
+			const { account_number, password, ...nonSensitiveInfo } =
+				userDetails;
+			publicInfos.push(nonSensitiveInfo);
+		});
+		return publicInfos;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
 	}
 };
 
-export const deactivateUser = async (userId: Number): Promise<User | null> => {
-
+const updateUser = async (
+	userId: number,
+	updates: NewUser,
+): Promise<ServiceResponse<Public<UpdateUser>>> => {
 	try {
-		const user = await deactivateUserById(userId)
-		if (!user) return null
-		return user 
-	} catch (error) {
+		// To consider: separate update on password for stronger security
+		// e.g. email validation for changing password
+		const { account_number, account_email, is_deleted, ...allowedUpdates } =
+			updates;
 
-		console.error("Error: ", error)
-		throw new Error("Error")
+		const updatedUser = await userData.update(userId, allowedUpdates);
+
+		if (!updatedUser) {
+			return { error: "User not found" };
+		}
+
+		const {
+			account_number: _,
+			password: __,
+			...nonSensitiveInfo
+		} = updatedUser;
+		return { data: nonSensitiveInfo };
+	} catch (error: any) {
+		console.error("Error: ", error.message);
+		throw new Error("Error");
 	}
-}
+};
+
+const deactivateUser = async (
+	userId: number,
+): Promise<Public<UpdateUser> | null> => {
+	try {
+		const updatedUser = await userData.deactivateById(userId);
+		if (!updatedUser) return null;
+
+		// TODO: reevaluate returning data for disable or not
+		// Currently returns data
+		const { account_number, password, ...nonSensitiveInfo } = updatedUser;
+		return nonSensitiveInfo;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+export const userService = {
+	addUser,
+	getUser,
+	getAllUser,
+	updateUser,
+	deactivateUser,
+};

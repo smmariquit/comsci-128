@@ -1,5 +1,5 @@
 "use client";
-import { User } from "@/app/lib/data/user";
+import { User } from "@/models/user";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
