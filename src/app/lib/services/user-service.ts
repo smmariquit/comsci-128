@@ -1,34 +1,12 @@
-import {
-	findUserById,
-	findUserByEmail,
-	findAllUsers,
-	createUser,
-	updateUser,
-	deactivateUserById,
-} from "@/data/user";
+import { userData } from "@/data/user";
 import { User } from "@/models/user";
 
-// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-export const getProfile = async (userId: Number): Promise<User | null> => {
-	try {
-		const userProfile = await findUserById(userId);
+type ServiceResponse<T> = { data?: T; error?: string };
 
-		if (!userProfile) return null;
-
-		return userProfile as unknown as User;
-	} catch (error: any) {
-		console.error("Error: ", error.message);
-		throw new Error("Error");
-	}
-};
-
-export const addUser = async (
-	userDetails: any[],
-	userType: string,
-): Promise<User> => {
+const addUser = async (userDetails: any[], userType: string): Promise<User> => {
 	try {
 		// Check if email already exists
-		const existing = await findUserByEmail(userDetails[0]);
+		const existing = await userData.findUserByEmail(userDetails[0]);
 		if (existing) throw new Error("Email already in use.");
 
 		// Check fields that are required
@@ -39,7 +17,7 @@ export const addUser = async (
 		if (!userType) throw new Error("User type is required.");
 
 		// Insert user
-		const created = await createUser(userDetails, userType);
+		const created = await userData.createUser(userDetails, userType);
 		return created;
 	} catch (error) {
 		console.error("Error: ", error);
@@ -47,16 +25,41 @@ export const addUser = async (
 	}
 };
 
-type ServiceResponse<T> = { data?: T; error?: string };
+// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
+const getProfile = async (userId: Number): Promise<User | null> => {
+	try {
+		const userProfile = await userData.findUserById(userId);
 
-export const updateProfile = async (
+		if (!userProfile) return null;
+
+		return userProfile as unknown as User;
+	} catch (error: any) {
+		console.error("Error: ", error.message);
+		throw new Error("Error");
+	}
+};
+
+const getAllProfile = async (): Promise<User[] | null> => {
+	try {
+		const userProfiles = await userData.findAllUsers();
+
+		if (!userProfiles) return [];
+
+		return userProfiles;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+const updateProfile = async (
 	userId: number,
 	updates: any,
 ): Promise<ServiceResponse<User>> => {
 	try {
 		const { account_number, account_email, ...allowedUpdates } = updates;
 
-		const updatedUser = await updateUser(
+		const updatedUser = await userData.updateUser(
 			String(userId),
 			allowedUpdates as any,
 		);
@@ -72,26 +75,21 @@ export const updateProfile = async (
 	}
 };
 
-export const getAllProfile = async (): Promise<User[] | null> => {
+const deactivateUser = async (userId: Number): Promise<User | null> => {
 	try {
-		const userProfiles = await findAllUsers();
-
-		if (!userProfiles) return [];
-
-		return userProfiles;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Error");
-	}
-};
-
-export const deactivateUser = async (userId: Number): Promise<User | null> => {
-	try {
-		const user = await deactivateUserById(userId);
+		const user = await userData.deactivateUserById(userId);
 		if (!user) return null;
 		return user;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
 	}
+};
+
+export const userService = {
+	addUser,
+	getProfile,
+	getAllProfile,
+	updateProfile,
+	deactivateUser,
 };
