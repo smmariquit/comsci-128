@@ -96,11 +96,17 @@ const updateProfile = async (
 	}
 };
 
-const deactivateUser = async (userId: number): Promise<User | null> => {
+const deactivateUser = async (
+	userId: number,
+): Promise<Public<UpdateUser> | null> => {
 	try {
-		const user = await userData.deactivateUserById(userId);
-		if (!user) return null;
-		return user;
+		const updatedUser = await userData.deactivateUserById(userId);
+		if (!updatedUser) return null;
+
+		// TODO: reevaluate returning data for disable or not
+		// Currently returns data
+		const { account_number, password, ...nonSensitiveInfo } = updatedUser;
+		return nonSensitiveInfo;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
