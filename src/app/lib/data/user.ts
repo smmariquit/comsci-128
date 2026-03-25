@@ -1,25 +1,11 @@
 import { User, NewUser, UpdateUser } from "@/models/user";
 import { supabase } from "../supabase";
 
-async function createUser(userDetails: any[], userType: string): Promise<User> {
+async function createUser(userDetails: NewUser): Promise<User> {
 	// this is for returning the newly inserted user
 	const { data, error } = await supabase
 		.from("user")
-		.insert([
-			{
-				account_email: userDetails[0],
-				first_name: userDetails[1],
-				middle_name: userDetails[2] ?? null,
-				last_name: userDetails[3],
-				birthday: userDetails[4] ?? null,
-				home_address: userDetails[5] ?? null,
-				phone_number: userDetails[6] ?? null,
-				contact_email: userDetails[7] ?? null,
-				user_type: userType,
-				is_deleted: false,
-				password: userDetails[8],
-			},
-		])
+		.insert(userDetails)
 		.select()
 		.single();
 

@@ -1,24 +1,31 @@
+import bcrypt from "bcrypt";
 import { userData } from "@/data/user";
-import { User } from "@/models/user";
+import { User, NewUser } from "@/models/user";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 
-const addUser = async (userDetails: any[], userType: string): Promise<User> => {
+const addUser = async (userDetails: NewUser): Promise<User> => {
 	try {
+		const { account_email, first_name, last_name, password } = userDetails;
+
 		// Check if email already exists
-		const existing = await userData.findUserByEmail(userDetails[0]);
+		const existing = await userData.findUserByEmail(account_email);
 		if (existing) throw new Error("Email already in use.");
 
 		// Check fields that are required
-		if (!userDetails[0]) throw new Error("Email is required.");
-		if (!userDetails[1]) throw new Error("First name is required.");
-		if (!userDetails[3]) throw new Error("Last name is required.");
-		if (!userDetails[8]) throw new Error("Password is required");
-		if (!userType) throw new Error("User type is required.");
+		if (!account_email) throw new Error("Email is required.");
+		if (!first_name) throw new Error("First name is required.");
+		if (!last_name) throw new Error("Last name is required.");
+		if (!password) throw new Error("Password is required");
+		// Student default
+		userDetails.user_type = "Student";
+		// Hash pw
+		const salt = await bcrypt.genSalt(12);
+		userDetails.password = await bcrypt.hash(password, salt);
 
 		// Insert user
-		const created = await userData.createUser(userDetails, userType);
-		return created;
+		const createdUser = await userData.createUser(userDetails);
+		return createdUser;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw error;
