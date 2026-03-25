@@ -58,46 +58,6 @@ export async function GET() {
 	}
 }
 
-export async function PATCH(request: NextRequest) {
-	try {
-		// Check auth
-		const headersList = await headers();
-		const userId = headersList.get("x-user-id"); //must be added by middleware after user auth
-
-		if (!userId) {
-			return NextResponse.json(
-				{
-					message: "Unauthorized: Invalid Token.",
-				},
-				{ status: 401 },
-			);
-		}
-
-		const updates = await request.json();
-
-		const result = await userService.updateProfile(Number(userId), updates);
-
-		if (result.error) {
-			const status = result.error.includes("not found") ? 404 : 400;
-			return NextResponse.json(
-				{ message: result.error },
-				{ status: 400 },
-			);
-		}
-
-		return NextResponse.json(
-			{ message: "Profile updated successfully.", data: result.data },
-			{ status: 200 },
-		);
-	} catch (error: any) {
-		console.error("Error updating user profile: ", error);
-		return NextResponse.json(
-			{ message: "Failed to update user.", error: error.message },
-			{ status: 500 },
-		);
-	}
-}
-
 export async function DELETE(request: NextRequest) {
 	try {
 		const { userId } = await request.json();
