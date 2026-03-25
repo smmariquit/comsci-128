@@ -1,5 +1,5 @@
 "use client";
-import { User } from "@/app/lib/data/user";
+import { User } from "@/models/user";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -31,35 +31,35 @@ export default function Page() {
 		fetchUser();
 	}, []);
 
-  const handleUpdate = async () => {
-  try {
-    const userId = "17"; 
-    const updates = {
-      first_name: firstName,
-      middle_name: middleName,
-      last_name: lastName,
-      account_email: email // Note: your service will filter this out
-    };
+	const handleUpdate = async () => {
+		try {
+			const userId = "17";
+			const updates = {
+				first_name: firstName,
+				middle_name: middleName,
+				last_name: lastName,
+				account_email: email, // Note: your service will filter this out
+			};
 
-    const response = await fetch('/api/users', {
-          method: 'PATCH',
-          headers: { 
-            'Content-Type': 'application/json',
-            'x-user-id': userId 
-          },
-          body: JSON.stringify(updates),
-        });
+			const response = await fetch("/api/users", {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+					"x-user-id": userId,
+				},
+				body: JSON.stringify(updates),
+			});
 
-        if (response.ok) {
-          alert("Update Success! Check your Supabase dashboard.");
-        } else {
-          const errorData = await response.json();
-          alert(`Update failed: ${errorData.message}`);
-        }
-      } catch (err) {
-        alert("Network error during update");
-      }
-    };
+			if (response.ok) {
+				alert("Update Success! Check your Supabase dashboard.");
+			} else {
+				const errorData = await response.json();
+				alert(`Update failed: ${errorData.message}`);
+			}
+		} catch (err) {
+			alert("Network error during update");
+		}
+	};
 
 	return (
 		<main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
@@ -73,38 +73,38 @@ export default function Page() {
 				Email: {email}
 			</div>
 
-      <div className="flex flex-col gap-4 w-full max-w-md bg-zinc-900 p-6 rounded-lg border border-zinc-800">
-        <h2 className="text-xl font-semibold mb-2">Test Editor</h2>
-        
-        <input 
-          className="bg-zinc-800 p-2 rounded border border-zinc-700"
-          value={firstName} 
-          onChange={(e) => setFirstName(e.target.value)} 
-          placeholder="First Name"
-        />
-        
-        <input 
-          className="bg-zinc-800 p-2 rounded border border-zinc-700"
-          value={middleName} 
-          onChange={(e) => setMiddleName(e.target.value)} 
-          placeholder="Middle Name"
-        />
+			<div className="flex flex-col gap-4 w-full max-w-md bg-zinc-900 p-6 rounded-lg border border-zinc-800">
+				<h2 className="text-xl font-semibold mb-2">Test Editor</h2>
 
-        <input 
-          className="bg-zinc-800 p-2 rounded border border-zinc-700"
-          value={lastName} 
-          onChange={(e) => setLastName(e.target.value)} 
-          placeholder="Last Name"
-        />
+				<input
+					className="bg-zinc-800 p-2 rounded border border-zinc-700"
+					value={firstName}
+					onChange={(e) => setFirstName(e.target.value)}
+					placeholder="First Name"
+				/>
 
-        <button 
-          onClick={handleUpdate}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded transition"
-        >
-          Save Changes (PATCH)
-        </button>
-      </div>
-      
+				<input
+					className="bg-zinc-800 p-2 rounded border border-zinc-700"
+					value={middleName}
+					onChange={(e) => setMiddleName(e.target.value)}
+					placeholder="Middle Name"
+				/>
+
+				<input
+					className="bg-zinc-800 p-2 rounded border border-zinc-700"
+					value={lastName}
+					onChange={(e) => setLastName(e.target.value)}
+					placeholder="Last Name"
+				/>
+
+				<button
+					onClick={handleUpdate}
+					className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded transition"
+				>
+					Save Changes (PATCH)
+				</button>
+			</div>
+
 			<div className="flex gap-4 flex-wrap justify-center">
 				<Link
 					href="/student"
