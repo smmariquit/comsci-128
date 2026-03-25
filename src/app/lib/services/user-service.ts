@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { userData } from "@/data/user";
-import { User, NewUser } from "@/models/user";
+import { User, NewUser, UpdateUser } from "@/models/user";
 
 type ServiceResponse<T> = { data?: T; error?: string };
-type PublicUser = Omit<User, "account_number" | "password">;
+type Public<T> = Omit<T, "account_number" | "password">;
 
 const addUser = async (userDetails: NewUser): Promise<User> => {
 	try {
@@ -34,7 +34,7 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 };
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-const getProfile = async (userId: number): Promise<PublicUser | null> => {
+const getProfile = async (userId: number): Promise<Public<User> | null> => {
 	try {
 		const userProfile = await userData.findUserById(userId);
 
@@ -49,13 +49,13 @@ const getProfile = async (userId: number): Promise<PublicUser | null> => {
 	}
 };
 
-const getAllProfile = async (): Promise<PublicUser[] | null> => {
+const getAllProfile = async (): Promise<Public<User>[] | null> => {
 	try {
 		const userProfiles = await userData.findAllUsers();
 
 		if (!userProfiles) return [];
 
-		const publicInfos: PublicUser[] = [];
+		const publicInfos: Public<User>[] = [];
 		userProfiles.forEach((userDetails) => {
 			const { account_number, password, ...nonSensitiveInfo } =
 				userDetails;
@@ -70,21 +70,26 @@ const getAllProfile = async (): Promise<PublicUser[] | null> => {
 
 const updateProfile = async (
 	userId: number,
-	updates: any,
-): Promise<ServiceResponse<User>> => {
+	updates: NewUser,
+): Promise<ServiceResponse<Public<UpdateUser>>> => {
 	try {
-		const { account_number, account_email, ...allowedUpdates } = updates;
+		// To consider: separate update on password for stronger security
+		// e.g. email validation for changing password
+		const { account_number, account_email, is_deleted, ...allowedUpdates } =
+			updates;
 
-		const updatedUser = await userData.updateUser(
-			userId,
-			allowedUpdates as any,
-		);
+		const updatedUser = await userData.updateUser(userId, allowedUpdates);
 
 		if (!updatedUser) {
 			return { error: "User not found" };
 		}
 
-		return { data: updatedUser as unknown as User };
+		const {
+			account_number: _,
+			password: __,
+			...nonSensitiveInfo
+		} = updatedUser;
+		return { data: nonSensitiveInfo };
 	} catch (error: any) {
 		console.error("Error: ", error.message);
 		throw new Error("Error");
