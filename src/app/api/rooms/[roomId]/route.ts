@@ -3,7 +3,7 @@ import { roomService } from "@/services/room-service";
 
 export async function GET(
 	_request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> },
+	{ params }: { params: Promise<{ roomId: string }> },
 ) {
 	try {
 		/*
@@ -11,10 +11,10 @@ export async function GET(
             - authentication middleware
             - role access (role guard) middleware
         */
-		const { id } = await params;
+		const { roomId } = await params;
 
 		// Check request/call user service
-		const room = await roomService.getRoom(Number(id));
+		const room = await roomService.getRoom(Number(roomId));
 
 		// Send Response
 		if (!room) {
