@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addRoom, fetchAllRooms } from "@/services/room-service";
+import { roomService } from "@/services/room-service";
 
 export async function POST(request: NextRequest) {
 	try {
-		const authHeader = request.headers.get("authorization");
-		if (!authHeader) {
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 },
-			);
-		}
-
 		const body = await request.json();
 
 		if (!body) {
@@ -20,7 +12,7 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		const newRoom = await addRoom(body);
+		const newRoom = await roomService.addRoom(body);
 		if (!newRoom)
 			return NextResponse.json(
 				{ message: "Failed to create room." },
@@ -47,7 +39,7 @@ export async function GET(_request: NextRequest) {
         */
 
 		// Check request/call user service
-		const room = await fetchAllRooms();
+		const room = await roomService.getAllRooms();
 
 		// Send Response
 		if (!room) {

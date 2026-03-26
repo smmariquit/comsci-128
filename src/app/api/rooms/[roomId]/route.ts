@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { removeRoom, getRoom } from "@/services/room-service";
+import { roomService } from "@/services/room-service";
 
 export async function GET(
 	_request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> },
+	{ params }: { params: Promise<{ roomId: string }> },
 ) {
 	try {
 		/*
@@ -11,10 +11,10 @@ export async function GET(
             - authentication middleware
             - role access (role guard) middleware
         */
-		const { id } = await params;
+		const { roomId } = await params;
 
 		// Check request/call user service
-		const room = await getRoom(Number(id));
+		const room = await roomService.getRoom(Number(roomId));
 
 		// Send Response
 		if (!room) {
@@ -36,6 +36,11 @@ export async function GET(
 	}
 }
 
+/*
+    TODO:
+    PATCH api call for updating room
+*/
+
 export async function DELETE(
 	req: NextRequest,
 	{ params }: { params: Promise<{ roomId: string }> },
@@ -49,7 +54,7 @@ export async function DELETE(
 		const { roomId } = await params;
 
 		// Convert string param to number to match the DB bigint
-		const deletedRoom = await removeRoom(Number(roomId));
+		const deletedRoom = await roomService.deactivateRoom(Number(roomId));
 
 		if (!deletedRoom) {
 			return NextResponse.json(
