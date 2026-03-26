@@ -5,13 +5,6 @@ import { housingService } from "@/app/lib/services/housing-service";
 // Provide a list of all available housing/dorms
 export async function POST(request: NextRequest) {
 	try {
-		const authHeader = request.headers.get("authorization");
-		if (!authHeader)
-			return NextResponse.json(
-				{ error: "Unauthorized" },
-				{ status: 401 },
-			);
-
 		const body = await request.json();
 		const result = await housingService.addHousing(body);
 		return NextResponse.json({ data: result }, { status: 201 });
