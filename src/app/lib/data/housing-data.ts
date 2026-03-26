@@ -9,9 +9,7 @@ import { supabase } from "@/lib/supabase";
 // Define Housing record based on DB schema
 
 // Inserts a new record and returns the created object with its new ID
-export async function create(
-	housingDetails: HousingInsert,
-): Promise<Housing | null> {
+async function create(housingDetails: HousingInsert): Promise<Housing | null> {
 	const { data: newRecord, error } = await supabase
 		.from("housing")
 		.insert(housingDetails)
@@ -23,7 +21,7 @@ export async function create(
 }
 
 // Fetches all active dorms, sorted alphabetically
-export async function findAll(): Promise<Housing[] | []> {
+async function findAll(): Promise<Housing[] | []> {
 	const { data, error } = await supabase
 		.from("housing")
 		.select("*")
@@ -34,7 +32,7 @@ export async function findAll(): Promise<Housing[] | []> {
 	return data ?? [];
 }
 
-export async function findWithRooms(id: number): Promise<HousingWithRooms> {
+async function findWithRooms(id: number): Promise<HousingWithRooms> {
 	const { data, error } = await supabase
 		.from("housing")
 		.select(
@@ -54,7 +52,7 @@ export async function findWithRooms(id: number): Promise<HousingWithRooms> {
 }
 
 // Fetches a specific dorm by its unique ID
-export async function findById(id: number): Promise<Housing | null> {
+async function findById(id: number): Promise<Housing | null> {
 	const { data, error } = await supabase
 		.from("housing")
 		.select("*")
@@ -69,7 +67,7 @@ export async function findById(id: number): Promise<Housing | null> {
 	return data;
 }
 
-export async function update(
+async function update(
 	housingId: number,
 	housingDetails: Partial<HousingUpdate>,
 ): Promise<Housing | null> {
@@ -89,7 +87,7 @@ export async function update(
 }
 
 //deletes a housing
-export async function deactivate(housingId: number): Promise<Housing | null> {
+async function deactivate(housingId: number): Promise<Housing | null> {
 	const { data, error } = await supabase
 		.from("housing")
 		.update({ is_deleted: true }) // Soft delete
@@ -104,3 +102,12 @@ export async function deactivate(housingId: number): Promise<Housing | null> {
 
 	return data;
 }
+
+export const housingData = {
+	create,
+	findAll,
+	findById,
+	findWithRooms,
+	update,
+	deactivate,
+};
