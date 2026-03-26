@@ -6,7 +6,7 @@ import {
 	RoomWithParentHousing,
 } from "@/models/room";
 
-export async function create(data: RoomInsert): Promise<Room | null> {
+async function create(data: RoomInsert): Promise<Room | null> {
 	const { data: newRecord, error } = await supabase
 		.from("room")
 		.insert(data)
@@ -17,7 +17,7 @@ export async function create(data: RoomInsert): Promise<Room | null> {
 	return newRecord;
 }
 
-export async function findByRoomId(roomId: number): Promise<Room | null> {
+async function findByRoomId(roomId: number): Promise<Room | null> {
 	const { data, error } = await supabase
 		.from("room")
 		.select("*")
@@ -32,7 +32,7 @@ export async function findByRoomId(roomId: number): Promise<Room | null> {
 	return data;
 }
 
-export async function findByHousingId(
+async function findByHousingId(
 	housing_id: number,
 ): Promise<RoomWithParentHousing> {
 	const { data, error } = await supabase
@@ -51,7 +51,7 @@ export async function findByHousingId(
 	return data;
 }
 
-export async function findAll(): Promise<Room[] | []> {
+async function findAll(): Promise<Room[] | []> {
 	const { data, error } = await supabase
 		.from("room")
 		.select("*")
@@ -61,7 +61,7 @@ export async function findAll(): Promise<Room[] | []> {
 	return data ?? [];
 }
 
-export async function update(
+async function update(
 	roomId: number,
 	updatedFields: Partial<RoomUpdate>,
 ): Promise<Room | null> {
@@ -81,7 +81,7 @@ export async function update(
 }
 
 // Room Record Soft Delete
-export async function deactivate(roomId: number): Promise<Room | null> {
+async function deactivate(roomId: number): Promise<Room | null> {
 	const { data, error } = await supabase
 		.from("room")
 		.update({ is_deleted: true })
@@ -96,3 +96,12 @@ export async function deactivate(roomId: number): Promise<Room | null> {
 
 	return data;
 }
+
+export const roomData = {
+	create,
+	findAll,
+	findByHousingId,
+	findByRoomId,
+	update,
+	deactivate,
+};
