@@ -1,16 +1,9 @@
-import {
-	createHousing,
-	findAllHousing,
-	deleteHousing,
-	updateHousing,
-	findHousingById,
-} from "@/app/lib/data/housing-data";
+import { housingData } from "@/app/lib/data/housing-data";
 import { Housing } from "@/models/housing";
 
-// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-export const getHousing = async (): Promise<Housing[] | null> => {
+const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 	try {
-		const housingDetail = await findAllHousing();
+		const housingDetail = await housingData.create(HousingDetail);
 
 		if (!housingDetail) return null;
 
@@ -21,26 +14,61 @@ export const getHousing = async (): Promise<Housing[] | null> => {
 	}
 };
 
-export const addHousing = async (
-	HousingDetail: Housing,
+// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
+const getHousing = async (housingId: number): Promise<Housing | null> => {
+	try {
+		const housingDetail = await housingData.findById(housingId);
+
+		if (!housingDetail) return null;
+
+		return housingDetail;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+const getAllHousing = async (): Promise<Housing[] | null> => {
+	try {
+		const housingDetail = await housingData.findAll();
+
+		if (!housingDetail) return null;
+
+		return housingDetail;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+const updateHousing = async (
+	housingId: number,
+	housingDetail: Partial<Housing>,
 ): Promise<Housing | null> => {
 	try {
-		const housingDetail = await createHousing(HousingDetail);
+		const { housing_id, ...allowedUpdates } = housingDetail;
+		allowedUpdates;
 
-		if (!housingDetail) return null;
+		console.log(allowedUpdates);
+		const updatedHousing = await housingData.update(
+			housingId,
+			allowedUpdates,
+		);
 
-		return housingDetail;
+		if (!updatedHousing) return null;
+
+		return updatedHousing;
 	} catch (error) {
 		console.error("Error: ", error);
-		throw new Error("Error");
+		throw new Error("Failed to update housing");
 	}
 };
 
-export const removeHousing = async (
+const deactivateHousing = async (
 	housingId: number,
 ): Promise<Housing | null> => {
 	try {
-		const housing = await findHousingById(housingId.toString());
+		const housing = await housingData.findById(housingId);
 		if (!housing) {
 			throw new Error("Housing record not found or already deactivated.");
 		}
@@ -51,7 +79,7 @@ export const removeHousing = async (
 		 * add cascading soft delete for rooms of housing
 		 */
 
-		const deactivatedHousing = await deleteHousing(housingId);
+		const deactivatedHousing = await housingData.deactivate(housingId);
 		return deactivatedHousing ?? null;
 	} catch (error: any) {
 		if (error.message.includes("not found")) {
@@ -65,22 +93,10 @@ export const removeHousing = async (
 	}
 };
 
-export const modifyHousing = async (
-	housingId: number,
-	housingDetail: Partial<Housing>,
-): Promise<Housing | null> => {
-	try {
-		const { housing_id, ...allowedUpdates } = housingDetail;
-		allowedUpdates;
-
-		console.log(allowedUpdates);
-		const updatedHousing = await updateHousing(housingId, allowedUpdates);
-
-		if (!updatedHousing) return null;
-
-		return updatedHousing;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Failed to update housing");
-	}
+export const housingService = {
+	addHousing,
+	getHousing,
+	getAllHousing,
+	updateHousing,
+	deactivateHousing,
 };

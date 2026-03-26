@@ -1,15 +1,9 @@
-import {
-	createRoom,
-	deleteRoom,
-	findRoomById,
-	getAllRooms,
-	updateRoom,
-} from "@/app/lib/data/room-data";
+import { roomData } from "@/app/lib/data/room-data";
 import { Room, RoomInsert, RoomType, RoomUpdate } from "@/models/room";
 
-export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
+const addRoom = async (data: RoomInsert): Promise<Room | null> => {
 	try {
-		const newRoom = await createRoom(data);
+		const newRoom = await roomData.create(data);
 		if (!newRoom) return null;
 		return newRoom;
 	} catch (error) {
@@ -18,9 +12,9 @@ export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
 	}
 };
 
-export const getRoom = async (roomId: number): Promise<Room | null> => {
+const getRoom = async (roomId: number): Promise<Room | null> => {
 	try {
-		const room = await findRoomById(roomId);
+		const room = await roomData.findByRoomId(roomId);
 		return room ?? null;
 	} catch (error) {
 		console.error("Error: ", error);
@@ -28,9 +22,9 @@ export const getRoom = async (roomId: number): Promise<Room | null> => {
 	}
 };
 
-export const fetchAllRooms = async (): Promise<Room[]> => {
+const getAllRooms = async (): Promise<Room[]> => {
 	try {
-		const rooms = await getAllRooms();
+		const rooms = await roomData.findAll();
 		return rooms ?? [];
 	} catch (error) {
 		console.error("Error:", error);
@@ -38,12 +32,12 @@ export const fetchAllRooms = async (): Promise<Room[]> => {
 	}
 };
 
-export const updateRoomDetails = async (
+const updateRoom = async (
 	roomId: number,
-	updates: Partial<Room>,
+	updates: RoomUpdate,
 ): Promise<{ data?: Room; error?: string }> => {
 	try {
-		const existingRoom = await findRoomById(roomId);
+		const existingRoom = await roomData.findByRoomId(roomId);
 		if (!existingRoom) {
 			return { error: "Room Not Found." };
 		}
@@ -62,23 +56,22 @@ export const updateRoomDetails = async (
 			return { error: "Maximum occupants must be at least 1." };
 		}
 
-		const dataArray = await updateRoom(roomId, updates);
-		const data = dataArray && dataArray.length > 0 ? dataArray[0] : null;
-		if (!data) {
+		const updatedRoom = await roomData.update(roomId, updates);
+		if (!updatedRoom) {
 			return { error: "Update failed." };
 		}
 
 		console.log(`Log: Room ${roomId} details updated.`);
-		return { data };
+		return { data: updatedRoom };
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Failed to update room details.");
 	}
 };
 
-export const removeRoom = async (roomId: number): Promise<Room | null> => {
+const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 	try {
-		const room = await findRoomById(roomId);
+		const room = await roomData.findByRoomId(roomId);
 		if (!room) {
 			return null;
 		}
@@ -89,10 +82,18 @@ export const removeRoom = async (roomId: number): Promise<Room | null> => {
 			);
 		}
 
-		const deletedRoom = await deleteRoom(roomId);
+		const deletedRoom = await roomData.deactivate(roomId);
 		return deletedRoom ?? null;
 	} catch (error: any) {
 		console.error("Service Error (removeRoom): ", error.message);
 		throw new Error(error.message || "Failed to remove room.");
 	}
+};
+
+export const roomService = {
+	addRoom,
+	getRoom,
+	getAllRooms,
+	updateRoom,
+	deactivateRoom,
 };

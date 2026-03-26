@@ -1,7 +1,12 @@
 import { supabase } from "@/lib/supabase";
-import { Room, RoomInsert } from "@/models/room";
+import {
+	Room,
+	RoomInsert,
+	RoomUpdate,
+	RoomWithParentHousing,
+} from "@/models/room";
 
-export async function createRoom(data: RoomInsert): Promise<Room> {
+async function create(data: RoomInsert): Promise<Room | null> {
 	const { data: newRecord, error } = await supabase
 		.from("room")
 		.insert(data)
@@ -12,7 +17,7 @@ export async function createRoom(data: RoomInsert): Promise<Room> {
 	return newRecord;
 }
 
-export async function findRoomById(roomId: number): Promise<Room | null> {
+async function findByRoomId(roomId: number): Promise<Room | null> {
 	const { data, error } = await supabase
 		.from("room")
 		.select("*")
@@ -20,48 +25,63 @@ export async function findRoomById(roomId: number): Promise<Room | null> {
 		.eq("is_deleted", false)
 		.single();
 
-	if (error) return null;
+	if (error) {
+		if (error.code === "PGRST116") return null;
+		throw new Error(error.message);
+	}
 	return data;
 }
 
-export async function getRoomsByHousingId(housing_id: number) {
+async function findByHousingId(
+	housing_id: number,
+): Promise<RoomWithParentHousing> {
 	const { data, error } = await supabase
 		.from("room")
-		.select("*, housing:housing_id(housing_name, housing_address)")
+		.select(
+			`*,
+            housing:housing_id(
+            housing_name, housing_address
+            )`,
+		)
 		.eq("housing_id", housing_id)
-		.eq("is_deleted", false);
+		.eq("is_deleted", false)
+		.single();
 
-	if (error) throw error;
+	if (error) throw new Error(error.message);
 	return data;
 }
 
-export async function getAllRooms(): Promise<Room[]> {
+async function findAll(): Promise<Room[] | []> {
 	const { data, error } = await supabase
 		.from("room")
 		.select("*")
 		.eq("is_deleted", false);
 
-	if (error) throw error;
-	return data;
+	if (error) throw new Error(error.message);
+	return data ?? [];
 }
 
-export async function updateRoom(
+async function update(
 	roomId: number,
-	updatedFields: Partial<Room>,
-): Promise<Room[]> {
+	updatedFields: Partial<RoomUpdate>,
+): Promise<Room | null> {
 	const { data, error } = await supabase
 		.from("room")
 		.update(updatedFields)
 		.eq("room_id", roomId)
 		.eq("is_deleted", false)
-		.select();
+		.select()
+		.single();
 
-	if (error) throw error;
+	if (error) {
+		if (error.code === "PGRST116") return null;
+		throw new Error(error.message);
+	}
 	return data;
 }
 
 // Room Record Soft Delete
-export async function deleteRoom(roomId: number): Promise<Room> {
+async function deactivate(roomId: number): Promise<Room | null> {
 	const { data, error } = await supabase
 		.from("room")
 		.update({ is_deleted: true })
@@ -70,9 +90,18 @@ export async function deleteRoom(roomId: number): Promise<Room> {
 		.single();
 
 	if (error) {
-		console.error("Database Error (deleteRoom):", error.message);
+		if (error.code === "PGRST116") return null;
 		throw new Error(error.message);
 	}
 
 	return data;
 }
+
+export const roomData = {
+	create,
+	findAll,
+	findByHousingId,
+	findByRoomId,
+	update,
+	deactivate,
+};
