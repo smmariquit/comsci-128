@@ -1,5 +1,10 @@
 import { supabase } from "@/lib/supabase";
-import { Room, RoomInsert, RoomUpdate } from "@/models/room";
+import {
+	Room,
+	RoomInsert,
+	RoomUpdate,
+	RoomWithParentHousing,
+} from "@/models/room";
 
 export async function create(data: RoomInsert): Promise<Room | null> {
 	const { data: newRecord, error } = await supabase
@@ -27,12 +32,20 @@ export async function findByRoomId(roomId: number): Promise<Room | null> {
 	return data;
 }
 
-export async function findByHousingId(housing_id: number) {
+export async function findByHousingId(
+	housing_id: number,
+): Promise<RoomWithParentHousing> {
 	const { data, error } = await supabase
 		.from("room")
-		.select("*, housing:housing_id(housing_name, housing_address)")
+		.select(
+			`*,
+            housing:housing_id(
+            housing_name, housing_address
+            )`,
+		)
 		.eq("housing_id", housing_id)
-		.eq("is_deleted", false);
+		.eq("is_deleted", false)
+		.single();
 
 	if (error) throw new Error(error.message);
 	return data;
