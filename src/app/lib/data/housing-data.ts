@@ -1,4 +1,9 @@
-import { Housing, HousingInsert, HousingUpdate } from "@/models/housing";
+import {
+	Housing,
+	HousingInsert,
+	HousingUpdate,
+	HousingWithRooms,
+} from "@/models/housing";
 import { supabase } from "@/lib/supabase";
 
 // Define Housing record based on DB schema
@@ -29,7 +34,7 @@ export async function findAll(): Promise<Housing[] | []> {
 	return data ?? [];
 }
 
-export async function findWithRooms(id: number) {
+export async function findWithRooms(id: number): Promise<HousingWithRooms> {
 	const { data, error } = await supabase
 		.from("housing")
 		.select(
