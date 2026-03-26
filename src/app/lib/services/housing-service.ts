@@ -1,23 +1,7 @@
 import { housingData } from "@/app/lib/data/housing-data";
 import { Housing } from "@/models/housing";
 
-// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-export const getHousing = async (): Promise<Housing[] | null> => {
-	try {
-		const housingDetail = await housingData.findAll();
-
-		if (!housingDetail) return null;
-
-		return housingDetail;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Error");
-	}
-};
-
-export const addHousing = async (
-	HousingDetail: Housing,
-): Promise<Housing | null> => {
+const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 	try {
 		const housingDetail = await housingData.create(HousingDetail);
 
@@ -30,7 +14,44 @@ export const addHousing = async (
 	}
 };
 
-export const deactivateHousing = async (
+// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
+const getHousing = async (): Promise<Housing[] | null> => {
+	try {
+		const housingDetail = await housingData.findAll();
+
+		if (!housingDetail) return null;
+
+		return housingDetail;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+const updateHousing = async (
+	housingId: number,
+	housingDetail: Partial<Housing>,
+): Promise<Housing | null> => {
+	try {
+		const { housing_id, ...allowedUpdates } = housingDetail;
+		allowedUpdates;
+
+		console.log(allowedUpdates);
+		const updatedHousing = await housingData.update(
+			housingId,
+			allowedUpdates,
+		);
+
+		if (!updatedHousing) return null;
+
+		return updatedHousing;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to update housing");
+	}
+};
+
+const deactivateHousing = async (
 	housingId: number,
 ): Promise<Housing | null> => {
 	try {
@@ -59,25 +80,9 @@ export const deactivateHousing = async (
 	}
 };
 
-export const updateHousing = async (
-	housingId: number,
-	housingDetail: Partial<Housing>,
-): Promise<Housing | null> => {
-	try {
-		const { housing_id, ...allowedUpdates } = housingDetail;
-		allowedUpdates;
-
-		console.log(allowedUpdates);
-		const updatedHousing = await housingData.update(
-			housingId,
-			allowedUpdates,
-		);
-
-		if (!updatedHousing) return null;
-
-		return updatedHousing;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Failed to update housing");
-	}
+export const housingService = {
+	addHousing,
+	getHousing,
+	updateHousing,
+	deactivateHousing,
 };
