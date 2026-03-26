@@ -1,16 +1,10 @@
-import {
-	createHousing,
-	findAllHousing,
-	deleteHousing,
-	updateHousing,
-	findHousingById,
-} from "@/app/lib/data/housing-data";
+import { housingData } from "@/app/lib/data/housing-data";
 import { Housing } from "@/models/housing";
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 export const getHousing = async (): Promise<Housing[] | null> => {
 	try {
-		const housingDetail = await findAllHousing();
+		const housingDetail = await housingData.findAll();
 
 		if (!housingDetail) return null;
 
@@ -25,7 +19,7 @@ export const addHousing = async (
 	HousingDetail: Housing,
 ): Promise<Housing | null> => {
 	try {
-		const housingDetail = await createHousing(HousingDetail);
+		const housingDetail = await housingData.create(HousingDetail);
 
 		if (!housingDetail) return null;
 
@@ -40,7 +34,7 @@ export const removeHousing = async (
 	housingId: number,
 ): Promise<Housing | null> => {
 	try {
-		const housing = await findHousingById(housingId.toString());
+		const housing = await housingData.findById(housingId);
 		if (!housing) {
 			throw new Error("Housing record not found or already deactivated.");
 		}
@@ -51,7 +45,7 @@ export const removeHousing = async (
 		 * add cascading soft delete for rooms of housing
 		 */
 
-		const deactivatedHousing = await deleteHousing(housingId);
+		const deactivatedHousing = await housingData.deactivate(housingId);
 		return deactivatedHousing ?? null;
 	} catch (error: any) {
 		if (error.message.includes("not found")) {
@@ -74,7 +68,10 @@ export const modifyHousing = async (
 		allowedUpdates;
 
 		console.log(allowedUpdates);
-		const updatedHousing = await updateHousing(housingId, allowedUpdates);
+		const updatedHousing = await housingData.update(
+			housingId,
+			allowedUpdates,
+		);
 
 		if (!updatedHousing) return null;
 
