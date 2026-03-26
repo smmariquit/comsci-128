@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { findUserById } from "@/app/lib/data/user-data";
+import { userData } from "@/app/lib/data/user-data";
 
 export default async function DashboardPage() {
 	//placeholder data
-	const curr_user = await findUserById(30);
+	const curr_user = await userData.findById(30);
 	const notifs = [
 		"OSH has approved your application",
 		"Upload your payment receipt",
