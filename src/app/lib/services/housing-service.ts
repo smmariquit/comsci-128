@@ -15,7 +15,20 @@ const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 };
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
-const getHousing = async (): Promise<Housing[] | null> => {
+const getHousing = async (housingId: number): Promise<Housing | null> => {
+	try {
+		const housingDetail = await housingData.findById(housingId);
+
+		if (!housingDetail) return null;
+
+		return housingDetail;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+const getAllHousing = async (): Promise<Housing[] | null> => {
 	try {
 		const housingDetail = await housingData.findAll();
 
@@ -83,6 +96,7 @@ const deactivateHousing = async (
 export const housingService = {
 	addHousing,
 	getHousing,
+	getAllHousing,
 	updateHousing,
 	deactivateHousing,
 };
