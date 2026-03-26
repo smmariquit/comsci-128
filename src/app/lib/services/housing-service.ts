@@ -30,7 +30,7 @@ export const addHousing = async (
 	}
 };
 
-export const removeHousing = async (
+export const deactivateHousing = async (
 	housingId: number,
 ): Promise<Housing | null> => {
 	try {
@@ -59,7 +59,7 @@ export const removeHousing = async (
 	}
 };
 
-export const modifyHousing = async (
+export const updateHousing = async (
 	housingId: number,
 	housingDetail: Partial<Housing>,
 ): Promise<Housing | null> => {
