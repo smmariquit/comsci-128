@@ -11,7 +11,7 @@ export default function ManageLayout({
       <header className="w-full">
 
         {/*top navbar*/} 
-        <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--beige)]">
+        <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-10">
