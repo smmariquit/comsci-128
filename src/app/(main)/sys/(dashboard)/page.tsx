@@ -74,6 +74,7 @@ const quickAccess = [
     { label: 'Edit User',       icon: Pencil,       href: '/sys/users'},
 ];
 
+// Hardcoded stub data for now - to be replaced with real data from backend/API integration
 const stubUser: SidebarUser = {
     name: 'Luthelle Fernandez',
     role: 'System Admin',
@@ -81,6 +82,7 @@ const stubUser: SidebarUser = {
 };
 
 export default function DashboardPage({
+    // Dummy data for now - to be replaced with real data from backend/API integration
     user = stubUser,
     stats = [
         { label: 'TOTAL USERS',      value: '240', sub: '↑ 3 added this month',  dark: true  },
@@ -127,6 +129,58 @@ export default function DashboardPage({
                         {/* Notification bell */}
                         <div className='relative'>
                             <NotificationBell notifications={notifications} />
+                        </div>
+                    </div>
+                    { /*Stat Cards*/}
+                    <div className="grid grid-cols-4 gap-4 px-8 mb-6">
+                        {stats.map((s) => (
+                            <div
+                            key={s.label}
+                            className={`rounded-2xl p-5 ${s.dark ? 'bg-[#1a2332] text-white' : 'bg-white text-[#1a2332]'}`}
+                            >
+                            <p className={`text-[10px] font-semibold tracking-widest uppercase mb-2 ${s.dark ? 'text-white/50' : 'text-[#1a2332]/40'}`}>
+                                {s.label}
+                            </p>
+                            <p className="text-4xl font-bold mb-2">{s.value}</p>
+                            <p className={`text-xs flex items-center gap-1 ${s.dark ? 'text-white/50' : 'text-[#1a2332]/50'}`}>
+                                {s.sub.startsWith('↑') && <TrendingUp size={12} className="text-[#d4622a]" />}
+                                {s.sub}
+                            </p>
+                            </div>
+                        ))}
+                    </div>
+                    {/* Bottom Section */}
+                    <div className="flex gap-4 px-8 pb-8">
+                        {/* Left col */}
+                        <div className="flex-1 flex flex-col gap-4 min-w-0">
+                            {/* Recent Activity */}
+                                <div className="bg-white rounded-2xl p-6">
+                                    {/* Title: Recent Activity & See All */}
+                                    <div className="flex items-center justify-between mb-5">
+                                        <h2 className="text-[15px] font-bold text-[#1a2332]">Recent Activity</h2>
+                                        <Link href="/sys/logs" className="text-xs text-[#1a2332]/50 hover:text-[#d4622a] transition-colors flex items-center gap-1">
+                                        See all <ChevronRight size={12} />
+                                        </Link>
+                                    </div>
+                                    {/* Activity List */}
+                                    <div className="flex flex-col divide-y divide-[#1a2332]/6">
+                                        {recentActivity.length === 0 ? (
+                                        <p className="text-xs text-[#1a2332]/40 py-4 text-center">No recent activity.</p>
+                                        ) : (
+                                        recentActivity.map((item, i) => (
+                                            <div key={i} className="flex items-center gap-3 py-3">
+                                            <span className={`w-2 h-2 rounded-full shrink-0 ${activityDotColor(item.type)}`} /> {/*ui circle color based on activity type*/}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm text-[#1a2332] font-medium truncate">{item.text}</p>
+                                                <p className="text-[11px] text-[#1a2332]/40 mt-0.5">{item.meta}</p>
+                                            </div>
+                                            <span className="text-[11px] text-[#1a2332]/40 shrink-0">{item.time}</span>
+                                            </div>
+                                        ))
+                                        )}
+                                    </div>
+
+                                </div>
                         </div>
                     </div>
                 </div>
