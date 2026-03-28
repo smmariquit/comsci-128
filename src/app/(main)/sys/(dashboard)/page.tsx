@@ -1,20 +1,14 @@
+import SysAdminSidebar from '@/app/(main)/sys/component/sidebar';
 import Link from 'next/link';
 
 export default function Page() {
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">System Dashboard Page</h1>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link href="/sys/logs" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Logs
-        </Link>
-        <Link href="/sys/roles" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Roles
-        </Link>
-        <Link href="/sys/users" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Users
-        </Link>
-      </div>
-    </main>
+    <div className="flex min-h-screen bg-[#eae8e1]">
+      <SysAdminSidebar />
+
+      <main className="flex-1 flex flex-col items-center justify-center p-6 text-[#1a2332]">
+        <h1 className="text-4xl font-bold text-center mb-8">System Dashboard Page</h1>
+      </main>
+    </div>
   );
 }
