@@ -70,11 +70,13 @@ export default function ManageLayout({
 
       </header>
 
-      <main className="p-6">
+      <main className="flex-1 px-6 bg-[var(--dark-blue)]">
         {children}
       </main>
-    </div>
 
-    
+      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-4 text-sm">
+        © 2026 Manager Dashboard
+      </footer>
+    </div>    
   );
 }
