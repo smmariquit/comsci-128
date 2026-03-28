@@ -1,17 +1,110 @@
-import Link from 'next/link';
+import Link from "next/link";
 
-export default function Page() {
+
+function MainStatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8 ">Manage Dashboard Page</h1>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link href="/manage/accommodations" className="bg-black text-white px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Accommodations
-        </Link>
-        <Link href="/manage/applications" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Applications
-        </Link>
+    <div className="bg-gray-800 p-6 rounded-xl">
+      <p className="text-sm text-gray-400">{label}</p>
+      <p className="text-3xl font-bold text-white">{value}</p>
+    </div>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="bg-gray-700 p-4 rounded-lg flex items-center gap-4">
+      {/* pic placeholder*/}
+      <div className="w-10 h-10 bg-white rounded"></div>
+
+      <div>
+        <p className="text-lg font-bold text-white">{value}</p>
+        <p className="text-sm text-gray-300">{label}</p>
       </div>
-    </main>
+    </div>
+  );
+}
+
+function DormCard({
+  id,
+  name,
+  location,
+}: {
+  id: number;
+  name: string;
+  location: string;
+}) {
+  return (
+    <Link href={`/manage/accommodations/`}> {/* Specific dorm page to do */}
+      <div className="bg-white p-4 rounded shadow hover:shadow-lg transition cursor-pointer">
+        <h3 className="font-bold text-lg text-gray-800">{name}</h3>
+        <p className="text-sm text-gray-600">{location}</p>
+      </div>
+    </Link>
+  );
+}
+
+function ActivityItem({ text }: { text: string }) {
+  return (
+    <div className="bg-gray-100 p-3 rounded text-sm text-gray-800">
+      {text}
+    </div>
+  );
+}
+
+
+
+
+export default function MgrDashboardPage() {
+  return (
+    <div className="flex flex-col gap-10 text-[var(--dark-blue)]">
+
+
+      <section className="flex flex-col gap-6 px-6">
+        <h1 className="text-3xl font-bold">Manager Dashboard</h1>
+
+
+        <MainStatCard label="Total Applicants" value="1,245" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCard label="New Applicants" value="32" />
+          <StatCard label="Approved Applications" value="120" />
+          <StatCard label="Rejected Applications" value="15" />
+        </div>
+      </section>
+
+
+
+
+      <section className="flex flex-col gap-4 p-6 bg-[var(--teal)]/30 ">
+        <h2 className="text-xl font-semibold">Dorms Managed</h2>
+
+        {/* filter */}
+        <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
+          Filter (to be implemented)
+        </div>
+
+
+        {/* Dorm Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-2">
+          <DormCard id={1} name="Dorm A" location="Grove" />
+          <DormCard id={2} name="Dorm B" location="Umali" />
+          <DormCard id={3} name="Dorm C" location="Umali" />
+          <DormCard id={4} name="Dorm D" location="Grove" />
+        </div>
+      </section>
+
+
+
+      <section className="flex flex-col gap-4 px-6">
+        <h2 className="text-xl font-semibold text-[var(--dark-orange)]">Recent Activities</h2>
+
+        <div className="flex flex-col gap-2 p-4 border-orange-500">
+          <ActivityItem text="Wen Ruohan applied to Dorm A" />
+          <ActivityItem text="Wen Zhuliu was approved for Dorm B" />
+          <ActivityItem text="Wen Chao was rejected for Dorm C" />
+        </div>
+      </section>
+
+    </div>
   );
 }
