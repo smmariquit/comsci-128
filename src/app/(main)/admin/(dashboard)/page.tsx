@@ -1,29 +1,23 @@
-import Link from 'next/link';
+import Sidebar from "@/app/components/admin/sidebar";
+import PageHeader from "@/app/components/admin/pageheader";
 
 export default function Page() {
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">Admin Dashboard Page</h1>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link href="/admin/accommodations" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Accommodations
-        </Link>
-        <Link href="/admin/billing" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Billing
-        </Link>
-        <Link href="/admin/rooms" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Rooms
-        </Link>
-        <Link href="/admin/users" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Users
-        </Link>
-        <Link href="/admin/logs" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Logs
-        </Link>
-        <Link href="/admin/reports" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Reports
-        </Link>
-      </div>
-    </main>
+    <div style={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden", background: "#eef0f4" }}>
+      <Sidebar
+        userInitials="JD"
+        userName="John Doe"
+        userRole="House Admin"
+      />
+
+      <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <PageHeader title="Dashboard" />
+
+        {/* Content area — add your widgets/cards here */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "32px" }}>
+          {/* content goes here */}
+        </div>
+      </main>
+    </div>
   );
 }
