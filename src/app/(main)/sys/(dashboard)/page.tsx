@@ -179,9 +179,37 @@ export default function DashboardPage({
                                         ))
                                         )}
                                     </div>
-
+                                </div>
+                                {/* Occupancy Per Dorm */}
+                                <div className="bg-white rounded-2xl p-6">
+                                    {/* Title Area */}
+                                    <div className="flex items-center justify-between mb-5">
+                                        <h2 className="text-[15px] font-bold text-[#1a2332]">Occupancy Per Dorm</h2>
+                                        <Link href="/sys/dorms" className="text-xs text-[#1a2332]/50 hover:text-[#d4622a] transition-colors flex items-center gap-1">
+                                            View details <ChevronRight size={12} />
+                                        </Link>
+                                    </div>
+                                    {/* Occupancy List */}
+                                    <div className="flex flex-col gap-4">
+                                        {occupancy.map((d) => (
+                                        <div key={d.name} className="flex items-center gap-4">
+                                            <span className="text-sm text-[#1a2332] font-medium w-14 shrink-0">{d.name}</span>
+                                            <div className="flex-1 bg-[#eae8e1] rounded-full h-3 overflow-hidden">
+                                            <div
+                                                className="h-3 rounded-full bg-[#d4622a] transition-all duration-500"
+                                                style={{ width: `${d.pct}%` }}
+                                            />
+                                            </div>
+                                            <span className={`text-sm font-semibold w-10 text-right shrink-0 ${d.pct >= 90 ? 'text-[#d4622a]' : 'text-[#1a2332]'}`}>
+                                            {d.pct}%
+                                            </span>
+                                        </div>
+                                        ))}
+                                    </div>
                                 </div>
                         </div>
+                        {/* Right col - Quick Access */}
+                        
                     </div>
                 </div>
             </div>
