@@ -12,7 +12,7 @@ function MainStatCard({ label, value }: { label: string; value: string | number 
 
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="bg-gray-700 p-4 rounded-lg flex items-center gap-4">
+    <div className="bg-gray-700 p-4 rounded-lg flex items-center gap-4 border-t-4 border-[var(--dark-orange)] shadow-md">
       {/* pic placeholder*/}
       <div className="w-10 h-10 bg-white rounded"></div>
 
@@ -27,17 +27,26 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 function DormCard({
   id,
   name,
-  location,
+  image,
 }: {
   id: number;
   name: string;
-  location: string;
+  image: string;
 }) {
   return (
-    <Link href={`/manage/accommodations/`}> {/* Specific dorm page to do */}
-      <div className="bg-white p-4 rounded shadow hover:shadow-lg transition cursor-pointer">
-        <h3 className="font-bold text-lg text-gray-800">{name}</h3>
-        <p className="text-sm text-gray-600">{location}</p>
+    <Link href={`/manage/accommodations`}> {/*to be modified when there is a specific dorm page*/}
+      <div className="relative h-48 rounded-xl overflow-hidden shadow cursor-pointer group">
+
+        <img
+          src={image}
+          alt={name}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+        />
+
+        <div className="absolute bottom-0 w-full bg-[var(--dark-blue)]/50 text-[var(--light-yellow)] p-2 text-center font-semibold">
+          {name}
+        </div>
+
       </div>
     </Link>
   );
@@ -63,12 +72,13 @@ export default function MgrDashboardPage() {
         <h1 className="text-3xl font-bold">Manager Dashboard</h1>
 
 
-        <MainStatCard label="Total Applicants" value="1,245" />
+        <MainStatCard label="Gross Revenue" value="1,245" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard label="New Applicants" value="32" />
-          <StatCard label="Approved Applications" value="120" />
-          <StatCard label="Rejected Applications" value="15" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <StatCard label="Total Applicants" value="32" />
+          <StatCard label="Total Rooms" value="120" />
+          <StatCard label="Total Occupants" value="15" />
+          <StatCard label="Total Free Slots" value="15" />
         </div>
       </section>
 
@@ -86,10 +96,10 @@ export default function MgrDashboardPage() {
 
         {/* Dorm Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-2">
-          <DormCard id={1} name="Dorm A" location="Grove" />
-          <DormCard id={2} name="Dorm B" location="Umali" />
-          <DormCard id={3} name="Dorm C" location="Umali" />
-          <DormCard id={4} name="Dorm D" location="Grove" />
+          <DormCard id={1} name="Dorm A" image="/placeholders/housing-414x264.svg" />
+          <DormCard id={2} name="Dorm B" image="/placeholders/housing-414x264.svg" />
+          <DormCard id={3} name="Dorm C" image="/placeholders/housing-414x264.svg" />
+          <DormCard id={4} name="Dorm D" image="/placeholders/housing-414x264.svg" />
         </div>
       </section>
 
