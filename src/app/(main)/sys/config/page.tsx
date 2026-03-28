@@ -7,7 +7,7 @@ export default function Page() {
       <SysAdminSidebar />
  
       <main className="flex-1 flex flex-col items-center justify-center p-6 text-[#1a2332]">
-        <h1 className="text-4xl font-bold text-center mb-8">System Users Page</h1>
+        <h1 className="text-4xl font-bold text-center mb-8">System Config Page</h1>
       </main>
     </div>
   );
