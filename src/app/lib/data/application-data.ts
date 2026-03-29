@@ -120,6 +120,7 @@ export async function getApplicationStats() {
 	return { total, pending, approved, rejected }
 }
 
+// APPLICATION DATA JOINED WITH STUDENT ACCOUNT NUMBER
 export async function getApplicationsWithStudentDetails() {
 
   const { data, error } = await supabase
@@ -148,4 +149,42 @@ export async function getApplicationsWithStudentDetails() {
   }
 
   return data ?? []
+}
+
+// SINGLE APPLICATION DETAIL BY ID 
+export async function getApplicationDetailById(applicationId: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      housing_name,
+      application_status,
+      expected_moveout_date,
+      preferred_room_type,
+      student:student_account_number (
+        account_number,
+        user:account_number (
+          first_name,
+          middle_name,
+          last_name
+        )
+      )
+    `)
+    .eq("application_id", applicationId)
+    .eq("is_deleted", false)
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// RETRIEVE DOCUMENTS BY APPLICATION ID
+export async function getDocumentsByApplicationId(applicationId: number) {
+  const { data, error } = await supabase
+    .from("document")
+    .select("document_id, type, storage_link")
+    .eq("application_Id", applicationId)
+
+  if (error) throw error
+  return data
 }
