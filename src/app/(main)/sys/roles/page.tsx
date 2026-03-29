@@ -5,6 +5,7 @@ import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter';
 import {Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import AddManagerModal from '@/app/(main)/sys/component/add-manager-modal';
 
 // User Data Types - showed in table
 export interface User {
@@ -75,17 +76,23 @@ const ITEMS_PER_PAGE = 5;
 // Main User Management Page component
 export default function UserManagementPage({
   user = stubUser,
-  users = stubUsers,
+  users: initialUsers = stubUsers,
   notifications = stubNotifications,
   onLogout,
 }: UserManagementProps) {
+  const [userList, setUserList] = useState<User[]>(initialUsers);
+  const [showModal, setShowModal] = useState(false);
   const [filters, setFilters] = useState<UserFiltersState>({
   search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
   });
 
   const [page, setPage] = useState(1);
+  const handleAddManager = (newUser: User) => {
+    setUserList((prev) => [newUser, ...prev]);
+    setPage(1);
+  };
 
-  const filtered = users.filter((u) => {
+  const filtered = userList.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
                           u.email.toLowerCase().includes(filters.search.toLowerCase());
     const matchRole   = filters.role   === 'All Roles'  || u.role      === filters.role;
@@ -98,6 +105,14 @@ export default function UserManagementPage({
 
   return (
     <div className="flex min-h-screen bg-[#eae8e1]">
+
+      {/* 'Add Manager' Modal */}
+      <AddManagerModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onAdd={handleAddManager}
+        dormOptions={['Dorm 1', 'Dorm 2', 'Dorm 3']}
+      />
 
       {/* Sidebar */}
       <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
@@ -119,6 +134,8 @@ export default function UserManagementPage({
             values={filters}
             onChange={(f) => { setFilters(f); setPage(1); }}
             roleOptions={['All Roles', 'Manager', 'Landlord']}
+            showAddManager
+            onAddManager={() => setShowModal(true)}
           />
           {/* User Table */}
           <div className="bg-white rounded-2xl overflow-hidden">
