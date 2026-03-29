@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, ChevronDown, X, UserPlus } from 'lucide-react';
+import { Search, ChevronDown, X } from 'lucide-react';
 
 // Filter state type - represents the current values of all filters
 export interface UserFiltersState {
