@@ -1,5 +1,6 @@
 
-// import { applicationService } from "@/app/lib/services/application-service";
+import { applicationService } from "@/app/lib/services/application-service";
+import { housingService } from "@/app/lib/services/housing-service";
 import Link from "next/link";
 
 
@@ -56,14 +57,13 @@ function ActivityItem({ text }: { text: string }) {
 
 
 
-export default function MgrDashboardPage() {
+export default async function MgrDashboardPage() {
 
-  // const [stats, dorms] = await Promise.all([
-  //   applicationService.getDashboardStats(),
-  //   housingService.getAllHousing(),
+  const [stats, dorms] = await Promise.all([
+    applicationService.getDashboardStats(),
+    housingService.getAllHousing(),
 
-
-  // ])
+  ])
 
   return (
     <div className="flex flex-col gap-10 text-[var(--dark-blue)]">
@@ -73,12 +73,12 @@ export default function MgrDashboardPage() {
         <h1 className="text-3xl font-bold">Manager Dashboard</h1>
 
 
-        <MainStatCard label="Total Applicants" value="1,245" />
+        <MainStatCard label="Total Applicants" value={stats.total} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard label="New Applicants" value="32" />
-          <StatCard label="Approved Applications" value="120" />
-          <StatCard label="Rejected Applications" value="15" />
+          <StatCard label="New Applicants" value={stats.pending} />
+          <StatCard label="Approved Applications" value={stats.approved} />
+          <StatCard label="Rejected Applications" value={stats.rejected} />
         </div>
       </section>
 
@@ -96,10 +96,25 @@ export default function MgrDashboardPage() {
 
         {/* Dorm Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-2">
-          <DormCard id={1} name="Dorm A" location="Grove" />
+
+          {/* <DormCard id={1} name="Dorm A" location="Grove" />
           <DormCard id={2} name="Dorm B" location="Umali" />
           <DormCard id={3} name="Dorm C" location="Umali" />
-          <DormCard id={4} name="Dorm D" location="Grove" />
+          <DormCard id={4} name="Dorm D" location="Grove" /> */}
+
+          {dorms && dorms.length > 0 ? (
+            dorms.map((dorm) => (
+              <DormCard
+                key={dorm.housing_id}
+                id={dorm.housing_id}
+                name={dorm.housing_name}
+                location={dorm.housing_address}
+              />
+            ))
+          ) : (
+            <p className="text-gray-500">No dorms found.</p>
+          )}
+          
         </div>
       </section>
 
