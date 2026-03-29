@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, ChevronDown, X } from 'lucide-react';
+import { Search, ChevronDown, X, UserPlus } from 'lucide-react';
 
 // Filter state type - represents the current values of all filters
 export interface UserFiltersState {
@@ -18,6 +18,8 @@ export interface UserFiltersProps {
 	roleOptions?:   string[];	
 	statusOptions?: string[];
 	dormOptions?:   string[];
+	onAddManager?: () => void;
+	showAddManager?: boolean;
 }
 
 // Filter options
@@ -27,6 +29,8 @@ export default function UserFilters({
  	roleOptions   = ['All Roles',  'Landlord', 'Dorm Manager', 'Student'],
 	statusOptions = ['All Status', 'Active', 'Disabled'],
 	dormOptions   = ['All Dorm',   'Dorm 1', 'Dorm 2', 'Dorm 3'],
+	onAddManager,
+	showAddManager = false,
 }: UserFiltersProps) {
 	// Helper to update a single filter value while keeping the rest unchanged
 	const set = (key: keyof UserFiltersState, val: string) =>
@@ -78,6 +82,7 @@ export default function UserFilters({
 		  <FilterDropdown value={values.dorm} options={dormOptions} onChange={(v) => set('dorm', v)} />
 		</div>
 
+		{/* Clear all button */}
 		<button
 		  onClick={clearAll}
 		  className="px-4 py-2.5 rounded-xl border border-[#1a2332]/15 text-sm text-[#1a2332]/60 hover:border-[#d4622a] hover:text-[#d4622a] transition-colors"
@@ -85,6 +90,16 @@ export default function UserFilters({
 		  Clear Filters
 		</button>
 
+		{/* Add manager */}
+		{showAddManager && (
+			<button
+				onClick={onAddManager}
+				className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#d4622a] text-white text-sm font-semibold hover:bg-[#bc5525] transition-colors shrink-0"
+			>
+				<UserPlus size={15} />
+				Add Manager
+			</button>
+			)}
 	  </div>
 
 	  {/* Active filter tags */}
