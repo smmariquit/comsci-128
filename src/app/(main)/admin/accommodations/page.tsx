@@ -2,6 +2,42 @@
 
 import { useState } from "react";
 import Link from 'next/link';
+import DormCard from "@/app/components/admin/dorm_card";
+
+// Mock card data used as an example until API integration is wired.
+// Replace this with fetched data from /api/housing, then map the response.
+const mockDormCards = [
+  {
+    housingId: "H-001",
+    name: "Batong Malake Subdivision",
+    address: "UPLB College, Batong Malake, Los Banos",
+    totalRooms: 36,
+    occupiedRooms: 31,
+    vacantRooms: 5,
+    occupancyRate: 86,
+    minRent: 3500,
+  },
+  {
+    housingId: "H-002",
+    name: "Raymundo Residence Hall",
+    address: "Raymundo Gate, Los Banos",
+    totalRooms: 24,
+    occupiedRooms: 16,
+    vacantRooms: 8,
+    occupancyRate: 67,
+    minRent: 4200,
+  },
+  {
+    housingId: "H-003",
+    name: "Anos Garden Dormitory",
+    address: "Anos, Los Banos, Laguna",
+    totalRooms: 18,
+    occupiedRooms: 18,
+    vacantRooms: 0,
+    occupancyRate: 100,
+    minRent: 4800,
+  },
+];
 
 export default function Page() {
   const [housingDeleteId, setHousingDeleteId] = useState("");
@@ -35,8 +71,31 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">Admin Accommodations Page</h1>
+    <main className="min-h-screen text-white flex flex-col items-center p-6">
+     
+      
+      {/* DORM CARDS SECTION */}
+      <section className="w-full mb-12">
+        <h2 className="text-2xl font-bold mb-6">Housing Units</h2>
+
+        {/*
+          HOW TO USE DormCard HERE:
+          1) Keep mockDormCards while backend is not yet connected.
+          2) When API is ready, fetch from /api/housing and set state.
+          3) Map each housing item to <DormCard {...item} />.
+          4) Pass onManage to route to detail/manage page using housingId.
+        */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
+          {mockDormCards.map((housing) => (
+            <DormCard
+              key={housing.housingId}
+              {...housing}
+              onManage={() => alert(`Manage ${housing.name} (${housing.housingId})`)}
+            />
+          ))}
+        </div>
+      </section>
+
       {/* HOUSING DELETION SECTION (Mirrors Room Delete Style) */}
       <section
         style={{
@@ -77,11 +136,6 @@ export default function Page() {
           </button>
         </form>
       </section>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link href="/admin" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Back to Dashboard
-        </Link>
-      </div>
     </main>
   );
 }
