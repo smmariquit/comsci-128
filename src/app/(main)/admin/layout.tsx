@@ -30,8 +30,7 @@ export default function AdminLayout({
           overflow: "hidden",
         }}
       >
-        {/* Optional: you can make this dynamic later */}
-        <PageHeader title="Dashboard" />
+        <PageHeader />
 
         <div style={{ flex: 1, overflowY: "auto", padding: "32px" }}>
           {children}
