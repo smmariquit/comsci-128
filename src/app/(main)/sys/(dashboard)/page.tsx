@@ -209,7 +209,24 @@ export default function DashboardPage({
                                 </div>
                         </div>
                         {/* Right col - Quick Access */}
-                        
+                        <div className="w-65 flex flex-col gap-4 shrink-0">
+                            <div className="bg-white rounded-2xl p-6">
+                                <h2 className="text-[15px] font-bold text-[#1a2332] mb-4">Quick Access</h2>
+                                <div className="flex flex-col gap-2">
+                                    {quickAccess.map(({ label, icon: Icon, href }) => (
+                                    <Link
+                                        key={label}
+                                        href={href}
+                                        className="flex items-center gap-3 px-4 py-3 bg-[#eae8e1] rounded-xl text-sm font-medium text-[#1a2332] hover:bg-[#d4622a] hover:text-white transition-colors duration-150 group"
+                                    >
+                                        <Icon size={16} strokeWidth={1.8} className="text-[#1a2332]/50 group-hover:text-white transition-colors" />
+                                        {label}
+                                    </Link>
+                                    ))}
+                                </div> 
+                            </div>
+                            {/* System Alerts */}
+                        </div>
                     </div>
                 </div>
             </div>
