@@ -103,6 +103,24 @@ async function deactivate(housingId: number): Promise<Housing | null> {
 	return data;
 }
 
+// List all rooms 
+
+async function findAllWithRooms(managerAccountNumber: number): Promise<HousingWithRooms[]> {
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`*, room:room(*)`)
+    .eq("is_deleted", false)
+	// .eq("manager_account_number", managerAccountNumber) TODO: revisit when manager account numbers are clarified ?
+    .order("housing_name", { ascending: true })
+
+  if (error) throw new Error(error.message)
+
+  return (data ?? []).map((h) => ({
+    ...h,
+    room: h.room?.filter((r: any) => !r.is_deleted) ?? [],
+  }))
+}
+
 export const housingData = {
 	create,
 	findAll,
