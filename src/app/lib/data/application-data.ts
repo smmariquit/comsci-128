@@ -107,7 +107,10 @@ export async function getApplicationStats() {
 	.select("application_status")
 	.eq("is_deleted", false)
 
-	if (error) throw error
+	if (error) {
+    console.error("Error fetching applications stats: ", error)
+    throw new Error("Failed to fetch application stats")
+  }
 
 	const total = data.length
 	const pending = data.filter(a => a.application_status === "Pending").length
@@ -115,4 +118,31 @@ export async function getApplicationStats() {
 	const rejected = data.filter(a => a.application_status === "Rejected").length
 
 	return { total, pending, approved, rejected }
+}
+
+export async function getApplicationsWithStudentDetails() {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      housing_name,
+      application_status,
+      expected_moveout_date,
+      preferred_room_type,
+      student:student_account_number (
+        account_number,
+        first_name,
+        middle_name,
+        last_name
+      )
+    `)
+    .eq("is_deleted", false)
+    .order("application_id", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching applications with students: ", error)
+    throw new Error("Failed to fetch applications")
+  }
+
+  return data ?? []
 }
