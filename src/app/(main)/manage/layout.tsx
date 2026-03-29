@@ -46,13 +46,20 @@ export default function ManageLayout({
             </div>
 
             <div className="flex items-center gap-6 text-sm">
-              <button className="hover:text-blue-500/50 transition-colors">
-                Notifs
-              </button>
-
-              <button className="hover:text-blue-500/50 transition-colors">
+              {/* change for notifs later*/}
+              <Link
+                href="/manage" 
+                className="hover:text-[var(--light-yellow)] transition-colors"
+              >
                 Profile
-              </button>
+              </Link>
+
+              <Link
+                href="/profile"
+                className="hover:text-[var(--light-yellow)] transition-colors"
+              >
+                Profile
+              </Link>
             </div>
 
           </div>
