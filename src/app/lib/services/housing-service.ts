@@ -108,6 +108,7 @@ export const housingService = {
 	addHousing,
 	getHousing,
 	getAllHousing,
+	getAllHousingWithRooms,
 	updateHousing,
 	deactivateHousing,
 };
