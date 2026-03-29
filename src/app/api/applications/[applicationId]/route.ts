@@ -4,20 +4,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { applicationService } from "@/app/lib/services/application-service";
 
 export async function PATCH(
-    
+
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ applicationId: string }> }
 ) {
   try {
-    const authHeader = request.headers.get("authorization")
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-    }
 
-    const { id } = await params
-    const applicationId = Number(id)
+    // TODO: UNCOMMENT WHEN AUTH MIDDLEWARE IS FULLY IMPLEMENTED
 
-    if (isNaN(applicationId)) {
+    // const authHeader = request.headers.get("authorization")
+    // if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    // }
+
+    const { applicationId } = await params
+    const application_Id = Number(applicationId)
+    console.log("params id: ", applicationId)
+    console.log("application id: ", applicationId)
+
+    if (isNaN(application_Id)) {
       return NextResponse.json({ message: "Invalid application ID." }, { status: 400 })
     }
 
@@ -31,7 +36,7 @@ export async function PATCH(
       return NextResponse.json({ message: "Invalid status value." }, { status: 400 })
     }
 
-    const updated = await applicationService.updateApplicationStatus(applicationId, application_status)
+    const updated = await applicationService.updateApplicationStatus(application_Id, application_status)
     if (!updated) {
       return NextResponse.json({ message: "Application not found." }, { status: 404 })
     }
