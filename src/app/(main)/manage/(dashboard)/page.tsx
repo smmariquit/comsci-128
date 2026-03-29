@@ -1,3 +1,5 @@
+
+// import { applicationService } from "@/app/lib/services/application-service";
 import Link from "next/link";
 
 
@@ -55,6 +57,14 @@ function ActivityItem({ text }: { text: string }) {
 
 
 export default function MgrDashboardPage() {
+
+  // const [stats, dorms] = await Promise.all([
+  //   applicationService.getDashboardStats(),
+  //   housingService.getAllHousing(),
+
+
+  // ])
+
   return (
     <div className="flex flex-col gap-10 text-[var(--dark-blue)]">
 
