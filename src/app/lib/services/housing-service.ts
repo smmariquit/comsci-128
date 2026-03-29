@@ -93,6 +93,7 @@ const deactivateHousing = async (
 	}
 };
 
+// fetching all housing with all rooms linked to respective housing 
 const getAllHousingWithRooms = async (): Promise< HousingWithRooms[] | null> => {
   try {
     const housings = await housingData.findAllWithRooms()
@@ -103,7 +104,7 @@ const getAllHousingWithRooms = async (): Promise< HousingWithRooms[] | null> => 
     throw new Error("Failed to fetch housing with rooms")
   }
 }
-
+// fetching all rooms linked to specific housing
 const getHousingWithRooms = async (housingId: number): Promise<HousingWithRooms | null> => {
   try {
     const housing = await housingData.findWithRooms(housingId)
