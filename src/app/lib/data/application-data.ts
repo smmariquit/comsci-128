@@ -121,6 +121,7 @@ export async function getApplicationStats() {
 }
 
 export async function getApplicationsWithStudentDetails() {
+
   const { data, error } = await supabase
     .from("application")
     .select(`
@@ -131,9 +132,11 @@ export async function getApplicationsWithStudentDetails() {
       preferred_room_type,
       student:student_account_number (
         account_number,
-        first_name,
-        middle_name,
-        last_name
+        user:user!account_number (
+          first_name,
+          middle_name,
+          last_name
+        )
       )
     `)
     .eq("is_deleted", false)

@@ -24,5 +24,6 @@ const getApplications = async () => {
 }
 
 export const applicationService = {
-  getDashboardStats
-}
+  getDashboardStats,
+  getApplications,
+};
