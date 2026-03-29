@@ -1,6 +1,6 @@
 
 
-import { getApplicationStats } from "@/app/lib/data/application-data";
+import { getApplicationStats, getApplicationsWithStudentDetails } from "@/app/lib/data/application-data";
 
 const getDashboardStats = async () => {
   try {
@@ -9,6 +9,17 @@ const getDashboardStats = async () => {
   } catch (error) {
     console.error("Error: ", error)
     throw new Error("Failed to fetch application stats")
+  }
+}
+
+const getApplications = async () => {
+  try {
+    const applications = await getApplicationsWithStudentDetails()
+    if (!applications) return []
+    return applications
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch applications")
   }
 }
 
