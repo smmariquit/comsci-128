@@ -130,7 +130,7 @@ export default function UserManagementPage({
 							</span>
 						</div>
 						{/* Table Headers */}
-						<div className="grid grid-cols-[2fr_1.9fr_0.8fr_1fr_1.5fr_1.2fr_1fr_1.2fr] gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/[0.06]">
+						<div className="grid grid-cols-[2fr_1.9fr_0.8fr_1fr_1.5fr_1.2fr_1fr_1.2fr] gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6">
 							{['NAME', 'EMAIL', 'ROLE', 'STATUS', 'DORMITORY', 'ROOM', 'JOINED', 'ACTIONS'].map((col) => (
 								<span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">{col}</span>
 							))}
