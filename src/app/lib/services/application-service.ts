@@ -26,7 +26,31 @@ const getApplications = async () => {
   }
 }
 
+const getApplicationDetail = async (applicationId: number) => {
+  try {
+    const application = await getApplicationDetailById(applicationId)
+    if (!application) return null
+    return application
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch application detail")
+  }
+}
+
+const getApplicationDocuments = async (applicationId: number) => {
+  try {
+    const documents = await getDocumentsByApplicationId(applicationId)
+    if (!documents) return []
+    return documents
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch application documents")
+  }
+}
+
 export const applicationService = {
   getDashboardStats,
   getApplications,
-};
+  getApplicationDetail,      
+  getApplicationDocuments, 
+}
