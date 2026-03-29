@@ -105,7 +105,7 @@ async function deactivate(housingId: number): Promise<Housing | null> {
 
 // List all rooms 
 
-async function findAllWithRooms(managerAccountNumber: number): Promise<HousingWithRooms[]> {
+async function findAllWithRooms(): Promise<HousingWithRooms[]> {
   const { data, error } = await supabase
     .from("housing")
     .select(`*, room:room(*)`)
@@ -126,6 +126,7 @@ export const housingData = {
 	findAll,
 	findById,
 	findWithRooms,
+	findAllWithRooms,
 	update,
 	deactivate,
 };
