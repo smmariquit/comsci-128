@@ -69,7 +69,7 @@ export default async function ApplicationReviewPage({
         </p>
       </div>
 
-{/* document viewer */}
+{/* document viewer contained in ReviewClient.tsx*/}
       <ReviewClient
         applicationId={applicationId}
         documents={documents}

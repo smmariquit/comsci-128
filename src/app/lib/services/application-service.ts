@@ -49,11 +49,24 @@ const getApplicationDocuments = async (applicationId: number) => {
   }
 }
 
-//
+const updateApplicationStatus = async (
+  applicationId: number,
+  status: "Approved" | "Rejected" | "Pending" | "Cancelled"
+) => {
+  try {
+    const updated = await updateApplication(applicationId, { application_status: status })
+    if (!updated) return null
+    return updated
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to update application status")
+  }
+}
 
 export const applicationService = {
   getDashboardStats,
   getApplications,
   getApplicationDetail,      
   getApplicationDocuments, 
+  updateApplicationStatus
 }
