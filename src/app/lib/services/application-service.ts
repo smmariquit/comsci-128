@@ -1,7 +1,8 @@
 
 
 import { getApplicationStats, getApplicationsWithStudentDetails, 
-  getApplicationDetailById, getDocumentsByApplicationId 
+  getApplicationDetailById, getDocumentsByApplicationId,
+  updateApplication
 
 } from "@/app/lib/data/application-data";
 
@@ -47,6 +48,8 @@ const getApplicationDocuments = async (applicationId: number) => {
     throw new Error("Failed to fetch application documents")
   }
 }
+
+
 
 export const applicationService = {
   getDashboardStats,
