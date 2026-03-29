@@ -1,11 +1,10 @@
 'use client';
-import { useState } from 'react';
+
 import Link from 'next/link';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 
 import {
-    Bell,
     TrendingUp,
     UserPlus,
     PlusSquare,
