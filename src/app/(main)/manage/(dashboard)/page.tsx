@@ -1,6 +1,7 @@
 
 import { applicationService } from "@/app/lib/services/application-service";
 import { housingService } from "@/app/lib/services/housing-service";
+import { roomService } from "@/app/lib/services/room-service";
 import Link from "next/link";
 
 
@@ -59,8 +60,9 @@ function ActivityItem({ text }: { text: string }) {
 
 export default async function MgrDashboardPage() {
 
-  const [stats, dorms] = await Promise.all([
+  const [stats, roomStats, dorms] = await Promise.all([
     applicationService.getDashboardStats(),
+    roomService.getRoomStats(),
     housingService.getAllHousing(),
 
   ])
@@ -80,6 +82,14 @@ export default async function MgrDashboardPage() {
           <StatCard label="Approved Applications" value={stats.approved} />
           <StatCard label="Rejected Applications" value={stats.rejected} />
         </div>
+
+        {/* placeholder for statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCard label="Total Rooms" value={roomStats.totalRooms} />
+          <StatCard label="Total Occupants" value={roomStats.totalOccupants} />
+          <StatCard label="Vacant Rooms" value={roomStats.totalFreeRooms} />
+        </div>
+
       </section>
 
 
@@ -114,7 +124,7 @@ export default async function MgrDashboardPage() {
           ) : (
             <p className="text-gray-500">No dorms found.</p>
           )}
-          
+
         </div>
       </section>
 

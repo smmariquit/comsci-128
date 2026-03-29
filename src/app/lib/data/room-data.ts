@@ -97,6 +97,25 @@ async function deactivate(roomId: number): Promise<Room | null> {
 	return data;
 }
 
+// Room stats for total occupants, free rooms
+
+async function getRoomStats() {
+  const { data, error } = await supabase
+    .from("room")
+    .select("maximum_occupants, occupancy_status")
+    .eq("is_deleted", false)
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const totalRooms = data?.length ?? 0
+  const totalOccupants = data?.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0) ?? 0
+  const totalFreeRooms = data?.filter(r => r.occupancy_status === "Empty").length ?? 0
+
+  return { totalRooms, totalOccupants, totalFreeRooms }
+}
+
 export const roomData = {
 	create,
 	findAll,
@@ -104,4 +123,5 @@ export const roomData = {
 	findByRoomId,
 	update,
 	deactivate,
+	getRoomStats
 };
