@@ -226,6 +226,25 @@ export default function DashboardPage({
                                 </div> 
                             </div>
                             {/* System Alerts */}
+                            <div className="bg-white rounded-2xl p-6">
+                                {/* Title and View Log */}
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-[15px] font-bold text-[#1a2332]">System Alerts</h2>
+                                    <Link href="/sys/logs" className="text-xs text-[#1a2332]/50 hover:text-[#d4622a] transition-colors">
+                                    View log →
+                                    </Link>
+                                </div>
+                                {/* Alerts List */}
+                                <div className="border border-[#d4622a]/30 bg-[#d4622a]/5 rounded-xl p-3 flex items-start gap-2">
+                                    <div className="w-5 h-5 rounded-full border-2 border-[#d4622a] flex items-center justify-center shrink-0 mt-0.5">
+                                        <span className="text-[#d4622a] text-[10px] font-bold">!</span>
+                                        </div>
+                                        <div>
+                                        <p className="text-xs font-semibold text-[#d4622a]">Maintenance tonight</p>
+                                        <p className="text-[11px] text-[#1a2332]/50 mt-0.5">02:00 UTC — brief downtime</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
