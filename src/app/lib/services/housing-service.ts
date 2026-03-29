@@ -1,5 +1,5 @@
 import { housingData } from "@/app/lib/data/housing-data";
-import { Housing } from "@/models/housing";
+import { Housing, HousingWithRooms } from "@/models/housing";
 
 const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 	try {
@@ -93,10 +93,35 @@ const deactivateHousing = async (
 	}
 };
 
+// fetching all housing with all rooms linked to respective housing 
+const getAllHousingWithRooms = async (): Promise< HousingWithRooms[] | null> => {
+  try {
+    const housings = await housingData.findAllWithRooms()
+    if (!housings) return null
+    return housings
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch housing with rooms")
+  }
+}
+// fetching all rooms linked to specific housing
+const getHousingWithRooms = async (housingId: number): Promise<HousingWithRooms | null> => {
+  try {
+    const housing = await housingData.findWithRooms(housingId)
+    if (!housing) return null
+    return housing
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch housing with rooms")
+  }
+}
+
 export const housingService = {
 	addHousing,
 	getHousing,
 	getAllHousing,
+	getAllHousingWithRooms,
+	getHousingWithRooms,
 	updateHousing,
 	deactivateHousing,
 };
