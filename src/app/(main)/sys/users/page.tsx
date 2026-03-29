@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
+import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter';
 import { Search, ChevronDown, X, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // User Data Types - showed in table
@@ -78,7 +80,11 @@ export default function UserManagementPage({
 	notifications = stubNotifications,
 	onLogout,
 }: UserManagementProps) {
-
+	const router = useRouter();
+	const [filters, setFilters] = useState<UserFiltersState>({
+	search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
+	});
+	const [page, setPage] = useState(1);
 	return (
 		<div className="flex min-h-screen bg-[#eae8e1]">
 
@@ -95,6 +101,13 @@ export default function UserManagementPage({
 						<p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Manage tenants, managers, and administrators</p>
 					</div>
 					<NotificationBell notifications={notifications} />
+				</div>
+				<div className="px-8 py-6 flex flex-col gap-5">
+					{/* Filters */}
+					<UserFilters
+						values={filters}
+						onChange={(f) => { setFilters(f); setPage(1); }}
+						/>
 				</div>
 			</div>
 		</div>
