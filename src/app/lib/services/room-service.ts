@@ -90,10 +90,22 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 	}
 };
 
+const getRoomStats = async () => {
+
+	try{
+		const stats = await roomData.getRoomStats()
+		return stats 
+	} catch (error) {
+		console.error("Error: ", error)
+		throw new Error("Failed to fetch room stats")
+	}
+}
+
 export const roomService = {
 	addRoom,
 	getRoom,
 	getAllRooms,
 	updateRoom,
 	deactivateRoom,
+	getRoomStats
 };
