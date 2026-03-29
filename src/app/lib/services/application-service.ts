@@ -1,6 +1,9 @@
 
 
-import { getApplicationStats, getApplicationsWithStudentDetails } from "@/app/lib/data/application-data";
+import { getApplicationStats, getApplicationsWithStudentDetails, 
+  getApplicationDetailById, getDocumentsByApplicationId 
+
+} from "@/app/lib/data/application-data";
 
 const getDashboardStats = async () => {
   try {
