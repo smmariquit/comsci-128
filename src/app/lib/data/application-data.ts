@@ -163,7 +163,7 @@ export async function getApplicationDetailById(applicationId: number) {
       preferred_room_type,
       student:student_account_number (
         account_number,
-        user:account_number (
+        user:user!account_number (
           first_name,
           middle_name,
           last_name
