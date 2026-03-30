@@ -5,12 +5,24 @@ import { getAllBills } from "./housing-admin-data";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 
 export async function getHousingAdmingDashboardData() {
-    const [allStudents, allRooms, allApps, allBills] = await Promise.all([
+    const [allStudents, allRooms, allBills] = await Promise.all([
         userData.findStudents(),
         roomData.findAll(),
-        getAllApplications(),
         getAllBills(),
     ]);
+
+    const allApps = await getAllApplications();
+
+    const formattedApps = allApps.map((app: any) => ({
+        application_id: app.application_id,
+        student_name: app.student?.user
+            ? `${app.student.user.first_name} ${app.student.user.last_name}`
+            : "Unknown Student",
+        housing_name: app.housing_name,
+        preferred_room_type: app.preferred_room_type,
+        expected_moveout_date: app.expected_moveout_date,
+        application_status: app.application_status,
+    }));
 
     const totalPendingApplication = allApps.filter(a => a.application_status === "Pending").length;
     const totalCapacity = allRooms.reduce((sum, r) => sum + (r.maximum_occupants || 0), 0);
@@ -40,7 +52,7 @@ export async function getHousingAdmingDashboardData() {
         occupancyRate: `${occupancyRate}`,
         totalPendingApplication,
         occupancyData,
-        recentApplications: allApps.slice(0, 5)
+        recentApplications: formattedApps
     }
 }
    
