@@ -95,7 +95,7 @@ async function deactivateById(userId: number): Promise<UpdateUser | null> {
 	return data;
 }
 
-async function findStudent(): Promise<User[]> {
+async function findStudents(): Promise<User[]> {
 	// returns students ONLY
 	const { data, error } = await supabase
 	.from("user")
@@ -117,5 +117,5 @@ export const userData = {
 	findByEmail,
 	update,
 	deactivateById,
-	findStudent,
+	findStudents,
 };
