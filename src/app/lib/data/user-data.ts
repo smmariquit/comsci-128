@@ -117,4 +117,5 @@ export const userData = {
 	findByEmail,
 	update,
 	deactivateById,
+	findStudent,
 };
