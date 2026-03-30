@@ -1,5 +1,5 @@
 import { supabase } from "../supabase";
-import { User } from "@/models/user";
+import { User, NewUser } from "@/models/user";
 import { userData } from "./user-data";
 
 // Review create manager to match userData
@@ -29,19 +29,28 @@ import { userData } from "./user-data";
 // 	return data;
 // };
 
-
+// Create Manger for land lord and housing manager
 export const createManager = async (
-  userDetails: User, 
-  userType: string, 
-  password: string, 
-  manager_type: string
+  userDetails: NewUser,
+  password: string,
+  manager_type: "Landlord" | "Housing Administrator"
 ) => {
 
-  const userAccountNumber = await createUser(userDetails, "Manager", password);
+  // set fields as manager
+  const managerUser: NewUser = {
+    ...userDetails,
+    user_type: "Manager",
+    password: password,
+  };
 
-  const { data, error } = await supabase.from('manager')
+  // create user
+  const newUser = await userData.createUser(managerUser);
+
+  // create manager
+  const { data, error } = await supabase
+    .from('manager')
     .insert([{
-      account_number: userAccountNumber, 
+      account_number: newUser.account_number,
       manager_type: manager_type
     }])
     .select()
