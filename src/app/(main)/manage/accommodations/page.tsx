@@ -1,19 +1,117 @@
-import Link from 'next/link';
+import { applicationService } from "@/app/lib/services/application-service";
+import { housingService } from "@/app/lib/services/housing-service";
+import { roomService } from "@/app/lib/services/room-service";
+import Link from "next/link";
 
-export default function Page() {
+
+function DetailItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">Manage Accommodations Page</h1>
-      <div className="flex gap-4 flex-wrap justify-center">        <Link href="/manage/accommodations/1" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Accommodation #1
-        </Link>
-        <Link href="/manage/accommodations/2" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Accommodation #2
-        </Link>
-        <Link href="/manage" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Back to Dashboard
-        </Link>
+    <div className="flex flex-col flex-1 items-center">
+      <span className="text-sm text-gray-500">{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
+  );
+}
+
+function AccommodationCard({
+  id,
+  name,
+  image,
+  details,
+}: {
+  id: number;
+  name: string;
+  image: string;
+  details: {label: string; value: string | number} [];
+}) {
+  return (
+    <Link href={`/manage/accommodations`}>
+      <div className="flex items-center gap-4 border rounded-lg p-4 text-white bg-black">
+
+        {/* Image */}
+        <div className="w-25 h-25 bg-gray-300 rounded">
+          <img src={image} className="w-full h-full object-cover rounded" />
+        </div>
+
+
+        <div className="flex flex-col w-full ">
+
+          {/* Name */}
+          <div className="font-semibold mb-2">{name}</div>
+
+          {/* Details */}
+          <div className="flex w-full">
+            {details.map((detail, index) => (
+              <DetailItem
+                key={index}
+                label={detail.label}
+                value={detail.value}
+              />
+            ))}
+          </div>
+
+        </div>
       </div>
-    </main>
+    </Link>
+  );
+}
+
+
+
+
+
+export default async function MgrAccommodationsPage() {
+
+  return (
+    <div className="flex flex-col gap-10 text-black bg-white py-12">
+
+      <section className="flex flex-col gap-4 px-10">
+        <h1 className="text-2xl font-semibold">Accommodations List</h1>
+
+        {/* filter */}
+        <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
+          Filter (to be implemented)
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-10 px-10">
+        <AccommodationCard
+          id={1}
+          name="Cloud Recesses"
+          image="/assets/placeholders/housing-card.svg"
+          details={[
+            { label: "Total Occupants", value: 10 },
+            { label: "Free Slots", value: 0 },
+          ]}
+        ></AccommodationCard>
+
+        <AccommodationCard
+          id={2}
+          name="Wen Camp"
+          image="/assets/placeholders/housing-card.svg"
+          details={[
+            { label: "Total Occupants", value: 2 },
+            { label: "Free Slots", value: 1 },
+          ]}
+        ></AccommodationCard>
+
+        <AccommodationCard
+          id={3}
+          name="Yiling Burial Mounds"
+          image="/assets/placeholders/housing-card.svg"
+          details={[
+            { label: "Total Occupants", value: 50 },
+            { label: "Free Slots", value: 0 },
+          ]}
+        ></AccommodationCard>
+      </section>
+
+    </div>
   );
 }
