@@ -11,8 +11,7 @@ import AddManagerModal from '@/app/(main)/sys/component/add-manager-modal';
 export interface User {
   id: string;
   name: string;
-  email: string;
-  status: 'Active' | 'Disabled' | string;
+  status: 'Accepting' | 'Disabled' | string;
   dormitory: string;
   dormAddress?: string;
   managerEmail?: string;
@@ -48,28 +47,62 @@ const stubUser: SidebarUser = {
 
 // Hardcoded list of users for the table - in a real app, this would come from an API
 const stubUsers: User[] = [
-  { id: '1', name: 'Sampaguita Dorm',     dormAddress: '123 Roxas St, Diliman, QC', email: 'llfernandez4@up.edu.ph',   managerEmail: 'ldelarosa@up.edu.ph',  status: 'Active',   dormitory: 'Luis Dela Rosa',   capacity: 32, rooms: 32, occupied: 30 },
-  { id: '2', name: 'Ilang-Ilang Dorm',    dormAddress: '45 Kamuning Rd, QC',        email: 'jiantonio@up.edu.ph',      managerEmail: 'jiantonio@up.edu.ph',  status: 'Active',   dormitory: 'Justine Antonio',  capacity: 40, rooms: 40, occupied: 38 },
-  { id: '3', name: 'Rosal Dorm',          dormAddress: '78 UP Campus, Diliman',     email: 'phfababeir@up.edu.ph',     managerEmail: 'phfababeir@up.edu.ph', status: 'Active',   dormitory: 'Paul Fababeir',    capacity: 25, rooms: 25, occupied: 20 },
-  { id: '4', name: 'Kamia Dorm',          dormAddress: '12 Maginhawa St, QC',       email: 'jpomamos@up.edu.ph',       managerEmail: 'jpomamos@up.edu.ph',   status: 'Disabled', dormitory: 'Jun Paul Omamos',  capacity: 20, rooms: 20, occupied: 0 },
-  { id: '5', name: 'Cadena de Amor Dorm', dormAddress: '9 Lakandula St, QC',        email: 'jguevarra@up.edu.ph',      managerEmail: 'jguevarra@up.edu.ph',  status: 'Active',   dormitory: 'Joy Guevarra',     capacity: 30, rooms: 30, occupied: 27 },
-  { id: '6', name: 'Adelfa Dorm',         dormAddress: '3 Tandang Sora Ave, QC',    email: 'hespinocilla@up.edu.ph',   managerEmail: 'hespinocilla@up.edu.ph',status: 'Disabled', dormitory: 'Haira Espinocilla', capacity: 18, rooms: 18, occupied: 0 },
-  { id: '7', name: 'Molave Dorm',         dormAddress: '55 Esteban Abada, QC',      email: 'alfernandez@up.edu.ph',    managerEmail: 'alfernandez@up.edu.ph', status: 'Active',   dormitory: 'Althea Fernandez',  capacity: 22, rooms: 22, occupied: 19},
+  { id: '1', name: 'Sampaguita Dorm',     dormAddress: '123 Roxas St, Diliman, QC',  managerEmail: 'ldelarosa@up.edu.ph',   status: 'Accepting', dormitory: 'Luis Dela Rosa',    capacity: 32, rooms: 32, occupied: 30 },
+  { id: '2', name: 'Ilang-Ilang Dorm',    dormAddress: '45 Kamuning Rd, QC',         managerEmail: 'jiantonio@up.edu.ph',   status: 'Accepting', dormitory: 'Justine Antonio',   capacity: 40, rooms: 40, occupied: 38 },
+  { id: '3', name: 'Rosal Dorm',          dormAddress: '78 UP Campus, Diliman',      managerEmail: 'phfababeir@up.edu.ph',  status: 'Accepting', dormitory: 'Paul Fababeir',     capacity: 25, rooms: 25, occupied: 20 },
+  { id: '4', name: 'Kamia Dorm',          dormAddress: '12 Maginhawa St, QC',        managerEmail: 'jpomamos@up.edu.ph',    status: 'Disabled',  dormitory: 'Jun Paul Omamos',   capacity: 20, rooms: 20, occupied: 0  },
+  { id: '5', name: 'Cadena de Amor Dorm', dormAddress: '9 Lakandula St, QC',         managerEmail: 'jguevarra@up.edu.ph',   status: 'Accepting', dormitory: 'Joy Guevarra',      capacity: 30, rooms: 30, occupied: 27 },
+  { id: '6', name: 'Adelfa Dorm',         dormAddress: '3 Tandang Sora Ave, QC',     managerEmail: 'hespinocilla@up.edu.ph',status: 'Disabled',  dormitory: 'Haira Espinocilla', capacity: 18, rooms: 18, occupied: 0  },
+  { id: '7', name: 'Molave Dorm',         dormAddress: '55 Esteban Abada, QC',       managerEmail: 'alfernandez@up.edu.ph', status: 'Accepting', dormitory: 'Althea Fernandez',  capacity: 22, rooms: 22, occupied: 19 },
 ];
 
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
-  { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',        read: false, time: '1h ago'    },
-  { id: '2', title: 'New user registered', body: 'User Ivanne signed up for Dorm 1',  read: false, time: '3h ago'    },
-  { id: '3', title: 'Occupancy alert',     body: 'Dorm 2 is at 95% capacity',         read: true,  time: 'Yesterday' },
+  { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',       read: false, time: '1h ago'    },
+  { id: '2', title: 'New user registered', body: 'User Ivanne signed up for Dorm 1', read: false, time: '3h ago'    },
+  { id: '3', title: 'Occupancy alert',     body: 'Dorm 2 is at 95% capacity',        read: true,  time: 'Yesterday' },
 ];
 
 // Number of items to show per page in the paging
 const ITEMS_PER_PAGE = 5;
 
+// Shared grid column template — 8 columns: DORM, MANAGER, EMAIL, CAPACITY, ROOMS, OCCUPIED, STATUS, ACTIONS
+const GRID_COLS = 'grid-cols-[2.8fr_1.8fr_2.2fr_1fr_1fr_1fr_1.2fr_1.4fr]';
+
 // Manager initials helper
 function getInitials(name: string) {
   return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+}
+
+// Occupancy percentage helper
+function getOccupancyPct(occupied?: number, capacity?: number): number | null {
+  if (occupied == null || capacity == null || capacity === 0) return null;
+  return (occupied / capacity) * 100;
+}
+
+// Occupancy bucket helper — maps a percentage to one of the filter buckets
+function getOccupancyBucket(pct: number | null): 'High (>= 80%)' | 'Mid (50 - 79%)' | 'Low (< 50%)' | null {
+  if (pct === null) return null;
+  if (pct >= 80) return 'High (>= 80%)';
+  if (pct >= 50) return 'Mid (50 - 79%)';
+  return 'Low (< 50%)';
+}
+
+// Status badge component
+function StatusBadge({ status }: { status: string }) {
+  const isAccepting = status === 'Accepting';
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+        isAccepting
+          ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
+          : 'bg-rose-50 text-rose-600 ring-1 ring-rose-200'
+      }`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full ${isAccepting ? 'bg-emerald-500' : 'bg-rose-400'}`} />
+      {status}
+    </span>
+  );
 }
 
 // Main User Management Page component
@@ -86,21 +119,32 @@ export default function UserManagementPage({
   });
 
   const [page, setPage] = useState(1);
+
   const handleAddManager = (newUser: User) => {
     setUserList((prev) => [newUser, ...prev]);
     setPage(1);
   };
 
   const filtered = userList.filter((u) => {
-    const matchSearch = u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-                        u.email.toLowerCase().includes(filters.search.toLowerCase());
-    const matchStatus = filters.status === 'All Status' || u.status    === filters.status;
-    const matchDorm   = filters.occupancy === 'All'     || u.dormitory === filters.occupancy;
-    return matchSearch && matchStatus && matchDorm;
+    const matchSearch =
+      u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+      u.managerEmail?.toLowerCase().includes(filters.search.toLowerCase());
+
+    const matchStatus =
+      filters.status === 'All Status' || u.status === filters.status;
+
+    const pct = getOccupancyPct(u.occupied, u.capacity);
+    const bucket = getOccupancyBucket(pct);
+    const matchOccupancy =
+      filters.occupancy === 'All' || bucket === filters.occupancy;
+
+    return matchSearch && matchStatus && matchOccupancy;
   });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated  = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const totalPages  = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated   = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const showingFrom = filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
+  const showingTo   = Math.min(page * ITEMS_PER_PAGE, filtered.length);
 
   return (
     <div className="flex min-h-screen bg-[#eae8e1]">
@@ -128,6 +172,7 @@ export default function UserManagementPage({
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">
+
           {/* Filters */}
           <UserFilters
             values={filters}
@@ -143,18 +188,18 @@ export default function UserManagementPage({
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#1a2332]/6">
               <h2 className="text-[15px] font-bold text-[#1a2332]">Dorms</h2>
               <span className="text-xs text-[#1a2332]/40">
-                Showing {filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} dorms
+                Showing {showingFrom}–{showingTo} of {filtered.length} dorms
               </span>
             </div>
 
-            {/* Table Headers */}
-            <div className="grid grid-cols-[2.8fr_1.8fr_2.2fr_1fr_1fr_1fr_1.4fr] gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6">
-              {['DORM', 'MANAGER', 'EMAIL ADDRESS', 'CAPACITY', 'ROOMS', 'OCCUPIED', 'ACTIONS'].map((col) => (
+            {/* Table Headers — must match GRID_COLS (8 columns) */}
+            <div className={`grid ${GRID_COLS} gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6`}>
+              {['DORM', 'MANAGER', 'EMAIL ADDRESS', 'CAPACITY', 'ROOMS', 'OCCUPIED', 'STATUS', 'ACTIONS'].map((col) => (
                 <span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">{col}</span>
               ))}
             </div>
 
-            {/* Table Rows */}
+            {/* Table Rows — must match GRID_COLS (8 columns) */}
             <div className="divide-y divide-[#1a2332]/5">
               {paginated.length === 0 ? (
                 <p className="text-sm text-[#1a2332]/40 text-center py-12">No dorms found.</p>
@@ -162,9 +207,9 @@ export default function UserManagementPage({
                 paginated.map((u) => (
                   <div
                     key={u.id}
-                    className="grid grid-cols-[2.8fr_1.8fr_2.2fr_1fr_1fr_1fr_1.4fr] gap-4 px-6 py-4 items-center hover:bg-[#eae8e1]/30 transition-colors"
+                    className={`grid ${GRID_COLS} gap-4 px-6 py-4 items-center hover:bg-[#eae8e1]/30 transition-colors`}
                   >
-                    {/* DORM column */}
+                    {/* DORM */}
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-[#1a2332] flex items-center justify-center shrink-0">
                         <Building2 size={16} className="text-white" />
@@ -177,7 +222,7 @@ export default function UserManagementPage({
                       </div>
                     </div>
 
-                    {/* MANAGER column */}
+                    {/* MANAGER */}
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="w-7 h-7 rounded-full bg-[#1a2332] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                         {getInitials(u.dormitory)}
@@ -185,19 +230,24 @@ export default function UserManagementPage({
                       <span className="text-sm text-[#1a2332]/80 truncate">{u.dormitory}</span>
                     </div>
 
-                    {/* EMAIL ADDRESS column */}
-                    <span className="text-sm text-[#1a2332]/60 truncate">{u.managerEmail ?? u.email}</span>
+                    {/* EMAIL ADDRESS */}
+                    <span className="text-sm text-[#1a2332]/60 truncate">{u.managerEmail}</span>
 
-                    {/* CAPACITY column */}
+                    {/* CAPACITY */}
                     <span className="text-sm text-[#1a2332]/70">{u.capacity ?? '—'}</span>
 
-                    {/* ROOMS column */}
+                    {/* ROOMS */}
                     <span className="text-sm text-[#1a2332]/70">{u.rooms ?? '—'}</span>
 
-                    {/* OCCUPIED column */}
+                    {/* OCCUPIED */}
                     <span className="text-sm text-[#1a2332]/70">{u.occupied ?? '—'}</span>
 
-                    {/* ACTIONS column */}
+                    {/* STATUS */}
+                    <div>
+                      <StatusBadge status={u.status} />
+                    </div>
+
+                    {/* ACTIONS */}
                     <div className="flex items-center gap-2">
                       <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
                         View
@@ -217,7 +267,7 @@ export default function UserManagementPage({
             {/* Pagination Controls */}
             <div className="flex items-center justify-between px-6 py-4 border-t border-[#1a2332]/6">
               <span className="text-xs text-[#1a2332]/40">
-                Showing {filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} dorms
+                Showing {showingFrom}–{showingTo} of {filtered.length} dorms
               </span>
               <div className="flex items-center gap-1">
                 <PageBtn onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
@@ -238,7 +288,7 @@ export default function UserManagementPage({
   );
 }
 
-{/* Paging Button Design */}
+// Paging Button
 function PageBtn({ children, onClick, active, disabled }: {
   children: React.ReactNode;
   onClick: () => void;
