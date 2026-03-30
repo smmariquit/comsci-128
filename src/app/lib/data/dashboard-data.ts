@@ -1,8 +1,4 @@
-import { supabase } from "@/app/lib/supabase";
-
-export async function getHousingAdminDashboardData() {
-    const { count: totalStudents } = await supabase
-    .from("user")
-    .select("*", { count: 'exact', head: true})
-    .eq("is_deleted", false);
-}
+import { userData } from "./user-data";
+import { roomData } from "./room-data";
+import { getAllApplications } from "./application-data";
+import { getAllBills } from "./housing-admin-data";
