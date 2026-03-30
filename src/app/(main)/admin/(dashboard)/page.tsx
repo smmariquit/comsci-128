@@ -5,6 +5,8 @@ import RecentAuditLog from "@/app/components/admin/dashboard/recent_audit";
 import StatCard from "@/app/components/admin/dashboard/stat_card";
 import StudentHousingStatus from "@/app/components/admin/dashboard/student_housing_status";
 
+import { getHousingAdmingDashboardData } from "@/app/lib/data/dashboard-data";
+
 const occupancyData = [
   { room_type: "Single", occupied: 42, empty: 8 },
   { room_type: "Double", occupied: 58, empty: 12 },
@@ -94,7 +96,14 @@ const activeUserData = [
 
 const totalActiveUsers = activeUserData.reduce((sum, row) => sum + row.count, 0);
 
-export default function Page() {
+export default async function Page() {
+  const liveData = await getHousingAdmingDashboardData();
+  // <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
+  const housingStatusData = [
+    { label: "Assigned", count: liveData.housingStatusCounts.assigned, color: "#1D9E75" },
+    { label: "Unassigned", count: liveData.housingStatusCounts.unassigned, color: "#6B7280"},
+  ];
+  
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <section
@@ -104,9 +113,9 @@ export default function Page() {
           gap: 16,
         }}
       >
-        <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
-        <StatCard label="Occupancy Rate" value="84%" delta={3} deltaSub="vs last month" />
-        <StatCard label="Pending Applications" value="31" delta={-5} deltaSub="from last week" />
+        <StatCard label="Total Students" value={liveData.totalStudents.toString()} delta={0} deltaSub="Live Students" />
+        <StatCard label="Occupancy Rate" value={`${liveData.occupancyRate}%`} delta={0} deltaSub="Live Occupancy Rate" />
+        <StatCard label="Pending Applications" value={liveData.totalPendingApplication.toString()} delta={0} deltaSub="Pending Applications" />
         <StatCard label="Active Accommodations" value="27" delta={2} deltaSub="new this month" />
       </section>
 
@@ -118,13 +127,17 @@ export default function Page() {
           alignItems: "start",
         }}
       >
-        <OccupancyChart data={occupancyData} />
+        <OccupancyChart data={liveData.occupancyData} />
         <StudentHousingStatus data={housingStatusData} />
-        <ActiveUsers data={activeUserData} total={totalActiveUsers} />
+        <ActiveUsers 
+          data={[
+            { label: "Students", count: liveData.totalStudents },
+          ]} 
+          total={totalActiveUsers} />
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, alignItems: "start" }}>
-        <RecentApplications data={recentApplications} />
+        <RecentApplications data={liveData.recentApplications} />
         <RecentAuditLog data={recentAuditData} />
       </section>
     </div>
