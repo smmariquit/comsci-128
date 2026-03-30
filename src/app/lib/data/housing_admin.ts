@@ -1,18 +1,14 @@
 import { supabase } from "@/app/lib/supabase";
-import { User } from "@/app/lib/models/user";
+import { User, NewUser } from "@/app/lib/models/user";
 import { createManager } from "@/app/lib/data/manager-data";
  
 // Create housing admin
-export async function createHousingAdmin(input: User, password: string ) {
+export async function createHousingAdmin(input: NewUser, password: string ) {
   // Call createManager with manager_type "Housing Admin"
   // createManager internally calls createUser with user_type "Manager"
-  const { accountNumber, error: managerError } = await createManager(input, password, "Housing Administrator");
- 
-  if (managerError || !accountNumber) {
-    console.error("Error creating manager in createHousingAdmin:", managerError?.message);
-    return { data: null, error: managerError };
-  }
- 
+  const manager = await createManager(input, password, "Housing Administrator");
+  const accountNumber = manager.account_number;
+  
   // Insert into housing_admin
   const { data, error: adminError } = await supabase
     .from("housing_admin")
