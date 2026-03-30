@@ -1,47 +1,40 @@
 import { supabase } from "@/app/lib/supabase";
 import { User } from "@/app/lib/models/user";
-// import { createManager } from "@/app/lib/data/manager-data";
+import { createManager } from "@/app/lib/data/manager-data";
+ 
 
-// Review createHousingAdmin to match userData
-// Create housing admin
-// export async function createHousingAdmin(input: User, password: string) {
-// 	// Call createManager with manager_type "Housing Admin"
-// 	// createManager internally calls createUser with user_type "Manager"
-// 	const { accountNumber, error: managerError } = await createManager(
-// 		input,
-// 		password,
-// 		"Housing Administrator",
-// 	);
-
-// 	if (managerError || !accountNumber) {
-// 		console.error(
-// 			"Error creating manager in createHousingAdmin:",
-// 			managerError?.message,
-// 		);
-// 		return { data: null, error: managerError };
-// 	}
-
-// 	// Insert into housing_admin
-// 	const { data, error: adminError } = await supabase
-// 		.from("housing_admin")
-// 		.insert({ account_number: accountNumber })
-// 		.select()
-// 		.single();
-
-// 	if (adminError) {
-// 		console.error(
-// 			"Error inserting into housing_admin:",
-// 			adminError.message,
-// 		);
-// 		return { data: null, error: adminError };
-// 	}
-
-// 	return { data, error: null };
-// }
-
-// Read all housing admins with user details
-export async function getAllHousingAdmins() {
-	const { data, error } = await supabase.from("housing_admin").select(`
+//Create landlord
+export async function createLandlord(input: User, password : string) {
+  // Call createManager with manager_type "Landlord"
+  // createManager internally calls createUser with user_type "Manager"
+  const { accountNumber, error: managerError } = await createManager(input, password, "Landlord");
+ 
+  if (managerError || !accountNumber) {
+    console.error("Error creating manager in createLandlord:", managerError?.message);
+    return { data: null, error: managerError };
+  }
+ 
+ 
+  // Insert into landlord
+  const { data, error: landlordError } = await supabase
+    .from("landlord")
+    .insert({ account_number: accountNumber })
+    .select()
+    .single();
+ 
+  if (landlordError) {
+    console.error("Error inserting into landlord:", landlordError.message);
+    return { data: null, error: landlordError };
+  }
+ 
+  return { data, error: null };
+}
+ 
+// Read all landlords with user details
+export async function getAllLandlords() {
+  const { data, error } = await supabase
+    .from("landlord")
+    .select(`
       account_number,
       manager:account_number (
         manager_type,
@@ -61,21 +54,20 @@ export async function getAllHousingAdmins() {
         )
       )
     `);
-
-	if (error) {
-		console.error("Error fetching housing admins:", error.message);
-		return { data: null, error };
-	}
-
-	return { data, error: null };
+ 
+  if (error) {
+    console.error("Error fetching landlords:", error.message);
+    return { data: null, error };
+  }
+ 
+  return { data, error: null };
 }
-
-// Read single housing admin with user details by account_number
-export async function getHousingAdminById(accountNumber: number) {
-	const { data, error } = await supabase
-		.from("housing_admin")
-		.select(
-			`
+ 
+// Read single landlord with user details by account_number
+export async function getLandlordById(accountNumber: number) {
+  const { data, error } = await supabase
+    .from("landlord")
+    .select(`
       account_number,
       manager:account_number (
         manager_type,
@@ -94,30 +86,30 @@ export async function getHousingAdminById(accountNumber: number) {
           is_deleted
         )
       )
-    `,
-		)
-		.eq("account_number", accountNumber)
-		.single();
-
-	if (error) {
-		console.error("Error fetching housing admin:", error.message);
-		return { data: null, error };
-	}
-
-	return { data, error: null };
+    `)
+    .eq("account_number", accountNumber)
+    .single();
+ 
+  if (error) {
+    console.error("Error fetching landlord:", error.message);
+    return { data: null, error };
+  }
+ 
+  return { data, error: null };
 }
-
-//Delete housing admin (uncomment if needed)
-// export async function deleteHousingAdmin(accountNumber: number) {
+ 
+//Delete landlord (Uncomment if needed)
+// export async function deleteLandlord(accountNumber: number) {
 //   const { error } = await supabase
-//     .from("housing_admin")
+//     .from("landlord")
 //     .delete()
 //     .eq("account_number", accountNumber);
-
+ 
 //   if (error) {
-//     console.error("Error deleting from housing_admin:", error.message);
+//     console.error("Error deleting from landlord:", error.message);
 //     return { success: false, error };
 //   }
-
+ 
 //   return { success: true, error: null };
 // }
+ 
