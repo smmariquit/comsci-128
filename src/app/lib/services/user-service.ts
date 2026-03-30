@@ -25,7 +25,7 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 		userDetails.password = await bcrypt.hash(password, salt);
 
 		// Insert user
-		const createdUser = await userData.create(userDetails);
+		const createdUser = await userData.createUser(userDetails);
 		return createdUser;
 	} catch (error) {
 		console.error("Error: ", error);
