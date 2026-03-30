@@ -100,7 +100,7 @@ async function findStudents(): Promise<User[]> {
 	const { data, error } = await supabase
 	.from("user")
 	.select()
-	.eq("role", "Student")
+	.eq("user_type", "Student")
 	.eq("is_deleted", false);
 
 	if (error) {
