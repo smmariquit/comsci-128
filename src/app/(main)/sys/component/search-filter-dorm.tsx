@@ -15,7 +15,7 @@ export interface UserFiltersProps {
 	values: UserFiltersState;
 	onChange: (updated: UserFiltersState) => void;	
 	statusOptions?: string[];
-	occupancyOptions?:   string[];
+	occupancyOptions?: string[];
 	onAddManager?: () => void;
 	showAddManager?: boolean;
 }
@@ -24,7 +24,7 @@ export interface UserFiltersProps {
 export default function UserFilters({
 	values,
 	onChange,
-	statusOptions = ['All Status', 'Accepting', 'Disabled'],
+	statusOptions    = ['All Status', 'Accepting', 'Disabled'],
 	occupancyOptions = ['All', 'High (>= 80%)', 'Mid (50 - 79%)', 'Low (< 50%)'],
 	onAddManager,
 	showAddManager = false,
@@ -39,8 +39,8 @@ export default function UserFilters({
 
 	// Active filter tags - only show if the filter value is not the default
 	const activeTags = [
-		values.status !== 'All Status' && { key: 'status', label: `Status: ${values.status}`, clear: () => set('status', 'All Status') },
-		values.occupancy   !== 'All'   && { key: 'occupancy',   label: `Occupancy: ${values.occupancy}`,     clear: () => set('occupancy',   'All')   },
+		values.status   !== 'All Status' && { key: 'status',   label: `Status: ${values.status}`,       clear: () => set('status',   'All Status') },
+		values.occupancy !== 'All'        && { key: 'occupancy', label: `Occupancy: ${values.occupancy}`, clear: () => set('occupancy', 'All')        },
   	].filter(Boolean) as { key: string; label: string; clear: () => void }[];
 
 	return (
@@ -66,7 +66,7 @@ export default function UserFilters({
 		  <FilterDropdown value={values.status} options={statusOptions} onChange={(v) => set('status', v)} />
 		</div>
 
-		{/* Dorm — label sits outside the dropdown */}
+		{/* Occupancy — label sits outside the dropdown */}
 		<div className="flex items-center gap-1.5">
 		  <span className="text-xs text-[#1a2332]/50 font-medium">Occupancy</span>
 		  <FilterDropdown value={values.occupancy} options={occupancyOptions} onChange={(v) => set('occupancy', v)} />
@@ -80,16 +80,16 @@ export default function UserFilters({
 		  Clear Filters
 		</button>
 
-		{/* Add manager */}
+		{/* Add dormitory */}
 		{showAddManager && (
 			<button
 				onClick={onAddManager}
 				className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#d4622a] text-white text-sm font-semibold hover:bg-[#bc5525] transition-colors shrink-0"
 			>
 				<PlusSquare size={15} />
-				Add Dormnitory
+				Add Dormitory
 			</button>
-			)}
+		)}
 	  </div>
 
 	  {/* Active filter tags */}
@@ -108,7 +108,7 @@ export default function UserFilters({
   );	
 }
 
-// Select dropdown component used for Role, Status, and Dorm filters
+// Select dropdown component used for Status and Occupancy filters
 function FilterDropdown({ value, options, onChange }: {
   value: string;
   options: string[];
