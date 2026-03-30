@@ -32,7 +32,7 @@ export async function getHousingAdmingDashboardData() {
         occupancyRate: `${occupancyRate}`,
         totalPendingApplication,
         occupancyData,
-        RecentApplications: allApps.slice(0, 5)
+        recentApplications: allApps.slice(0, 5)
     }
 }
    
