@@ -111,7 +111,7 @@ export default function AddDormModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
       {/* Modal */}
-     <div className="bg-white rounded-2xl max-w-[500px] max-h-[90vh] overflow-hidden shadow-2xl">
+     <div className="bg-white rounded-2xl max-w-500px max-h-[90vh] overflow-hidden shadow-2xl">
         <div className="overflow-y-auto max-h-[90vh]">
 
         {/* Header */}
