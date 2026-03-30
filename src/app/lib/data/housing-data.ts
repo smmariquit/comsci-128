@@ -103,6 +103,44 @@ async function deactivate(housingId: number): Promise<Housing | null> {
 	return data;
 }
 
+async function getHousingCardsData() {
+    // fetch housing and associated rooms
+    const { data: housings, error } = await supabase
+        .from("housing")
+        .select(`
+            *,
+            room (*)
+        `)
+        .eq("is_deleted", false)
+        .order("housing_name", { ascending: true });
+
+    if (error) throw new Error(error.message);
+
+    // map and calculate the exact props needed for the DormCard
+    return housings.map((housing) => {
+        const activeRooms = housing.room?.filter((r: any) => !r.is_deleted) || [];
+        
+        const totalRooms = activeRooms.length;
+        const vacantRooms = activeRooms.filter((r: any) => r.occupancy_status === "Empty").length;
+        const occupiedRooms = totalRooms - vacantRooms;
+        
+        const occupancyRate = totalRooms > 0 
+            ? Math.round((occupiedRooms / totalRooms) * 100) 
+            : 0;
+
+        return {
+            housingId: housing.housing_id.toString(),
+            name: housing.housing_name,
+            address: housing.housing_address,
+            totalRooms,
+            occupiedRooms,
+            vacantRooms,
+            occupancyRate,
+            minRent: housing.rent_price,
+        };
+    });
+}
+
 export const housingData = {
 	create,
 	findAll,
@@ -110,4 +148,5 @@ export const housingData = {
 	findWithRooms,
 	update,
 	deactivate,
+	getHousingCardsData
 };
