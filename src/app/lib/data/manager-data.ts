@@ -29,6 +29,28 @@ import { userData } from "./user-data";
 // 	return data;
 // };
 
+
+export const createManager = async (
+  userDetails: User, 
+  userType: string, 
+  password: string, 
+  manager_type: string
+) => {
+
+  const userAccountNumber = await createUser(userDetails, "Manager", password);
+
+  const { data, error } = await supabase.from('manager')
+    .insert([{
+      account_number: userAccountNumber, 
+      manager_type: manager_type
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
 // READ managers
 export const getManagers = async () => {
 	return await supabase
