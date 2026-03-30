@@ -27,8 +27,16 @@ export async function getHousingAdmingDashboardData() {
 
     }));
 
+    const studentStatusList = allStudents.map(u => u.student?.housing_status).filter(Boolean);
+    const totalAssigned = studentStatusList.filter(s => s === "Assigned").length;
+    const totalUnassigned = studentStatusList.filter(s => s === "Not Assigned" || s === "Vacated").length;
+
     return {
         totalStudents: allStudents.length,
+        housingStatusCounts: {
+            assigned: totalAssigned,
+            unassigned: totalUnassigned,
+        },
         occupancyRate: `${occupancyRate}`,
         totalPendingApplication,
         occupancyData,
