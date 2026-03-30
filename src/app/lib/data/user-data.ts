@@ -95,11 +95,18 @@ async function deactivateById(userId: number): Promise<UpdateUser | null> {
 	return data;
 }
 
-async function findStudents(): Promise<User[]> {
+async function findStudents(): Promise<any[]> {
 	// returns students ONLY
 	const { data, error } = await supabase
 	.from("user")
-	.select()
+	.select(`
+		account_number, 
+		first_name, 
+		last_name, 
+		student:student!account_number (
+			housing_status
+		)`
+	)
 	.eq("user_type", "Student")
 	.eq("is_deleted", false);
 
