@@ -1,7 +1,7 @@
 import { User, NewUser, UpdateUser } from "@/models/user";
 import { supabase } from "../supabase";
 
-async function create(userDetails: NewUser): Promise<User> {
+async function createUser(userDetails: NewUser): Promise<User> {
 	// this is for returning the newly inserted user
 	const { data, error } = await supabase
 		.from("user")
@@ -96,7 +96,7 @@ async function deactivateById(userId: number): Promise<UpdateUser | null> {
 }
 
 export const userData = {
-	create,
+	createUser,
 	findAll,
 	findById,
 	findByEmail,
