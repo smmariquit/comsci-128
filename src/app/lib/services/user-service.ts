@@ -55,7 +55,7 @@ const getUser = async (userId: number): Promise<Public<User> | null> => {
 
 const getAllUser = async (): Promise<Public<User>[] | null> => {
 	try {
-		const userProfiles = await userData.findAll();
+		const userProfiles = await userData.findAllUsers();
 
 		if (!userProfiles) return [];
 

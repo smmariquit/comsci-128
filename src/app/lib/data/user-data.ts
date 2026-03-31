@@ -17,7 +17,7 @@ async function createUser(userDetails: NewUser): Promise<User> {
 	// return data.account_number if PK
 }
 
-export async function findAllUsers(): Promise<User[]> {
+async function findAllUsers(): Promise<User[]> {
 	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
 	const { data, error } = await supabase
