@@ -6,10 +6,14 @@ import { supabase } from "../supabase";
 export const createStudent = async (
     userDetails: NewUser,
     password: string,
+    student_number: Number
 ) => {
+    // Remove extra fields before inserting into user table
+    const { student_number: _, ...userOnly } = userDetails as any;
+
     // set fields as student
     const studentUser: NewUser = {
-        ...userDetails,
+        ...userOnly,
         user_type: "Student",
         password: password,
     };
@@ -18,11 +22,14 @@ export const createStudent = async (
     const newUser = await userData.createUser(studentUser);
 
     // create student
+    const studentInsert = {
+        account_number: newUser.account_number,
+        student_number: Number(student_number),
+    };
+
     const { data, error } = await supabase
         .from('student')
-        .insert([{
-            account_number: newUser.account_number,
-        }])
+        .insert([studentInsert]) 
         .select()
         .single();
 

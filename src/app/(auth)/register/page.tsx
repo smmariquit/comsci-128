@@ -13,6 +13,8 @@ export default function RegisterPage() {
   const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // temporrary student number placeholder
+  const student_number = 202306777;
 
   const handleRegister = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,7 +22,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/users", {
+      const response = await fetch("/api/student", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,8 +32,8 @@ export default function RegisterPage() {
           first_name: first_name,
           middle_name: middle_name || null,
           last_name: last_name,
-          user_type: "Student",
           password: password,
+          student_number: student_number,
         }),
       });
 
