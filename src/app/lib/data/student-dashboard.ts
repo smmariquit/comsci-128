@@ -52,7 +52,44 @@ export async function getStudentBillingHistory(studentAccountNumber: number) {
     return data;
 }
 
-// The main wrapper function your route.ts calls
+export function getComputedNotifications(application: any, billing: any[]) {
+    const notifications = [];
+    if (application) {
+        if (application.application_status === "Approved") {
+            notifications.push({
+                id: `app-${application.application_id}`,
+                type: "SUCCESS",
+                title: "Application Approved",
+                message: `Congrats! Your application for ${application.room?.housing?.housing_name || 'housing'} has been approved.`,
+                created_at: application.updated_at || new Date().toISOString()
+            });
+        } else if (application.application_status === "Rejected") {
+            notifications.push({
+                id: `app-${application.application_id}`,
+                type: "ERROR",
+                title: "Application Rejected",
+                message: "Unfortunately, your housing application was not approved at this time.",
+                created_at: application.updated_at || new Date().toISOString()
+            });
+        }
+    }
+
+    const unpaidBills = billing.filter(b => b.status === "Unpaid");
+    unpaidBills.forEach(bill => {
+        notifications.push({
+            id: `bill-${bill.transaction_id}`,
+            type: "WARNING",
+            title: "Pending Payment",
+            message: `You have an outstanding ${bill.bill_type} bill of ₱${bill.amount}.`,
+            created_at: bill.issue_date
+        });
+    });
+
+    return notifications.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+}
+
 export async function getCompleteDashboardData(studentAccountNumber: number) {
     try {
         const [application, billing] = await Promise.all([
@@ -61,10 +98,13 @@ export async function getCompleteDashboardData(studentAccountNumber: number) {
         ]);
 
         const steps = getApplicationSteps(application);
+        
+        const notifications = getComputedNotifications(application, billing);
 
         return {
             application,
             billing,
+            notifications,
             steps
         };
     } catch (error) {
