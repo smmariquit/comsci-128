@@ -21,7 +21,7 @@ async function create(housingDetails: HousingInsert): Promise<Housing | null> {
 }
 
 // Fetches all active dorms, sorted alphabetically
-async function findAll(): Promise<Housing[] | []> {
+export async function findAllHousing(): Promise<Housing[]> {
 	const { data, error } = await supabase
 		.from("housing")
 		.select("*")
@@ -105,7 +105,7 @@ async function deactivate(housingId: number): Promise<Housing | null> {
 
 export const housingData = {
 	create,
-	findAll,
+	findAllHousing,
 	findById,
 	findWithRooms,
 	update,
