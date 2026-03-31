@@ -98,3 +98,21 @@ export async function deleteApplication(application_id: number) {
 	if (error) throw error;
 	return data;
 }
+
+// GET SELECTED STATS FOR MANAGER DASHBOARD
+export async function getApplicationStats() {
+
+	const {data, error} = await supabase
+	.from("application")
+	.select("application_status")
+	.eq("is_deleted", false)
+
+	if (error) throw error
+
+	const total = data.length
+	const pending = data.filter(a => a.application_status === "Pending").length
+	const approved = data.filter(a => a.application_status === "Approved").length
+	const rejected = data.filter(a => a.application_status === "Rejected").length
+
+	return { total, pending, approved, rejected }
+}
