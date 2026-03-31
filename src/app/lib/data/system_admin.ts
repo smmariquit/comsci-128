@@ -6,7 +6,7 @@ import {
   createPayment 
 } from "./manager-data";
 
-import { findAllUsers } from "./user-data";
+import { userData } from "./user-data";
 import { housingData } from "./housing-data";
 
 // CREATE System Admin
@@ -73,7 +73,7 @@ export async function updateSystemAdmin(accountNumber: number, updates: any) {
 
 // READ all users (manager, landlord, housing_admin, student)
 export async function getSystemAdminAllUsers() {
-  return await findAllUsers();
+  return await userData.findAllUsers();
 }
 
 // READ all housing 
