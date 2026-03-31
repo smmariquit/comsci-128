@@ -17,17 +17,21 @@ async function createUser(userDetails: NewUser): Promise<User> {
 	// return data.account_number if PK
 }
 
-async function findAll(): Promise<User[]> {
+export async function findAllUsers(): Promise<User[]> {
 	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
-	const { data, error } = await supabase.from("user").select();
+	const { data, error } = await supabase
+	.from('user')
+	.select()
+	.eq('is_deleted', false);
 
 	if (error) {
 		throw new Error(error.message);
 	}
 
-	return data ?? null;
+	return data ?? [];
 }
+
 
 async function findById(userId: number): Promise<User | null> {
 	const { data, error } = await supabase
