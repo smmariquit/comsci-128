@@ -101,7 +101,7 @@ async function deactivateById(userId: number): Promise<UpdateUser | null> {
 
 export const userData = {
 	createUser,
-	findAll,
+	findAllUsers,
 	findById,
 	findByEmail,
 	update,
