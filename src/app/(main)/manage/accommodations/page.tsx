@@ -31,7 +31,7 @@ function AccommodationCard({
   details: {label: string; value: string | number} [];
 }) {
   return (
-    <Link href={`/manage/accommodations`}>
+    <Link href={`/manage/accommodations/1`}> {/* dummy link for a specific dorm*/}
       <div className="flex items-center gap-4 border rounded-lg p-4 text-white bg-black">
 
         {/* Image */}
