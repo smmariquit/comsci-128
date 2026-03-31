@@ -105,7 +105,7 @@ async function deactivate(housingId: number): Promise<Housing | null> {
 
 export const housingData = {
 	create,
-	findAll,
+	findAllHousing,
 	findById,
 	findWithRooms,
 	update,
