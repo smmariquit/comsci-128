@@ -2,7 +2,7 @@ import { NewUser } from "@/models/user";
 import { createManager } from "../data/manager-data";
 import { createLandlord} from "../data/landlord-data";
 
-const addLandlord = async (
+export const addLandlord = async (
   userDetails: NewUser,
   password: string
 ): Promise<any> => {

@@ -18,10 +18,12 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 		if (!first_name) throw new Error("First name is required.");
 		if (!last_name) throw new Error("Last name is required.");
 		if (!password) throw new Error("Password is required");
+
 		// Default to Student if not specified
 		if (!userDetails.user_type) {
 		userDetails.user_type = "Student";
 		}
+		
 		// Hash pw
 		const salt = await bcrypt.genSalt(12);
 		userDetails.password = await bcrypt.hash(password, salt);

@@ -37,29 +37,57 @@ export default function AddManagerModal({
   const set = (key: keyof typeof form, val: string) =>
     setForm((f) => ({ ...f, [key]: val }));
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const name = `${form.firstName.trim()} ${form.lastName.trim()}`.trim();
     if (!name || !form.email || !form.dorm || !form.password) return;
 
-	// User Joined Date - set to current date in "MMM D, YYYY" format (e.g. "Jun 15, 2024")
-    const now = new Date();
-    const joined = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    try {
+        // ← different API based on role
+        const endpoint = form.role === 'Landlord' ? '/api/landlord' : '/api/housing-admin';
 
-    const newUser: User = {
-      id: String(Date.now()),
-      name,
-      gender: form.sex || 'Prefer not to say',
-      email: form.email,
-      role: form.role,
-      status: 'Active',
-      dormitory: form.dorm,
-      joined,
-    };
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                account_email: form.email,
+                first_name: form.firstName,
+                last_name: form.lastName,
+                phone_number: form.contact || null,
+                sex: form.sex || null,
+                password: form.password,
+            }),
+        });
 
-    onAdd(newUser);
-    setForm({ firstName: '', lastName: '', sex: '', email: '', contact: '', role: 'Manager', dorm: '', password: '' });
-    onClose();
-  };
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error(data.message);
+            return;
+        }
+
+        // Map API response to local User type for the UI
+        const now = new Date();
+        const joined = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        const newUser: User = {
+            id: String(data.user.account_number),
+            name,
+            gender: form.sex || 'Prefer not to say',
+            email: form.email,
+            role: form.role,
+            status: 'Active',
+            dormitory: form.dorm,
+            joined,
+        };
+
+        onAdd(newUser);
+        setForm({ firstName: '', lastName: '', sex: '', email: '', contact: '', role: 'Manager', dorm: '', password: '' });
+        onClose();
+
+    } catch (err) {
+        console.error("Error adding manager:", err);
+    }
+};
 
   return (
     <>
