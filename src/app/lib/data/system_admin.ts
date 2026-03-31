@@ -1,5 +1,7 @@
 import { supabase } from "../supabase";
 import { User } from "@/models/user";
+import { getAllUsers } from "./user";
+import { findAllHousing } from "./housing";
 import { 
   createManager, 
   createManagerBank, 
@@ -66,4 +68,14 @@ export async function updateSystemAdmin(accountNumber: number, updates: any) {
 
   if (error) throw new Error(error.message);
   return data;
+}
+
+// READ all users (manager, landlord, housing_admin, student)
+export async function getSystemAdminAllUsers() {
+  return await getAllUsers();
+}
+
+// READ all housing 
+export async function getSystemAdminAllHousing() {
+  return await findAllHousing();
 }
