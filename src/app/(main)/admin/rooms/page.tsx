@@ -32,10 +32,13 @@ export default function Page() {
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
+    const roomCode = room.room_code?.toLowerCase() || "";
+    const searchTerm = search.toLowerCase();
+
     const matchesSearch =
-      room.room_code.toLowerCase().includes(search.toLowerCase()) ||
-      room.assigned_tenants.some((t) =>
-        t.toLowerCase().includes(search.toLowerCase())
+      roomCode.includes(searchTerm) ||
+      (room.assigned_tenants || []).some((t) =>
+        t?.toLowerCase().includes(searchTerm)
       );
 
     const matchesOccupancy =
