@@ -97,6 +97,39 @@ async function deactivate(roomId: number): Promise<Room | null> {
 	return data;
 }
 
+// Find Room for Housing Admin View
+async function findAllRoomDetailed () {
+	const { data, error } = await supabase
+		.from("room")
+		.select(`
+			*,
+			housing:housing_id (housing_name),
+			tenants:student_accomodation (
+				student:account_number (
+					user:account_number (
+						first_name, last_name
+					)
+				)
+			)
+		`)
+		.eq("is_deleted", false);
+	
+	if (error) throw new Error(error.message);
+
+	return (data || []).map((room) => ({
+		room_id: room.room_id,
+		room_code: room.room_code,
+		housing_name: room.housing?.housing_name || "Unassigned",
+		room_type: room.room_type,
+		maximum_occupants: room.maximum_occupants,
+		current_occupants: room.tenants?.length || 0,
+		occupancy_status: room.occupancy_status,
+		assigned_tenants: room.tenants?.map((t: any) => 
+			`${t.student?.user?.first_name} ${t.student?.user?.last_name}`
+		) || [],
+	}));
+}
+
 export const roomData = {
 	create,
 	findAll,
@@ -104,4 +137,5 @@ export const roomData = {
 	findByRoomId,
 	update,
 	deactivate,
+	findAllRoomDetailed
 };
