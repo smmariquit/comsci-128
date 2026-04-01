@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
-import RoomTable, { RoomRow } from "@/components/admin/rooms/roomtable";
+import RoomTable, { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
 import RoomFilters, {
   OccupancyFilter,
   TypeFilter,
@@ -87,20 +87,21 @@ export default function Page() {
     }
   };
 
-  const handleToggle = (row: RoomRow) => {
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.room_id === row.room_id
-          ? {
-              ...r,
-              occupancy_status:
-                r.occupancy_status === "Occupied" ? "Empty" : "Occupied",
-              current_occupants:
-                r.occupancy_status === "Occupied" ? 0 : 1,
-            }
-          : r
-      )
-    );
+  const handleToggle = async (row: RoomRow) => {
+    const newStatus = row.occupancy_status === "Occupied" ? "Empty" : "Occupied";
+
+    const nextStatus = row.occupancy_status === "Empty" ? "Fully Occupied" : "Empty";
+    const nextStatusUI: OccupancyStatus = nextStatus === "Fully Occupied" ? "Occupied" : "Empty";
+
+    try {
+      await roomData.update(row.room_id, { occupancy_status: nextStatus as any });
+
+      setRooms((prev) => 
+        prev.map((r) => r.room_id === row.room_id ? { ...r, occupancy_status: nextStatusUI} : r
+    ));
+    } catch (err) {
+      console.error("Failed to update status: ", err);
+    }
   };
 
   const handleFormSubmit = (form: RoomForm) => {
