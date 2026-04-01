@@ -57,6 +57,30 @@ export default function Page() {
     },
   ];
 
+  const tenants = [
+    {
+      id: 1,
+      name: "Wei Wuxian",
+      unit: "Nie Quarters",
+      start: "2026-03-01",
+      end: "2026-06-01",
+    },
+    {
+      id: 2,
+      name: "Lan Wangji",
+      unit: "Gentian House",
+      start: "2026-03-05",
+      end: "2026-06-05",
+    },
+    {
+      id: 3,
+      name: "Lan Xichen",
+      unit: "Jingshi",
+      start: "2026-03-10",
+      end: "2026-06-10",
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-white text-black flex flex-col gap-6 p-6">
       <Link
@@ -109,6 +133,44 @@ export default function Page() {
               bedType={unit.bedType}
             />
           ))}
+        </div>
+      </div>
+
+
+      <div className="flex flex-col gap-6 px-12 pb-10">
+
+        <h2 className="text-2xl font-semibold">
+          All Tenants
+        </h2>
+
+        <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
+          Filter (to be implemented)
+        </div>
+
+        <div className="border rounded-lg overflow-hidden bg-white">
+          <table className="w-full text-sm">
+
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="text-left p-3">Name</th>
+                <th className="text-left p-3">Unit</th>
+                <th className="text-left p-3">Start of Stay</th>
+                <th className="text-left p-3">End of Stay</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {tenants.map((tenant) => (
+                <tr key={tenant.id} className="border-t hover:bg-gray-50">
+                  <td className="p-3">{tenant.name}</td>
+                  <td className="p-3">{tenant.unit}</td>
+                  <td className="p-3">{tenant.start}</td>
+                  <td className="p-3">{tenant.end}</td>
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
         </div>
 
       </div>
