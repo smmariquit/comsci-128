@@ -134,7 +134,7 @@ async function findAllRoomDetailed () {
 
 		return {
 			room_id: room.room_id,
-			room_code: room.room_code || "N/A",
+			room_code: String(room.room_id) || "N/A",
 			housing_name: room.housing?.housing_name || "Unassigned",
 			room_type: displayType,
 			maximum_occupants: room.maximum_occupants || 0,
