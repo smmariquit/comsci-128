@@ -183,7 +183,7 @@ export function ViewRoomModal({ room, onClose }: { room: RoomRow; onClose: () =>
             value={
               room.assigned_tenants.length === 0
                 ? <span style={{ color: C.teal, opacity: 0.6, fontStyle: "italic" }}>None</span>
-                : room.assigned_tenants.join(", ")
+                : room.assigned_tenants.map(t => t.name).join(", ")
             }
           />
         </div>
@@ -326,8 +326,8 @@ export function OverrideAssignModal({
 }: {
   room:       RoomRow;
   onClose:    () => void;
-  onAssign:   (studentName: string, studentNumber: string) => void;
-  onUnassign: () => void;
+  onAssign:   (studentId: string) => void;
+  onUnassign: (studentId: string) => void;
 }) {
   const [name,   setName]   = useState("");
   const [number, setNumber] = useState("");
@@ -342,38 +342,43 @@ export function OverrideAssignModal({
         footer={
           <>
             <CancelBtn onClose={onClose} />
-            {isOccupied ? (
-              <button
-                onClick={onUnassign}
-                style={{
-                  fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
-                  padding: "9px 20px", borderRadius: 9, border: "none",
-                  background: "rgba(201,100,42,0.15)", color: C.orange, cursor: "pointer",
-                }}
-              >
-                Unassign Tenant
-              </button>
-            ) : (
+            {!isOccupied && (
               <PrimaryBtn
                 label="Assign Tenant"
-                onClick={() => { if (name) onAssign(name, number); }}
+                onClick={() => { if (number) onAssign(number); }}
               />
             )}
           </>
         }
       >
         {isOccupied ? (
-          <>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div style={{ background: C.cream, borderRadius: 8, padding: "12px 14px" }}>
               <div style={{
                 fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace",
-                marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8,
+                marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.8,
               }}>
                 Currently Assigned
               </div>
-              {room.assigned_tenants.map((t) => (
-                <div key={t} style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>{t}</div>
-              ))}
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {room.assigned_tenants.map((tenant) => (
+                  <div key={tenant.id} style={{ 
+                    display: "flex", justifyContent: "space-between", alignItems: "center",
+                    background: "#fff", padding: "8px 12px", borderRadius: 6, border: `1px solid ${C.dividerLight}`
+                  }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>
+                      {tenant.name}
+                    </span>
+                    <button 
+                      onClick={() => onUnassign(tenant.id)}
+                      style={{ border: "none", background: "none", color: C.orange, fontSize: 11, cursor: "pointer", fontWeight: 600 }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
             <div style={{
               background: "rgba(201,100,42,0.08)", borderRadius: 8, padding: "10px 14px",
@@ -381,7 +386,7 @@ export function OverrideAssignModal({
             }}>
               ⚠ Unassigning will update the student's housing status and log this action in the audit trail.
             </div>
-          </>
+          </div>
         ) : (
           <>
             {/* ✅ label + id pairs for both inputs */}

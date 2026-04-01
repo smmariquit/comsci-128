@@ -90,10 +90,60 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 	}
 };
 
+const assignRoom = async (roomId: number, studentId: string) => {
+	try {
+		await roomData.insertAccommodation(roomId, studentId);
+		await roomData.update(roomId, {occupancy_status: "Partially Occupied" as any});
+
+		return { success: true };
+	} catch (error: any) {
+		console.error("Service Error (assignStudent): ", error.message);
+		throw new Error(error.message || "Failed to assign student.");
+	}
+};
+
+const unassignRoom = async (roomId: number, studentId: string) => {
+	try {
+		await roomData.endAccommodation(roomId, studentId);
+
+		const room = await roomData.findAllRoomDetailed();
+		const currentRoom = room.find(r => r.room_id === roomId);
+
+		if (!currentRoom || currentRoom.current_occupants === 0) {
+			await roomData.update(roomId, { occupancy_status: "Empty" as any});
+		}
+
+		return { success: true }
+	} catch (error: any) {
+		console.error("Service Error (unassignStudent): ", error.message);
+		throw new Error(error.message || "Failed to unassign student.");
+	}
+};
+
+const getEligibleStudents = async () => {
+	try {
+		const allStudents = await roomData.findUnassignedStudents();
+
+		const rooms = await roomData.findAllRoomDetailed();
+		const assignedIds = new Set(
+			rooms.flatMap(r => r.assigned_tenants?.map((t: any) => t.id))	
+		);
+
+		return allStudents.filter(s => !assignedIds.has(s.id));
+	} catch (error: any) {
+		console.error("Service Error (getElligibleStudents): ", error.message);
+		//throw new Error(error.message || "Failed to fetch unassigned students.");
+		return [];
+	}
+}
+
 export const roomService = {
 	addRoom,
 	getRoom,
 	getAllRooms,
 	updateRoom,
 	deactivateRoom,
+	assignRoom,
+	unassignRoom,
+	getEligibleStudents,
 };
