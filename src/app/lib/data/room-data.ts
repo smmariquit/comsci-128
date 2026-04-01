@@ -104,9 +104,9 @@ async function findAllRoomDetailed () {
 		.select(`
 			*,
 			housing:housing_id (housing_name),
-			tenants:student_accomodation (
-				student:account_number (
-					user:account_number (
+			tenants:student_accommodation_history!room_id (
+				student:student!account_number (
+					user:user!account_number (
 						first_name, last_name
 					)
 				)
@@ -116,18 +116,35 @@ async function findAllRoomDetailed () {
 	
 	if (error) throw new Error(error.message);
 
-	return (data || []).map((room) => ({
-		room_id: room.room_id,
-		room_code: room.room_code,
-		housing_name: room.housing?.housing_name || "Unassigned",
-		room_type: room.room_type,
-		maximum_occupants: room.maximum_occupants,
-		current_occupants: room.tenants?.length || 0,
-		occupancy_status: room.occupancy_status,
-		assigned_tenants: room.tenants?.map((t: any) => 
-			`${t.student?.user?.first_name} ${t.student?.user?.last_name}`
-		) || [],
-	}));
+	return (data || []).map((room) => {
+		let displayStatus = room.occupancy_status;
+		// force tell it is occupied
+		if (displayStatus?.toLowerCase().includes("occupied")) {
+			displayStatus = "Occupied";
+		} else if (!displayStatus || displayStatus?.toLowerCase().includes("empty")) {
+			displayStatus = "Empty"
+		}
+
+		const validTypes = ["Single", "Double", "Shared", "Bedspace"];
+		let displayType = validTypes.includes(room.room_type) ? room.room_type: "Bedspace";
+
+		if (!validTypes.includes(displayType)) {
+			displayType = "Shared";
+		}
+
+		return {
+			room_id: room.room_id,
+			room_code: room.room_code || "N/A",
+			housing_name: room.housing?.housing_name || "Unassigned",
+			room_type: displayType,
+			maximum_occupants: room.maximum_occupants || 0,
+			current_occupants: room.tenants?.length || 0,
+			occupancy_status: displayStatus,
+			assigned_tenants: room.tenants?.map((t: any) => 
+                `${t.student?.user?.first_name || ""} ${t.student?.user?.last_name || ""}`.trim()
+            ).filter(Boolean) || [],
+		}
+	});
 }
 
 export const roomData = {
