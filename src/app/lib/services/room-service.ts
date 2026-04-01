@@ -90,10 +90,25 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 	}
 };
 
+const assignRoom = {
+	async assignStudent(roomId: number, studentId: string) {
+		try {
+			await roomData.insertAccommodation(roomId, studentId);
+			await roomData.update(roomId, {occupancy_status: "Partially Occupied" as any});
+
+			return { success: true };
+		} catch (error: any) {
+			console.error("Service Error (assignStudent): ", error.message);
+			throw new Error(error.message || "Failed to assign student.");
+		}
+	}
+};
+
 export const roomService = {
 	addRoom,
 	getRoom,
 	getAllRooms,
 	updateRoom,
 	deactivateRoom,
+	assignRoom
 };

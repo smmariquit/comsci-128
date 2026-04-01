@@ -147,6 +147,32 @@ async function findAllRoomDetailed () {
 	});
 }
 
+async function insertAccommodation(roomId: number, studentId: string) {
+	const { data, error } = await supabase
+		.from("student_accommodation_history")
+		.insert({
+			room_id: roomId,
+			account_number: studentId,
+			movein_date: new Date().toISOString().split('T')[0],
+		})
+		.select()
+		.single();
+
+	if (error) throw new Error(error.message);
+	return data;
+}
+
+async function endAccommodation(roomId: number, studentId: string) {
+	const { error } = await supabase
+		.from("student_accommodation_history")
+		.update({ moveout_date: new Date().toISOString().split('T')[0] })
+		.eq("room_id", roomId)
+		.eq("account_number", studentId)
+		.is("moveout_date", null);
+	
+	if (error) throw new Error(error.message)
+}
+
 export const roomData = {
 	create,
 	findAll,
@@ -154,5 +180,6 @@ export const roomData = {
 	findByRoomId,
 	update,
 	deactivate,
-	findAllRoomDetailed
+	findAllRoomDetailed,
+	insertAccommodation
 };
