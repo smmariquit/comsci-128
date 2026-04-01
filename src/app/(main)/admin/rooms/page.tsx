@@ -69,9 +69,22 @@ export default function Page() {
     setSelectedRoom(room);
     setShowAssignModal(true);
     };
+
   // ── Handlers ──────────────────────────────────────────
-  const handleDelete = (row: RoomRow) => {
-    setRooms((prev) => prev.filter((r) => r.room_id !== row.room_id));
+  const handleDelete = async (row: RoomRow) => {
+    //confirm
+    if (!window.confirm(`Are you sure you want to deactivate ${row.room_code}?`)) return;
+
+    try {
+      setIsLoading(true);
+      await roomData.deactivate(row.room_id);
+
+      setRooms((prev) => prev.filter((r) => r.room_id !== row.room_id));
+    } catch (err) {
+      console.error("Failed to deactivate: ", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleToggle = (row: RoomRow) => {
