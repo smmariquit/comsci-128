@@ -3,7 +3,7 @@ import { C } from "@/lib/palette";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type OccupancyStatus = "Empty" | "Occupied" | "Reserved" | "Under Maintenance";
-export type RoomType = "Single" | "Double" | "Suite" | "Bedspace";
+export type RoomType = "Single" | "Double" | "Shared" | "Bedspace";
 
 export interface RoomRow {
   room_id: number;
@@ -13,7 +13,7 @@ export interface RoomRow {
   maximum_occupants: number;
   current_occupants: number;
   occupancy_status: OccupancyStatus;
-  assigned_tenants: string[];
+  assigned_tenants: { id: string; name: string }[];
 }
 
 // ── Occupancy badge ───────────────────────────────────────────────────────────
@@ -51,12 +51,12 @@ function OccupancyBadge({ status }: { status: OccupancyStatus }) {
 const TYPE_STYLE: Record<RoomType, { bg: string; text: string }> = {
   Single:   { bg: "rgba(86,115,117,0.14)",  text: C.teal },
   Double:   { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
-  Suite:    { bg: "rgba(201,100,42,0.13)",  text: C.orange },
+  Shared:    { bg: "rgba(201,100,42,0.13)",  text: C.orange },
   Bedspace: { bg: "rgba(28,38,50,0.08)",    text: C.navy },
 };
 
 function RoomTypeTag({ type }: { type: RoomType }) {
-  const s = TYPE_STYLE[type];
+  const s = TYPE_STYLE[type] ?? TYPE_STYLE["Bedspace"];
   return (
     <span style={{
       background: s.bg,

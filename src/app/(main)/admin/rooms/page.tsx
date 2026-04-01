@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
-import RoomTable, { RoomRow } from "@/components/admin/rooms/roomtable";
+import RoomTable, { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
 import RoomFilters, {
   OccupancyFilter,
   TypeFilter,
 } from  "@/components/admin/rooms/roomfilters";
+import { roomData } from "@/app/lib/data/room-data";
+import { roomService } from "@/app/lib/services/room-service";
 
 export default function Page() {
     const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
@@ -15,38 +17,8 @@ export default function Page() {
     const [showFormModal, setShowFormModal] = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
   // ── Raw Data ──────────────────────────────────────────
-  const [rooms, setRooms] = useState<RoomRow[]>([
-    {
-      room_id: 1,
-      room_code: "RM-001",
-      housing_name: "Maple Residence",
-      room_type: "Single",
-      maximum_occupants: 1,
-      current_occupants: 1,
-      occupancy_status: "Occupied",
-      assigned_tenants: ["John Doe"],
-    },
-    {
-      room_id: 2,
-      room_code: "RM-002",
-      housing_name: "Maple Residence",
-      room_type: "Double",
-      maximum_occupants: 2,
-      current_occupants: 0,
-      occupancy_status: "Empty",
-      assigned_tenants: [],
-    },
-    {
-      room_id: 3,
-      room_code: "RM-003",
-      housing_name: "Oak Dorm",
-      room_type: "Suite",
-      maximum_occupants: 3,
-      current_occupants: 2,
-      occupancy_status: "Occupied",
-      assigned_tenants: ["Alice", "Bob"],
-    },
-  ]);
+  const [rooms, setRooms] = useState<RoomRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // ── Filter State ──────────────────────────────────────
   const [search, setSearch] = useState("");
@@ -61,10 +33,14 @@ export default function Page() {
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
+    const roomCode = room.room_code?.toLowerCase() || "";
+    const searchTerm = search.toLowerCase();
+
     const matchesSearch =
-      room.room_code.toLowerCase().includes(search.toLowerCase()) ||
-      room.assigned_tenants.some((t) =>
-        t.toLowerCase().includes(search.toLowerCase())
+      roomCode.includes(searchTerm) ||
+      (room.assigned_tenants || []).some((t) =>
+        t.id?.toLowerCase().includes(searchTerm) ||
+        t.name?.toLowerCase().includes(searchTerm)
       );
 
     const matchesOccupancy =
@@ -95,87 +71,121 @@ export default function Page() {
     setSelectedRoom(room);
     setShowAssignModal(true);
     };
+
   // ── Handlers ──────────────────────────────────────────
-  const handleDelete = (row: RoomRow) => {
-    setRooms((prev) => prev.filter((r) => r.room_id !== row.room_id));
+  const handleDelete = async (row: RoomRow) => {
+    //confirm
+    if (!window.confirm(`Are you sure you want to deactivate ${row.room_code}?`)) return;
+
+    try {
+      setIsLoading(true);
+      await roomData.deactivate(row.room_id);
+
+      setRooms((prev) => prev.filter((r) => r.room_id !== row.room_id));
+    } catch (err) {
+      console.error("Failed to deactivate: ", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleToggle = (row: RoomRow) => {
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.room_id === row.room_id
-          ? {
-              ...r,
-              occupancy_status:
-                r.occupancy_status === "Occupied" ? "Empty" : "Occupied",
-              current_occupants:
-                r.occupancy_status === "Occupied" ? 0 : 1,
-            }
-          : r
-      )
-    );
+  const handleToggle = async (row: RoomRow) => {
+    const nextStatus = row.occupancy_status === "Empty" ? "Fully Occupied" : "Empty";
+    const nextStatusUI: OccupancyStatus = nextStatus === "Fully Occupied" ? "Occupied" : "Empty";
+
+    try {
+      await roomData.update(row.room_id, { occupancy_status: nextStatus as any });
+
+      setRooms((prev) => 
+        prev.map((r) => r.room_id === row.room_id ? { ...r, occupancy_status: nextStatusUI} : r
+    ));
+    } catch (err) {
+      console.error("Failed to update status: ", err);
+    }
   };
 
-  const handleFormSubmit = (form: RoomForm) => {
+  const handleFormSubmit = async (form: RoomForm) => {
     if (!selectedRoom) return;
 
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.room_id === selectedRoom.room_id
-          ? {
-              ...r,
-              housing_name: form.housing_name,
-              room_type: form.room_type,
-              maximum_occupants: Number(form.maximum_occupants),
-              occupancy_status: form.occupancy_status,
-            }
-          : r
-      )
-    );
+    try {
+      setIsLoading(true);
 
-    setShowFormModal(false);
-    setSelectedRoom(null);
+      const dbStatus = form.occupancy_status === "Occupied" ? "Fully Occupied" : form.occupancy_status;
+
+      await roomData.update(selectedRoom.room_id, {
+        room_type: form.room_type as any,
+        maximum_occupants: Number(form.maximum_occupants),
+        occupancy_status: dbStatus as any,
+      });
+
+      const updatedRooms = await roomData.findAllRoomDetailed();
+      setRooms(updatedRooms);
+
+      setShowFormModal(false);
+      setSelectedRoom(null);
+    } catch (err) {
+      console.error("Failed to update room: ", err);
+    } finally {
+      setIsLoading(false)
+    }
   };
 
-  const handleAssignSubmit = (studentName: string) => {
+  const handleAssignSubmit = async (studentId: string) => {
     if (!selectedRoom) return;
 
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.room_id === selectedRoom.room_id
-          ? {
-              ...r,
-              occupancy_status: "Occupied",
-              current_occupants: Math.min(r.maximum_occupants, r.current_occupants + 1),
-              assigned_tenants: [...r.assigned_tenants, studentName],
-            }
-          : r
-      )
-    );
+    try {
+      setIsLoading(true);
 
-    setShowAssignModal(false);
-    setSelectedRoom(null);
+      await roomService.assignRoom(selectedRoom.room_id, studentId);
+
+      const liveRooms = await roomData.findAllRoomDetailed();
+      setRooms(liveRooms);
+
+      setShowAssignModal(false);
+      setSelectedRoom(null);
+    } catch (err) {
+      console.error("Failed to submit assignment: ", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleUnassign = () => {
+  const handleUnassign = async (studentId: string) => {
     if (!selectedRoom) return;
 
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.room_id === selectedRoom.room_id
-          ? {
-              ...r,
-              occupancy_status: "Empty",
-              current_occupants: 0,
-              assigned_tenants: [],
-            }
-          : r
-      )
-    );
+    try {
+      setIsLoading(true);
 
-    setShowAssignModal(false);
-    setSelectedRoom(null);
+      await roomService.unassignRoom(selectedRoom.room_id, studentId);
+
+      const liveRooms = await roomData.findAllRoomDetailed();
+      setRooms(liveRooms);
+
+      setShowAssignModal(false);
+      setSelectedRoom(null);
+    } catch (err) {
+      console.error("Failed to unassign: ", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // Fetch Data
+  useEffect(() => {
+    async function loadLiveData() {
+      try {
+        const liveRooms = await roomData.findAllRoomDetailed();
+        setRooms(liveRooms);
+      } catch (err) {
+        console.error("Failed to fetch rooms:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadLiveData();
+  }, []);
+
+  if (isLoading) return <div className="p-6">Syncing with the database...</div>;
 
   // ── UI ────────────────────────────────────────────────
   return (
@@ -240,8 +250,8 @@ export default function Page() {
             setShowAssignModal(false);
             setSelectedRoom(null);
           }}
-          onAssign={(studentName) => handleAssignSubmit(studentName)}
-          onUnassign={handleUnassign}
+          onAssign={(studentId) => handleAssignSubmit(studentId)}
+          onUnassign={(studentId) => handleUnassign(studentId)}
         />
       )}
     </div>
