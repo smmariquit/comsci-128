@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 function UnitCard({
   id,
@@ -6,15 +9,20 @@ function UnitCard({
   occupants,
   freeSlots,
   bedType,
+  onClick,
 }: {
   id: number;
   name: string;
   occupants: number;
   freeSlots: number;
   bedType: string;
+  onClick: () => void;
 }) {
   return (
-    <div className="border rounded-xl p-6 bg-white flex flex-col gap-3 w-full min-h-[180px] hover:shadow-md transition">
+    <div
+      onClick={onClick}
+      className="cursor-pointer border rounded-xl p-6 bg-white flex flex-col gap-3 w-full min-h-[180px] hover:shadow-md transition"
+    >
       <h3 className="text-lg font-semibold">{name}</h3>
 
       <div className="text-sm text-gray-600 flex flex-col gap-2">
@@ -27,6 +35,10 @@ function UnitCard({
 }
 
 export default function RoomAssignmentPage() {
+
+  const [selectedUnit, setSelectedUnit] = useState<number | null>(null);
+  const [selectedApplicants, setSelectedApplicants] = useState<number[]>([]);
+
   const units = [
     { id: 1, name: "Unit A", occupants: 2, freeSlots: 2, bedType: "Double" },
     { id: 2, name: "Unit B", occupants: 4, freeSlots: 0, bedType: "Single" },
@@ -109,18 +121,70 @@ export default function RoomAssignmentPage() {
             {units.map((unit) => (
               <UnitCard
                 key={unit.id}
-                id={unit.id}
-                name={unit.name}
-                occupants={unit.occupants}
-                freeSlots={unit.freeSlots}
-                bedType={unit.bedType}
+                {...unit}
+                onClick={() => {
+                  setSelectedUnit(unit.id);
+                  setSelectedApplicants([]); // reset selection
+                }}
               />
             ))}
           </div>
-
         </div>
 
       </div>
+
+
+      {/* Pop up */}
+      {selectedUnit !== null && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-[400px] flex flex-col gap-4">
+
+          <h2 className="text-lg font-semibold">
+            Select who to assign
+          </h2>
+
+          <div className="flex flex-col gap-2">
+            {applicants.map((app) => (
+              <label key={app.id} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedApplicants.includes(app.id)}
+                  onChange={() => {
+                    setSelectedApplicants((prev) =>
+                      prev.includes(app.id)
+                        ? prev.filter((id) => id !== app.id)
+                        : [...prev, app.id]
+                    );
+                  }}
+                />
+                {app.name}
+              </label>
+            ))}
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              onClick={() => setSelectedUnit(null)}
+              className="px-3 py-1 border rounded"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={() => {
+                console.log("Assign:", selectedApplicants, "to unit:", selectedUnit);
+                setSelectedUnit(null);
+              }}
+              className="px-3 py-1 bg-blue-600 text-white rounded"
+            >
+              Confirm
+            </button>
+          </div>
+
+        </div>
+      </div>
+      )}
+
     </main>
   );
 }
