@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
 import RoomTable, { RoomRow } from "@/components/admin/rooms/roomtable";
 import RoomFilters, {
   OccupancyFilter,
   TypeFilter,
 } from  "@/components/admin/rooms/roomfilters";
+import { roomData } from "@/app/lib/data/room-data";
 
 export default function Page() {
     const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
@@ -15,38 +16,8 @@ export default function Page() {
     const [showFormModal, setShowFormModal] = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
   // ── Raw Data ──────────────────────────────────────────
-  const [rooms, setRooms] = useState<RoomRow[]>([
-    {
-      room_id: 1,
-      room_code: "RM-001",
-      housing_name: "Maple Residence",
-      room_type: "Single",
-      maximum_occupants: 1,
-      current_occupants: 1,
-      occupancy_status: "Occupied",
-      assigned_tenants: ["John Doe"],
-    },
-    {
-      room_id: 2,
-      room_code: "RM-002",
-      housing_name: "Maple Residence",
-      room_type: "Double",
-      maximum_occupants: 2,
-      current_occupants: 0,
-      occupancy_status: "Empty",
-      assigned_tenants: [],
-    },
-    {
-      room_id: 3,
-      room_code: "RM-003",
-      housing_name: "Oak Dorm",
-      room_type: "Suite",
-      maximum_occupants: 3,
-      current_occupants: 2,
-      occupancy_status: "Occupied",
-      assigned_tenants: ["Alice", "Bob"],
-    },
-  ]);
+  const [rooms, setRooms] = useState<RoomRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // ── Filter State ──────────────────────────────────────
   const [search, setSearch] = useState("");
@@ -176,6 +147,23 @@ export default function Page() {
     setShowAssignModal(false);
     setSelectedRoom(null);
   };
+
+  // Fetch Data
+  useEffect(() => {
+    async function loadLiveData() {
+      try {
+        const liveRooms = await roomData.findAllRoomDetailed();
+        setRooms(liveRooms);
+      } catch (err) {
+        console.error("Failed to fetch rooms:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadLiveData();
+  }, []);
+
+  if (isLoading) return <div className="p-6">Syncing with the database...</div>;
 
   // ── UI ────────────────────────────────────────────────
   return (
