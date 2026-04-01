@@ -140,9 +140,10 @@ async function findAllRoomDetailed () {
 			maximum_occupants: room.maximum_occupants || 0,
 			current_occupants: room.tenants?.length || 0,
 			occupancy_status: displayStatus,
-			assigned_tenants: room.tenants?.map((t: any) => 
-                `${t.student?.user?.first_name || ""} ${t.student?.user?.last_name || ""}`.trim()
-            ).filter(Boolean) || [],
+			assigned_tenants: room.tenants?.map((t: any) =>  ({
+				id: t.student?.account_number,
+                name: `${t.student?.user?.first_name || ""} ${t.student?.user?.last_name || ""}`.trim()
+			})).filter((t: any) => t.id) || [],
 		}
 	});
 }
@@ -173,6 +174,29 @@ async function endAccommodation(roomId: number, studentId: string) {
 	if (error) throw new Error(error.message)
 }
 
+async function findUnassignedStudents() {
+	const { data, error } = await supabase
+		.from("student")
+		.select(`
+			account_number,
+			user:account_number (
+				first_name,
+				last_name
+			)	
+		`);
+
+	if (error) throw new Error(error.message)
+
+	return (data || []).map(item => {
+		const u = Array.isArray(item.user) ? item.user[0] : item.user;
+
+		return {
+			id: item.account_number,
+			name: u ? `${u.first_name || ""} ${u.last_name || ""}`.trim() : ""
+		};
+	});
+}
+
 export const roomData = {
 	create,
 	findAll,
@@ -182,5 +206,6 @@ export const roomData = {
 	deactivate,
 	findAllRoomDetailed,
 	insertAccommodation,
-	endAccommodation
+	endAccommodation,
+	findUnassignedStudents,
 };

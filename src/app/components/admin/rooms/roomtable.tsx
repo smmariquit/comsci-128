@@ -13,7 +13,7 @@ export interface RoomRow {
   maximum_occupants: number;
   current_occupants: number;
   occupancy_status: OccupancyStatus;
-  assigned_tenants: string[];
+  assigned_tenants: { id: string; name: string }[];
 }
 
 // ── Occupancy badge ───────────────────────────────────────────────────────────
