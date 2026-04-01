@@ -88,8 +88,6 @@ export default function Page() {
   };
 
   const handleToggle = async (row: RoomRow) => {
-    const newStatus = row.occupancy_status === "Occupied" ? "Empty" : "Occupied";
-
     const nextStatus = row.occupancy_status === "Empty" ? "Fully Occupied" : "Empty";
     const nextStatusUI: OccupancyStatus = nextStatus === "Fully Occupied" ? "Occupied" : "Empty";
 
