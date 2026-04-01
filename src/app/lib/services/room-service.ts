@@ -109,7 +109,7 @@ const unassignRoom = async (roomId: number, studentId: string) => {
 		const room = await roomData.findAllRoomDetailed();
 		const currentRoom = room.find(r => r.room_id === roomId);
 
-		if (currentRoom?.current_occupants === 0) {
+		if (!currentRoom || currentRoom.current_occupants === 0) {
 			await roomData.update(roomId, { occupancy_status: "Empty" as any});
 		}
 
@@ -120,6 +120,23 @@ const unassignRoom = async (roomId: number, studentId: string) => {
 	}
 };
 
+const getEligibleStudents = async () => {
+	try {
+		const allStudents = await roomData.findUnassignedStudents();
+
+		const rooms = await roomData.findAllRoomDetailed();
+		const assignedIds = new Set(
+			rooms.flatMap(r => r.assigned_tenants?.map((t: any) => t.id))	
+		);
+
+		return allStudents.filter(s => !assignedIds.has(s.id));
+	} catch (error: any) {
+		console.error("Service Error (getElligibleStudents): ", error.message);
+		//throw new Error(error.message || "Failed to fetch unassigned students.");
+		return [];
+	}
+}
+
 export const roomService = {
 	addRoom,
 	getRoom,
@@ -127,5 +144,6 @@ export const roomService = {
 	updateRoom,
 	deactivateRoom,
 	assignRoom,
-	unassignRoom
+	unassignRoom,
+	getEligibleStudents,
 };

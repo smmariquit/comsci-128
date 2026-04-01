@@ -8,6 +8,7 @@ import RoomFilters, {
   TypeFilter,
 } from  "@/components/admin/rooms/roomfilters";
 import { roomData } from "@/app/lib/data/room-data";
+import { roomService } from "@/app/lib/services/room-service";
 
 export default function Page() {
     const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
@@ -38,7 +39,8 @@ export default function Page() {
     const matchesSearch =
       roomCode.includes(searchTerm) ||
       (room.assigned_tenants || []).some((t) =>
-        t?.toLowerCase().includes(searchTerm)
+        t.id?.toLowerCase().includes(searchTerm) ||
+        t.name?.toLowerCase().includes(searchTerm)
       );
 
     const matchesOccupancy =
@@ -128,44 +130,44 @@ export default function Page() {
     }
   };
 
-  const handleAssignSubmit = (studentName: string) => {
+  const handleAssignSubmit = async (studentId: string) => {
     if (!selectedRoom) return;
 
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.room_id === selectedRoom.room_id
-          ? {
-              ...r,
-              occupancy_status: "Occupied",
-              current_occupants: Math.min(r.maximum_occupants, r.current_occupants + 1),
-              assigned_tenants: [...r.assigned_tenants, studentName],
-            }
-          : r
-      )
-    );
+    try {
+      setIsLoading(true);
 
-    setShowAssignModal(false);
-    setSelectedRoom(null);
+      await roomService.assignRoom(selectedRoom.room_id, studentId);
+
+      const liveRooms = await roomData.findAllRoomDetailed();
+      setRooms(liveRooms);
+
+      setShowAssignModal(false);
+      setSelectedRoom(null);
+    } catch (err) {
+      console.error("Failed to submit assignment: ", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleUnassign = () => {
+  const handleUnassign = async (studentId: string) => {
     if (!selectedRoom) return;
 
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.room_id === selectedRoom.room_id
-          ? {
-              ...r,
-              occupancy_status: "Empty",
-              current_occupants: 0,
-              assigned_tenants: [],
-            }
-          : r
-      )
-    );
+    try {
+      setIsLoading(true);
 
-    setShowAssignModal(false);
-    setSelectedRoom(null);
+      await roomService.unassignRoom(selectedRoom.room_id, studentId);
+
+      const liveRooms = await roomData.findAllRoomDetailed();
+      setRooms(liveRooms);
+
+      setShowAssignModal(false);
+      setSelectedRoom(null);
+    } catch (err) {
+      console.error("Failed to unassign: ", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Fetch Data
@@ -248,8 +250,8 @@ export default function Page() {
             setShowAssignModal(false);
             setSelectedRoom(null);
           }}
-          onAssign={(studentName) => handleAssignSubmit(studentName)}
-          onUnassign={handleUnassign}
+          onAssign={(studentId) => handleAssignSubmit(studentId)}
+          onUnassign={(studentId) => handleUnassign(studentId)}
         />
       )}
     </div>
