@@ -102,25 +102,30 @@ export default function Page() {
     }
   };
 
-  const handleFormSubmit = (form: RoomForm) => {
+  const handleFormSubmit = async (form: RoomForm) => {
     if (!selectedRoom) return;
 
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.room_id === selectedRoom.room_id
-          ? {
-              ...r,
-              housing_name: form.housing_name,
-              room_type: form.room_type,
-              maximum_occupants: Number(form.maximum_occupants),
-              occupancy_status: form.occupancy_status,
-            }
-          : r
-      )
-    );
+    try {
+      setIsLoading(true);
 
-    setShowFormModal(false);
-    setSelectedRoom(null);
+      const dbStatus = form.occupancy_status === "Occupied" ? "Fully Occupied" : form.occupancy_status;
+
+      await roomData.update(selectedRoom.room_id, {
+        room_type: form.room_type as any,
+        maximum_occupants: Number(form.maximum_occupants),
+        occupancy_status: dbStatus as any,
+      });
+
+      const updatedRooms = await roomData.findAllRoomDetailed();
+      setRooms(updatedRooms);
+
+      setShowFormModal(false);
+      setSelectedRoom(null);
+    } catch (err) {
+      console.error("Failed to update room: ", err);
+    } finally {
+      setIsLoading(false)
+    }
   };
 
   const handleAssignSubmit = (studentName: string) => {
