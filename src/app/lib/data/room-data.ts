@@ -181,5 +181,6 @@ export const roomData = {
 	update,
 	deactivate,
 	findAllRoomDetailed,
-	insertAccommodation
+	insertAccommodation,
+	endAccommodation
 };
