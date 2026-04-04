@@ -4,6 +4,7 @@ interface FilterOptions {
     housing_type?: "UP Housing" | "Non-UP Housing";
     // TODO: filtering by sex (not yet implemented in the database)
     // sex?: "Male" | "Female" | "Co-ed";
+    sort_by_price?: "asc" | "desc";
 }
 
 export async function getAllAvailableDorms(filters?: FilterOptions) {
@@ -44,6 +45,17 @@ export async function getAllAvailableDorms(filters?: FilterOptions) {
         //         (dorm) => dorm.sex == filters.sex
         //     );
         // }
+
+        if (filters?.sort_by_price) {
+            filteredDorms.sort((a, b) => {
+                if (filters.sort_by_price === "asc") {
+                    return a.rent_price - b.rent_price;
+                } else {
+                    return b.rent_price - a.rent_price;
+                }
+            });
+        }
+
 
         return filteredDorms;
 
