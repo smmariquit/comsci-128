@@ -6,7 +6,21 @@ export async function GET(
     _context: { params?: any },
 ){
     try{
-        const dorms = await getAllAvailableDorms();
+        const url = _request.nextUrl;
+        const housingType = url.searchParams.get("housing_type") as 
+            "UP Housing" | 
+            "Non-UP Housing";
+        // const sex = url.searchParams.get("sex") as
+        //     "Male" | 
+        //     "Female" | 
+        //     "Co-ed";
+
+        const filters = {
+            housing_type: housingType ?? undefined,
+            // sex: sex ?? undefined,
+        };
+
+        const dorms = await getAllAvailableDorms(filters);
 
         if (!dorms || dorms.length === 0) {
             return NextResponse.json(
