@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllDorms } from "@/app/lib/data/student-browse";
+import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 
 export async function GET(
     _request: NextRequest,
     _context: { params?: any },
 ){
     try{
-        const dorms = await getAllDorms();
+        const dorms = await getAllAvailableDorms();
 
         if (!dorms || dorms.length === 0) {
             return NextResponse.json(
