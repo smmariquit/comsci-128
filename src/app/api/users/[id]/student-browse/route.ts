@@ -14,10 +14,14 @@ export async function GET(
         //     "Male" | 
         //     "Female" | 
         //     "Co-ed";
+        const sortByPrice = url.searchParams.get("sort_by_price") as
+            "asc" | 
+            "desc";
 
         const filters = {
             housing_type: housingType ?? undefined,
             // sex: sex ?? undefined,
+            sort_by_price: sortByPrice ?? undefined,
         };
 
         const dorms = await getAllAvailableDorms(filters);
