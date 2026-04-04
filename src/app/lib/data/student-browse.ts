@@ -1,6 +1,12 @@
 import { supabase } from "@/app/lib/supabase";
 
-export async function getAllAvailableDorms(){
+interface FilterOptions {
+    housing_type?: "UP Housing" | "Non-UP Housing";
+    // TODO: filtering by sex (not yet implemented in the database)
+    // sex?: "Male" | "Female" | "Co-ed";
+}
+
+export async function getAllAvailableDorms(filters?: FilterOptions) {
     try{
         const { data: rooms, error: roomError } = await supabase
             .from("room")
@@ -24,7 +30,22 @@ export async function getAllAvailableDorms(){
 
         if (dormError) throw dormError;
 
-        return dorms;
+        // optional filter implementation
+        let filteredDorms = dorms;
+        
+        if (filters?.housing_type) {
+            filteredDorms = filteredDorms.filter(
+                (dorm) => dorm.housing_type === filters.housing_type
+            );
+        }
+
+        // if (filters?.sex){
+        //     filteredDorms = filteredDorms.filter(
+        //         (dorm) => dorm.sex == filters.sex
+        //     );
+        // }
+
+        return filteredDorms;
 
     } catch (error: any) {
         console.error("Error fetching dorms:", error);
