@@ -73,14 +73,74 @@ export default function SearchBar() {
             <div className="relative">
                 <button 
                     onClick={() => { setIsSortOpen(!isSortOpen); setIsFilterOpen(false); }}
-                    className="flex items-center gap-4 text-m font-semibold text-[#C9642A]"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-black/5 transition-colors text-sm font-semibold text-[#C9642A]"
                 >
-                    Sort By
+                    {/* Sort Icon: Three bars with a descending arrow */}
+                    <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="20" 
+                        height="20" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="lucide lucide-arrow-down-narrow-wide"
+                    >
+                        <path d="m3 16 4 4 4-4"/>
+                        <path d="M7 20V4"/>
+                        <path d="M11 4h10"/>
+                        <path d="M11 8h7"/>
+                        <path d="M11 12h4"/>
+                    </svg>
+                    
+                    <span>
+                        {searchParams.get('sort') === 'asc' ? 'Price: Low-High' : 
+                        searchParams.get('sort') === 'desc' ? 'Price: High-Low' : 
+                        'Sort By'}
+                    </span>
                 </button>
+
                 {isSortOpen && (
-                    <div className="absolute right-0 mt-4 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-2 text-black">
-                        <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Price</button>
-                    </div>
+                    <>
+                        {/* backdrop to close dropdown when clicking outside */}
+                        <div 
+                            className="fixed inset-0 z-40" 
+                            onClick={() => setIsSortOpen(false)}
+                        ></div>
+
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 text-[#1C2632] overflow-hidden">
+                            <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                Price Ranking
+                            </div>
+                            
+                            <button 
+                                onClick={() => { updateURL('sort', 'asc'); setIsSortOpen(false); }} 
+                                className={`flex items-center justify-between w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${searchParams.get('sort') === 'asc' ? 'text-[#C9642A] font-bold bg-orange-50' : ''}`}
+                            >
+                                Ascending
+                                {searchParams.get('sort') === 'asc' && <span className="h-2 w-2 rounded-full bg-[#C9642A]"></span>}
+                            </button>
+                            
+                            <button 
+                                onClick={() => { updateURL('sort', 'desc'); setIsSortOpen(false); }} 
+                                className={`flex items-center justify-between w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${searchParams.get('sort') === 'desc' ? 'text-[#C9642A] font-bold bg-orange-50' : ''}`}
+                            >
+                                Descending
+                                {searchParams.get('sort') === 'desc' && <span className="h-2 w-2 rounded-full bg-[#C9642A]"></span>}
+                            </button>
+
+                            {searchParams.get('sort') && (
+                                <button 
+                                    onClick={() => { updateURL('sort', null); setIsSortOpen(false); }} 
+                                    className="w-full text-center mt-1 pt-2 border-t border-gray-100 text-xs text-red-500 hover:text-red-700 font-medium pb-1"
+                                >
+                                    Reset Sorting
+                                </button>
+                            )}
+                        </div>
+                    </>
                 )}
             </div>
         </div>
