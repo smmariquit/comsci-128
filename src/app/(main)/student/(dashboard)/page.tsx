@@ -3,9 +3,25 @@ import SearchBar from "@/components/SearchBar";
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 
-export default async function DashboardPage() {
-    const currUser = await userData.findById(30);
-    const allHousing = await getAllAvailableDorms(); 
+export default async function DashboardPage({
+        searchParams,
+    }: {
+        searchParams: Promise<{ type?: string; sort?: string; query?: string }> | any;
+    }) {
+    const currUser = await userData.findById(30); 
+
+    const params = await searchParams;
+    
+    // prepare filters
+    const filters = {
+        housing_type: params?.type as any, 
+        sort_by_price: params?.sort as any, 
+    };
+
+    // fetch from db
+    let allHousing = await getAllAvailableDorms(filters);
+
+    //get housing names to put on cards
     const cards = Array.from({ length: allHousing.length }, (_, i) => ({
         id: allHousing[i].housing_id,
         name: allHousing[i].housing_name,
