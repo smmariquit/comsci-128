@@ -6,24 +6,24 @@ async function createUser(userDetails: NewUser): Promise<User> {
 	const { data, error } = await supabase
 		.from("user")
 		.insert(userDetails)
-		.select()
-		.single();
+		.select();
 
 	if (error) {
 		throw new Error(error.message);
 	}
 
-	return data.account_number;
+	return data[0];
 }
 
 async function findAllUsers(): Promise<User[]> {
 	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
-	const { data, error } = await supabase.from("user").select();
+	const { data, error } = await supabase
+		.from("user")
+		.select()
+		.eq("is_deleted", false);
 
-	if (error) {
-		throw new Error(error.message);
-	}
+	if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
 	return data ?? null;
 }
@@ -33,13 +33,11 @@ async function findUserById(userId: number): Promise<User | null> {
 		.from("user")
 		.select()
 		.eq("account_number", userId)
-		.single();
+		.eq("is_deleted", false);
 
-	if (error) {
-		throw new Error(error.message);
-	}
+	if (error) throw new Error(`Find User by ID Error: ${error.message}`);
 
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
 
 async function findUserByEmail(userEmail: string): Promise<User | null> {
@@ -47,13 +45,11 @@ async function findUserByEmail(userEmail: string): Promise<User | null> {
 		.from("user")
 		.select()
 		.eq("account_email", userEmail)
-		.single();
+		.eq("is_deleted", false);
 
-	if (error) {
-		return null;
-	}
+	if (error) throw new Error(`Find User by Email Error: ${error.message}`);
 
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
 
 async function updateUser(
@@ -69,29 +65,24 @@ async function updateUser(
 		.eq("account_number", Number(userId))
 		.select();
 
-	if (error) {
-		throw new Error(error.message);
-	}
+	if (error) throw new Error(`Update User Error: ${error.message}`);
 
 	return data && data.length > 0 ? data[0] : null;
 }
 
 async function deactivateUserById(userId: number): Promise<UpdateUser | null> {
-	//This function takes a USERID of type STRING.
+	// This function takes a USERID of type STRING.
 	// CHANGES is_deleted field to true if user is found, otherwise return null.
 
 	const { data, error } = await supabase
 		.from("user")
 		.update({ is_deleted: true })
 		.eq("account_number", userId)
-		.select()
-		.single();
+		.select();
 
-	if (error) {
-		throw new Error(error.message);
-	}
+	if (error) throw new Error(`Deactivate User Error: ${error.message}`);
 
-	return data;
+	return data && data.length > 0 ? data[0] : null;
 }
 
 export const userData = {
