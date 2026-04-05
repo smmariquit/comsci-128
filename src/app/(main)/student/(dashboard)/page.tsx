@@ -1,12 +1,14 @@
 import Image from "next/image";
-import Link from "next/link";
+import SearchBar from "@/components/SearchBar"; 
 import { userData } from "@/app/lib/data/user-data";
+import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 
 export default async function DashboardPage() {
     const currUser = await userData.findById(30);
-    const cards = Array.from({ length: 8 }, (_, i) => ({
-        id: i + 1,
-        name: `Housing ${i + 1}`,
+    const allHousing = await getAllAvailableDorms(); 
+    const cards = Array.from({ length: allHousing.length }, (_, i) => ({
+        id: allHousing[i].housing_id,
+        name: allHousing[i].housing_name,
     }));
 
 	return (
@@ -54,34 +56,7 @@ export default async function DashboardPage() {
                 </div>
             </div>
             
-            {/* SEARCH AND FILTER */}
-            <div className="flex flex-row items-center gap-3 bg-[#EDE9DE] w-[90vw] h-[7vh] p-3 mx-auto m-2 rounded-xl">
-  
-                {/* Filter Icon */}
-                <button className="flex  items-center justify-center text-[#C9642A]">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
-                </button>
-
-                {/* Search */}
-                <div className="relative flex-1">
-                    <input 
-                    type="text" 
-                    placeholder="Search" 
-                    className="w-full h-[5vh] rounded-full border border-[#567375] bg-transparent py-2 pl-6 pr-4 text-s text-[#1C2632] placeholder-[#1C2632] focus:outline-none"
-                    />
-                </div>
-
-                {/* Sort By */}
-                <button className="flex items-center gap-4  text-m font-semibold text-[#C9642A]">
-                    Sort By
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-
-            </div>
+            <SearchBar />
 
             {/* HOUSING CARDS CONTAINER */}
             <div className="bg-[#EDE9DE] w-[90vw] p-6 mx-auto">
