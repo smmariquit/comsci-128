@@ -51,7 +51,7 @@ export default function ManageLayout({
                 href="/manage" 
                 className="hover:text-[var(--light-yellow)] transition-colors"
               >
-                Profile
+                Notifications
               </Link>
 
               <Link
@@ -81,8 +81,8 @@ export default function ManageLayout({
         {children}
       </main>
 
-      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-4 text-sm">
-        © 2026 Manager Dashboard
+      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
+        © 2026 CMSC 128 Project
       </footer>
     </div>    
   );
