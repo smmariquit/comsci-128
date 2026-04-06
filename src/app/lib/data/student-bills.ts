@@ -10,7 +10,7 @@ export const getStudentBalance = async (account_number: number) => {
       student:student_account_number (
         user:account_number (first_name, last_name)
       ),
-      manager:manager_id (
+      manager:manager_account_number (
         user:account_number (last_name)
       )
     `)
