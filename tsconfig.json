@@ -24,7 +24,8 @@
 			"@/lib/*": ["./src/app/lib/*"],
 			"@/data/*": ["./src/app/lib/data/*"],
 			"@/models/*": ["./src/app/lib/models/*"],
-			"@/services/*": ["./src/app/lib/services/*"]
+			"@/services/*": ["./src/app/lib/services/*"],
+			"@/api/*": ["./src/app/api/*"]
 		}
 	},
 	"include": [
