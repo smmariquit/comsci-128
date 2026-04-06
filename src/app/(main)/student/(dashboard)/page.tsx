@@ -1,71 +1,112 @@
-import Link from 'next/link';
-import { findUserById } from "@/app/lib/data/user";
+import Image from "next/image";
+import Link from "next/link";
+import { userData } from "@/app/lib/data/user-data";
 
 export default async function DashboardPage() {
-  //placeholder data
-  const curr_user = await findUserById("5"); 
-  const notifs = ["OSH has approved your application", "Upload your payment receipt", "Successfully reserved at <dorm>"];
-  const appli_steps = ["Dorm Selected", "Submitted Form", "Reviewed by OSH", "Reserved", "Submitted Receipt"];
-  
-  return (
-    <div>
-      <h1 className="text-4xl font-bold text-center mb-8">Student Dashboard Page</h1>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link href="/student/housing" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Housing
-        </Link>
-        <Link href="/profile" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Profile
-        </Link>
-      </div>
-      <h1 className="text-2xl font-bold">{curr_user?.firstName}'s Dashboard</h1>
-      <div className="grid grid-cols-2 gap-4 mt-6 h-full">
-        
-        {/*APPLI STATUS, NOTIFS*/}
-        <div className="flex flex-col gap-4 h-full">
-          <div className="flex-1 p-6 bg-white rounded-2xl ">
-            <h2 className="font-semibold text-black mb-3">Application Status</h2>
-            <ul className="flex justify-between items-center w-full mb-3">
-              {appli_steps.map((step, index) => (
-                <li key={index} className="flex flex-col items-center text-center w-full">
-                  {/*icons maybe*/}
-                  <div className={`w-12 h-12 rounded-full mb-2 flex items-center justify-center text-white
-                    ${index<3? "bg-gray-600" : "bg-gray-400"}`}>
-                  </div>
-                  {/*step label */}
-                  <span className="text-xs text-black">{step}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="flex-1 p-9 bg-gray-100 rounded-2xl"></div>
-          </div>
+    const currUser = await userData.findUserById(30);
+    const cards = Array.from({ length: 8 }, (_, i) => ({
+        id: i + 1,
+        name: `Housing ${i + 1}`,
+    }));
 
-          <div className="flex-1 p-6 bg-white rounded-2xl">
-            <h2 className="font-semibold text-black mb-3">Notifications</h2>
-            <ul className="flex flex-col gap-3">
-              {notifs.map((item, index) => (
-                <li key={index} className="bg-gray-100 p-2 rounded-lg text-black">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+	return (
+        <div
+            style={{
+                width: "100%",
+                minHeight: "100%",
+                background: "white",
+                display: "inline-flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                alignItems: "stretch",
+            }}
+        >
+            <div
+                style={{
+                    height: 108,
+                    paddingLeft: 18,
+                    paddingRight: 18,
+                    background: "#567375",
+                    overflow: "hidden",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    display: "inline-flex",
+                }}
+            >
+                <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+                    <div
+                        style={{
+                            width: 215,
+                            height: 72,
+                            paddingLeft: 36,
+                            paddingRight: 36,
+                            paddingTop: 10,
+                            paddingBottom: 10,
+                            background: "white",
+                            display: "flex",
+                            alignItems: "center",
+                        }}
+                    >
+                        <div style={{ color: "#1C2632", fontSize: 40, fontFamily: "DM Sans", fontWeight: "600" }}>Title</div>
+                    </div>
+                    <div style={{ color: "black", fontSize: 24, fontFamily: "DM Mono" }}>Dashboard</div>
+                    <div style={{ width: 2, height: 36, background: "black" }} />
+                    <Link
+                        href="/student/housing"
+                        style={{ color: "black", fontSize: 24, fontFamily: "DM Mono", textDecoration: "none" }}
+                    >
+                        Browse
+                    </Link>
+                </div>
+                <div
+                    style={{
+                        width: 260,
+                        height: 72,
+                        padding: 12,
+                        background: "white",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                    }}
+                >
+                    <div style={{ color: "black", fontSize: 24, fontFamily: "DM Mono" }}>{currUser?.first_name ?? "Username"}</div>
+                    <div style={{ width: 48, height: 48, background: "#6B6B6B" }} />
+                </div>
+            </div>
+
+            <div
+                style={{
+                    height: 54,
+                    paddingLeft: 36,
+                    paddingRight: 36,
+                    paddingTop: 10,
+                    paddingBottom: 10,
+                    background: "#1C2632",
+                    display: "inline-flex",
+                    alignItems: "center",
+                }}
+            >
+                <div style={{ color: "#C9642A", fontSize: 40, fontFamily: "DM Sans", fontWeight: "600" }}>Housing Browser</div>
+            </div>
+
+            <div style={{ padding: 24, background: "#EDE9DE" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+                    {cards.map((card) => (
+                        <div key={card.id} style={{ background: "white", borderRadius: 12, overflow: "hidden" }}>
+                            <Image
+                                src="/assets/placeholders/housing-414x264.svg"
+                                alt={`${card.name} placeholder image`}
+                                width={414}
+                                height={264}
+                                style={{ width: "100%", height: "auto", display: "block" }}
+                            />
+                            <div style={{ background: "#1C2632", padding: "10px 14px", color: "#C9642A", fontSize: 22, fontFamily: "DM Sans", fontWeight: "600" }}>
+                                {card.name}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
-
-        {/*HOUSING,BILLING*/}
-        <div className="p-6 bg-white rounded-2xl h-full">
-          <h2 className="font-semibold text-black mb-3 ">Active Housing Information</h2>
-          <div className="flex-1 p-9 bg-gray-100 rounded-2xl mb-3"></div>
-          <hr className="my-4 border-gray-300" />
-
-          <h2 className="font-semibold text-black mb-3">Billing Information</h2>
-          <div className="flex-1 p-9 bg-gray-100 rounded-2xl mb-3"></div>
-          <button className="mt-auto w-full bg-gray-500 text-white py-1 rounded-lg hover:bg-gray-900 transition">
-            View Billing Status
-          </button>
-        </div>
-
-      </div>
-    </div>
-  );
+    );
 }
