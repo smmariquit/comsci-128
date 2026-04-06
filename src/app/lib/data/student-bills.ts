@@ -15,16 +15,17 @@ export const getStudentBalance = async (account_number: number) => {
       )
     `)
     .eq('account_number', account_number)
-    .eq('is_deleted', false);
+    .eq('is_deleted', false)
+    .in('status', ['Pending', 'Overdue']);
 
   if (error) throw error;
 
   const total = data?.reduce((sum, bill) => {
-    return bill.status === 'Pending' ? sum + Number(bill.amount) : sum;
+    return sum + Number(bill.amount);
   }, 0);
 
   return {
-    student: data?.[0]?.student,
+    student: data?.[0]?.student || null,
     totalBalance: total ?? 0,
     bills: data
   };
