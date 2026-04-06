@@ -1,0 +1,23 @@
+name: Daily Staging Sync
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} 
+          base: main
+          branch: staging
+          title: "sync: merge staging to main"
+          body: |
+            Automated PR to sync changes from stagin to main. Triggered by GitHub Actions.
