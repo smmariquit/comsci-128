@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Enums } from "../../types/database.types";
 
 type UserType = Enums<'UserType'>;
@@ -28,3 +29,10 @@ export interface User {
 	// Status for account deactivation
 	status: AccountDeletionStatus;
 }
+=======
+import { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
+
+export type User = Tables<"user">;
+export type NewUser = TablesInsert<"user">;
+export type UpdateUser = TablesUpdate<"user">;
+>>>>>>> edb4d3bd3cec07198ecac0ed8601a56cdab552c4
