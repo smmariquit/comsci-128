@@ -52,7 +52,7 @@ function DormCard({
   location: string;
 }) {
   return (
-    <Link href={`/manage/accommodations`}> {/*to be modified when there is a specific dorm page*/}
+    <Link href={`/manage/accommodations/${id}`}> {/*to be modified when there is a specific dorm page*/}
       <div className="relative h-64 rounded-xl overflow-hidden shadow cursor-pointer group">
 
         <img
@@ -117,7 +117,7 @@ export default async function MgrDashboardPage() {
 
 
       <section className="flex flex-col gap-4 p-6 bg-[var(--teal)]/70 ">
-        <h2 className="text-xl text-[var(--dark-orange)] font-semibold">Dorms Managed</h2>
+        <h2 className="text-xl text-[var(--dark-blue)] font-semibold">Dorms Managed</h2>
 
         {/* filter */}
         <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">

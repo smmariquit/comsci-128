@@ -21,11 +21,11 @@ function UnitCard({
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer border rounded-xl p-6 bg-white flex flex-col gap-3 w-full min-h-[180px] hover:shadow-md transition"
+      className="cursor-pointer border rounded-xl p-6 bg-[var(--dark-blue)] flex flex-col gap-3 w-full min-h-[180px] hover:shadow-md transition"
     >
-      <h3 className="text-lg font-semibold">{name}</h3>
+      <h3 className="text-lg font-semibold text-[var(--dark-orange)]">{name}</h3>
 
-      <div className="text-sm text-gray-600 flex flex-col gap-2">
+      <div className="text-sm text-[var(--cream)] flex flex-col gap-2">
         <span>Occupants: {occupants}</span>
         <span>Free Slots: {freeSlots}</span>
         <span>Bed Type: {bedType}</span>
@@ -52,17 +52,10 @@ export default function RoomAssignmentPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-white text-black flex flex-col gap-6 p-6">
-
-      <Link
-        href="/manage/accommodations/1"
-        className="text-sm text-blue-600 hover:underline"
-      >
-        ← Back to Accommodation
-      </Link>
+    <main className="min-h-screen bg-[var(--cream)] text-[var(--dark-blue)] flex flex-col gap-6 p-6">
 
       <div className="mb-2">
-        <h1 className="text-2xl font-semibold">
+        <h1 className="text-2xl text-[var(--dark-orange)] font-semibold">
           Manage Accommodation Assignment
         </h1>
       </div>
@@ -80,9 +73,9 @@ export default function RoomAssignmentPage() {
             </div>
           </div>
 
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border rounded-lg overflow-hidden bg-yellow-100">
             <table className="w-full text-sm table-auto">
-              <thead className="bg-gray-100">
+              <thead className="bg-[var(--dark-blue)] text-[var(--dark-orange)]">
                 <tr>
                   <th className="text-left p-3">Name</th>
                   <th className="text-left p-3">Date Applied</th>

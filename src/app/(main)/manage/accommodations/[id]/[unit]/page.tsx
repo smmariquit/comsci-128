@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 
 function TenantCard({ tenant }: { tenant: any }) {
   return (
-    <div className="flex flex-col items-center text-center gap-3 bg-slate-800 p-4 rounded-lg border border-slate-700">
+    <div className="flex flex-col items-center text-center gap-3 bg-[var(--teal)] p-4 rounded-lg border border-slate-700">
 
       <div className="w-20 h-20 rounded-md overflow-hidden bg-gray-500">
         <img
@@ -24,9 +24,9 @@ function TenantCard({ tenant }: { tenant: any }) {
       </div>
 
       {/* Add other details if needed */}
-      <p className="font-semibold">{tenant.name}</p>
+      <p className="font-semibold text-[var(--dark-blue)]">{tenant.name}</p>
 
-      <p className="text-sm text-gray-300">
+      <p className="text-sm text-[var(--cream)]">
         {tenant.start} to {tenant.end}
       </p>
 
@@ -84,15 +84,15 @@ export default function UnitPage() {
 		);
 
 	return (
-		<main className="min-h-screen text-white px-6 py-10">
+		<main className="min-h-screen bg-[var(--cream)] text-white px-6 py-10">
 			<div className="w-full flex flex-col gap-8">
 
-				<h1 className="text-4xl font-bold text-center">
-					Manage Accommodation Unit Page
+				<h1 className="text-3xl text-[var(--dark-orange)] font-bold text-center">
+					Accommodation Unit Page
 				</h1>
 
 				{/* Basic Detail Display */}
-				<div className="bg-slate-800 p-6 rounded-lg border border-slate-700 w-full text-left">
+				<div className="bg-[var(--dark-blue)] text-[var(--dark-yellow)] p-6 rounded-lg border border-slate-700 w-full text-left">
 
 					{isEditing ? (
 						<div className="space-y-4">
@@ -180,7 +180,7 @@ export default function UnitPage() {
 
 
 				<div className="flex flex-col gap-4 w-full">
-					<h2 className="text-2xl font-semibold">
+					<h2 className="text-2xl text-[var(--dark-blue)] font-semibold">
 						Tenants
 					</h2>
 
@@ -221,6 +221,7 @@ export default function UnitPage() {
 
 					</div>
 				</div>
+				{/* commented out the links to the occupants and back to accommodations 
 
 				<div className="flex gap-4 flex-wrap justify-start">
 					<Link
@@ -237,6 +238,7 @@ export default function UnitPage() {
 						Back to Accommodation
 					</Link>
 				</div>
+				*/}
 
 			</div>
 		</main>

@@ -20,10 +20,10 @@ function UnitCard({
       href={`/manage/accommodations/occupants/${id}`}
       className="block"
     >
-      <div className="border rounded-lg p-4 bg-white flex flex-col justify-between min-h-[140px] hover:shadow-sm hover:bg-gray-50 transition cursor-pointer">
-        <h3 className="text-lg font-semibold mb-1">{name}</h3>
+      <div className="rounded-lg p-4 bg-[var(--dark-blue)] flex flex-col justify-between min-h-[150px] hover:brightness-90 transition cursor-pointer">
+        <h3 className="text-lg text-[var(--dark-orange)] font-semibold mb-1">{name}</h3>
 
-        <div className="text-sm text-gray-600 flex flex-col gap-1">
+        <div className="text-sm text-[var(--cream)] flex flex-col gap-1">
           <span>Occupants: {occupants}</span>
           <span>Free Slots: {freeSlots}</span>
           <span>Bed Type: {bedType}</span>
@@ -88,14 +88,16 @@ export default async function Page({
 
 
   return (
-    <main className="min-h-screen bg-white text-black flex flex-col gap-6 p-6">
+    <main className="min-h-screen bg-[var(--cream)] text-[var(--dark-orange)] flex flex-col gap-6 p-6">
+      {/*
       <Link
         href="/manage/accommodations"
         className="text-sm text-blue-600 hover:underline"
       >
         ← Back to Accommodations
       </Link>
-
+      */}
+      
       <div className="relative h-[40vh] min-h-[250px] rounded-xl overflow-hidden">
         <img
           src="/assets/placeholders/housing-card.svg"
@@ -104,23 +106,22 @@ export default async function Page({
 
         <div className="absolute inset-0 bg-black/40" />
 
-        <div className="absolute bottom-0 w-full flex justify-between items-center p-4 text-white">
+        <div className="absolute bottom-0 w-full flex justify-between items-center p-4 text-[var(--dark-orange)]">
           <h2 className="text-2xl font-semibold">
             {housing.housing_name}
           </h2>
 
           <Link
             href={`/manage/accommodations/${housing.housing_id}/assignment`}
-            className="bg-white text-black px-4 py-2 rounded text-sm font-medium hover:bg-gray-200"
-          >
+            className="bg-[var(--dark-orange)] text-[var(--dark-blue)] px-4 py-2 rounded text-sm font-medium hover:brightness-90 hover:shadow-md transition"          >
             Assign Rooms
           </Link>
         </div>
       </div>
 
 
-      <div className="flex flex-col gap-6 bg-gray-500 py-20 px-12 rounded-lg">
-        <h1 className="text-2xl font-semibold text-white">Units</h1>
+      <div className="flex flex-col gap-6 bg-[var(--teal)]-500 py-20 px-10 rounded-lg">
+        <h1 className="text-2xl font-semibold text-[var(--dark-blue)]">Units</h1>
 
         <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
           Filter (to be implemented)
@@ -135,15 +136,15 @@ export default async function Page({
 
 
       <div className="flex flex-col gap-6 px-12 pb-10">
-        <h2 className="text-2xl font-semibold">All Tenants</h2>
+        <h2 className="text-2xl text-[var(--dark-blue)] font-semibold">All Tenants</h2>
 
         <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
           Filter (to be implemented)
         </div>
 
-        <div className="border rounded-lg overflow-hidden bg-white">
+        <div className="rounded-lg overflow-hidden bg-yellow-100">
           <table className="w-full text-sm">
-            <thead className="bg-gray-100">
+            <thead className="bg-[var(--dark-blue)] text-[var(--dark-orange)]">
               <tr>
                 <th className="text-left p-3">Name</th>
                 <th className="text-left p-3">Unit</th>
@@ -161,7 +162,7 @@ export default async function Page({
                 </tr>
               ) : (
                 tenants.map((tenant) => (
-                  <tr key={tenant.id} className="border-t hover:bg-gray-50">
+                  <tr key={tenant.id} className="border-t text-[var(--dark-blue)] hover:bg-black/5">
                     <td className="p-3">{tenant.name}</td>
                     <td className="p-3">{tenant.unit}</td>
                     <td className="p-3">{tenant.start}</td>
