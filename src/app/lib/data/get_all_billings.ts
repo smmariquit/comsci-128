@@ -36,10 +36,8 @@ export const getAllBillings = async () => {
     .eq('is_deleted', false)
     .order('due_date', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching overall billings:', error.message);
-    throw error;
-  }
+  if (error) throw error;
+  
 
   return data;
 };
