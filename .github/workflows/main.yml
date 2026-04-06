@@ -17,7 +17,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} 
           base: main
-          branch: staging
+          branch: sync-staging
+          source_branch: staging
           title: "sync: merge staging to main"
           body: |
             Automated PR to sync changes from stagin to main. Triggered by GitHub Actions.
