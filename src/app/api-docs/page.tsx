@@ -28,12 +28,6 @@ export default function ApiDocsPage() {
 				<a href="/api-docs?spec=planned" className="font-bold text-black">
 					Planned Spec
 				</a>
-				<a href="/api/openapi/implemented" className="text-black">
-					Raw Implemented OpenAPI
-				</a>
-				<a href="/api/openapi/planned" className="text-black">
-					Raw Planned OpenAPI
-				</a>
 			</section>
 			<SwaggerUI
 				url={specUrl}
