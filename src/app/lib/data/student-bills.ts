@@ -1,6 +1,6 @@
 import { supabase } from '../supabase';
 
-export const getStudentBalance = async (account_number: number) => {
+export const getStudentBalance = async (student_account_number: number) => {
   const { data, error } = await supabase
     .from('bill')
     .select(`
@@ -14,7 +14,7 @@ export const getStudentBalance = async (account_number: number) => {
         user:account_number (last_name)
       )
     `)
-    .eq('account_number', account_number)
+    .eq('student_account_number', student_account_number)
     .eq('is_deleted', false)
     .in('status', ['Pending', 'Overdue']);
 
