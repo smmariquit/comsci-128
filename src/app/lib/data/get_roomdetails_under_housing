@@ -1,0 +1,40 @@
+import { supabase } from '../supabase';
+
+export const getRoomDetails = async (housing_id: number, room_id: number) => {
+  const { data, error } = await supabase
+    .from('room')
+    .select(`
+      room_id,
+      room_type,
+      maximum_occupants,
+
+      student_accommodation_history (
+        movein_date,
+        moveout_date,
+
+        student_academic (
+          account_number,
+          standing,
+          status,
+          degree_program
+        )
+      )
+    `)
+    .eq('housing_id', housing_id)
+    .eq('room_id', room_id)
+    .eq('is_deleted', false)
+    .single();
+
+  if (error) throw error;
+
+  const occupants = data.student_accommodation_history
+    ?.filter(h => h.moveout_date === null)
+    .map(h => h.student_academic) || [];
+
+  return {
+    room_id: data.room_id,
+    room_type: data.room_type,
+    occupants,
+    available_slots: data.maximum_occupants - occupants.length,
+  };
+};
