@@ -99,7 +99,8 @@ export default function AddManagerModal({
 
       {/* Modal */}
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        	<div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+        	<div className="bg-white rounded-2xl max-w-500px max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className="overflow-y-auto max-h-[90vh]">
 
           {/* Header */}
           <div className="flex items-start justify-between px-8 py-6 border-b border-[#1a2332]/8">
@@ -224,6 +225,7 @@ export default function AddManagerModal({
           </div>
 
         </div>
+      </div>
       </div>
     </>
   );

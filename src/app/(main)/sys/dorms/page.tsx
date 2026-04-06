@@ -5,7 +5,7 @@ import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter-dorm';
 import { Trash2, ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
-import AddManagerModal from '@/app/(main)/sys/component/add-manager-modal';
+import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
 
 // User Data Types - showed in table
 export interface User {
@@ -120,8 +120,8 @@ export default function UserManagementPage({
 
   const [page, setPage] = useState(1);
 
-  const handleAddManager = (newUser: User) => {
-    setUserList((prev) => [newUser, ...prev]);
+  const handleAddDorm = (newDorm: NewDorm) => {
+    setUserList((prev) => [newDorm, ...prev]);
     setPage(1);
   };
 
@@ -150,10 +150,10 @@ export default function UserManagementPage({
     <div className="flex min-h-screen bg-[#eae8e1]">
 
       {/* 'Add Manager' Modal */}
-      <AddManagerModal
+      <AddDormModal
         open={showModal}
         onClose={() => setShowModal(false)}
-        onAdd={handleAddManager}
+        onAdd={handleAddDorm}
       />
 
       {/* Sidebar */}

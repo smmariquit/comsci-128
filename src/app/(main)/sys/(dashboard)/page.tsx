@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import AddManagerModal from '@/app/(main)/sys/component/add-manager-modal';
+import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
 
 import {
 	TrendingUp,
@@ -79,7 +80,7 @@ function activityDotColor(type: string) {
 // Quick Access Button Icons
 const quickAccess = [
 	{ label: 'Add Manager',     icon: UserPlus,     href: null },
-	{ label: 'Add Dormitory',   icon: PlusSquare,   href: '/sys/dorms/new' },
+	{ label: 'Add Dormitory',   icon: PlusSquare,   href: null },
 	{ label: 'Edit User',       icon: Pencil,       href: '/sys/users'},
 ];
 
@@ -119,12 +120,14 @@ export default function DashboardPage({
 	  onLogout,
 	}: Partial<DashboardProps>) {
 		const [showAddManager, setShowAddManager] = useState(false);
+		const [showAddDorm, setShowAddDorm] = useState(false);
+
 		const today = new Date().toLocaleDateString('en-US', {
 			weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
 		});
 		return (
 			<div className="flex min-h-screen bg-[#eae8e1]">
-				{/* 'Add Manager' Modal */}
+				      {/* 'Add Manager' Modal */}
 					  <AddManagerModal
 						open={showAddManager}
 						onClose={() => setShowAddManager(false)}
@@ -134,6 +137,13 @@ export default function DashboardPage({
 						}}
 						dormOptions={['Dorm 1', 'Dorm 2', 'Dorm 3']}
 						/>
+						<AddDormModal
+							open={showAddDorm}
+							onClose={() => setShowAddDorm(false)}
+							onAdd={(newDorm: NewDorm) => {
+								setShowAddDorm(false);
+							}}
+							/>
 
 				{/*Sidebar */}
 				<Sidebar user={stubUser} onLogout={() => window.location.href = '/'} />
@@ -241,9 +251,16 @@ export default function DashboardPage({
 											{label}
 											</Link>
 										) : (
-											<button key={label} onClick={() => setShowAddManager(true)} className="flex items-center gap-3 px-4 py-3 bg-[#eae8e1] rounded-xl text-sm font-medium text-[#1a2332] hover:bg-[#d4622a] hover:text-white transition-colors duration-150 group w-full">
-											<Icon size={16} strokeWidth={1.8} className="text-[#1a2332]/50 group-hover:text-white transition-colors" />
-											{label}
+											<button
+												key={label}
+												onClick={() => {
+													if (label === 'Add Manager')   setShowAddManager(true);
+													if (label === 'Add Dormitory') setShowAddDorm(true);
+												}}
+												className="flex items-center gap-3 px-4 py-3 bg-[#eae8e1] rounded-xl text-sm font-medium text-[#1a2332] hover:bg-[#d4622a] hover:text-white transition-colors duration-150 group w-full"
+												>
+												<Icon size={16} strokeWidth={1.8} className="text-[#1a2332]/50 group-hover:text-white transition-colors" />
+												{label}
 											</button>
 										)
 										)}
