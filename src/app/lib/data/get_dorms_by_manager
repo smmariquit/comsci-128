@@ -18,7 +18,7 @@ export const getManagedDorms = async (managerAccountNumber: number) => {
       room (
         room_id,
         room_type,
-        max_capacity,
+        maximum_occupants,
 
         student_accommodation_history (
           movein_date,
