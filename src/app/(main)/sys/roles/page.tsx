@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter';
@@ -69,17 +69,77 @@ export default function UserManagementPage({
   notifications = stubNotifications,
   onLogout,
 }: UserManagementProps) {
-  const [userList, setUserList] = useState<User[]>(initialUsers);
+  const [userList, setUserList] = useState<User[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<UserFiltersState>({
   search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
   });
 
   const [page, setPage] = useState(1);
+
+  // Fetch managers from API
+  useEffect(() => {
+    const fetchManagers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch('/api/managers');
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        console.log('Raw API data:', data);
+
+        let rawUsers = [];
+        if (Array.isArray(data)) {
+          rawUsers = data;
+        } else if (data.users && Array.isArray(data.users)) {
+          rawUsers = data.users;
+        } else if (data.data && Array.isArray(data.data)) {
+          rawUsers = data.data;
+        } else {
+          console.warn('Unexpected API response format:', data);
+          rawUsers = [];
+        }
+
+        // Transform raw data to match User interface
+        const transformedUsers: User[] = rawUsers.map((user: any) => ({
+          id:        user.account_number || '',
+          name:      `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+          gender:    user.sex || user.gender || 'Not specified',
+          email:     user.account_email || user.contact_email || '',
+          role:      user.user_type || 'Manager',
+          status:    user.is_deleted ? 'Disabled' : 'Active',
+          dormitory: user.dormitory || user.dorm_name || '—',
+          joined:    user.created_at ? new Date(user.created_at).toLocaleDateString() : '—',
+        }));
+
+        console.log('Transformed users:', transformedUsers);
+
+        setUserList(transformedUsers);
+      } catch (error) {
+        console.error('Error fetching managers:', error);
+        setError(error instanceof Error ? error.message : 'Failed to fetch managers');
+        setUserList([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchManagers();
+  }, []);
   const handleAddManager = (newUser: User) => {
     setUserList((prev) => [newUser, ...prev]);
     setPage(1);
   };
+
+  
 
   const filtered = userList.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
