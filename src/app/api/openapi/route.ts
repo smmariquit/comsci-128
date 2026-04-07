@@ -1,10 +1,12 @@
 import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { NextResponse } from "next/server";
 
 export async function GET() {
 	try {
-		const specPath = join(process.cwd(), "docs", "openapi.implemented.yaml");
+		const specPath = fileURLToPath(
+			new URL("../../../../docs/openapi.implemented.yaml", import.meta.url),
+		);
 		const spec = await readFile(specPath, "utf8");
 
 		return new NextResponse(spec, {
