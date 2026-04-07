@@ -153,8 +153,9 @@ async function insertAccommodation(roomId: number, studentId: string) {
 		.from("student_accommodation_history")
 		.insert({
 			room_id: roomId,
-			account_number: studentId,
+			account_number: parseInt(studentId),
 			movein_date: new Date().toISOString().split('T')[0],
+			moveout_date: new Date().toISOString().split('T')[0],
 		})
 		.select()
 		.single();
