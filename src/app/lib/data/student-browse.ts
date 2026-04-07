@@ -5,6 +5,8 @@ interface FilterOptions {
     // TODO: filtering by sex (not yet implemented in the database)
     // sex?: "Male" | "Female" | "Co-ed";
     sort_by_price?: "asc" | "desc";
+    search?: string; 
+
 }
 
 export async function getAllAvailableDorms(filters?: FilterOptions) {
@@ -23,22 +25,28 @@ export async function getAllAvailableDorms(filters?: FilterOptions) {
 
         const housingIds = [...new Set(rooms.map((room) => room.housing_id))];
 
-        const { data: dorms, error: dormError } = await supabase
+        let query = supabase
             .from("housing")
             .select("*")
             .in("housing_id", housingIds)
-            .eq("is_deleted", false);
+            .eq("is_deleted", false);       
+        
+        if (filters?.search) {
+            query = query.ilike("housing_name", `%${filters.search}%`);
+        }
+
+        const { data: dorms, error: dormError } = await query;
 
         if (dormError) throw dormError;
 
         // optional filter implementation
-        let filteredDorms = dorms;
+        let filteredDorms = dorms || [];
         
         if (filters?.housing_type) {
             filteredDorms = filteredDorms.filter(
                 (dorm) => dorm.housing_type === filters.housing_type
             );
-        }
+        }   
 
         // if (filters?.sex){
         //     filteredDorms = filteredDorms.filter(
@@ -55,7 +63,6 @@ export async function getAllAvailableDorms(filters?: FilterOptions) {
                 }
             });
         }
-
 
         return filteredDorms;
 

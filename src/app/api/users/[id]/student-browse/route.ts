@@ -18,10 +18,14 @@ export async function GET(
             "asc" | 
             "desc";
 
+        
+        const search = url.searchParams.get("search");
+
         const filters = {
             housing_type: housingType ?? undefined,
             // sex: sex ?? undefined,
             sort_by_price: sortByPrice ?? undefined,
+            search: search?.trim() || undefined,
         };
 
         const dorms = await getAllAvailableDorms(filters);
