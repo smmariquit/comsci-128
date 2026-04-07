@@ -20,7 +20,7 @@ jobs:
       - name: Generate Types
         run: |
           npx supabase gen types typescript \
-            project-id mahcvrvoickyuuxnhcxn \
+            --project-id mahcvrvoickyuuxnhcxn \
             > src/app/types/database.types.ts
 
       - name: Check for changes
