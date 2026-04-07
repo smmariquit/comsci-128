@@ -8,9 +8,9 @@ export interface billData {
   amount : number
   status : PaymentStatus
   bill_type : BillType
-  due_date : any
-  issue_date : any
-  date_paid : any
+  due_date : Date
+  issue_date : Date
+  date_paid : Date
   manager_account_number : number
   student_account_number : number
   is_deleted ?: boolean
