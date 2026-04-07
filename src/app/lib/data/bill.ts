@@ -1,8 +1,24 @@
 import { supabase } from '../supabase';
+import { PaymentStatus } from './room';
+
+export type BillType = 'Rent' | 'Utility' | 'Wifi'
+
+export interface billData {
+  transaction_id : number
+  amount : number
+  status : PaymentStatus
+  bill_type : BillType
+  due_date : any
+  issue_date : any
+  date_paid : any
+  manager_account_number : number
+  student_account_number : number
+  is_deleted ?: boolean
+}
 
 // joins for FKs
 // CREATE bill
-export const createBill = async (billData: any) => {
+export const createBill = async (billData: billData) => {
   return await supabase.from('bill')
     .insert([billData])
     .select()
