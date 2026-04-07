@@ -1,25 +1,25 @@
-import { User } from "@/models/user";
+import { User, NewUser } from "@/models/user";
 import { getAllLandlords } from "../data/landlord-data";
 import { getAllHousingAdmins } from "../data/housing_admin";
+import { createManager } from "../data/manager-data";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 
-const getAllManagers = async (): Promise<User[] | null> => {  // 👈 fixed
+const getAllManagers = async (): Promise<User[] | null> => {
     try {
         const { data: landlordData } = await getAllLandlords();
         const { data: housingAdminData } = await getAllHousingAdmins();
 
-        // extract each user object in landlord/housingadmin and handle null case
-        const allProfiles = [...(landlordData ?? []), ...(housingAdminData ?? [])]
-    .map((profile: any) => ({
-        ...profile.manager?.user,         // spread all user fields
-        role: profile.manager?.manager_type // 👈 add manager_type as role
-    }))
-    .filter((profile) => profile.account_number); // filter out nulls
-        return allProfiles;
+        // extract and combine nested user object  
+        return [...(landlordData ?? []), ...(housingAdminData ?? [])]
+            .map((profile: any) => ({
+                ...profile.manager?.user,
+                role: profile.manager?.manager_type,
+            }))
+            .filter((profile) => profile.account_number);
     } catch (error) {
-        console.error("Error: ", error);
-        throw new Error("Error");
+        console.error("Error fetching managers:", error);
+        throw new Error("Failed to fetch managers");
     }
 };
 
