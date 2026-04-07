@@ -81,6 +81,7 @@ export type Database = {
           action_type: Database["public"]["Enums"]["ActionType"] | null
           audit_description: string | null
           audit_id: number
+          partial_ip: string
           timestamp: string | null
           user_id: number | null
           user_name: string | null
@@ -90,6 +91,7 @@ export type Database = {
           action_type?: Database["public"]["Enums"]["ActionType"] | null
           audit_description?: string | null
           audit_id?: never
+          partial_ip: string
           timestamp?: string | null
           user_id?: number | null
           user_name?: string | null
@@ -99,6 +101,7 @@ export type Database = {
           action_type?: Database["public"]["Enums"]["ActionType"] | null
           audit_description?: string | null
           audit_id?: never
+          partial_ip?: string
           timestamp?: string | null
           user_id?: number | null
           user_name?: string | null
@@ -161,27 +164,27 @@ export type Database = {
       }
       document: {
         Row: {
-          application_Id: number
+          application_id: number
           document_id: number
           storage_link: string | null
           type: Database["public"]["Enums"]["DocumentType"]
         }
         Insert: {
-          application_Id: number
+          application_id: number
           document_id?: number
           storage_link?: string | null
           type: Database["public"]["Enums"]["DocumentType"]
         }
         Update: {
-          application_Id?: number
+          application_id?: number
           document_id?: number
           storage_link?: string | null
           type?: Database["public"]["Enums"]["DocumentType"]
         }
         Relationships: [
           {
-            foreignKeyName: "document_application_Id_fkey"
-            columns: ["application_Id"]
+            foreignKeyName: "document_application_id_fkey"
+            columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "application"
             referencedColumns: ["application_id"]
@@ -193,6 +196,7 @@ export type Database = {
           end_application_date: string | null
           housing_address: string
           housing_id: number
+          housing_image: string | null
           housing_name: string
           housing_type: Database["public"]["Enums"]["HousingType"]
           is_deleted: boolean | null
@@ -204,6 +208,7 @@ export type Database = {
           end_application_date?: string | null
           housing_address: string
           housing_id?: number
+          housing_image?: string | null
           housing_name: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
@@ -215,6 +220,7 @@ export type Database = {
           end_application_date?: string | null
           housing_address?: string
           housing_id?: number
+          housing_image?: string | null
           housing_name?: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
@@ -347,7 +353,9 @@ export type Database = {
           occupancy_status:
             | Database["public"]["Enums"]["OccupancyStatus"]
             | null
+          occupants_count: number
           payment_status: Database["public"]["Enums"]["PaymentStatus"]
+          room_code: number
           room_id: number
           room_type: Database["public"]["Enums"]["RoomType"]
         }
@@ -358,7 +366,9 @@ export type Database = {
           occupancy_status?:
             | Database["public"]["Enums"]["OccupancyStatus"]
             | null
+          occupants_count?: number
           payment_status?: Database["public"]["Enums"]["PaymentStatus"]
+          room_code?: number
           room_id?: number
           room_type?: Database["public"]["Enums"]["RoomType"]
         }
@@ -369,7 +379,9 @@ export type Database = {
           occupancy_status?:
             | Database["public"]["Enums"]["OccupancyStatus"]
             | null
+          occupants_count?: number
           payment_status?: Database["public"]["Enums"]["PaymentStatus"]
+          room_code?: number
           room_id?: number
           room_type?: Database["public"]["Enums"]["RoomType"]
         }
@@ -568,7 +580,7 @@ export type Database = {
       ManagerType: "Housing Administrator" | "Landlord"
       OccupancyStatus: "Fully Occupied" | "Empty" | "Partially Occupied"
       PaymentStatus: "Pending" | "Paid" | "Overdue"
-      RoomType: "Single" | "Double" | "Shared"
+      RoomType: "Women Only" | "Men Only" | "Co-ed"
       Sex: "Male" | "Female" | "Prefer not to say"
       StudentStanding: "Freshman" | "Sophomore" | "Junior" | "Senior"
       StudentStatus: "Active" | "Delayed" | "Graduating"
@@ -709,7 +721,7 @@ export const Constants = {
       ManagerType: ["Housing Administrator", "Landlord"],
       OccupancyStatus: ["Fully Occupied", "Empty", "Partially Occupied"],
       PaymentStatus: ["Pending", "Paid", "Overdue"],
-      RoomType: ["Single", "Double", "Shared"],
+      RoomType: ["Women Only", "Men Only", "Co-ed"],
       Sex: ["Male", "Female", "Prefer not to say"],
       StudentStanding: ["Freshman", "Sophomore", "Junior", "Senior"],
       StudentStatus: ["Active", "Delayed", "Graduating"],
