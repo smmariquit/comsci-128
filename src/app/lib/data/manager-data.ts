@@ -328,3 +328,55 @@ export async function getPendingApplicationsByManager(managerAccountNumber: numb
 
   return { data, error: null };
 }
+
+// Overall occupancy rate of managed dorms
+// Involves: manager, housing, room, student_accommodation_history
+// Returns a ratio: total current tenants / total maximum occupants
+export async function getOccupancyRateByManager(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      housing_id,
+      housing_name,
+      room:room (
+        room_id,
+        maximum_occupants,
+        occupancy_status,
+        student_accommodation_history:student_accommodation_history (
+          account_number,
+          movein_date,
+          moveout_date
+        )
+      )
+    `)
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching occupancy rate:", error.message);
+    return { data: null, error, totalOccupants: 0, totalMaxOccupants: 0, occupancyRate: "0%" };
+  }
+
+  let totalOccupants = 0;
+  let totalMaxOccupants = 0;
+
+  data?.forEach((housing) => {
+    housing.room?.forEach((room: any) => {
+      totalMaxOccupants += room.maximum_occupants ?? 0;
+      totalOccupants += room.student_accommodation_history?.length ?? 0;
+    });
+  });
+
+  // Compute occupancy rate as a percentage
+  const occupancyRate = totalMaxOccupants > 0
+    ? `${((totalOccupants / totalMaxOccupants) * 100).toFixed(1)}%`
+    : "0%";
+
+  return {
+    data,
+    totalOccupants,
+    totalMaxOccupants,
+    occupancyRate,  // e.g. "75.0%"
+    error: null
+  };
+}
