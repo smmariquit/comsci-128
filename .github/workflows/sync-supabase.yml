@@ -1,0 +1,39 @@
+name: Update Supabase Types
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-types:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate Types
+        run: |
+          npx supabase gen types typescript \
+            --url ${{ secrets.SUPABASE_URL }} \
+            --anon-key ${{ secrets.SUPABASE_ANON_KEY }} \
+            > src/types/database.types.ts
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git add src/types/database.types.ts
+          git diff --staged --exit-code || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and Push
+        if: steps:git-check.outputs.changed == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m "chore: nightly supabase types update"
+          git push
