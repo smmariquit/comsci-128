@@ -86,7 +86,7 @@ export default function UserManagementPage({
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/managers');
+        const response = await fetch('/api/manager');
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -110,14 +110,14 @@ export default function UserManagementPage({
 
         // Transform raw data to match User interface
         const transformedUsers: User[] = rawUsers.map((user: any) => ({
-          id:        user.account_number || '',
-          name:      `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-          gender:    user.sex || user.gender || 'Not specified',
-          email:     user.account_email || user.contact_email || '',
-          role:      user.user_type || 'Manager',
-          status:    user.is_deleted ? 'Disabled' : 'Active',
-          dormitory: user.dormitory || user.dorm_name || '—',
-          joined:    user.created_at ? new Date(user.created_at).toLocaleDateString() : '—',
+            id:        user.account_number?.toString() || '',
+            name:      `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+            gender:    user.sex || 'Not specified',
+            email:     user.account_email || user.contact_email || '',
+            role:      user.role || 'Manager',  // 👈 now uses manager_type
+            status:    user.is_deleted ? 'Disabled' : 'Active',
+            dormitory: '—',
+            joined:    '—',
         }));
 
         console.log('Transformed users:', transformedUsers);

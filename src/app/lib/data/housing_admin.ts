@@ -30,9 +30,9 @@ export async function getAllHousingAdmins() {
     .from("housing_admin")
     .select(`
       account_number,
-      manager:account_number (
+      manager:housing_admin_account_number_fkey (
         manager_type,
-        user:account_number (
+        user:manager_account_number_fkey (
           account_number,
           account_email,
           first_name,
@@ -48,12 +48,12 @@ export async function getAllHousingAdmins() {
         )
       )
     `);
- 
+
   if (error) {
     console.error("Error fetching housing admins:", error.message);
     return { data: null, error };
   }
- 
+
   return { data, error: null };
 }
  
