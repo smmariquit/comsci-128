@@ -26,7 +26,7 @@ export async function createSystemAdmin(userDetails: NewUser, managerDetails: Ne
 
     if (error) {
         console.error(
-            "Error inserting into housing_admin:",
+            "Error inserting into system_admin:",
             error.message,
         );
         return { data: null, error: error };
