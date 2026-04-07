@@ -59,6 +59,7 @@ export default function UserManagementPage({
 		search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
 	});
 	const [page, setPage] = useState(1);
+
 	// Fetch users from API
 	useEffect(() => {
 		const fetchUsers = async () => {
@@ -89,7 +90,7 @@ export default function UserManagementPage({
 					rawUsers = [];
 				}
 				
-				// Transform the data to match your User interface
+				// Transform the data to match User interface
 				const transformedUsers: User[] = rawUsers.map((user: any) => ({
 					id: user.id || user.user_id || '',
 					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
@@ -102,7 +103,7 @@ export default function UserManagementPage({
 					joined: user.created_at ? new Date(user.created_at).toLocaleDateString() : '—',
 				}));
 				
-				console.log('Transformed users:', transformedUsers); // Debug: see transformed data
+				console.log('Transformed users:', transformedUsers); 
 				
 				setUsers(transformedUsers);
 			} catch (error) {

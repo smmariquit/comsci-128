@@ -33,9 +33,9 @@ export async function getAllLandlords() {
     .from("landlord")
     .select(`
       account_number,
-      manager:account_number (
+      manager:landlord_account_number_fkey (
         manager_type,
-        user:account_number (
+        user:manager_account_number_fkey (
           account_number,
           account_email,
           first_name,
@@ -51,12 +51,12 @@ export async function getAllLandlords() {
         )
       )
     `);
- 
+
   if (error) {
     console.error("Error fetching landlords:", error.message);
     return { data: null, error };
   }
- 
+
   return { data, error: null };
 }
  
