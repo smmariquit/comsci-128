@@ -28,6 +28,7 @@
         "babel-plugin-react-compiler": "1.0.0",
         "tailwindcss": "^4",
         "ts-node": "^10.9.2",
-        "typescript": "^5.9.3"
+        "typescript": "^5.9.3",
+        "swagger-ui-react": "^5.32.1"
     }
 }
