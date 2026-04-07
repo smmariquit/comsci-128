@@ -1,33 +1,27 @@
 import { supabase } from "../supabase";
-import { User } from "@/models/user";
+import { User, NewUser, UpdateUser } from "@/models/user";
+import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { userData } from "./user-data";
 
-// Review create manager to match userData
-// export const createManager = async (
-// 	userDetails: User,
-// 	password: string,
-// 	manager_type: string,
-// ) => {
-// 	// const userAccountNumber = await userData.create(
-// 	// 	userDetails,
-// 	// 	"Manager",
-// 	// 	password,
-// 	// );
+export const createManager = async (
+	userDetails: NewUser,
+	managerDetails: NewManager
+): Promise<Manager> => {
+	// CREATE row in "manager" table & RETURN the created manager object
 
-// 	const { data, error } = await supabase
-// 		.from("manager")
-// 		.insert([
-// 			{
-// 				account_number: userAccountNumber,
-// 				manager_type: manager_type,
-// 			},
-// 		])
-// 		.select()
-// 		.single();
+	const newUserData = await userData.createUser(userDetails);
 
-// 	if (error) throw error;
-// 	return data;
-// };
+	managerDetails.account_number = newUserData.account_number;
+
+	const { data, error } = await supabase
+		.from("manager")
+		.insert([managerDetails])
+		.select();
+
+	if (error) throw error;
+
+	return data[0];
+};
 
 // READ managers
 export const getManagers = async () => {
