@@ -172,7 +172,7 @@ export default function AddManagerModal({
             <div>
               <p className="text-sm font-semibold text-[#1a2332] mb-3">Role</p>
               <div className="grid grid-cols-2 gap-3">
-                <RoleCard selected={form.role === 'Manager'}  onClick={() => set('role', 'Manager')}  title="Manager"  description="Manage dorm and tenants"       />
+                <RoleCard selected={form.role === 'Manager'}  onClick={() => set('role', 'Manager')}  title="Housing Administrator" description="Manage dorm and tenants" />
                 <RoleCard selected={form.role === 'Landlord'} onClick={() => set('role', 'Landlord')} title="Landlord" description="Owner-level property access" />
               </div>
             </div>
