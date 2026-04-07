@@ -6,7 +6,7 @@ import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 export default async function DashboardPage({
         searchParams,
     }: {
-        searchParams: Promise<{ type?: string; sort?: string; query?: string }> | any;
+        searchParams: Promise<{ type?: string; sort?: string; search?: string }> | any;
     }) {
     const currUser = await userData.findById(30); 
 
@@ -16,6 +16,7 @@ export default async function DashboardPage({
     const filters = {
         housing_type: params?.type as any, 
         sort_by_price: params?.sort as any, 
+        search: params?.search as any, 
     };
 
     // fetch from db
@@ -81,7 +82,7 @@ export default async function DashboardPage({
                     {cards.map((card) => (
                     <div 
                         key={card.id} 
-                        className="overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02]"
+                        className="overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02] click:"
                     >
                         {/* IMAGE COMPONENT */}
                         <Image
