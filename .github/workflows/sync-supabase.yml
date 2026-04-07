@@ -21,9 +21,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Supabase CLI
-        run: npm install -g supabase
-
       - name: Generate Types
         run: |
           # Use npx to run the CLI without a global install
