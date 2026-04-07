@@ -1,43 +1,43 @@
 import { supabase } from "@/app/lib/supabase";
-import { User } from "@/app/lib/models/user";
-// import { createManager } from "@/app/lib/data/manager-data";
+import { User, NewUser, UpdateUser } from "@/models/user";
+import { Manager, NewManager, UpdateManager } from "@/models/manager";
+import { createManager } from "@/app/lib/data/manager-data";
 
-// Review createHousingAdmin to match userData
-// Create housing admin
-// export async function createHousingAdmin(input: User, password: string) {
-// 	// Call createManager with manager_type "Housing Admin"
-// 	// createManager internally calls createUser with user_type "Manager"
-// 	const { accountNumber, error: managerError } = await createManager(
-// 		input,
-// 		password,
-// 		"Housing Administrator",
-// 	);
+// promote User from Student to Housing Admin (Manager rather)
+export async function createHousingAdmin(userDetails: NewUser, managerDetails: NewManager) {
+  // managerDetails.manager_type must already be set to "Housing Admin"
 
-// 	if (managerError || !accountNumber) {
-// 		console.error(
-// 			"Error creating manager in createHousingAdmin:",
-// 			managerError?.message,
-// 		);
-// 		return { data: null, error: managerError };
-// 	}
+  const newManagerData = await createManager(
+		userDetails,
+    managerDetails,
+	);
 
-// 	// Insert into housing_admin
-// 	const { data, error: adminError } = await supabase
-// 		.from("housing_admin")
-// 		.insert({ account_number: accountNumber })
-// 		.select()
-// 		.single();
+	// if (managerError || !newManagerData) {
+	// 	console.error(
+	// 		"Error creating manager in createHousingAdmin:",
+	// 		managerError?.message,
+	// 	);
+	// 	return { data: null, error: managerError };
+	// }
 
-// 	if (adminError) {
-// 		console.error(
-// 			"Error inserting into housing_admin:",
-// 			adminError.message,
-// 		);
-// 		return { data: null, error: adminError };
-// 	}
+  managerDetails.account_number = newManagerData.account_number
 
-// 	return { data, error: null };
-// }
+	// Insert into housing_admin
+	const { data, error: adminError } = await supabase
+		.from("housing_admin")
+		.insert([managerDetails])
+		.select();
+
+	if (adminError) {
+		console.error(
+			"Error inserting into housing_admin:",
+			adminError.message,
+		);
+		return { data: null, error: adminError };
+	}
+
+	return data[0];
+}
 
 // Read all housing admins with user details
 export async function getAllHousingAdmins() {
