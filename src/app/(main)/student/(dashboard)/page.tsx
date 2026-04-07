@@ -3,7 +3,7 @@ import Link from "next/link";
 import { userData } from "@/app/lib/data/user-data";
 
 export default async function DashboardPage() {
-    const currUser = await userData.findById(30);
+    const currUser = await userData.findUserById(30);
     const cards = Array.from({ length: 8 }, (_, i) => ({
         id: i + 1,
         name: `Housing ${i + 1}`,
