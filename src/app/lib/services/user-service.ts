@@ -29,7 +29,7 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 		
 		// mock... replace once there's input for Student
 		const studentDetails: NewStudent = {
-			student_number: 202312345,
+			student_number: Math.floor(100000 + Math.random() * 900000),
 			housing_status: "Not Assigned",
 			emergency_contact_name: null,
 			emergency_contact_number: null,
