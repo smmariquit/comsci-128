@@ -3,12 +3,11 @@ info:
   title: University Student Accommodation Tracker API
   version: 1.1.0
   description: |
-    Comprehensive OpenAPI specification aligned with current code and SRS.
+    Consolidated OpenAPI reference specification aligned with current code and SRS.
 
-    Status conventions:
-    - Implemented: Endpoint exists in src/app/api.
-    - Planned: Endpoint is derived from SRS and/or complex query functions in src/app/lib/data.
-    - Clarification-needed: Endpoints with x-clarification-needed=true came from the complex-query list and need business/frontend confirmation.
+    This file is maintained as a repository-level reference that combines both implemented and planned endpoints for review, planning, and documentation. It is not the split specification currently served by the application runtime.
+
+    Runtime-served specifications are maintained separately in `openapi.implemented.yaml` and `openapi.planned.yaml` under `/api/openapi/*`. When editing API definitions, keep those split specs authoritative for served output and keep this consolidated file synchronized to avoid divergence.
 
 servers:
   - url: /api
