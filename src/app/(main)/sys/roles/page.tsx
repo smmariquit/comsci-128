@@ -44,16 +44,6 @@ const stubUser: SidebarUser = {
   initials: 'LF',
 };
 
-// Hardcoded list of users for the table - in a real app, this would come from an API
-const stubUsers: User[] = [
-  { id: '1', name: 'Luthelle Fernandez', gender: 'Female', email: 'llfernandez4@up.edu.ph', role: 'Manager',   status: 'Active',   dormitory: 'Dorm ID#', joined: 'Jan 12, 2024' },
-  { id: '2', name: 'Justine Ivanne Antonio', gender: 'Male', email: 'llfernandez4@up.edu.ph', role: 'Landlord', status: 'Active',   dormitory: 'Dorm ID#', joined: 'Jan 12, 2024' },
-  { id: '3', name: 'Paul Hadley Fababeir', gender: 'Male', email: 'llfernandez4@up.edu.ph', role: 'Landlord', status: 'Active',   dormitory: 'Dorm ID#', joined: 'Jan 12, 2024' },
-  { id: '4', name: 'Jun Paul Omamos', gender: 'Male', email: 'llfernandez4@up.edu.ph', role: 'Manager', status: 'Disabled', dormitory: 'Dorm ID#', joined: 'Jan 12, 2024' },
-  { id: '5', name: 'Joy Guevarra', gender: 'Female', email: 'llfernandez4@up.edu.ph', role: 'Landlord', status: 'Active',   dormitory: 'Dorm ID#', joined: 'Jan 12, 2024' },
-  { id: '6', name: 'Haira Espinocilla', gender: 'Female', email: 'llfernandez4@up.edu.ph', role: 'Manager', status: 'Disabled', dormitory: 'Dorm 1',joined: 'Jan 12, 2024' },
-  { id: '7', name: 'Althea Fernandez', gender: 'Female', email: 'llfernandez4@up.edu.ph', role: 'Landlord', status: 'Active',   dormitory: 'Dorm 2',joined: 'Jan 12, 2024' },
-];
 
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
@@ -76,7 +66,6 @@ const ITEMS_PER_PAGE = 5;
 // Main User Management Page component
 export default function UserManagementPage({
   user = stubUser,
-  users: initialUsers = stubUsers,
   notifications = stubNotifications,
   onLogout,
 }: UserManagementProps) {
