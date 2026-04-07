@@ -20,7 +20,7 @@ export const getAllBillings = async () => {
           room:room_id (
             room_id,
             housing:housing_id (
-              name,
+              housing_name,
               manager:manager_account_number (
                 account_number,
                 user:account_number (
