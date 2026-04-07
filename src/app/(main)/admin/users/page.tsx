@@ -1,45 +1,84 @@
 "use client";
-import { User } from "@/models/user";
-import Link from "next/link";
-import { useState, useEffect } from "react";
 
-export default function Page() {
-	const [users, setUsers] = useState<User[]>([]);
+import { useState, useMemo } from "react";
+import { C } from "@/lib/palette";
+import UserTable, { MOCK_USERS } from "@/app/components/admin/user/usertable";
+import UserFilters from "@/app/components/admin/user/userfilters";
+import type { UserRow } from "@/app/components/admin/user/usertable";
+import type { UserTypeFilter, HousingFilter, AccountStatusFilter } from "@/app/components/admin/user/userfilters";
 
-	useEffect(() => {
-		const fetchUsers = async () => {
-			try {
-				// from sample
-				const userId = "17";
-				const response = await fetch("/api/users", {
-					method: "GET",
-				});
+export default function UsersPage() {
+  // ── Filter state ──────────────────────────────────────────────────────────
+  const [search, setSearch]               = useState("");
+  const [userType, setUserType]           = useState<UserTypeFilter>("All");
+  const [housingStatus, setHousingStatus] = useState<HousingFilter>("All");
+  const [accountStatus, setAccountStatus] = useState<AccountStatusFilter>("All");
 
-				const user: User[] = await response.json();
-				setUsers(user);
-			} catch (error) {
-				console.error("Error: ", error);
-			}
-		};
+  // ── Filtered data ─────────────────────────────────────────────────────────
+  const filtered = useMemo(() => {
+    return MOCK_USERS.filter((u) => {
+      const q = search.toLowerCase();
+      const matchesSearch =
+        !q ||
+        u.full_name.toLowerCase().includes(q) ||
+        u.account_email.toLowerCase().includes(q) ||
+        (u.phone_number ?? "").includes(q);
 
-		fetchUsers();
-	}, []);
+      const matchesType =
+        userType === "All" || u.user_type === userType;
 
-	return (
-		<main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-			<h1 className="text-4xl font-bold text-center mb-8">
-				Admin Users Page
-			</h1>
-			<div>
-				<ul>
-					{users.map((users) => (
-						<li key={users.account_email}>
-							{users.first_name} {users.middle_name ?? ""}{" "}
-							{users.last_name} - {users.account_email}
-						</li>
-					))}
-				</ul>
-			</div>
-		</main>
-	);
+      const matchesHousing =
+        housingStatus === "All" ||
+        u.housing_status === housingStatus;
+
+      const matchesAccount =
+        accountStatus === "All" ||
+        (accountStatus === "Active" && !u.is_deleted) ||
+        (accountStatus === "Removed" && u.is_deleted);
+
+      return matchesSearch && matchesType && matchesHousing && matchesAccount;
+    });
+  }, [search, userType, housingStatus, accountStatus]);
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  function handleView(row: UserRow) {
+    console.log("View user:", row);
+    // TODO: open view modal/drawer
+  }
+
+  function handleRemove(row: UserRow) {
+    console.log("Remove user from property:", row);
+    // TODO: open confirmation modal, then call API to unassign from housing
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  return (
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 16,
+      padding: "24px",
+      fontFamily: "'DM Sans', sans-serif",
+    }}>
+
+      {/* Filters */}
+      <UserFilters
+        search={search}
+        userType={userType}
+        housingStatus={housingStatus}
+        accountStatus={accountStatus}
+        onSearch={setSearch}
+        onUserType={setUserType}
+        onHousingStatus={setHousingStatus}
+        onAccountStatus={setAccountStatus}
+      />
+
+      {/* Table */}
+      <UserTable
+        data={filtered}
+        onView={handleView}
+        onRemove={handleRemove}
+      />
+    </div>
+  );
 }
