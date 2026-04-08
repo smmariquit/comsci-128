@@ -2,8 +2,9 @@ import Image from "next/image";
 import SearchBar from "./SearchBar"; 
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
+import HousingCards from "./HousingCards";
 
-export default async function DashboardPage({
+export default async function DormBrowsePage({
         searchParams,
     }: {
         searchParams: Promise<{ type?: string; sort?: string; search?: string }> | any;
@@ -49,7 +50,7 @@ export default async function DashboardPage({
                     
                     <nav className="flex items-center gap-6 border-l border-gray-700 pl-8 ">
                     <a href="/student/dashboard" className="text-[#EDE9DE]">Dashboard</a>
-                    <a href="/student" className="text-[#EDE9DE] transition-colors">Accommodations</a>
+                    <a href="/student" className="text-[#EDE9DE] transition-colors">Browse</a>
                     </nav>
                 </div>
 
@@ -78,27 +79,9 @@ export default async function DashboardPage({
             {/* HOUSING CARDS CONTAINER */}
             <div className="bg-[#EDE9DE] w-[90vw] p-6 mx-auto">
                 {/* GRID LAYOUT */}
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
-                    {cards.map((card) => (
-                    <div 
-                        key={card.id} 
-                        className="overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02] click:"
-                    >
-                        {/* IMAGE COMPONENT */}
-                        <Image
-                        src="/assets/placeholders/housing-414x264.svg"
-                        alt={`${card.name} placeholder image`}
-                        width={414}
-                        height={264}
-                        className="block h-auto w-full"
-                        />
-
-                        {/* CARD FOOTER / NAME */}
-                        <div className="bg-[#1C2632] px-3.5 py-2.5 text-m font-semibold text-[#C9642A]">
-                        {card.name}
-                        </div>
-                    </div>
-                    ))}
+               <div className="bg-[#EDE9DE] w-[90vw] p-6 mx-auto">
+                    {/* Clean and managed by the Client Component */}
+                    <HousingCards cards={cards} />
                 </div>
             </div>
         </div>
