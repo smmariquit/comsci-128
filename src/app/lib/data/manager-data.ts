@@ -194,3 +194,13 @@ export const deletePayment = async (id: number) => {
 		.select()
 		.single();
 };
+
+export const countAllManager = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("manager")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}

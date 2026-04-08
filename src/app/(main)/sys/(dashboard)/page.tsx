@@ -114,6 +114,7 @@ export default function DashboardPage({
 	  onLogout,
 	}: Partial<DashboardProps>) {
 		const [userCount, setUserCount] = useState(0);
+		const [managerCount, setManagerCount] = useState(0);
 		const [loading, setLoading] = useState(true);
 		const [error, setError] = useState<string | null>(null);
 		const [stats, setStats] = useState<StatCardData[]>([
