@@ -1,5 +1,5 @@
 import Image from "next/image";
-import SearchBar from "@/components/SearchBar"; 
+import SearchBar from "./SearchBar"; 
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 
