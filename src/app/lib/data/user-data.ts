@@ -1,5 +1,6 @@
 import { User, NewUser, UpdateUser } from "@/models/user";
 import { supabase } from "../supabase";
+import { count } from "console";
 
 async function createUser(userDetails: NewUser): Promise<User> {
 	// this is for returning the newly inserted user
@@ -116,4 +117,5 @@ export const userData = {
 	findByEmail,
 	update,
 	deactivateById,
+	countAllUser
 };
