@@ -2,6 +2,8 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+
+//SEARCHBAR FOR STUDENT BROWSE
 export default function SearchBar() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
