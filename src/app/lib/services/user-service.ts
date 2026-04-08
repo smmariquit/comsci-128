@@ -117,10 +117,24 @@ const deactivateUser = async (
 	}
 };
 
+const getUserCount = async (): Promise<number | null> => {
+	try {
+		const userCount = await userData.countAllUser();
+		if (!userCount) return null;
+		
+		return userCount; 
+		
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+}
+
 export const userService = {
 	addUser,
 	getUser,
 	getAllUser,
 	updateUser,
 	deactivateUser,
+	getUserCount
 };
