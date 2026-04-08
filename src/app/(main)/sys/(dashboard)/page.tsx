@@ -134,9 +134,10 @@ export default function DashboardPage({
 					setLoading(true);
 					setError(null);
 
-					const [userResponse, managerResponse] = await Promise.all([
+					const [userResponse, managerResponse, propertyResponse]  = await Promise.all([
 						fetch('/api/users/count'),
-						fetch('/api/manager/count')
+						fetch('/api/manager/count'),
+						fetch('/api/housing/count')
 					]);
 
 					// Process user count
@@ -152,14 +153,24 @@ export default function DashboardPage({
 					}
 					const managerData = await managerResponse.json();
 					setManagerCount(managerData.count);
+					
+					// Process property count
+					if (!propertyResponse.ok) {
+						throw new Error(`Property count HTTP error! status: ${propertyResponse.status}`);
+					}
+					const propertyData = await propertyResponse.json();
+					setPropertyCount(propertyData.count);
 
-					// Update stats with both counts
+					// Update stats with all counts
 					setStats(prev => prev.map(stat => {
 						if (stat.label === 'TOTAL USERS') {
 							return { ...stat, value: userData.count };
 						}
 						if (stat.label === 'TOTAL MANAGERS') {
 							return { ...stat, value: managerData.count };
+						}
+						if (stat.label === 'TOTAL PROPERTIES') {
+							return { ...stat, value: propertyData.count };
 						}
 						return stat;
 					}));
@@ -169,6 +180,7 @@ export default function DashboardPage({
 					setError(error instanceof Error ? error.message : 'Failed to fetch counts');
 					setUserCount(0);
 					setManagerCount(0);
+					setPropertyCount(0); 
 				} finally {
 					setLoading(false);
 				}
