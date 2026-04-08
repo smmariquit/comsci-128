@@ -103,6 +103,16 @@ async function deactivate(housingId: number): Promise<Housing | null> {
 	return data;
 }
 
+const countAllHousing = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("housing")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
 export const housingData = {
 	create,
 	findAllHousing,
@@ -110,4 +120,5 @@ export const housingData = {
 	findWithRooms,
 	update,
 	deactivate,
+	countAllHousing
 };
