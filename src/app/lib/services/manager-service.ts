@@ -1,7 +1,7 @@
 import { User, NewUser } from "@/models/user";
 import { getAllLandlords } from "../data/landlord-data";
 import { getAllHousingAdmins } from "../data/housing_admin";
-import { createManager } from "../data/manager-data";
+import { createManager, countAllManager } from "../data/manager-data";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 
@@ -23,6 +23,20 @@ const getAllManagers = async (): Promise<User[] | null> => {
     }
 };
 
+const getManagerCount = async(): Promise<number | null> => {
+    try {
+            const managerCount = await countAllManager();
+            if (!managerCount) return null;
+            
+            return managerCount; 
+            
+        } catch (error) {
+            console.error("Error: ", error);
+            throw new Error("Error");
+    }
+}
+
 export const managerService = {
-    getAllManagers
+    getAllManagers,
+    getManagerCount
 };
