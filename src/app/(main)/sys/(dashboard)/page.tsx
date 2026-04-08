@@ -113,6 +113,7 @@ export default function DashboardPage({
 	  ],
 	  onLogout,
 	}: Partial<DashboardProps>) {
+
 		const [userCount, setUserCount] = useState(0);
 		const [managerCount, setManagerCount] = useState(0);
 		const [loading, setLoading] = useState(true);
@@ -124,39 +125,55 @@ export default function DashboardPage({
 			{ label: 'TOTAL PROPERTIES', value: 0, sub: 'Dormitories managed',    dark: false },
 		]);
 
-		// Fetch user count from API
+		
+		// Fetch counts from API
 		useEffect(() => {
-			const fetchUserCount = async () => {
+			const fetchCounts = async () => {
 				try {
 					setLoading(true);
 					setError(null);
 
-					const response = await fetch('/api/users/count');
+					const [userResponse, managerResponse] = await Promise.all([
+						fetch('/api/users/count'),
+						fetch('/api/manager/count')
+					]);
 
-					if (!response.ok) {
-						throw new Error(`HTTP error! status: ${response.status}`);
+					// Process user count
+					if (!userResponse.ok) {
+						throw new Error(`User count HTTP error! status: ${userResponse.status}`);
 					}
+					const userData = await userResponse.json();
+					setUserCount(userData.count);
 
-					const data = await response.json();
+					// Process manager count
+					if (!managerResponse.ok) {
+						throw new Error(`Manager count HTTP error! status: ${managerResponse.status}`);
+					}
+					const managerData = await managerResponse.json();
+					setManagerCount(managerData.count);
 
-					// store the count
-					setUserCount(data.count);
-
-					// update for the stat card
-					setStats(prev => prev.map(stat =>
-						stat.label === 'TOTAL USERS' ? { ...stat, value: data.count } : stat
-					));
+					// Update stats with both counts
+					setStats(prev => prev.map(stat => {
+						if (stat.label === 'TOTAL USERS') {
+							return { ...stat, value: userData.count };
+						}
+						if (stat.label === 'TOTAL MANAGERS') {
+							return { ...stat, value: managerData.count };
+						}
+						return stat;
+					}));
 
 				} catch (error) {
-					console.error('Error fetching user count:', error);
-					setError(error instanceof Error ? error.message : 'Failed to fetch user count');
+					console.error('Error fetching counts:', error);
+					setError(error instanceof Error ? error.message : 'Failed to fetch counts');
 					setUserCount(0);
+					setManagerCount(0);
 				} finally {
 					setLoading(false);
 				}
 			};
 
-			fetchUserCount();
+			fetchCounts();
 		}, []);
 
 
