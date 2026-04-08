@@ -101,7 +101,7 @@ async function deactivateById(userId: number): Promise<UpdateUser | null> {
 
 async function countAllUser(): Promise<number | null> {
 	const { count, error } = await supabase
-		.from("users")
+		.from("user")
 		.select("*", { count: "exact", head: true });
 
 	if (error) throw new Error(error.message);
