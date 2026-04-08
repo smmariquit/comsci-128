@@ -60,6 +60,64 @@ export default function UserManagementPage({
 	});
 	const [page, setPage] = useState(1);
 
+	// Fetch all users from API
+	useEffect(() => {
+		const fetchUsers = async () => {
+			try {
+				setLoading(true);
+				setError(null);
+				
+				const response = await fetch('/api/users');
+				
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				
+				const data = await response.json();
+				
+				console.log('Raw API data:', data); // Debug: see what you're getting
+				
+				// Ensure we always have an array
+				let rawUsers = [];
+				if (Array.isArray(data)) {
+					rawUsers = data;
+				} else if (data.users && Array.isArray(data.users)) {
+					rawUsers = data.users;
+				} else if (data.data && Array.isArray(data.data)) {
+					rawUsers = data.data;
+				} else {
+					console.warn('Unexpected API response format:', data);
+					rawUsers = [];
+				}
+				
+				// Transform the data to match User interface
+				const transformedUsers: User[] = rawUsers.map((user: any) => ({
+					id: user.id || user.user_id || '',
+					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+					gender: user.sex || user.gender || 'Not specified',
+					email: user.account_email || user.email || user.contact_email || '',
+					role: user.user_type || user.role || 'Student',
+					status: user.is_deleted ? 'Disabled' : 'Active',
+					dormitory: user.dormitory || user.dorm_name || '—',
+					room: user.room || user.room_number || '—',
+					joined: user.created_at ? new Date(user.created_at).toLocaleDateString() : '—',
+				}));
+				
+				console.log('Transformed users:', transformedUsers); 
+				
+				setUsers(transformedUsers);
+			} catch (error) {
+				console.error('Error fetching users:', error);
+				setError(error instanceof Error ? error.message : 'Failed to fetch users');
+				setUsers([]);
+			} finally {
+				setLoading(false);
+			}
+		};
+		
+		fetchUsers();
+	}, []);
+
 	// Filter users - with safety check
 	const filtered = users && Array.isArray(users) ? users.filter((u) => {
 		const matchSearch = u.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
