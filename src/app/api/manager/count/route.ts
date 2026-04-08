@@ -4,7 +4,7 @@ import { managerService } from "@/app/lib/services/manager-service";
 export async function GET() {
     try {
     
-        const count = await managerService.getManagerCount;
+        const count = await managerService.getManagerCount();
 
         // Fail
         if (!count) {
@@ -19,7 +19,7 @@ export async function GET() {
             { count },
             { status: 200 },
         );
-        
+
     } catch (error: any) {
         console.error("Error fetching manager count:", error);
         return NextResponse.json(
