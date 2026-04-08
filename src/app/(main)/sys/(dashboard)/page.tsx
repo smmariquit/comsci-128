@@ -94,12 +94,6 @@ const stubUser: SidebarUser = {
 export default function DashboardPage({
 	// Dummy data for now - to be replaced with real data from backend/API integration
 	user = stubUser,
-	stats = [
-		{ label: 'TOTAL USERS',      value: '240', sub: '↑ 3 added this month',  dark: true  },
-		{ label: 'ACTIVE USERS',     value: '98',  sub: '79% users online now',   dark: false },
-		{ label: 'TOTAL MANAGERS',   value: '500', sub: '↑ 79 added this month', dark: false },
-		{ label: 'TOTAL PROPERTIES', value: '124', sub: 'Dormitories managed',    dark: false },
-	  ],
 	  recentActivity = [
 		{ type: 'billing',     text: 'Ivanne paid bill — Unit 1 · ₱6,700',       meta: 'Billing · Dorm 1',         time: '9:30 am'   },
 		{ type: 'application', text: 'Manager A approved application of User 2',  meta: 'Application · Dorm 2',     time: '8:40am'    },
@@ -119,49 +113,51 @@ export default function DashboardPage({
 	  ],
 	  onLogout,
 	}: Partial<DashboardProps>) {
+		const [userCount, setUserCount] = useState(0);
+		const [loading, setLoading] = useState(true);
+		const [error, setError] = useState<string | null>(null);
+		const [stats, setStats] = useState<StatCardData[]>([
+			{ label: 'TOTAL USERS',      value: 0, sub: '↑ 3 added this month',  dark: true },
+			{ label: 'ACTIVE USERS',     value: 0, sub: '79% users online now',   dark: false },
+			{ label: 'TOTAL MANAGERS',   value: 0, sub: '↑ 79 added this month', dark: false },
+			{ label: 'TOTAL PROPERTIES', value: 0, sub: 'Dormitories managed',    dark: false },
+		]);
 
-			const [userCount, setUserCount] = useState(0);
-			const [loading, setLoading] = useState(true);
-			const [error, setError] = useState<string | null>(null);
-
-			// Fetch all users from API (for user count)
-			useEffect(() => {
-			const fetchUsers = async () => {
+		// Fetch user count from API
+		useEffect(() => {
+			const fetchUserCount = async () => {
 				try {
 					setLoading(true);
 					setError(null);
-		
-					const response = await fetch('/api/users');
-		
+
+					const response = await fetch('/api/users/count');
+
 					if (!response.ok) {
 						throw new Error(`HTTP error! status: ${response.status}`);
 					}
-		
+
 					const data = await response.json();
-		
-					let rawUsers = [];
-					if (Array.isArray(data)) {
-						rawUsers = data;
-					} else if (data.users && Array.isArray(data.users)) {
-						rawUsers = data.users;
-					} else if (data.data && Array.isArray(data.data)) {
-						rawUsers = data.data;
-					}
-		
+
 					// store the count
-					setUserCount(rawUsers.length);
-		
+					setUserCount(data.count);
+
+					// update for the stat card
+					setStats(prev => prev.map(stat =>
+						stat.label === 'TOTAL USERS' ? { ...stat, value: data.count } : stat
+					));
+
 				} catch (error) {
-					console.error('Error fetching users:', error);
-					setError(error instanceof Error ? error.message : 'Failed to fetch users');
+					console.error('Error fetching user count:', error);
+					setError(error instanceof Error ? error.message : 'Failed to fetch user count');
 					setUserCount(0);
 				} finally {
 					setLoading(false);
 				}
 			};
-		
-			fetchUsers();
+
+			fetchUserCount();
 		}, []);
+
 
 		const [showAddManager, setShowAddManager] = useState(false);
 		const [showAddDorm, setShowAddDorm] = useState(false);
