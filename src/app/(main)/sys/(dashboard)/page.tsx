@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
@@ -119,6 +119,50 @@ export default function DashboardPage({
 	  ],
 	  onLogout,
 	}: Partial<DashboardProps>) {
+
+			const [userCount, setUserCount] = useState(0);
+			const [loading, setLoading] = useState(true);
+			const [error, setError] = useState<string | null>(null);
+
+			// Fetch all users from API (for user count)
+			useEffect(() => {
+			const fetchUsers = async () => {
+				try {
+					setLoading(true);
+					setError(null);
+		
+					const response = await fetch('/api/users');
+		
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+		
+					const data = await response.json();
+		
+					let rawUsers = [];
+					if (Array.isArray(data)) {
+						rawUsers = data;
+					} else if (data.users && Array.isArray(data.users)) {
+						rawUsers = data.users;
+					} else if (data.data && Array.isArray(data.data)) {
+						rawUsers = data.data;
+					}
+		
+					// store the count
+					setUserCount(rawUsers.length);
+		
+				} catch (error) {
+					console.error('Error fetching users:', error);
+					setError(error instanceof Error ? error.message : 'Failed to fetch users');
+					setUserCount(0);
+				} finally {
+					setLoading(false);
+				}
+			};
+		
+			fetchUsers();
+		}, []);
+
 		const [showAddManager, setShowAddManager] = useState(false);
 		const [showAddDorm, setShowAddDorm] = useState(false);
 
@@ -172,7 +216,11 @@ export default function DashboardPage({
 							<p className={`text-[10px] font-semibold tracking-widest uppercase mb-2 ${s.dark ? 'text-white/50' : 'text-[#1a2332]/40'}`}>
 								{s.label}
 							</p>
-							<p className="text-4xl font-bold mb-2">{s.value}</p>
+
+							<p className="text-4xl font-bold mb-2">
+  								{s.label === 'TOTAL USERS' ? userCount : s.value}
+							</p>
+							
 							<p className={`text-xs flex items-center gap-1 ${s.dark ? 'text-white/50' : 'text-[#1a2332]/50'}`}>
 								{s.sub.startsWith('↑') && <TrendingUp size={12} className="text-[#d4622a]" />}
 								{s.sub}
