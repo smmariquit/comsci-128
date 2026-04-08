@@ -99,6 +99,16 @@ async function deactivateById(userId: number): Promise<UpdateUser | null> {
 	return data;
 }
 
+async function countAllUser(): Promise<number | null> {
+	const { count, error } = await supabase
+		.from("users")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
 export const userData = {
 	createUser,
 	findAllUsers,
