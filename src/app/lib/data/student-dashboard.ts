@@ -26,7 +26,7 @@ export async function getStudentApplicationStatus(studentAccountNumber: number) 
 
 export function getApplicationSteps(application: any) {
     return [
-        { label: "Profile Created", isDone: true },
+        { label: "Dorm Chosen", isDone: true },
         { label: "Application Submitted", isDone: !!application },
         { label: "Manager Review", isDone: application?.application_status === "Approved" },
         { label: "Room Assigned", isDone: !!application?.room_id },
