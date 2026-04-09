@@ -130,6 +130,19 @@ const getUserCount = async (): Promise<number | null> => {
 	}
 }
 
+const getActiveUserCount = async (): Promise<number | null> => {
+	try {
+		const userCount = await userData.countActiveUsers();
+		if (!userCount) return null;
+		
+		return userCount; 
+		
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+}
+
 export const userService = {
 	addUser,
 	getUser,
