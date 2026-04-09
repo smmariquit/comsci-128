@@ -174,7 +174,7 @@ async function insertAccommodation(roomId: number, studentId: string) {
 	return data;
 }
 
-async function endAccommodation(roomId: number, studentId: string) {
+async function endAccommodation(roomId: number, studentId: number) {
 	const { error } = await supabase
 		.from("student_accommodation_history")
 		.delete()
@@ -230,6 +230,34 @@ async function getOccupantCount(roomId: number, increment: number) {
 	return newCount;
 }
 
+async function getAccountbyStudentNumber(studentNumber: string) {
+	const { data, error } = await supabase
+		.from("student")
+		.select('account_number')
+		.eq('student_number', studentNumber)
+
+	if (error || !data) {
+		throw new Error(error.message);
+	}
+
+	if(!data || data.length === 0) {
+		throw new Error(`No student found: ${studentNumber}`);
+	}
+
+	return data[0].account_number;
+}
+
+async function updateStudentHousingStatus(accountNumber: number, status: string) {
+	const { error } = await supabase
+		.from("student")
+		.update({
+			housing_status: status
+		})
+		.eq('account_number', accountNumber)
+
+		if (error) throw new Error(error.message);
+}
+
 export const roomData = {
 	create,
 	findAll,
@@ -242,4 +270,6 @@ export const roomData = {
 	endAccommodation,
 	findUnassignedStudents,
 	getOccupantCount,
+	getAccountbyStudentNumber,
+	updateStudentHousingStatus,
 };
