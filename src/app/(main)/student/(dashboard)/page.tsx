@@ -10,7 +10,6 @@ export default async function DormBrowsePage({
         searchParams: Promise<{ type?: string; sort?: string; search?: string }> | any;
     }) {
     const currUser = await userData.findById(30); 
-
     const params = await searchParams;
     
     // prepare filters
@@ -24,9 +23,21 @@ export default async function DormBrowsePage({
     let allHousing = await getAllAvailableDorms(filters);
 
     //get housing names to put on cards
-    const cards = Array.from({ length: allHousing.length }, (_, i) => ({
-        id: allHousing[i].housing_id,
-        name: allHousing[i].housing_name,
+    const cards = allHousing.map((item) => ({
+        id: item.housing_id,
+        name: item.housing_name,
+        address: item.housing_address,
+        housing_type: item.housing_type, // Changed from 'type' to 'housing_type'
+        price: item.rent_price,
+        // Formatting the date for a cleaner UI
+        appli_start: new Date(item.start_application_date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        }),
+        appli_end: new Date(item.end_application_date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        }),
     }));
 
 	return (
@@ -43,7 +54,7 @@ export default async function DormBrowsePage({
             }}
         >
             {/* NAV BAR */}
-            <header className="flex h-[10vh] w-full max-w-[1440px] bg-[#1C2632] items-center justify-between px-10 text-m">
+            <header className="flex h-[10vh] w-full max-w-[1440px] bg-[#1C2632] items-center justify-between px-10 text-m ">
   
                 <div className="flex items-center gap-8">
                     <h1 className="text-[#EDE9DE] text-xl font-semibold tracking-tight">Title</h1>
@@ -77,12 +88,8 @@ export default async function DormBrowsePage({
             <SearchBar />
 
             {/* HOUSING CARDS CONTAINER */}
-            <div className="bg-[#EDE9DE] w-[90vw] p-6 mx-auto">
-                {/* GRID LAYOUT */}
-               <div className="bg-[#EDE9DE] w-[90vw] p-6 mx-auto">
-                    {/* Clean and managed by the Client Component */}
-                    <HousingCards cards={cards} />
-                </div>
+            <div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-6">
+                <HousingCards cards={cards} />
             </div>
         </div>
     );

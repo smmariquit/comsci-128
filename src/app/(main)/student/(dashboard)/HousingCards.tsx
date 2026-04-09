@@ -3,9 +3,14 @@
 import { useState } from "react";
 import Image from "next/image";
 import DormModal from "./DormModal";
+import { getDormDetails } from "./_actions";
 
 export default function HousingCards({ cards }: { cards: any[] }) {
   const [selectedDorm, setSelectedDorm] = useState<any>(null);
+  const handleCardClick = async (id: number) => {
+    const fullDormData = await getDormDetails(id);
+    setSelectedDorm(fullDormData);
+};
 
   return (
     <>
@@ -13,7 +18,7 @@ export default function HousingCards({ cards }: { cards: any[] }) {
         {cards.map((card) => (
           <div 
             key={card.id} 
-            onClick={() => setSelectedDorm(card)} // Trigger modal
+            onClick={() => setSelectedDorm(card)}
             className="cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02]"
           >
             <Image
@@ -31,10 +36,12 @@ export default function HousingCards({ cards }: { cards: any[] }) {
       </div>
 
       {/* Render the Modal */}
-      <DormModal 
-        dorm={selectedDorm} 
-        onClose={() => setSelectedDorm(null)} 
-      />
+      {selectedDorm && (
+                <DormModal 
+                    dorm={selectedDorm} 
+                    onClose={() => setSelectedDorm(null)} 
+                />
+            )}
     </>
   );
 }
