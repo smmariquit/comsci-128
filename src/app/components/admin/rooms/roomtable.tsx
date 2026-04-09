@@ -220,7 +220,13 @@ export default function RoomTable({
                     {row.assigned_tenants.length === 0 ? (
                       <span style={{ color: C.teal, opacity: 0.6 }}>Unassigned</span>
                     ) : (
-                      row.assigned_tenants.join(", ")
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        {row.assigned_tenants.map((t) => (
+                          <span key={t.id} style={{ fontSize: 11, fontWeight: 500, color: C.navy }}>
+                            {t.name}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </td>
 
