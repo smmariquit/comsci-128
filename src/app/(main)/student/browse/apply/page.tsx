@@ -1,19 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import StudentNavBar from "../../_components/StudentNavBar"; 
+import { getDormDetails } from "../_actions";
 
 export default function ApplyPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const dormId = searchParams.get("id");
+    const [dormData, setDormData] = useState<any>(null);
 
     const room_types = ["Male", "Female", "Coed", "No preference"];
 
     const [selectedRoomType, setSelectedRoomType] = useState("");
     const [moveOutDate, setMoveOutDate] = useState("");
     const [fileName, setFileName] = useState<string>("");
+
+    useEffect(() => {
+        async function fetchData() {
+            if (dormId) {
+                const details = await getDormDetails(dormId);
+                setDormData(details);
+            }
+        }
+        fetchData();
+    }, [dormId]);
+
+    // Use a fallback while loading
+    const headerName = dormData?.housing_name || "Housing";
 
     return (
         <div
@@ -45,7 +60,7 @@ export default function ApplyPage() {
                     {/* Header banner */}
                     <div className="rounded-[10px] bg-[#1C2632] px-6 py-4 text-white">
                         <h2 className="text-xl font-medium font-[family-name:var(--font-geist-sans)]">
-                            Application for Men’s Dorm
+                            Application for {headerName}
                         </h2>
                     </div>
 
