@@ -94,6 +94,8 @@ const assignRoom = async (roomId: number, studentId: string) => {
 	try {
 		await roomData.insertAccommodation(roomId, studentId);
 
+		await roomData.getOccupantCount(roomId, 1);
+
 		return { success: true };
 	} catch (error: any) {
 		console.error("Service Error (assignStudent): ", error.message);
@@ -104,6 +106,8 @@ const assignRoom = async (roomId: number, studentId: string) => {
 const unassignRoom = async (roomId: number, studentId: string) => {
 	try {
 		await roomData.endAccommodation(roomId, studentId);
+
+		await roomData.getOccupantCount(roomId, -1)
 
 		return { success: true }
 	} catch (error: any) {

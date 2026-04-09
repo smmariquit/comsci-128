@@ -141,8 +141,8 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 			room_code: room.room_code,
 			housing_name: room.housing?.housing_name || "Unassigned",
 			room_type: derivedType,
-			maximum_occupants: room.maximum_occupants || 0,
-			current_occupants: room.tenants?.length || 0,
+			maximum_occupants: room.maximum_occupants,
+			current_occupants: room.occupants_count,
 			occupancy_status: derivedStatus,
 			assigned_tenants: (room.tenants || []).map((t: any) => {
 				const s = t.student;
@@ -181,7 +181,7 @@ async function endAccommodation(roomId: number, studentId: string) {
 		.eq("room_id", roomId)
 		.eq("account_number", studentId)
 	
-	if (error) throw new Error(error.message)
+	if (error) throw new Error(error.message);
 }
 
 async function findUnassignedStudents() {
@@ -195,7 +195,7 @@ async function findUnassignedStudents() {
 			)	
 		`);
 
-	if (error) throw new Error(error.message)
+	if (error) throw new Error(error.message);
 
 	return (data || []).map(item => {
 		const u = Array.isArray(item.user) ? item.user[0] : item.user;
@@ -205,6 +205,29 @@ async function findUnassignedStudents() {
 			name: u ? `${u.first_name || ""} ${u.last_name || ""}`.trim() : ""
 		};
 	});
+}
+
+async function getOccupantCount(roomId: number, increment: number) {
+	const { data, error: fetchError } = await supabase
+		.from("room")
+		.select('occupants_count, maximum_occupants')
+		.eq('room_id', roomId)
+		.single();
+	
+	if (fetchError) throw new Error(fetchError.message);
+
+	const newCount = Math.max(0, (data.occupants_count || 0) + increment)
+
+	const { error: updateError } = await supabase
+	.from("room")
+	.update({
+		occupants_count: newCount,
+	})
+	.eq('room_id', roomId);
+
+	if (updateError) throw new Error(updateError.message);
+	
+	return newCount;
 }
 
 export const roomData = {
@@ -218,4 +241,5 @@ export const roomData = {
 	insertAccommodation,
 	endAccommodation,
 	findUnassignedStudents,
+	getOccupantCount,
 };
