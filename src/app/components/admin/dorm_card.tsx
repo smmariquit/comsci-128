@@ -76,21 +76,32 @@ export default function DormCard({
       </div>
 
       {/* BODY */}
-      <div style={{ padding: 18 }}>
-        <h2>{totalRooms}</h2>
-        <p>Rooms</p>
+      <div style={{ padding: 18, flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        
+        
+        <div style={{ flex: 1, display: "flex", justifyContent: "space-between" }}>
+        <p style={{ color: "#567375" }}>Rooms</p>
+         <h2 style={{ color: "#567375" }}>{totalRooms}</h2> 
+        </div>
+        <div style={{ flex: 1, display: "flex", justifyContent: "space-between" }}>
+        <p style={{ color: "#567375" }} >Occupied</p>
+         <h2 style={{ color: "#567375" }}>{occupiedRooms}</h2>
+        </div>
+        <div style={{ flex: 1, display: "flex", justifyContent: "space-between" }}>
+        <p style={{ color: "#567375" }}>Vacant</p>
+         <h2 style={{ color: "#567375" }}>{vacantRooms}</h2>
+        </div>
+  
+        
 
-  <h2>{occupiedRooms}</h2>
-        <p>Occupied</p>
-
-  <h2>{vacantRooms}</h2>
-        <p>Vacant</p>
+  
+        
 
         {/* Occupancy */}
         <div style={{ marginTop: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>Occupancy</span>
-            <span>{occupancyRate}%</span>
+            <span style={{ color: "#567375" }} > Occupancy</span>
+            <span style={{ color: "#567375" }}>{occupancyRate}%</span>
           </div>
 
           <div style={{
@@ -118,7 +129,7 @@ export default function DormCard({
       }}>
         <div>
           <span style={{ color: "#567375" }}>Rent from </span>
-          <span style={{ fontWeight: 700 }}>₱{minRent.toLocaleString()}</span>
+          <span style={{ fontWeight: 700, color: "#1D9E75" }}>₱{minRent.toLocaleString()}</span>
           <span style={{ color: "#567375" }}>/mo</span>
         </div>
 
@@ -129,7 +140,9 @@ export default function DormCard({
           borderRadius: 6,
           border: "1px solid #CEC7B0",
           background: "transparent",
-          cursor: "pointer"
+          cursor: "pointer",
+          color: "#1C2632",
+          
         }}>
           Manage →
         </button>
