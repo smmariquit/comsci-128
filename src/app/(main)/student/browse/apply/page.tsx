@@ -29,7 +29,7 @@ export default function ApplyPage() {
             <StudentNavBar path="Housing Browser > Apply" />
 
             {/* Application */}
-            <div className="mx-auto mt-8 w-[90vw] flex-1 bg-[#EDE9DE] p-10 rounded-t-[20px]">
+            <div className="mx-auto mt-8 w-[90vw] flex-1 bg-[#EDE9DE] p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)]">
                 
                 {/* Back Button */}
                 <button 
@@ -53,9 +53,9 @@ export default function ApplyPage() {
                     <div className="flex flex-col md:flex-row gap-10">
                         
                         {/* LEFT COLUMN */}
-                        <div className="w-full md:w-[350px] space-y-4">
+                        <div className="w-full md:w-[350px] space-y-4 ">
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-bold text-[#1C2632]">
+                                <label className="block text-sm font-bold text-[#1C2632] ">
                                     Preferred room type:
                                 </label>
                                 <div className="relative">
