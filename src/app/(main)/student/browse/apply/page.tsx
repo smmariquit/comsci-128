@@ -27,7 +27,6 @@ export default function ApplyPage() {
         fetchData();
     }, [dormId]);
 
-    // Use a fallback while loading
     const headerName = dormData?.housing_name || "Housing";
 
     return (
