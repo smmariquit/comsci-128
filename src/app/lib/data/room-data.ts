@@ -5,7 +5,7 @@ import {
 	RoomUpdate,
 	RoomWithParentHousing,
 } from "@/models/room";
-import { RoomRow } from "@/components/admin/rooms/roomtable";
+import { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
 
 async function create(data: RoomInsert): Promise<Room | null> {
 	const { data: newRecord, error } = await supabase
@@ -121,32 +121,29 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 	if (error) throw new Error(error.message);
 
 	return (data || []).map((room) => {
-		let displayStatus = room.occupancy_status;
-		const normalizedStatus = displayStatus?.toLowerCase() || "";
+		const occupantCount = room.tenants?.length || 0;
+		const max = room.maximum_occupants;
 
-		// force tell it is occupied
-		if (normalizedStatus.includes("occupied") || normalizedStatus.includes("partially occupied")) {
-			displayStatus = "Occupied";
-		} else {
-			displayStatus = "Empty"
-		}
+		let derivedStatus: OccupancyStatus = "Empty";
+		if (occupantCount > 0) {
+			derivedStatus = "Occupied";
+		} 
 
-		let displayType: RoomRow['room_type'] = "Shared" //default (for <= 3)
-
-		if (room.maximum_occupants === 1) {
-			displayType = "Single";
-		} else if (room.maximum_occupants === 2) {
-			displayType = "Double";
+		let derivedType: RoomRow['room_type'] = "Shared";
+		if (max === 1) {
+			derivedType = "Single";
+		} else if (max === 2) {
+			derivedType = "Double";
 		}
 
 		return {
 			room_id: room.room_id,
 			room_code: room.room_code,
 			housing_name: room.housing?.housing_name || "Unassigned",
-			room_type: displayType,
+			room_type: derivedType,
 			maximum_occupants: room.maximum_occupants || 0,
 			current_occupants: room.tenants?.length || 0,
-			occupancy_status: displayStatus,
+			occupancy_status: derivedStatus,
 			assigned_tenants: (room.tenants || []).map((t: any) => {
 				const s = t.student;
 				const firstName = s?.user?.first_name || "Unknown";
