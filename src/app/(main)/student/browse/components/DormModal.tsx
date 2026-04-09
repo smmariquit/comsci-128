@@ -72,11 +72,12 @@ export default function DormModal({ dorm, onClose }: DormModalProps) {
 
           {/* Action Button */}
           <div className="flex justify-end pt-6">
-            <button 
-              className="rounded-full bg-[#C9642A] px-10 py-2.5 font-bold text-white transition-transform hover:scale-105 active:scale-95 font-[family-name:var(--font-geist-sans)]"
-            >
-              Apply
-            </button>
+              <Link 
+                href={`/student/browse/apply?id=${dorm.id}`} // Passing the ID via query param
+                className="rounded-full bg-[#C9642A] px-10 py-2.5 font-bold text-white transition-transform hover:scale-105 active:scale-95 font-[family-name:var(--font-geist-sans)]"
+              >
+                Apply
+              </Link>
           </div>
         </div>
       </div>

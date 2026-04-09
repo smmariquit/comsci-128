@@ -1,6 +1,6 @@
 import Image from "next/image";
 import SearchBar from "./components/SearchBar"; 
-import StudentNavBar from "./components/StudentNavBar";
+import StudentNavBar from "../components/StudentNavBar";
 import HousingCards from "./components/HousingCards";
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
