@@ -161,8 +161,9 @@ export default function Page() {
       const liveRooms = await roomData.findAllRoomDetailed();
       setRooms(liveRooms);
 
-      setShowAssignModal(false);
-      setSelectedRoom(null);
+      const updateSelected = liveRooms.find(r => r.room_id === selectedRoom.room_id);
+      setSelectedRoom(updateSelected || null);
+
     } catch (err) {
       console.error("Failed to unassign: ", err);
     } finally {

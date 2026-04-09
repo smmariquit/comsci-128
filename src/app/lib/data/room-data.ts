@@ -180,10 +180,9 @@ async function insertAccommodation(roomId: number, studentId: string) {
 async function endAccommodation(roomId: number, studentId: string) {
 	const { error } = await supabase
 		.from("student_accommodation_history")
-		.update({ moveout_date: new Date().toISOString().split('T')[0] })
+		.delete()
 		.eq("room_id", roomId)
 		.eq("account_number", studentId)
-		.is("moveout_date", null);
 	
 	if (error) throw new Error(error.message)
 }

@@ -111,6 +111,8 @@ const unassignRoom = async (roomId: number, studentId: string) => {
 
 		if (!currentRoom || currentRoom.current_occupants === 0) {
 			await roomData.update(roomId, { occupancy_status: "Empty" as any});
+		} else {
+			await roomData.update(roomId, { occupancy_status: "Partially Occupied" as any});
 		}
 
 		return { success: true }
