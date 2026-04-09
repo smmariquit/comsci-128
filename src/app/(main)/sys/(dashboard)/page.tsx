@@ -121,7 +121,7 @@ export default function DashboardPage({
 		const [error, setError] = useState<string | null>(null);
 		const [stats, setStats] = useState<StatCardData[]>([
 			{ label: 'TOTAL USERS',      value: 0, sub: '↑ 3 added this month',  dark: true },
-			{ label: 'ACTIVE USERS',     value: 0, sub: '79% users online now',   dark: false },
+			{ label: 'ACTIVE USERS',     value: 0, sub: 'Hindi Deleted na Users',   dark: false },
 			{ label: 'TOTAL MANAGERS',   value: 0, sub: '↑ 79 added this month', dark: false },
 			{ label: 'TOTAL PROPERTIES', value: 0, sub: 'Dormitories managed',    dark: false },
 		]);

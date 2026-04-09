@@ -110,6 +110,18 @@ async function countAllUser(): Promise<number | null> {
 	return count;
 }
 
+// Counts only active users (not marked as deleted)
+async function countActiveUsers():Promise<number | null> {
+	const { count, error } = await supabase
+      .from("user")
+      .select("*", { count: "exact", head: true })
+      .eq("is_deleted", false);
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
 export const userData = {
 	createUser,
 	findAllUsers,
@@ -117,5 +129,6 @@ export const userData = {
 	findByEmail,
 	update,
 	deactivateById,
-	countAllUser
+	countAllUser,
+	countActiveUsers
 };
