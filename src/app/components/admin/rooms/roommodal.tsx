@@ -422,7 +422,7 @@ export function OverrideAssignModal({
               background: "rgba(201,100,42,0.08)", borderRadius: 8, padding: "12px 14px",
               fontSize: 11, color: C.orange, fontFamily: "'DM Mono', monospace", textAlign: "center"
             }}>
-              ({room.current_occupants}/{room.maximum_occupants}). 
+              Room is full! ({room.current_occupants}/{room.maximum_occupants}) 
             </div>
           )}
         </div>
