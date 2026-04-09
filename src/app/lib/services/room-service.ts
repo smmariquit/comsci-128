@@ -92,9 +92,13 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 
 const assignRoom = async (roomId: number, studentId: string) => {
 	try {
-		await roomData.insertAccommodation(roomId, studentId);
+		const account_number = await roomData.getAccountbyStudentNumber(studentId);
+
+		await roomData.insertAccommodation(roomId, account_number);
 
 		await roomData.getOccupantCount(roomId, 1);
+
+		await roomData.updateStudentHousingStatus(account_number, 'Assigned');
 
 		return { success: true };
 	} catch (error: any) {
@@ -103,11 +107,22 @@ const assignRoom = async (roomId: number, studentId: string) => {
 	}
 };
 
-const unassignRoom = async (roomId: number, studentId: string) => {
+const unassignRoom = async (roomId: number, studentIdOrAccount: string | number) => {
 	try {
-		await roomData.endAccommodation(roomId, studentId);
+		let account_number: number;
 
+		if (typeof studentIdOrAccount === "string" && studentIdOrAccount.length > 5) {
+             account_number = await roomData.getAccountbyStudentNumber(studentIdOrAccount);
+        } else {
+             // If it's the internal ID from the 'Remove' button, just use it
+             account_number = Number(studentIdOrAccount);
+        }
+
+		if (isNaN(account_number)) throw new Error("Invalid account number");
+
+		await roomData.endAccommodation(roomId, account_number);
 		await roomData.getOccupantCount(roomId, -1)
+		await roomData.updateStudentHousingStatus(account_number, 'Not Assigned');
 
 		return { success: true }
 	} catch (error: any) {
