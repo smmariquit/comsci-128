@@ -1,13 +1,34 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { C } from "@/lib/palette";
 import BillTable, { MOCK_BILLS } from "@/app/components/admin/billings/billingtable";
 import BillFilters from "@/app/components/admin/billings/billingfilters";
-import  IssueBillModal from "@/app/components/admin/billings/billingmodal";
+import IssueBillModal from "@/app/components/admin/billings/billingmodal";
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
-import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
+// Import the new types from your updated modal
+import type { HousingOption, IssueBillPayload } from "@/app/components/admin/billings/billingmodal";
+
+// ── Mock Data for the Modal ───────────────────────────────────────────────────
+// This represents the hierarchical data fetched from your Supabase backend
+const MOCK_HOUSING_DATA: HousingOption[] = [
+  {
+    housing_name: "UP Acacia Residence Hall",
+    rooms: [
+      { room_code: "AC-101", student_name: "Maria Santos", student_account_number: 1001 },
+      { room_code: "AC-102", student_name: "Juan Dela Cruz", student_account_number: 1002 },
+      { room_code: "AC-103", student_name: "Leonor Rivera", student_account_number: 1003 },
+    ],
+  },
+  {
+    housing_name: "Elbids Apartment Complex",
+    rooms: [
+      { room_code: "Unit A", student_name: "Jose Rizal", student_account_number: 2001 },
+      { room_code: "Unit B", student_name: "Andres Bonifacio", student_account_number: 2002 },
+    ],
+  },
+];
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
@@ -63,10 +84,11 @@ function SummaryCard({
 
 // ── Issue Bill button ─────────────────────────────────────────────────────────
 
-function IssueBillButton({ onClick }: { onClick: () => void }) {
+function IssueBillButton({ onClick, disabled, loading }: { onClick: () => void; disabled?: boolean; loading?: boolean }) {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -74,38 +96,39 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
         fontFamily: "'DM Sans', sans-serif",
         fontSize: 13,
         fontWeight: 600,
-        background: C.orange,
+        background: disabled ? "#ccc" : C.orange,
         color: "#fff",
         border: "none",
         borderRadius: 10,
         padding: "0 20px",
         height: 40,
-        cursor: "pointer",
+        cursor: disabled ? "not-allowed" : "pointer",
         whiteSpace: "nowrap",
         flexShrink: 0,
         width: "fit-content",
-        
+        transition: "background 0.2s",
       }}
     >
       {/* Receipt icon */}
-      <svg
-        width="14" height="14" viewBox="0 0 24 24"
-        fill="none" stroke="#fff" strokeWidth="2.2"
-        strokeLinecap="round" strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M14 2H6a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2z"/>
-        <line x1="9" y1="9"  x2="15" y2="9"/>
-        <line x1="9" y1="13" x2="15" y2="13"/>
-      </svg>
-      Issue New Bill
+      {!loading && (
+        <svg
+          width="14" height="14" viewBox="0 0 24 24"
+          fill="none" stroke="#fff" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2z"/>
+          <line x1="9" y1="9"  x2="15" y2="9"/>
+          <line x1="9" y1="13" x2="15" y2="13"/>
+        </svg>
+      )}
+      {loading ? "Loading Setup..." : "Issue New Bill"}
     </button>
   );
 }
 
-// ── Housing options from mock ─────────────────────────────────────────────────
-
-const HOUSING_OPTIONS = [...new Set(MOCK_BILLS.map((b) => b.housing_name))];
+// ── Housing options from mock (for the filter dropdown) ───────────────────────
+const HOUSING_FILTER_OPTIONS = [...new Set(MOCK_BILLS.map((b) => b.housing_name))];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PAGE
@@ -121,8 +144,27 @@ export default function BillingPage() {
   const [dueDateFrom, setDueDateFrom] = useState("");
   const [dueDateTo,   setDueDateTo]   = useState("");
 
-  // ── Modal state ─────────────────────────────────────────────────────────────
+  // ── Modal & Data Fetching State ─────────────────────────────────────────────
   const [issueOpen, setIssueOpen] = useState(false);
+  const [modalHousingData, setModalHousingData] = useState<HousingOption[]>([]);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
+  // Simulate fetching hierarchical housing/room data for the modal
+  useEffect(() => {
+    async function fetchModalData() {
+      setIsDataLoading(true);
+      try {
+        // Simulate a network delay (e.g., Supabase join query)
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+        setModalHousingData(MOCK_HOUSING_DATA);
+      } catch (error) {
+        console.error("Failed to load modal data", error);
+      } finally {
+        setIsDataLoading(false);
+      }
+    }
+    fetchModalData();
+  }, []);
 
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -164,13 +206,23 @@ export default function BillingPage() {
   }
 
   // ── Issue Bill submit ───────────────────────────────────────────────────────
-  function handleIssue(form: IssueBillForm) {
-    console.log("Issue bill:", form);
-    // TODO: for each charge in form.charges, POST to /api/bills:
-    //   { student_name, housing_name, student_account_number,
-    //     bill_type: charge.type, amount: charge.amount,
-    //     due_date: form.due_date, issue_date: form.issue_date,
-    //     status: "Pending", manager_account_number }
+  function handleIssue(payload: IssueBillPayload) {
+    console.log("🚀 Payload received from modal:", payload);
+    
+    // Example logic for processing the bulk payload:
+    // payload.targets.forEach(target => {
+    //   payload.charges.forEach(charge => {
+    //     // POST to /api/bills or supabase.from('bill').insert({
+    //     //   student_account_number: target.student_account_number,
+    //     //   housing_name: payload.housing_name,
+    //     //   bill_type: charge.type,
+    //     //   amount: parseFloat(charge.amount),
+    //     //   due_date: payload.due_date,
+    //     //   status: "Pending"
+    //     // })
+    //   });
+    // });
+    
     setIssueOpen(false);
   }
 
@@ -238,13 +290,11 @@ export default function BillingPage() {
             status={status}           onStatus={setStatus}
             billType={billType}       onBillType={setBillType}
             housing={housing}         onHousing={setHousing}
-            housingOptions={HOUSING_OPTIONS}
+            housingOptions={HOUSING_FILTER_OPTIONS}
             dueDateFrom={dueDateFrom} onDueDateFrom={setDueDateFrom}
             dueDateTo={dueDateTo}     onDueDateTo={setDueDateTo}
           />
-          
         </div>
-        
       </div>
           
       {/* ── Table ─────────────────────────────────────────────────────────── */}
@@ -255,20 +305,20 @@ export default function BillingPage() {
         onDelete={handleDelete}
       />
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <IssueBillButton onClick={() => setIssueOpen(true)} />
+          <IssueBillButton 
+            onClick={() => setIssueOpen(true)} 
+            disabled={isDataLoading}
+            loading={isDataLoading}
+          />
       </div>
-      
-
         
       {/* ── Issue Bill Modal ───────────────────────────────────────────────── */}
       <IssueBillModal
         open={issueOpen}
-        housingOptions={HOUSING_OPTIONS}
+        housingOptions={modalHousingData}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
       />
-
-      
 
     </div>
   );

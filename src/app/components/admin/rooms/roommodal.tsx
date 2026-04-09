@@ -373,7 +373,7 @@ export function OverrideAssignModal({
                       background: "#fff", padding: "8px 12px", borderRadius: 6, border: `1px solid ${C.dividerLight}`
                     }}>
                       <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>
-                        {tenant.name}
+                        {tenant.name} 
                       </span>
                       <button 
                         onClick={() => onUnassign(tenant.id)}

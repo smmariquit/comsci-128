@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { C } from "@/lib/palette";
-import type { BillRow, PaymentStatus, BillType } from "./billingtable";
+import type { BillRow, PaymentStatus, BillType } from "@/app/components/admin/billings/billingtable";
 
 type ExtendedBillType = BillType | "Other";
 
@@ -69,30 +69,15 @@ export interface ChargeItem {
   amount: string;
 }
 
-export interface RoomOccupant {
-  room_code: string;
-  student_name: string;
-  student_account_number: number | null;
-}
-
-export interface HousingOption {
-  housing_name: string;
-  rooms: RoomOccupant[];
-}
-
-export interface IssueBillTarget {
-  student_name: string;
-  student_account_number: number | null;
-  room_code: string;
-}
-
-export interface IssueBillPayload {
-  is_bulk: boolean;
-  housing_name: string;
-  due_date: string;
-  issue_date: string;
-  charges: ChargeItem[];
-  targets: IssueBillTarget[]; // 1 item for single, N items for bulk
+/** Matches the `bill` schema: one row per charge item */
+export interface IssueBillForm {
+  student_name:           string;
+  housing_name:           string;
+  student_account_number: number | null; // null until Supabase join available
+  room_code:              string;
+  due_date:               string;   // "YYYY-MM-DD"
+  issue_date:             string;   // auto-set to today
+  charges:                ChargeItem[];
 }
 
 // ── Shared UI helpers ─────────────────────────────────────────────────────────
@@ -161,30 +146,22 @@ function SectionDivider({ label }: { label: string }) {
   );
 }
 
-function SelectField({ id, label, value, onChange, children, flex, disabled }: {
+function SelectField({ id, label, value, onChange, children, flex }: {
   id: string; label: string; value: string;
-  onChange: (v: string) => void; children: React.ReactNode; flex?: number; disabled?: boolean;
+  onChange: (v: string) => void; children: React.ReactNode; flex?: number;
 }) {
   return (
     <div style={{ flex: flex ?? 1, display: "flex", flexDirection: "column" }}>
       <label htmlFor={id} style={labelStyle}>{label}</label>
       <div style={{ position: "relative" }}>
-        <select 
-          id={id} 
-          value={value} 
-          onChange={(e) => onChange(e.target.value)} 
-          disabled={disabled}
-          style={disabled ? readonlyStyle : selectStyle}
-        >
+        <select id={id} value={value} onChange={(e) => onChange(e.target.value)} style={selectStyle}>
           {children}
         </select>
-        {!disabled && (
-          <svg style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
-            width="10" height="10" viewBox="0 0 24 24" fill="none"
-            stroke={T.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        )}
+        <svg style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+          width="10" height="10" viewBox="0 0 24 24" fill="none"
+          stroke={T.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
       </div>
     </div>
   );
@@ -196,9 +173,9 @@ function SelectField({ id, label, value, onChange, children, flex, disabled }: {
 
 interface IssueBillModalProps {
   open:           boolean;
-  housingOptions: HousingOption[]; 
+  housingOptions: string[];          // list of housing_name strings
   onClose:        () => void;
-  onSubmit:       (payload: IssueBillPayload) => void;
+  onSubmit:       (form: IssueBillForm) => void;
 }
 
 export default function IssueBillModal({
@@ -208,33 +185,21 @@ export default function IssueBillModal({
   const today = new Date().toISOString().split("T")[0];
 
   // ── Form state ──────────────────────────────────────────────────────────────
-  const [mode, setMode] = useState<"single" | "bulk">("single");
   const [housingName,  setHousingName]  = useState("");
+  const [studentName,  setStudentName]  = useState("");
   const [roomCode,     setRoomCode]     = useState("");
-  const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [dueDate,      setDueDate]      = useState("");
   const [charges, setCharges] = useState<ChargeItem[]>([
     { id: "1", type: "Rent",    amount: "" },
     { id: "2", type: "Utility", amount: "" },
   ]);
 
-  // Derived state for the currently selected housing object
-  const activeHousing = useMemo(() => 
-    housingOptions.find(h => h.housing_name === housingName), 
-  [housingName, housingOptions]);
-
-  // Derived state for single mode's auto-assigned student
-  const activeSingleRoom = useMemo(() => 
-    activeHousing?.rooms.find(r => r.room_code === roomCode),
-  [activeHousing, roomCode]);
-
   // Reset when modal opens
   useEffect(() => {
     if (open) {
-      setMode("single");
       setHousingName("");
+      setStudentName("");
       setRoomCode("");
-      setSelectedRooms([]);
       setDueDate("");
       setCharges([
         { id: "1", type: "Rent",    amount: "" },
@@ -243,15 +208,9 @@ export default function IssueBillModal({
     }
   }, [open]);
 
-  // Reset room selections when housing changes
-  useEffect(() => {
-    setRoomCode("");
-    setSelectedRooms([]);
-  }, [housingName]);
-
   if (!open) return null;
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  // ── Charge helpers ──────────────────────────────────────────────────────────
   function addCharge() {
     setCharges((p) => [...p, { id: String(Date.now()), type: "Other", amount: "" }]);
   }
@@ -264,55 +223,20 @@ export default function IssueBillModal({
     setCharges((p) => p.map((c) => c.id === id ? { ...c, [field]: value } : c));
   }
 
-  function toggleBulkRoom(code: string) {
-    setSelectedRooms(prev => 
-      prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code]
-    );
-  }
-
-  function toggleAllBulkRooms() {
-    if (!activeHousing) return;
-    if (selectedRooms.length === activeHousing.rooms.length) {
-      setSelectedRooms([]);
-    } else {
-      setSelectedRooms(activeHousing.rooms.map(r => r.room_code));
-    }
-  }
-
   const validCharges = charges.filter((c) => parseFloat(c.amount) > 0);
   const totalAmount  = charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
-  
-  const hasValidTargets = mode === "single" ? !!activeSingleRoom : selectedRooms.length > 0;
-  const isValid      = !!housingName && !!dueDate && hasValidTargets && validCharges.length > 0;
+  const isValid      = !!housingName && !!studentName && !!dueDate && validCharges.length > 0;
 
   function handleSubmit() {
     if (!isValid) return;
-
-    let targets: IssueBillTarget[] = [];
-
-    if (mode === "single" && activeSingleRoom) {
-      targets = [{
-        student_name: activeSingleRoom.student_name,
-        student_account_number: activeSingleRoom.student_account_number,
-        room_code: activeSingleRoom.room_code
-      }];
-    } else if (mode === "bulk" && activeHousing) {
-      targets = activeHousing.rooms
-        .filter(r => selectedRooms.includes(r.room_code))
-        .map(r => ({
-          student_name: r.student_name,
-          student_account_number: r.student_account_number,
-          room_code: r.room_code
-        }));
-    }
-
     onSubmit({
-      is_bulk: mode === "bulk",
-      housing_name: housingName,
-      due_date: dueDate,
-      issue_date: today,
-      charges: validCharges,
-      targets,
+      student_name:           studentName.trim(),
+      housing_name:           housingName,
+      student_account_number: null,          // resolved server-side / Supabase
+      room_code:              roomCode.trim(),
+      due_date:               dueDate,
+      issue_date:             today,
+      charges,
     });
   }
 
@@ -358,7 +282,7 @@ export default function IssueBillModal({
               Issue a Bill
             </div>
             <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>
-              Generate billing records for your tenants
+              Generate a new billing record for a tenant
             </div>
           </div>
           <CloseBtn onClose={onClose} light />
@@ -371,36 +295,7 @@ export default function IssueBillModal({
           display: "flex", flexDirection: "column", gap: 18,
         }}>
 
-          {/* Mode Toggle */}
-          <div style={{ 
-            display: "flex", background: T.bg, padding: 4, borderRadius: 10, border: "1px solid #e8e4db" 
-          }}>
-            <button 
-              onClick={() => setMode("single")}
-              style={{
-                flex: 1, padding: "8px 0", borderRadius: 7, border: "none", cursor: "pointer",
-                background: mode === "single" ? "#fff" : "transparent",
-                boxShadow: mode === "single" ? "0 1px 3px rgba(0,0,0,0.05)" : "none",
-                fontSize: 13, fontWeight: 600, color: mode === "single" ? T.navy : T.teal,
-                transition: "all 0.2s"
-              }}
-            >
-              Single Issue
-            </button>
-            <button 
-              onClick={() => setMode("bulk")}
-              style={{
-                flex: 1, padding: "8px 0", borderRadius: 7, border: "none", cursor: "pointer",
-                background: mode === "bulk" ? "#fff" : "transparent",
-                boxShadow: mode === "bulk" ? "0 1px 3px rgba(0,0,0,0.05)" : "none",
-                fontSize: 13, fontWeight: 600, color: mode === "bulk" ? T.navy : T.teal,
-                transition: "all 0.2s"
-              }}
-            >
-              Bulk Issue
-            </button>
-          </div>
-
+          {/* Section 1 — Billing Target */}
           <SectionDivider label="Billing Target" />
 
           {/* Row: Housing + Due Date */}
@@ -411,7 +306,7 @@ export default function IssueBillModal({
             >
               <option value="">Select a property…</option>
               {housingOptions.map((h) => (
-                <option key={h.housing_name} value={h.housing_name}>{h.housing_name}</option>
+                <option key={h} value={h}>{h}</option>
               ))}
             </SelectField>
 
@@ -428,112 +323,82 @@ export default function IssueBillModal({
             </div>
           </div>
 
-          {/* Dynamic Target Selection (Single vs Bulk) */}
-          {mode === "single" ? (
-            <div style={{ display: "flex", gap: 14 }}>
-              <SelectField
-                id="bill-room" label="Room / Unit Code" flex={2}
-                value={roomCode} onChange={setRoomCode}
-                disabled={!housingName}
-              >
-                <option value="">{housingName ? "Select room…" : "Select property first"}</option>
-                {activeHousing?.rooms.map(r => (
-                  <option key={r.room_code} value={r.room_code}>{r.room_code}</option>
-                ))}
-              </SelectField>
+          {/* Row: Student name + Room code */}
+          <div style={{ display: "flex", gap: 14 }}>
+            <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
+              <label htmlFor="bill-student" style={labelStyle}>Student Name</label>
+              <input
+                id="bill-student"
+                type="text"
+                placeholder="e.g. Santos, Maria"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
+              <label htmlFor="bill-room" style={labelStyle}>Room / Unit Code</label>
+              <input
+                id="bill-room"
+                type="text"
+                placeholder="e.g. RM-0041"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+          </div>
 
-              <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
-                <label htmlFor="bill-student" style={labelStyle}>Auto-assigned Student</label>
-                <input
-                  id="bill-student"
-                  type="text"
-                  readOnly
-                  placeholder="Select a room to assign"
-                  value={activeSingleRoom ? activeSingleRoom.student_name : ""}
-                  style={readonlyStyle}
-                />
-              </div>
+          {/* Issue date — read-only */}
+          <div style={{ display: "flex", gap: 14 }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <label htmlFor="bill-issue" style={labelStyle}>Issue Date</label>
+              <input
+                id="bill-issue"
+                readOnly
+                value={today}
+                style={readonlyStyle}
+              />
+              <span style={{ fontSize: 10.5, color: T.teal, marginTop: 5 }}>
+                Auto-set to today
+              </span>
             </div>
-          ) : (
-            <div style={{ 
-              background: T.bg, border: "1px solid #e8e4db", borderRadius: 10, padding: 14 
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <span style={labelStyle}>Select Rooms to Bill</span>
-                {activeHousing && activeHousing.rooms.length > 0 && (
-                  <button 
-                    onClick={toggleAllBulkRooms}
-                    style={{ 
-                      background: "none", border: "none", color: T.orange, 
-                      fontSize: 11, fontWeight: 700, cursor: "pointer", textTransform: "uppercase" 
-                    }}
-                  >
-                    {selectedRooms.length === activeHousing.rooms.length ? "Deselect All" : "Select All"}
-                  </button>
-                )}
-              </div>
-              
-              {!activeHousing ? (
-                <div style={{ fontSize: 12, color: T.teal, padding: "10px 0", textAlign: "center" }}>
-                  Please select a property first
-                </div>
-              ) : activeHousing.rooms.length === 0 ? (
-                <div style={{ fontSize: 12, color: T.teal, padding: "10px 0", textAlign: "center" }}>
-                  No active occupants in this property
-                </div>
-              ) : (
-                <div style={{ 
-                  display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8,
-                  maxHeight: 140, overflowY: "auto", paddingRight: 4
-                }}>
-                  {activeHousing.rooms.map(r => (
-                    <label key={r.room_code} style={{ 
-                      display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
-                      background: selectedRooms.includes(r.room_code) ? "#fff" : "transparent",
-                      border: `1px solid ${selectedRooms.includes(r.room_code) ? T.teal : "#d4cfc6"}`,
-                      padding: "8px 12px", borderRadius: 8, transition: "all 0.15s"
-                    }}>
-                      <input 
-                        type="checkbox" 
-                        checked={selectedRooms.includes(r.room_code)}
-                        onChange={() => toggleBulkRoom(r.room_code)}
-                        style={{ accentColor: T.teal, width: 14, height: 14 }}
-                      />
-                      <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: T.navy }}>{r.room_code}</span>
-                        <span style={{ fontSize: 10.5, color: T.teal, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
-                          {r.student_name}
-                        </span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          </div>
 
           {/* Section 2 — Charges */}
-          <SectionDivider label={mode === "bulk" ? "Charges (Applied to all selected)" : "Charges"} />
+          <SectionDivider label="Charges" />
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {charges.map((charge, idx) => (
               <div key={charge.id} style={{
                 display: "flex", gap: 10, alignItems: "center",
-                background: T.bg, border: "1px solid #e8e4db", borderRadius: 10, padding: "11px 14px",
+                background: T.bg,
+                border: "1px solid #e8e4db",
+                borderRadius: 10,
+                padding: "11px 14px",
               }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: T.teal, width: 18, flexShrink: 0, textAlign: "center" }}>
+                {/* Index */}
+                <span style={{
+                  fontSize: 11, fontWeight: 700, color: T.teal,
+                  width: 18, flexShrink: 0, textAlign: "center",
+                }}>
                   {idx + 1}
                 </span>
 
+                {/* Bill type select */}
                 <div style={{ flex: 1, position: "relative" }}>
                   <label htmlFor={`c-type-${charge.id}`}
                     style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0 }}>
                     Charge Type
                   </label>
                   <select
-                    id={`c-type-${charge.id}`} value={charge.type} onChange={(e) => updateCharge(charge.id, "type", e.target.value)}
+                    id={`c-type-${charge.id}`}
+                    value={charge.type}
+                    onChange={(e) => updateCharge(charge.id, "type", e.target.value)}
                     style={{
-                      ...selectStyle, background: "transparent", border: "none", padding: "0 20px 0 0",
+                      ...selectStyle,
+                      background: "transparent", border: "none",
+                      padding: "0 20px 0 0",
                       fontWeight: 600, fontSize: 13, color: T.navy, width: "100%",
                     }}
                   >
@@ -548,28 +413,42 @@ export default function IssueBillModal({
                   </svg>
                 </div>
 
+                {/* Vertical divider */}
                 <div style={{ width: 1, height: 20, background: "#e2ddd6", flexShrink: 0 }} />
 
+                {/* Amount */}
                 <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: T.teal }}>₱</span>
-                  <label htmlFor={`c-amt-${charge.id}`} style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0 }}>
+                  <label htmlFor={`c-amt-${charge.id}`}
+                    style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0 }}>
                     Charge Amount
                   </label>
                   <input
-                    id={`c-amt-${charge.id}`} type="number" min={0} placeholder="0.00"
-                    value={charge.amount} onChange={(e) => updateCharge(charge.id, "amount", e.target.value)}
+                    id={`c-amt-${charge.id}`}
+                    type="number"
+                    min={0}
+                    placeholder="0.00"
+                    value={charge.amount}
+                    onChange={(e) => updateCharge(charge.id, "amount", e.target.value)}
                     style={{
-                      ...inputStyle, width: 110, background: "transparent", border: "none", padding: 0,
-                      fontWeight: 700, fontSize: 14, textAlign: "right", color: parseFloat(charge.amount) > 0 ? T.navy : "#aaa",
+                      ...inputStyle,
+                      width: 110,
+                      background: "transparent", border: "none", padding: 0,
+                      fontWeight: 700, fontSize: 14, textAlign: "right",
+                      color: parseFloat(charge.amount) > 0 ? T.navy : "#aaa",
                     }}
                   />
                 </div>
 
+                {/* Remove */}
                 <button
-                  onClick={() => removeCharge(charge.id)} aria-label={`Remove ${charge.type} charge`}
+                  onClick={() => removeCharge(charge.id)}
+                  aria-label={`Remove ${charge.type} charge`}
                   style={{
-                    background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                    width: 26, height: 26, borderRadius: 6, color: "#bbb", flexShrink: 0, transition: "color 0.15s",
+                    background: "none", border: "none", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    width: 26, height: 26, borderRadius: 6,
+                    color: "#bbb", flexShrink: 0, transition: "color 0.15s",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = T.orange)}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "#bbb")}
@@ -585,16 +464,25 @@ export default function IssueBillModal({
               </div>
             ))}
 
+            {/* Add charge */}
             <button
               onClick={addCharge}
               style={{
                 fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
-                padding: "10px 0", borderRadius: 10, border: "1.5px dashed #d4cfc6",
-                background: "transparent", color: T.teal, cursor: "pointer", width: "100%",
+                padding: "10px 0", borderRadius: 10,
+                border: "1.5px dashed #d4cfc6",
+                background: "transparent", color: T.teal,
+                cursor: "pointer", width: "100%",
                 transition: "border-color 0.15s, background 0.15s",
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = T.bg; e.currentTarget.style.borderColor = T.teal; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "#d4cfc6"; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background    = T.bg;
+                e.currentTarget.style.borderColor   = T.teal;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background    = "transparent";
+                e.currentTarget.style.borderColor   = "#d4cfc6";
+              }}
             >
               + Add Charge
             </button>
@@ -604,11 +492,18 @@ export default function IssueBillModal({
           <SectionDivider label="Summary" />
 
           <div style={{
-            background: T.bg, border: "1px solid #e8e4db", borderRadius: 10,
-            padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8,
+            background: T.bg,
+            border: "1px solid #e8e4db",
+            borderRadius: 10,
+            padding: "14px 16px",
+            display: "flex", flexDirection: "column", gap: 8,
           }}>
+            {/* Per-charge lines */}
             {validCharges.map((c) => (
-              <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: T.teal }}>
+              <div key={c.id} style={{
+                display: "flex", justifyContent: "space-between",
+                fontSize: 12, color: T.teal,
+              }}>
                 <span>{c.type}</span>
                 <span style={{ fontFamily: "'DM Mono', monospace" }}>
                   ₱{parseFloat(c.amount).toLocaleString("en-PH")}
@@ -620,17 +515,29 @@ export default function IssueBillModal({
               <div style={{ height: 1, background: "#e2ddd6", margin: "2px 0" }} />
             )}
 
+            {/* Grand total */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: T.navy, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Total {mode === "bulk" ? "Per Student" : "Amount"}
+              <span style={{
+                fontSize: 12, fontWeight: 700, color: T.navy,
+                textTransform: "uppercase", letterSpacing: 0.5,
+              }}>
+                Total Amount
               </span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: totalAmount > 0 ? T.navy : "#bbb", fontFamily: "'DM Mono', monospace" }}>
+              <span style={{
+                fontSize: 18, fontWeight: 800,
+                color: totalAmount > 0 ? T.navy : "#bbb",
+                fontFamily: "'DM Mono', monospace",
+              }}>
                 ₱{totalAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
               </span>
             </div>
 
+            {/* Validation hint */}
             {!isValid && (
-              <div style={{ fontSize: 11, color: T.orange, display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
+              <div style={{
+                fontSize: 11, color: T.orange,
+                display: "flex", alignItems: "center", gap: 5, marginTop: 2,
+              }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="10"/>
@@ -638,9 +545,8 @@ export default function IssueBillModal({
                   <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
                 {!housingName ? "Select a property to continue"
+                  : !studentName ? "Enter the student name"
                   : !dueDate ? "Set a due date"
-                  : mode === "single" && !roomCode ? "Select a room"
-                  : mode === "bulk" && selectedRooms.length === 0 ? "Select at least one room"
                   : "Add at least one charge with an amount"}
               </div>
             )}
@@ -650,21 +556,148 @@ export default function IssueBillModal({
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
         <div style={{
-          padding: "16px 24px", borderTop: "1px solid #f0ece4",
+          padding: "16px 24px",
+          borderTop: "1px solid #f0ece4",
           display: "flex", justifyContent: "space-between", alignItems: "center",
           flexShrink: 0, background: "#faf9f7",
         }}>
           <span style={{ fontSize: 11, color: T.teal }}>
-            {isValid 
-              ? `${validCharges.length * (mode === "single" ? 1 : selectedRooms.length)} bill${(validCharges.length * (mode === "single" ? 1 : selectedRooms.length)) > 1 ? "s" : ""} will be generated`
-              : "No charges to create yet"}
+            {validCharges.length > 0
+              ? `${validCharges.length} bill${validCharges.length > 1 ? "s" : ""} will be created`
+              : "No charges added yet"}
           </span>
           <div style={{ display: "flex", gap: 10 }}>
             <CancelBtn onClose={onClose} />
-            <PrimaryBtn label={mode === "bulk" ? "Issue Bills ✓" : "Issue Bill ✓"} disabled={!isValid} onClick={handleSubmit} />
+            <PrimaryBtn label="Issue Bill ✓" disabled={!isValid} onClick={handleSubmit} />
           </div>
         </div>
 
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ViewBillModal (unchanged — kept here for co-location)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const STATUS_COLOR: Record<PaymentStatus, { text: string; bg: string; dot: string }> = {
+  Paid:    { text: "#2a7d4f", bg: "rgba(42,125,79,0.10)",   dot: "#2a7d4f"  },
+  Pending: { text: "#A07820", bg: "rgba(227,175,100,0.18)", dot: "#c8960a"  },
+  Overdue: { text: C.orange,  bg: "rgba(201,100,42,0.13)",  dot: C.orange   },
+};
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div style={{
+      display: "flex", justifyContent: "space-between", alignItems: "center",
+      padding: "10px 0", borderBottom: "1px solid #f0ece4",
+    }}>
+      <span style={{
+        fontSize: 10.5, fontWeight: 600, color: T.teal,
+        textTransform: "uppercase", letterSpacing: 0.7,
+        fontFamily: "'DM Sans', sans-serif",
+      }}>
+        {label}
+      </span>
+      <span style={{ fontSize: 13, fontWeight: 500, color: T.navy, fontFamily: "'DM Sans', sans-serif" }}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () => void }) {
+  const fmtDate = (iso?: string) =>
+    iso ? new Date(iso).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" }) : "—";
+
+  const s = STATUS_COLOR[bill.status];
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0,
+        background: "rgba(28,38,50,0.45)",
+        zIndex: 50,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#fff", borderRadius: 16, width: 460, maxWidth: "92vw",
+          border: "1px solid #e2ddd6", overflow: "hidden",
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
+        {/* Dark header */}
+        <div style={{
+          padding: "20px 24px 18px", background: T.navy,
+          display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        }}>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#f5f3ef" }}>
+              #{String(bill.transaction_id).padStart(6, "0")}
+            </div>
+            <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>Bill Details</div>
+          </div>
+          <button onClick={onClose} aria-label="Close modal" style={{
+            background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8,
+            width: 30, height: 30, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="#f5f3ef" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6"  y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Status strip */}
+        <div style={{
+          padding: "10px 24px",
+          background: s.bg,
+          borderBottom: "1px solid #f0ece4",
+          display: "flex", alignItems: "center", gap: 7,
+        }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot }} />
+          <span style={{
+            fontSize: 12, fontWeight: 700, color: s.text,
+            textTransform: "uppercase", letterSpacing: 0.6,
+          }}>
+            {bill.status}
+          </span>
+        </div>
+
+        {/* Detail rows */}
+        <div style={{ padding: "4px 24px 10px" }}>
+          <DetailRow label="Student"   value={bill.student_name} />
+          <DetailRow label="Property"  value={bill.housing_name} />
+          <DetailRow label="Bill Type" value={bill.bill_type} />
+          <DetailRow label="Amount"    value={
+            <strong style={{ fontSize: 15, color: T.navy }}>
+              ₱{bill.amount.toLocaleString("en-PH")}
+            </strong>
+          } />
+          <DetailRow label="Due Date"  value={fmtDate(bill.due_date)} />
+          <DetailRow label="Date Paid" value={fmtDate(bill.date_paid)} />
+        </div>
+
+        <div style={{
+          padding: "14px 24px", borderTop: "1px solid #f0ece4",
+          display: "flex", justifyContent: "flex-end",
+        }}>
+          <button onClick={onClose} style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
+            padding: "9px 22px", borderRadius: 9, border: "none",
+            background: T.orange, color: "#fff", cursor: "pointer",
+          }}>
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );

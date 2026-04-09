@@ -10,12 +10,53 @@ import RoomFilters, {
 import { roomData } from "@/app/lib/data/room-data";
 import { roomService } from "@/app/lib/services/room-service";
 
-export default function Page() {
-    const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
+import { C } from "@/lib/palette";
 
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [showFormModal, setShowFormModal] = useState(false);
-    const [showAssignModal, setShowAssignModal] = useState(false);
+
+function AddRoomButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 7,
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13,
+        fontWeight: 600,
+        background: C.orange,
+        color: "#fff",
+        border: "none",
+        borderRadius: 10,
+        padding: "0 20px",
+        height: 40,
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+        flexShrink: 0,
+        width: "fit-content",
+        
+      }}
+    >
+      {/* Receipt icon */}
+      <svg
+        width="14" height="14" viewBox="0 0 24 24"
+        fill="none" stroke="#fff" strokeWidth="2.2"
+        strokeLinecap="round" strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2z"/>
+        <line x1="9" y1="9"  x2="15" y2="9"/>
+        <line x1="9" y1="13" x2="15" y2="13"/>
+      </svg>
+      Add Room
+    </button>
+  );
+}
+
+export default function Page() {
+  const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
+
+ 
   // ── Raw Data ──────────────────────────────────────────
   const [rooms, setRooms] = useState<RoomRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,6 +71,12 @@ export default function Page() {
   const housingOptions = Array.from(
     new Set(rooms.map((r) => r.housing_name))
   );
+
+  // -- Modal State
+  const [modalMode, setModalMode] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
@@ -214,6 +261,9 @@ export default function Page() {
         onToggleOccupancy={handleToggle}
        
       />
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <AddRoomButton onClick={() => setShowFormModal(true)} />
+      </div>
 
       {showViewModal && selectedRoom && (
         <ViewRoomModal
