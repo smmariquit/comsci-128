@@ -5,6 +5,7 @@ import {
 	RoomUpdate,
 	RoomWithParentHousing,
 } from "@/models/room";
+import { RoomRow } from "@/components/admin/rooms/roomtable";
 
 async function create(data: RoomInsert): Promise<Room | null> {
 	const { data: newRecord, error } = await supabase
@@ -98,7 +99,7 @@ async function deactivate(roomId: number): Promise<Room | null> {
 }
 
 // Find Room for Housing Admin View
-async function findAllRoomDetailed () {
+async function findAllRoomDetailed (): Promise<RoomRow[]>{
 	const { data, error } = await supabase
 		.from("room")
 		.select(`
@@ -127,7 +128,7 @@ async function findAllRoomDetailed () {
 			displayStatus = "Empty"
 		}
 
-		let displayType = "Shared"; //default (for <= 3)
+		let displayType: RoomRow['room_type'] = "Shared" //default (for <= 3)
 
 		if (room.maximum_occupants === 1) {
 			displayType = "Single";

@@ -33,7 +33,7 @@ export default function Page() {
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
-    const roomCode = room.room_code?.toLowerCase() || "";
+    const roomCode = String(room.room_code || "").toLowerCase() || "";
     const searchTerm = search.toLowerCase();
 
     const matchesSearch =
