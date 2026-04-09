@@ -112,3 +112,17 @@ export async function getCompleteDashboardData(studentAccountNumber: number) {
         throw error;
     }
 }
+
+export async function getHousingStatus(studentAccountNumber: number) {
+    const {data, error} = await supabase
+        .from("student")
+        .select(`
+            housing_status
+        `)
+        .eq("account_number", studentAccountNumber)
+        .limit(1)
+        .maybeSingle();
+    
+    if(error) throw error;
+    return data;
+}
