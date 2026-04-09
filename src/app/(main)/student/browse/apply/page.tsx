@@ -8,7 +8,7 @@ import { getDormDetails } from "../_actions";
 export default function ApplyPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const dormId = searchParams.get("id");
+    const dormId = searchParams.get("id")?? undefined;
     const [dormData, setDormData] = useState<any>(null);
 
     const room_types = ["Male", "Female", "Coed", "No preference"];
@@ -19,9 +19,13 @@ export default function ApplyPage() {
 
     useEffect(() => {
         async function fetchData() {
-            if (dormId) {
-                const details = await getDormDetails(dormId);
+            if (!dormId) return;
+
+            try {
+                const details = await getDormDetails(Number(dormId));
                 setDormData(details);
+            } catch (error) {
+                console.error("Fetch error:", error);
             }
         }
         fetchData();
