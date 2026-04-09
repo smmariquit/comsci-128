@@ -1,7 +1,7 @@
 import Image from "next/image";
-import SearchBar from "./components/SearchBar"; 
-import StudentNavBar from "../components/StudentNavBar";
-import HousingCards from "./components/HousingCards";
+import SearchBar from "./_components/SearchBar"; 
+import StudentNavBar from "../_components/StudentNavBar";
+import HousingCards from "./_components/HousingCards";
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 
