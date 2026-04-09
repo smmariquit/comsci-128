@@ -4,36 +4,64 @@ import { useState, useMemo } from "react";
 import { C } from "@/lib/palette";
 import BillTable, { MOCK_BILLS } from "@/app/components/admin/billings/billingtable";
 import BillFilters from "@/app/components/admin/billings/billingfilters";
-import IssueBillModal from "@/app/components/admin/billings/billingmodal";
+import  IssueBillModal from "@/app/components/admin/billings/billingmodal";
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
-import type { IssueBillPayload } from "@/app/components/admin/billings/billingmodal";
+import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
-function SummaryCard({ label, value, accent }: { label: string; value: string | number; accent: string }) {
+function SummaryCard({
+  label, value, accent, icon,
+}: {
+  label:  string;
+  value:  string | number;
+  accent: string;
+  icon:   React.ReactNode;
+}) {
   return (
     <div style={{
       background: "#fff",
-      borderRadius: 10,
-      outline: `1px solid ${C.cream}`,
-      padding: "14px 18px",
+      borderRadius: 12,
+      border: "1px solid #e8e4db",
+      padding: "16px 18px",
       display: "flex",
       flexDirection: "column",
-      gap: 4,
-      flex: "1 1 140px",
+      gap: 10,
+      flex: "1 1 150px",
     }}>
-      <div style={{ fontSize: 10, fontWeight: 600, color: C.teal, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-        {label}
+      {/* icon + label row */}
+      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: 8,
+          background: `${accent}18`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0,
+          color: accent,
+        }}>
+          {icon}
+        </div>
+        <span style={{
+          fontSize: 10.5, fontWeight: 600, color: "#7a9ea0",
+          textTransform: "uppercase", letterSpacing: "0.06em",
+          fontFamily: "'DM Sans', sans-serif",
+        }}>
+          {label}
+        </span>
       </div>
-      <div style={{ fontSize: 20, fontWeight: 700, color: accent, fontFamily: "monospace" }}>
+
+      {/* value */}
+      <div style={{
+        fontSize: 22, fontWeight: 800, color: accent,
+        fontFamily: "'DM Mono', monospace", lineHeight: 1,
+      }}>
         {value}
       </div>
     </div>
   );
 }
 
-// ── Issue Button ──────────────────────────────────────────────────────────────
+// ── Issue Bill button ─────────────────────────────────────────────────────────
 
 function IssueBillButton({ onClick }: { onClick: () => void }) {
   return (
@@ -42,41 +70,56 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
+        gap: 7,
         fontFamily: "'DM Sans', sans-serif",
         fontSize: 13,
         fontWeight: 600,
         background: C.orange,
         color: "#fff",
         border: "none",
-        borderRadius: 8,
-        padding: "9px 18px",
+        borderRadius: 10,
+        padding: "0 20px",
+        height: 40,
         cursor: "pointer",
         whiteSpace: "nowrap",
+        flexShrink: 0,
+        width: "fit-content",
+        
       }}
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      {/* Receipt icon */}
+      <svg
+        width="14" height="14" viewBox="0 0 24 24"
+        fill="none" stroke="#fff" strokeWidth="2.2"
+        strokeLinecap="round" strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2z"/>
+        <line x1="9" y1="9"  x2="15" y2="9"/>
+        <line x1="9" y1="13" x2="15" y2="13"/>
       </svg>
-      Issue Bill
+      Issue New Bill
     </button>
   );
 }
 
-// ── Housing options derived from mock ─────────────────────────────────────────
+// ── Housing options from mock ─────────────────────────────────────────────────
 
 const HOUSING_OPTIONS = [...new Set(MOCK_BILLS.map((b) => b.housing_name))];
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// PAGE
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function BillingPage() {
+
   // ── Filter state ────────────────────────────────────────────────────────────
-  const [search, setSearch]           = useState("");
-  const [status, setStatus]           = useState<StatusFilter>("All");
-  const [billType, setBillType]       = useState<BillTypeFilter>("All");
-  const [housing, setHousing]         = useState("All");
+  const [search,      setSearch]      = useState("");
+  const [status,      setStatus]      = useState<StatusFilter>("All");
+  const [billType,    setBillType]    = useState<BillTypeFilter>("All");
+  const [housing,     setHousing]     = useState("All");
   const [dueDateFrom, setDueDateFrom] = useState("");
-  const [dueDateTo, setDueDateTo]     = useState("");
+  const [dueDateTo,   setDueDateTo]   = useState("");
 
   // ── Modal state ─────────────────────────────────────────────────────────────
   const [issueOpen, setIssueOpen] = useState(false);
@@ -84,13 +127,13 @@ export default function BillingPage() {
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     return MOCK_BILLS.filter((b) => {
-      const q = search.toLowerCase();
+      const q              = search.toLowerCase();
       const matchesSearch  = !q || b.student_name.toLowerCase().includes(q);
-      const matchesStatus  = status === "All"   || b.status    === status;
-      const matchesType    = billType === "All" || b.bill_type === billType;
-      const matchesHousing = housing === "All"  || b.housing_name === housing;
+      const matchesStatus  = status   === "All" || b.status      === status;
+      const matchesType    = billType === "All" || b.bill_type   === billType;
+      const matchesHousing = housing  === "All" || b.housing_name === housing;
 
-      const due = new Date(b.due_date);
+      const due         = new Date(b.due_date);
       const matchesFrom = !dueDateFrom || due >= new Date(dueDateFrom);
       const matchesTo   = !dueDateTo   || due <= new Date(dueDateTo);
 
@@ -100,29 +143,35 @@ export default function BillingPage() {
 
   // ── Summary stats ───────────────────────────────────────────────────────────
   const totalAmount  = filtered.reduce((s, b) => s + b.amount, 0);
-  const overdueCount = filtered.filter((b) => b.status === "Overdue").length;
   const paidCount    = filtered.filter((b) => b.status === "Paid").length;
   const pendingCount = filtered.filter((b) => b.status === "Pending").length;
+  const overdueCount = filtered.filter((b) => b.status === "Overdue").length;
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
+  // ── Table handlers ──────────────────────────────────────────────────────────
   function handleView(row: BillRow) {
     console.log("View bill:", row);
-    // TODO: open bill detail modal/drawer
+    // TODO: open ViewBillModal
   }
 
   function handleMarkPaid(row: BillRow) {
     console.log("Mark as paid:", row);
-    // TODO: confirmation + API call to update status → Paid, set date_paid
+    // TODO: confirmation + PATCH bill status → "Paid", set date_paid
   }
 
   function handleDelete(row: BillRow) {
     console.log("Delete bill:", row);
-    // TODO: confirmation modal + API call to soft-delete (is_deleted = true)
+    // TODO: confirmation modal + soft-delete (is_deleted = true)
   }
 
-  function handleIssue(payload: IssueBillPayload) {
-    console.log("Issue bill payload:", payload);
-    // TODO: POST to /api/bills with payload
+  // ── Issue Bill submit ───────────────────────────────────────────────────────
+  function handleIssue(form: IssueBillForm) {
+    console.log("Issue bill:", form);
+    // TODO: for each charge in form.charges, POST to /api/bills:
+    //   { student_name, housing_name, student_account_number,
+    //     bill_type: charge.type, amount: charge.amount,
+    //     due_date: form.due_date, issue_date: form.issue_date,
+    //     status: "Pending", manager_account_number }
+    setIssueOpen(false);
   }
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -130,52 +179,97 @@ export default function BillingPage() {
     <div style={{
       display: "flex",
       flexDirection: "column",
-      gap: 16,
-      padding: "24px",
+      gap: 18,
+      padding: "24px 28px",
       fontFamily: "'DM Sans', sans-serif",
+      minHeight: "100vh",
     }}>
-   
 
-      {/* Summary cards */}
+      {/* ── Summary cards ─────────────────────────────────────────────────── */}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <SummaryCard label="Total (filtered)"  value={`₱${totalAmount.toLocaleString("en-PH")}`} accent={C.navy} />
-        <SummaryCard label="Paid"              value={paidCount}    accent={C.teal} />
-        <SummaryCard label="Pending"           value={pendingCount} accent="#A07820" />
-        <SummaryCard label="Overdue"           value={overdueCount} accent={C.orange} />
+        <SummaryCard
+          label="Total (filtered)"
+          value={`₱${totalAmount.toLocaleString("en-PH")}`}
+          accent={C.navy}
+          icon={
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          }
+        />
+        <SummaryCard
+          label="Paid"
+          value={paidCount}
+          accent="#2a7d4f"
+          icon={
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          }
+        />
+        <SummaryCard
+          label="Pending"
+          value={pendingCount}
+          accent="#A07820"
+          icon={
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          }
+        />
+        <SummaryCard
+          label="Overdue"
+          value={overdueCount}
+          accent={C.orange}
+          icon={
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          }
+        />
       </div>
 
-      {/* Filters */}
-      <BillFilters
-        search={search}
-        status={status}
-        billType={billType}
-        housing={housing}
-        housingOptions={HOUSING_OPTIONS}
-        dueDateFrom={dueDateFrom}
-        dueDateTo={dueDateTo}
-        onSearch={setSearch}
-        onStatus={setStatus}
-        onBillType={setBillType}
-        onHousing={setHousing}
-        onDueDateFrom={setDueDateFrom}
-        onDueDateTo={setDueDateTo}
-      />
-
-      {/* Table */}
+      {/* ── Filters row + Issue button ─────────────────────────────────────── */}
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <BillFilters
+            search={search}           onSearch={setSearch}
+            status={status}           onStatus={setStatus}
+            billType={billType}       onBillType={setBillType}
+            housing={housing}         onHousing={setHousing}
+            housingOptions={HOUSING_OPTIONS}
+            dueDateFrom={dueDateFrom} onDueDateFrom={setDueDateFrom}
+            dueDateTo={dueDateTo}     onDueDateTo={setDueDateTo}
+          />
+          
+        </div>
+        
+      </div>
+          
+      {/* ── Table ─────────────────────────────────────────────────────────── */}
       <BillTable
         data={filtered}
         onView={handleView}
         onMarkPaid={handleMarkPaid}
         onDelete={handleDelete}
       />
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <IssueBillButton onClick={() => setIssueOpen(true)} />
+      </div>
+      
 
-      {/* Issue Bill Modal */}
+        
+      {/* ── Issue Bill Modal ───────────────────────────────────────────────── */}
       <IssueBillModal
         open={issueOpen}
         housingOptions={HOUSING_OPTIONS}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
       />
+
+      
+
     </div>
   );
 }
