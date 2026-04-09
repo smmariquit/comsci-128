@@ -1,8 +1,8 @@
 import Image from "next/image";
-import SearchBar from "./SearchBar"; 
+import SearchBar from "./components/SearchBar"; 
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
-import HousingCards from "./HousingCards";
+import HousingCards from "./components/HousingCards";
 
 export default async function DormBrowsePage({
         searchParams,
@@ -26,18 +26,6 @@ export default async function DormBrowsePage({
     const cards = allHousing.map((item) => ({
         id: item.housing_id,
         name: item.housing_name,
-        address: item.housing_address,
-        housing_type: item.housing_type, // Changed from 'type' to 'housing_type'
-        price: item.rent_price,
-        // Formatting the date for a cleaner UI
-        appli_start: new Date(item.start_application_date).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-        }),
-        appli_end: new Date(item.end_application_date).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-        }),
     }));
 
 	return (
