@@ -7,48 +7,6 @@ import StudentHousingStatus from "@/app/components/admin/dashboard/student_housi
 
 import { getHousingAdmingDashboardData } from "@/app/lib/data/dashboard-data";
 
-const occupancyData = [
-  { room_type: "Single", occupied: 42, empty: 8 },
-  { room_type: "Double", occupied: 58, empty: 12 },
-  { room_type: "Triple", occupied: 24, empty: 6 },
-  { room_type: "Quad", occupied: 14, empty: 10 },
-];
-
-const recentApplications = [
-  {
-    application_id: 1001,
-    student_name: "Carla Reyes",
-    housing_name: "Raymundo Residence Hall",
-    preferred_room_type: "Double",
-    expected_moveout_date: "2026-07-15",
-    application_status: "Pending" as const,
-  },
-  {
-    application_id: 1002,
-    student_name: "Miguel Santos",
-    housing_name: "Anos Garden Dormitory",
-    preferred_room_type: "Single",
-    expected_moveout_date: "2026-05-30",
-    application_status: "Approved" as const,
-  },
-  {
-    application_id: 1003,
-    student_name: "Alyssa Dela Cruz",
-    housing_name: "Batong Malake Subdivision",
-    preferred_room_type: "Triple",
-    expected_moveout_date: "2026-06-20",
-    application_status: "Rejected" as const,
-  },
-  {
-    application_id: 1004,
-    student_name: "Noah Garcia",
-    housing_name: "Raymundo Residence Hall",
-    preferred_room_type: "Quad",
-    expected_moveout_date: "2026-08-01",
-    application_status: "Cancelled" as const,
-  },
-];
-
 const recentAuditData = [
   {
     audit_id: 501,
@@ -80,13 +38,6 @@ const recentAuditData = [
   },
 ];
 
-const housingStatusData = [
-  { label: "Assigned", count: 182, color: "#1D9E75" },
-  { label: "Pending Assignment", count: 41, color: "#D97706" },
-  { label: "Waitlisted", count: 23, color: "#7C3AED" },
-  { label: "Unassigned", count: 14, color: "#6B7280" },
-];
-
 const activeUserData = [
   { label: "Students", count: 812 },
   { label: "Managers", count: 18 },
@@ -99,6 +50,7 @@ const totalActiveUsers = activeUserData.reduce((sum, row) => sum + row.count, 0)
 export default async function Page() {
   const liveData = await getHousingAdmingDashboardData();
   // <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
+  console.log(liveData.occupancyData);
   const housingStatusData = [
     { label: "Assigned", count: liveData.housingStatusCounts.assigned, color: "#1D9E75" },
     { label: "Unassigned", count: liveData.housingStatusCounts.unassigned, color: "#6B7280"},
