@@ -106,6 +106,9 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 			*,
 			housing:housing_id (housing_name),
 			tenants:student_accommodation_history!room_id (
+				account_number,
+				movein_date,
+				moveout_date,
 				student:student!account_number (
 					user:user!account_number (
 						first_name, last_name
@@ -144,10 +147,16 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 			maximum_occupants: room.maximum_occupants || 0,
 			current_occupants: room.tenants?.length || 0,
 			occupancy_status: displayStatus,
-			assigned_tenants: room.tenants?.map((t: any) =>  ({
-				id: t.student?.account_number,
-                name: `${t.student?.user?.first_name || ""} ${t.student?.user?.last_name || ""}`.trim()
-			})).filter((t: any) => t.id) || [],
+			assigned_tenants: (room.tenants || []).map((t: any) => {
+				const s = t.student;
+				const firstName = s?.user?.first_name || "Unknown";
+				const lastName = s?.user?.last_name || `(ID: ${t.account_number})`;
+				
+				return {
+					id: String(t.account_number),
+					name: `${firstName} ${lastName}`.trim()
+				};
+			}).filter((t: any) => t.id)
 		}
 	});
 }
