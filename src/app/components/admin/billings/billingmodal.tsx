@@ -1,365 +1,704 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { C } from "@/lib/palette";
-import type { BillType } from "./billingtable";
-import { MOCK_USERS } from "@/app/components/admin/user/usertable";
+import type { BillRow, PaymentStatus, BillType } from "./billingtable";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+type ExtendedBillType = BillType | "Other";
 
-type IssueMode = "single" | "bulk";
+// ── Design tokens ─────────────────────────────────────────────────────────────
 
-export interface IssueBillPayload {
-  mode:                   IssueMode;
-  student_account_number?: number;  // single mode
-  housing_name:           string;   // bulk uses this to target all students
-  bill_type:              BillType;
-  amount:                 number;
-  due_date:               string;
-}
-
-interface Props {
-  open:           boolean;
-  housingOptions: string[];
-  onClose:        () => void;
-  onSubmit:       (payload: IssueBillPayload) => void;
-}
-
-// ── Styles ────────────────────────────────────────────────────────────────────
-
-const inputBase: React.CSSProperties = {
-  fontFamily: "'DM Sans', sans-serif",
-  fontSize: 12,
-  color: C.navy,
-  background: "#fff",
-  border: `1px solid ${C.cream}`,
-  borderRadius: 8,
-  padding: "8px 12px",
-  outline: "none",
-  height: 36,
-  boxSizing: "border-box" as const,
-  width: "100%",
+const T = {
+  navy:    C.navy,
+  teal:    C.teal,
+  orange:  C.orange,
+  cream:   C.cream,
+  divider: C.dividerLight,
+  bg:      "#f5f3ef",
+  bgInput: "#fff",
+  readonly: "#f7f6f3",
+  amber:   "#A07820",
+  green:   "#2a7d4f",
 };
 
-const selectBase: React.CSSProperties = {
-  ...inputBase,
-  cursor: "pointer",
-  appearance: "none" as const,
-  paddingRight: 28,
-  backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23567375' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "right 10px center",
-};
+// ── Shared style constants ────────────────────────────────────────────────────
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10,
-  fontWeight: 600,
-  color: C.teal,
-  textTransform: "uppercase",
-  letterSpacing: "0.04em",
-  marginBottom: 4,
-  display: "block",
+  fontSize: 10.5,
   fontFamily: "'DM Sans', sans-serif",
+  fontWeight: 600,
+  color: T.teal,
+  textTransform: "uppercase",
+  letterSpacing: 0.7,
+  display: "block",
+  marginBottom: 6,
 };
 
-const fieldStyle: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  fontFamily: "'DM Sans', sans-serif",
+  fontSize: 13,
+  color: T.navy,
+  background: T.bgInput,
+  border: "1px solid #e2ddd6",
+  borderRadius: 8,
+  padding: "9px 12px",
+  outline: "none",
+  boxSizing: "border-box",
 };
 
-// ── Component ─────────────────────────────────────────────────────────────────
+const selectStyle: React.CSSProperties = {
+  ...inputStyle,
+  cursor: "pointer",
+  appearance: "none" as const,
+  paddingRight: 30,
+};
 
-export default function IssueBillModal({ open, housingOptions, onClose, onSubmit }: Props) {
-  const [mode, setMode]           = useState<IssueMode>("single");
-  const [housing, setHousing]     = useState(housingOptions[0] ?? "");
-  const [studentId, setStudentId] = useState<number | "">("");
-  const [billType, setBillType]   = useState<BillType>("Rent");
-  const [amount, setAmount]       = useState<number | "">("");
-  const [dueDate, setDueDate]     = useState("");
-  const [error, setError]         = useState("");
+const readonlyStyle: React.CSSProperties = {
+  ...inputStyle,
+  background: T.readonly,
+  color: T.teal,
+  cursor: "not-allowed",
+};
+
+// ── Exported types ────────────────────────────────────────────────────────────
+
+export interface ChargeItem {
+  id:     string;
+  type:   BillType | "Other";
+  amount: string;
+}
+
+/** Matches the `bill` schema: one row per charge item */
+export interface IssueBillForm {
+  student_name:           string;
+  housing_name:           string;
+  student_account_number: number | null; // null until Supabase join available
+  room_code:              string;
+  due_date:               string;   // "YYYY-MM-DD"
+  issue_date:             string;   // auto-set to today
+  charges:                ChargeItem[];
+}
+
+// ── Shared UI helpers ─────────────────────────────────────────────────────────
+
+function CloseBtn({ onClose, light = false }: { onClose: () => void; light?: boolean }) {
+  return (
+    <button
+      onClick={onClose}
+      aria-label="Close modal"
+      style={{
+        background: light ? "rgba(255,255,255,0.12)" : T.bg,
+        border: "none", borderRadius: 8,
+        width: 30, height: 30, cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+      }}
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+        stroke={light ? "#f5f3ef" : T.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6"  y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  );
+}
+
+function CancelBtn({ onClose }: { onClose: () => void }) {
+  return (
+    <button onClick={onClose} style={{
+      fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500,
+      padding: "9px 20px", borderRadius: 9,
+      border: "1px solid #e2ddd6", background: "#fff", color: T.navy, cursor: "pointer",
+    }}>
+      Cancel
+    </button>
+  );
+}
+
+function PrimaryBtn({ label, onClick, disabled = false }: {
+  label: string; onClick: () => void; disabled?: boolean;
+}) {
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
+      padding: "9px 22px", borderRadius: 9, border: "none",
+      background: disabled ? "#ccc" : T.orange,
+      color: "#fff",
+      cursor: disabled ? "not-allowed" : "pointer",
+    }}>
+      {label}
+    </button>
+  );
+}
+
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "2px 0" }}>
+      <span style={{
+        fontSize: 10, fontWeight: 700, color: T.teal,
+        textTransform: "uppercase", letterSpacing: 1,
+        fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap",
+      }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 1, background: "#ece8e0" }} />
+    </div>
+  );
+}
+
+function SelectField({ id, label, value, onChange, children, flex }: {
+  id: string; label: string; value: string;
+  onChange: (v: string) => void; children: React.ReactNode; flex?: number;
+}) {
+  return (
+    <div style={{ flex: flex ?? 1, display: "flex", flexDirection: "column" }}>
+      <label htmlFor={id} style={labelStyle}>{label}</label>
+      <div style={{ position: "relative" }}>
+        <select id={id} value={value} onChange={(e) => onChange(e.target.value)} style={selectStyle}>
+          {children}
+        </select>
+        <svg style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+          width="10" height="10" viewBox="0 0 24 24" fill="none"
+          stroke={T.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IssueBillModal
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface IssueBillModalProps {
+  open:           boolean;
+  housingOptions: string[];          // list of housing_name strings
+  onClose:        () => void;
+  onSubmit:       (form: IssueBillForm) => void;
+}
+
+export default function IssueBillModal({
+  open, housingOptions, onClose, onSubmit,
+}: IssueBillModalProps) {
+
+  const today = new Date().toISOString().split("T")[0];
+
+  // ── Form state ──────────────────────────────────────────────────────────────
+  const [housingName,  setHousingName]  = useState("");
+  const [studentName,  setStudentName]  = useState("");
+  const [roomCode,     setRoomCode]     = useState("");
+  const [dueDate,      setDueDate]      = useState("");
+  const [charges, setCharges] = useState<ChargeItem[]>([
+    { id: "1", type: "Rent",    amount: "" },
+    { id: "2", type: "Utility", amount: "" },
+  ]);
+
+  // Reset when modal opens
+  useEffect(() => {
+    if (open) {
+      setHousingName("");
+      setStudentName("");
+      setRoomCode("");
+      setDueDate("");
+      setCharges([
+        { id: "1", type: "Rent",    amount: "" },
+        { id: "2", type: "Utility", amount: "" },
+      ]);
+    }
+  }, [open]);
 
   if (!open) return null;
 
-  // Students from the selected property (from mock)
-  const eligibleStudents = MOCK_USERS.filter(
-    (u) => u.user_type === "Student" && u.housing_name === housing && !u.is_deleted
-  );
-
-  function handleSubmit() {
-    setError("");
-
-    if (!housing)  return setError("Please select a property.");
-    if (!billType) return setError("Please select a bill type.");
-    if (!amount || Number(amount) <= 0) return setError("Please enter a valid amount.");
-    if (!dueDate)  return setError("Please select a due date.");
-    if (mode === "single" && !studentId) return setError("Please select a student.");
-
-    onSubmit({
-      mode,
-      housing_name: housing,
-      student_account_number: mode === "single" ? Number(studentId) : undefined,
-      bill_type: billType,
-      amount: Number(amount),
-      due_date: dueDate,
-    });
-
-    // Reset
-    setMode("single");
-    setStudentId("");
-    setBillType("Rent");
-    setAmount("");
-    setDueDate("");
-    setError("");
-    onClose();
+  // ── Charge helpers ──────────────────────────────────────────────────────────
+  function addCharge() {
+    setCharges((p) => [...p, { id: String(Date.now()), type: "Other", amount: "" }]);
   }
 
+  function removeCharge(id: string) {
+    setCharges((p) => p.filter((c) => c.id !== id));
+  }
+
+  function updateCharge(id: string, field: "type" | "amount", value: string) {
+    setCharges((p) => p.map((c) => c.id === id ? { ...c, [field]: value } : c));
+  }
+
+  const validCharges = charges.filter((c) => parseFloat(c.amount) > 0);
+  const totalAmount  = charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+  const isValid      = !!housingName && !!studentName && !!dueDate && validCharges.length > 0;
+
+  function handleSubmit() {
+    if (!isValid) return;
+    onSubmit({
+      student_name:           studentName.trim(),
+      housing_name:           housingName,
+      student_account_number: null,          // resolved server-side / Supabase
+      room_code:              roomCode.trim(),
+      due_date:               dueDate,
+      issue_date:             today,
+      charges,
+    });
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <>
-      {/* Backdrop */}
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0,
+        background: "rgba(28,38,50,0.45)",
+        zIndex: 50,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 16,
+      }}
+    >
       <div
-        onClick={onClose}
+        onClick={(e) => e.stopPropagation()}
         style={{
-          position: "fixed", inset: 0,
-          background: "rgba(28,38,50,0.35)",
-          backdropFilter: "blur(2px)",
-          zIndex: 50,
+          background: "#fff",
+          borderRadius: 16,
+          width: 640,
+          maxWidth: "96vw",
+          maxHeight: "94vh",
+          border: "1px solid #e2ddd6",
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: "'DM Sans', sans-serif",
+          overflow: "hidden",
         }}
-      />
+      >
 
-      {/* Modal */}
-      <div style={{
-        position: "fixed",
-        top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)",
-        background: "#fff",
-        borderRadius: 14,
-        boxShadow: "0 8px 40px rgba(28,38,50,0.18)",
-        width: "100%",
-        maxWidth: 480,
-        zIndex: 51,
-        fontFamily: "'DM Sans', sans-serif",
-        overflow: "hidden",
-      }}>
-
-        {/* Modal header */}
+        {/* ── Header ─────────────────────────────────────────────────────── */}
         <div style={{
-          padding: "16px 20px",
-          borderBottom: `1px solid ${C.dividerLight}`,
+          padding: "20px 24px 18px",
+          background: T.navy,
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "flex-start",
+          flexShrink: 0,
         }}>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: C.navy }}>Issue Bill</div>
-            <div style={{ fontSize: 11, color: C.teal, marginTop: 2 }}>
-              Generate a new billing statement
+            <div style={{ fontSize: 17, fontWeight: 700, color: "#f5f3ef", letterSpacing: -0.2 }}>
+              Issue a Bill
+            </div>
+            <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>
+              Generate a new billing record for a tenant
             </div>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              color: C.teal, fontSize: 18, lineHeight: 1, padding: 4,
-            }}
-          >
-            ✕
-          </button>
+          <CloseBtn onClose={onClose} light />
         </div>
 
-        {/* Modal body */}
-        <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* ── Body ───────────────────────────────────────────────────────── */}
+        <div style={{
+          flex: 1, overflowY: "auto",
+          padding: "22px 24px",
+          display: "flex", flexDirection: "column", gap: 18,
+        }}>
 
-          {/* Mode toggle */}
-          <div style={fieldStyle}>
-            <span style={labelStyle}>Issue To</span>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              background: C.cream,
-              borderRadius: 8,
-              padding: 3,
-              gap: 3,
-            }}>
-              {(["single", "bulk"] as IssueMode[]).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => { setMode(m); setStudentId(""); }}
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    padding: "7px 0",
-                    borderRadius: 6,
-                    border: "none",
-                    cursor: "pointer",
-                    background: mode === m ? "#fff" : "transparent",
-                    color: mode === m ? C.navy : C.teal,
-                    boxShadow: mode === m ? "0 1px 4px rgba(28,38,50,0.10)" : "none",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {m === "single" ? "Single Student" : "All Students (Bulk)"}
-                </button>
+          {/* Section 1 — Billing Target */}
+          <SectionDivider label="Billing Target" />
+
+          {/* Row: Housing + Due Date */}
+          <div style={{ display: "flex", gap: 14 }}>
+            <SelectField
+              id="bill-housing" label="Property" flex={3}
+              value={housingName} onChange={setHousingName}
+            >
+              <option value="">Select a property…</option>
+              {housingOptions.map((h) => (
+                <option key={h} value={h}>{h}</option>
               ))}
-            </div>
-          </div>
+            </SelectField>
 
-          {/* Property */}
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Property</label>
-            <div style={{ position: "relative" }}>
-              <select
-                value={housing}
-                onChange={(e) => { setHousing(e.target.value); setStudentId(""); }}
-                style={selectBase}
-              >
-                {housingOptions.map((h) => <option key={h} value={h}>{h}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Student selector — single mode only */}
-          {mode === "single" && (
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Student</label>
-              <div style={{ position: "relative" }}>
-                <select
-                  value={studentId}
-                  onChange={(e) => setStudentId(Number(e.target.value))}
-                  style={selectBase}
-                >
-                  <option value="">Select student…</option>
-                  {eligibleStudents.map((u) => (
-                    <option key={u.account_number} value={u.account_number}>
-                      {u.full_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {eligibleStudents.length === 0 && (
-                <span style={{ fontSize: 10, color: C.orange, marginTop: 2 }}>
-                  No active students found for this property.
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Bulk note */}
-          {mode === "bulk" && (
-            <div style={{
-              background: "rgba(227,175,100,0.13)",
-              border: `1px solid rgba(227,175,100,0.3)`,
-              borderRadius: 8,
-              padding: "10px 12px",
-              fontSize: 11,
-              color: "#A07820",
-              lineHeight: 1.5,
-            }}>
-              <strong>Bulk issue:</strong> This bill will be issued to all{" "}
-              <strong>{eligibleStudents.length}</strong> active student(s) under{" "}
-              <strong>{housing}</strong>.
-            </div>
-          )}
-
-          {/* Bill type + Amount row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Bill Type</label>
-              <div style={{ position: "relative" }}>
-                <select
-                  value={billType}
-                  onChange={(e) => setBillType(e.target.value as BillType)}
-                  style={selectBase}
-                >
-                  {(["Rent", "Utility", "Maintenance", "Miscellaneous"] as BillType[]).map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div style={fieldStyle}>
-              <label style={labelStyle}>Amount (₱)</label>
+            <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
+              <label htmlFor="bill-due" style={labelStyle}>Due Date</label>
               <input
-                type="number"
-                min={1}
-                placeholder="e.g. 5500"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value === "" ? "" : Number(e.target.value))}
-                style={inputBase}
+                id="bill-due"
+                type="date"
+                value={dueDate}
+                min={today}
+                onChange={(e) => setDueDate(e.target.value)}
+                style={inputStyle}
               />
             </div>
           </div>
 
-          {/* Due date */}
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Due Date</label>
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              style={inputBase}
-            />
+          {/* Row: Student name + Room code */}
+          <div style={{ display: "flex", gap: 14 }}>
+            <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
+              <label htmlFor="bill-student" style={labelStyle}>Student Name</label>
+              <input
+                id="bill-student"
+                type="text"
+                placeholder="e.g. Santos, Maria"
+                value={studentName}
+                onChange={(e) => setStudentName(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
+              <label htmlFor="bill-room" style={labelStyle}>Room / Unit Code</label>
+              <input
+                id="bill-room"
+                type="text"
+                placeholder="e.g. RM-0041"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
           </div>
 
-          {/* Error */}
-          {error && (
-            <div style={{
-              fontSize: 11,
-              color: C.orange,
-              background: "rgba(201,100,42,0.08)",
-              border: `1px solid rgba(201,100,42,0.2)`,
-              borderRadius: 8,
-              padding: "8px 12px",
-            }}>
-              {error}
+          {/* Issue date — read-only */}
+          <div style={{ display: "flex", gap: 14 }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <label htmlFor="bill-issue" style={labelStyle}>Issue Date</label>
+              <input
+                id="bill-issue"
+                readOnly
+                value={today}
+                style={readonlyStyle}
+              />
+              <span style={{ fontSize: 10.5, color: T.teal, marginTop: 5 }}>
+                Auto-set to today
+              </span>
             </div>
-          )}
+          </div>
+
+          {/* Section 2 — Charges */}
+          <SectionDivider label="Charges" />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {charges.map((charge, idx) => (
+              <div key={charge.id} style={{
+                display: "flex", gap: 10, alignItems: "center",
+                background: T.bg,
+                border: "1px solid #e8e4db",
+                borderRadius: 10,
+                padding: "11px 14px",
+              }}>
+                {/* Index */}
+                <span style={{
+                  fontSize: 11, fontWeight: 700, color: T.teal,
+                  width: 18, flexShrink: 0, textAlign: "center",
+                }}>
+                  {idx + 1}
+                </span>
+
+                {/* Bill type select */}
+                <div style={{ flex: 1, position: "relative" }}>
+                  <label htmlFor={`c-type-${charge.id}`}
+                    style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0 }}>
+                    Charge Type
+                  </label>
+                  <select
+                    id={`c-type-${charge.id}`}
+                    value={charge.type}
+                    onChange={(e) => updateCharge(charge.id, "type", e.target.value)}
+                    style={{
+                      ...selectStyle,
+                      background: "transparent", border: "none",
+                      padding: "0 20px 0 0",
+                      fontWeight: 600, fontSize: 13, color: T.navy, width: "100%",
+                    }}
+                  >
+                    {(["Rent", "Utility", "Other"] as BillType[]).map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                  <svg style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+                    width="9" height="9" viewBox="0 0 24 24" fill="none"
+                    stroke={T.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+
+                {/* Vertical divider */}
+                <div style={{ width: 1, height: 20, background: "#e2ddd6", flexShrink: 0 }} />
+
+                {/* Amount */}
+                <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: T.teal }}>₱</span>
+                  <label htmlFor={`c-amt-${charge.id}`}
+                    style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0 }}>
+                    Charge Amount
+                  </label>
+                  <input
+                    id={`c-amt-${charge.id}`}
+                    type="number"
+                    min={0}
+                    placeholder="0.00"
+                    value={charge.amount}
+                    onChange={(e) => updateCharge(charge.id, "amount", e.target.value)}
+                    style={{
+                      ...inputStyle,
+                      width: 110,
+                      background: "transparent", border: "none", padding: 0,
+                      fontWeight: 700, fontSize: 14, textAlign: "right",
+                      color: parseFloat(charge.amount) > 0 ? T.navy : "#aaa",
+                    }}
+                  />
+                </div>
+
+                {/* Remove */}
+                <button
+                  onClick={() => removeCharge(charge.id)}
+                  aria-label={`Remove ${charge.type} charge`}
+                  style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    width: 26, height: 26, borderRadius: 6,
+                    color: "#bbb", flexShrink: 0, transition: "color 0.15s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = T.orange)}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#bbb")}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14H6L5 6"/>
+                    <path d="M10 11v6M14 11v6"/>
+                    <path d="M9 6V4h6v2"/>
+                  </svg>
+                </button>
+              </div>
+            ))}
+
+            {/* Add charge */}
+            <button
+              onClick={addCharge}
+              style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
+                padding: "10px 0", borderRadius: 10,
+                border: "1.5px dashed #d4cfc6",
+                background: "transparent", color: T.teal,
+                cursor: "pointer", width: "100%",
+                transition: "border-color 0.15s, background 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background    = T.bg;
+                e.currentTarget.style.borderColor   = T.teal;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background    = "transparent";
+                e.currentTarget.style.borderColor   = "#d4cfc6";
+              }}
+            >
+              + Add Charge
+            </button>
+          </div>
+
+          {/* Section 3 — Summary */}
+          <SectionDivider label="Summary" />
+
+          <div style={{
+            background: T.bg,
+            border: "1px solid #e8e4db",
+            borderRadius: 10,
+            padding: "14px 16px",
+            display: "flex", flexDirection: "column", gap: 8,
+          }}>
+            {/* Per-charge lines */}
+            {validCharges.map((c) => (
+              <div key={c.id} style={{
+                display: "flex", justifyContent: "space-between",
+                fontSize: 12, color: T.teal,
+              }}>
+                <span>{c.type}</span>
+                <span style={{ fontFamily: "'DM Mono', monospace" }}>
+                  ₱{parseFloat(c.amount).toLocaleString("en-PH")}
+                </span>
+              </div>
+            ))}
+
+            {validCharges.length > 0 && (
+              <div style={{ height: 1, background: "#e2ddd6", margin: "2px 0" }} />
+            )}
+
+            {/* Grand total */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{
+                fontSize: 12, fontWeight: 700, color: T.navy,
+                textTransform: "uppercase", letterSpacing: 0.5,
+              }}>
+                Total Amount
+              </span>
+              <span style={{
+                fontSize: 18, fontWeight: 800,
+                color: totalAmount > 0 ? T.navy : "#bbb",
+                fontFamily: "'DM Mono', monospace",
+              }}>
+                ₱{totalAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            {/* Validation hint */}
+            {!isValid && (
+              <div style={{
+                fontSize: 11, color: T.orange,
+                display: "flex", alignItems: "center", gap: 5, marginTop: 2,
+              }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {!housingName ? "Select a property to continue"
+                  : !studentName ? "Enter the student name"
+                  : !dueDate ? "Set a due date"
+                  : "Add at least one charge with an amount"}
+              </div>
+            )}
+          </div>
+
         </div>
 
-        {/* Modal footer */}
+        {/* ── Footer ─────────────────────────────────────────────────────── */}
         <div style={{
-          padding: "14px 20px",
-          borderTop: `1px solid ${C.dividerLight}`,
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 8,
+          padding: "16px 24px",
+          borderTop: "1px solid #f0ece4",
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          flexShrink: 0, background: "#faf9f7",
         }}>
-          <button
-            onClick={onClose}
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12,
-              fontWeight: 600,
-              background: "#fff",
-              color: C.navy,
-              border: `1px solid ${C.cream}`,
-              borderRadius: 8,
-              padding: "8px 16px",
-              cursor: "pointer",
-            }}
-          >
-            Cancel
+          <span style={{ fontSize: 11, color: T.teal }}>
+            {validCharges.length > 0
+              ? `${validCharges.length} bill${validCharges.length > 1 ? "s" : ""} will be created`
+              : "No charges added yet"}
+          </span>
+          <div style={{ display: "flex", gap: 10 }}>
+            <CancelBtn onClose={onClose} />
+            <PrimaryBtn label="Issue Bill ✓" disabled={!isValid} onClick={handleSubmit} />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ViewBillModal (unchanged — kept here for co-location)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const STATUS_COLOR: Record<PaymentStatus, { text: string; bg: string; dot: string }> = {
+  Paid:    { text: "#2a7d4f", bg: "rgba(42,125,79,0.10)",   dot: "#2a7d4f"  },
+  Pending: { text: "#A07820", bg: "rgba(227,175,100,0.18)", dot: "#c8960a"  },
+  Overdue: { text: C.orange,  bg: "rgba(201,100,42,0.13)",  dot: C.orange   },
+};
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div style={{
+      display: "flex", justifyContent: "space-between", alignItems: "center",
+      padding: "10px 0", borderBottom: "1px solid #f0ece4",
+    }}>
+      <span style={{
+        fontSize: 10.5, fontWeight: 600, color: T.teal,
+        textTransform: "uppercase", letterSpacing: 0.7,
+        fontFamily: "'DM Sans', sans-serif",
+      }}>
+        {label}
+      </span>
+      <span style={{ fontSize: 13, fontWeight: 500, color: T.navy, fontFamily: "'DM Sans', sans-serif" }}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () => void }) {
+  const fmtDate = (iso?: string) =>
+    iso ? new Date(iso).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" }) : "—";
+
+  const s = STATUS_COLOR[bill.status];
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0,
+        background: "rgba(28,38,50,0.45)",
+        zIndex: 50,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#fff", borderRadius: 16, width: 460, maxWidth: "92vw",
+          border: "1px solid #e2ddd6", overflow: "hidden",
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
+        {/* Dark header */}
+        <div style={{
+          padding: "20px 24px 18px", background: T.navy,
+          display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        }}>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#f5f3ef" }}>
+              #{String(bill.transaction_id).padStart(6, "0")}
+            </div>
+            <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>Bill Details</div>
+          </div>
+          <button onClick={onClose} aria-label="Close modal" style={{
+            background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8,
+            width: 30, height: 30, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="#f5f3ef" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6"  y1="6" x2="18" y2="18"/>
+            </svg>
           </button>
-          <button
-            onClick={handleSubmit}
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12,
-              fontWeight: 600,
-              background: C.orange,
-              color: "#fff",
-              border: "none",
-              borderRadius: 8,
-              padding: "8px 20px",
-              cursor: "pointer",
-            }}
-          >
-            Issue Bill
+        </div>
+
+        {/* Status strip */}
+        <div style={{
+          padding: "10px 24px",
+          background: s.bg,
+          borderBottom: "1px solid #f0ece4",
+          display: "flex", alignItems: "center", gap: 7,
+        }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot }} />
+          <span style={{
+            fontSize: 12, fontWeight: 700, color: s.text,
+            textTransform: "uppercase", letterSpacing: 0.6,
+          }}>
+            {bill.status}
+          </span>
+        </div>
+
+        {/* Detail rows */}
+        <div style={{ padding: "4px 24px 10px" }}>
+          <DetailRow label="Student"   value={bill.student_name} />
+          <DetailRow label="Property"  value={bill.housing_name} />
+          <DetailRow label="Bill Type" value={bill.bill_type} />
+          <DetailRow label="Amount"    value={
+            <strong style={{ fontSize: 15, color: T.navy }}>
+              ₱{bill.amount.toLocaleString("en-PH")}
+            </strong>
+          } />
+          <DetailRow label="Due Date"  value={fmtDate(bill.due_date)} />
+          <DetailRow label="Date Paid" value={fmtDate(bill.date_paid)} />
+        </div>
+
+        <div style={{
+          padding: "14px 24px", borderTop: "1px solid #f0ece4",
+          display: "flex", justifyContent: "flex-end",
+        }}>
+          <button onClick={onClose} style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
+            padding: "9px 22px", borderRadius: 9, border: "none",
+            background: T.orange, color: "#fff", cursor: "pointer",
+          }}>
+            Close
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
