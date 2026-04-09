@@ -146,7 +146,8 @@ export default function DashboardPage({
 						throw new Error(`User count HTTP error! status: ${userResponse.status}`);
 					}
 					const userData = await userResponse.json();
-					setUserCount(userData.count);
+					setUserCount(userData.totalCount);       
+					setActiveCount(userData.activeCount);
 
 					// Process manager count
 					if (!managerResponse.ok) {
@@ -165,7 +166,10 @@ export default function DashboardPage({
 					// Update stats with all counts
 					setStats(prev => prev.map(stat => {
 						if (stat.label === 'TOTAL USERS') {
-							return { ...stat, value: userData.count };
+							return { ...stat, value: userData.totalCount }; 
+						}
+						if (stat.label === 'ACTIVE USERS') {
+							return { ...stat, value: userData.activeCount };  
 						}
 						if (stat.label === 'TOTAL MANAGERS') {
 							return { ...stat, value: managerData.count };
