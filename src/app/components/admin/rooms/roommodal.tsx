@@ -332,6 +332,8 @@ export function OverrideAssignModal({
   const [name,   setName]   = useState("");
   const [number, setNumber] = useState("");
   const isOccupied = room.occupancy_status === "Occupied";
+  const isFull = room.current_occupants >= room.maximum_occupants;
+  const hasTenants = room.assigned_tenants.length > 0;
 
   return (
     <Backdrop onClose={onClose}>
@@ -342,7 +344,7 @@ export function OverrideAssignModal({
         footer={
           <>
             <CancelBtn onClose={onClose} />
-            {!isOccupied && (
+            {!isFull && (
               <PrimaryBtn
                 label="Assign Tenant"
                 onClick={() => { if (number) onAssign(number); }}
@@ -351,73 +353,79 @@ export function OverrideAssignModal({
           </>
         }
       >
-        {isOccupied ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ background: C.cream, borderRadius: 8, padding: "12px 14px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          
+          {/* FIX: Use && instead of ?? */}
+          {hasTenants && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ background: C.cream, borderRadius: 8, padding: "12px 14px" }}>
+                <div style={{
+                  fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace",
+                  marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.8,
+                }}>
+                  Currently Assigned
+                </div>
+                
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {room.assigned_tenants.map((tenant) => (
+                    <div key={tenant.id} style={{ 
+                      display: "flex", justifyContent: "space-between", alignItems: "center",
+                      background: "#fff", padding: "8px 12px", borderRadius: 6, border: `1px solid ${C.dividerLight}`
+                    }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>
+                        {tenant.name}
+                      </span>
+                      <button 
+                        onClick={() => onUnassign(tenant.id)}
+                        style={{ border: "none", background: "none", color: C.orange, fontSize: 11, cursor: "pointer", fontWeight: 600 }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isFull ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label htmlFor="assign-name" style={labelStyle}>Student Name</label>
+                <input
+                  id="assign-name"
+                  style={inputStyle}
+                  placeholder="e.g. Santos, Maria"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="assign-number" style={labelStyle}>Student Number</label>
+                <input
+                  id="assign-number"
+                  style={inputStyle}
+                  placeholder="e.g. 2021-00123"
+                  value={number}
+                  onChange={(e) => setNumber(e.target.value)}
+                />
+              </div>
               <div style={{
+                background: C.cream, borderRadius: 8, padding: "10px 14px",
                 fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace",
-                marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.8,
               }}>
-                Currently Assigned
-              </div>
-              
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {room.assigned_tenants.map((tenant) => (
-                  <div key={tenant.id} style={{ 
-                    display: "flex", justifyContent: "space-between", alignItems: "center",
-                    background: "#fff", padding: "8px 12px", borderRadius: 6, border: `1px solid ${C.dividerLight}`
-                  }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>
-                      {tenant.name}
-                    </span>
-                    <button 
-                      onClick={() => onUnassign(tenant.id)}
-                      style={{ border: "none", background: "none", color: C.orange, fontSize: 11, cursor: "pointer", fontWeight: 600 }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
+                This will update the student's <strong style={{ color: C.navy }}>housing_status</strong>.
               </div>
             </div>
+          ) : (
             <div style={{
-              background: "rgba(201,100,42,0.08)", borderRadius: 8, padding: "10px 14px",
-              fontSize: 11, color: C.orange, fontFamily: "'DM Mono', monospace",
+              background: "rgba(201,100,42,0.08)", borderRadius: 8, padding: "12px 14px",
+              fontSize: 11, color: C.orange, fontFamily: "'DM Mono', monospace", textAlign: "center"
             }}>
-              ⚠ Unassigning will update the student's housing status and log this action in the audit trail.
+              ({room.current_occupants}/{room.maximum_occupants}). 
             </div>
-          </div>
-        ) : (
-          <>
-            {/* ✅ label + id pairs for both inputs */}
-            <div>
-              <label htmlFor="assign-name" style={labelStyle}>Student Name</label>
-              <input
-                id="assign-name"
-                style={inputStyle}
-                placeholder="e.g. Santos, Maria"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="assign-number" style={labelStyle}>Student Number</label>
-              <input
-                id="assign-number"
-                style={inputStyle}
-                placeholder="e.g. 2021-00123"
-                value={number}
-                onChange={(e) => setNumber(e.target.value)}
-              />
-            </div>
-            <div style={{
-              background: C.cream, borderRadius: 8, padding: "10px 14px",
-              fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace",
-            }}>
-              This will update the student's <strong style={{ color: C.navy }}>housing_status</strong> and log the override in the audit trail.
-            </div>
-          </>
-        )}
+          )}
+        </div>
       </ModalShell>
     </Backdrop>
   );

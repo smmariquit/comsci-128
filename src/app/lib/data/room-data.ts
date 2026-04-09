@@ -5,6 +5,7 @@ import {
 	RoomUpdate,
 	RoomWithParentHousing,
 } from "@/models/room";
+import { RoomRow } from "@/components/admin/rooms/roomtable";
 
 async function create(data: RoomInsert): Promise<Room | null> {
 	const { data: newRecord, error } = await supabase
@@ -98,13 +99,16 @@ async function deactivate(roomId: number): Promise<Room | null> {
 }
 
 // Find Room for Housing Admin View
-async function findAllRoomDetailed () {
+async function findAllRoomDetailed (): Promise<RoomRow[]>{
 	const { data, error } = await supabase
 		.from("room")
 		.select(`
 			*,
 			housing:housing_id (housing_name),
 			tenants:student_accommodation_history!room_id (
+				account_number,
+				movein_date,
+				moveout_date,
 				student:student!account_number (
 					user:user!account_number (
 						first_name, last_name
@@ -118,32 +122,41 @@ async function findAllRoomDetailed () {
 
 	return (data || []).map((room) => {
 		let displayStatus = room.occupancy_status;
+		const normalizedStatus = displayStatus?.toLowerCase() || "";
+
 		// force tell it is occupied
-		if (displayStatus?.toLowerCase().includes("occupied")) {
+		if (normalizedStatus.includes("occupied") || normalizedStatus.includes("partially occupied")) {
 			displayStatus = "Occupied";
-		} else if (!displayStatus || displayStatus?.toLowerCase().includes("empty")) {
+		} else {
 			displayStatus = "Empty"
 		}
 
-		const validTypes = ["Single", "Double", "Shared", "Bedspace"];
-		let displayType = validTypes.includes(room.room_type) ? room.room_type: "Bedspace";
+		let displayType: RoomRow['room_type'] = "Shared" //default (for <= 3)
 
-		if (!validTypes.includes(displayType)) {
-			displayType = "Shared";
+		if (room.maximum_occupants === 1) {
+			displayType = "Single";
+		} else if (room.maximum_occupants === 2) {
+			displayType = "Double";
 		}
 
 		return {
 			room_id: room.room_id,
-			room_code: String(room.room_id) || "N/A",
+			room_code: room.room_code,
 			housing_name: room.housing?.housing_name || "Unassigned",
 			room_type: displayType,
 			maximum_occupants: room.maximum_occupants || 0,
 			current_occupants: room.tenants?.length || 0,
 			occupancy_status: displayStatus,
-			assigned_tenants: room.tenants?.map((t: any) =>  ({
-				id: t.student?.account_number,
-                name: `${t.student?.user?.first_name || ""} ${t.student?.user?.last_name || ""}`.trim()
-			})).filter((t: any) => t.id) || [],
+			assigned_tenants: (room.tenants || []).map((t: any) => {
+				const s = t.student;
+				const firstName = s?.user?.first_name || "Unknown";
+				const lastName = s?.user?.last_name || `(ID: ${t.account_number})`;
+				
+				return {
+					id: String(t.account_number),
+					name: `${firstName} ${lastName}`.trim()
+				};
+			}).filter((t: any) => t.id)
 		}
 	});
 }
