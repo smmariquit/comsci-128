@@ -183,7 +183,7 @@ export async function getDocumentsByApplicationId(applicationId: number) {
   const { data, error } = await supabase
     .from("document")
     .select("document_id, type, storage_link")
-    .eq("application_Id", applicationId)
+    .eq("application_id", applicationId)
 
   if (error) throw error
   return data
