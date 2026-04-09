@@ -7,7 +7,7 @@ import RecentApplications from "@/app/components/admin/dashboard/recent_applicat
 export async function getHousingAdmingDashboardData() {
     const [allStudents, allRooms, allBills] = await Promise.all([
         userData.findStudents(),
-        roomData.findAll(),
+        roomData.findAllRoomDetailed(),
         getAllBills(),
     ]);
 
@@ -32,12 +32,15 @@ export async function getHousingAdmingDashboardData() {
         ? Math.round((totalOccupied / totalCapacity) * 100)
         : 0;
 
-    const occupancyData = ["Single", "Double", "Shared"].map(type => ({
-        room_type: type,
-        occupied: allRooms.filter(r => r.room_type === type && r.occupancy_status !== "Empty").length,
-        empty: allRooms.filter(r => r.room_type === type && r.occupancy_status === "Empty").length,
+    const occupancyData = ["Single", "Double", "Shared"].map(type => {
+        const roomsType = allRooms.filter(r => r.room_type === type);
 
-    }));
+        return {
+            room_type: type,
+            occupied: roomsType.filter(r => r.occupancy_status == "Occupied").length,
+            empty: roomsType.filter(r => r.occupancy_status === "Empty").length,
+        }
+    });
 
     const studentStatusList = allStudents.map(u => u.student?.housing_status).filter(Boolean);
     const totalAssigned = studentStatusList.filter(s => s === "Assigned").length;
@@ -51,7 +54,7 @@ export async function getHousingAdmingDashboardData() {
         },
         occupancyRate: `${occupancyRate}`,
         totalPendingApplication,
-        occupancyData,
+        occupancyData: occupancyData,
         recentApplications: formattedApps
     }
 }

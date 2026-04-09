@@ -50,6 +50,7 @@ const totalActiveUsers = activeUserData.reduce((sum, row) => sum + row.count, 0)
 export default async function Page() {
   const liveData = await getHousingAdmingDashboardData();
   // <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
+  console.log(liveData.occupancyData);
   const housingStatusData = [
     { label: "Assigned", count: liveData.housingStatusCounts.assigned, color: "#1D9E75" },
     { label: "Unassigned", count: liveData.housingStatusCounts.unassigned, color: "#6B7280"},
