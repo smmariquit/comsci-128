@@ -115,6 +115,7 @@ export default function DashboardPage({
 	}: Partial<DashboardProps>) {
 
 		const [userCount, setUserCount] = useState(0);
+		const [activeCount, setActiveCount] = useState(0);
 		const [managerCount, setManagerCount] = useState(0);
 		const [propertyCount, setPropertyCount] = useState(0);
 		const [loading, setLoading] = useState(true);
