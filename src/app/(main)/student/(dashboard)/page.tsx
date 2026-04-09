@@ -18,19 +18,27 @@ export default async function DashboardPage() {
         return NotAssignedDashboard(userName);
     }
 
-	return (
+    return (
         // MAIN PAGE
-        <div className="w-[1440px] h-[900px] inline-flex flex-col justify-start items-start overflow-hidden">
+        <div style={{
+            width: "100%",
+            minHeight: "100%",
+            background: "#1C2632",
+            display: "inline-flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "stretch",
+        }}>
             {/* NAVBAR */}
-            <StudentNavBar 
+            <StudentNavBar
                 path={"Dashboard"
-            }/>
-            
+                } />
+
             {/* BODY */}
             <div className="self-stretch flex-1 px-9 py-4 bg-stone-200 flex flex-col justify-start items-center gap-4 overflow-hidden">
                 {DashboardContent(userHousingStatus?.housing_status)}
             </div>
-            
+
         </div>
     );
 }
