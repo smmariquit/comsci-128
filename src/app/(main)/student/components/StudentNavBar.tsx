@@ -15,10 +15,10 @@ export default function StudentNavBar({path}: StudentNavbarProps) {
           </h1>
 
           <nav className="flex items-center gap-6 border-l border-gray-700 pl-8  font-[family-name:var(--font-geist-sans)]">
-            <a href="/student/dashboard" className="text-[#EDE9DE]">
+            <a href="/student" className="text-[#EDE9DE]">
               Dashboard
             </a>
-            <a href="/student" className="text-[#EDE9DE] transition-colors">
+            <a href="/student/browse" className="text-[#EDE9DE] transition-colors">
               Browse
             </a>
           </nav>
