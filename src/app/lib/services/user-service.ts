@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { supabaseAdmin } from "../supabase";
 import { userData } from "@/app/lib/data/user-data";
 import { studentData } from "@/app/lib/data/student-data";
 import { User, NewUser, UpdateUser } from "@/models/user";
@@ -8,33 +9,61 @@ import { NewStudentAcademic } from "../models/student_academic";
 type ServiceResponse<T> = { data?: T; error?: string };
 type Public<T> = Omit<T, "account_number" | "password">;
 
+const allowedSex = ["Female", "Male", "Prefer not to say"];
+
 const addUser = async (userDetails: NewUser): Promise<Student> => {
 	try {
 		const { account_email, first_name, last_name, password } = userDetails;
 
-		// Check if email already exists
-		const existing = await userData.findUserByEmail(account_email);
-		if (existing) throw new Error("Email already in use.");
-
-		// Check fields that are required
+		// required fields check
 		if (!account_email) throw new Error("Email is required.");
 		if (!first_name) throw new Error("First name is required.");
 		if (!last_name) throw new Error("Last name is required.");
 		if (!password) throw new Error("Password is required");
-		// Student default
-		userDetails.user_type = "Student";
+
+		// validate sex
+		
+		if (userDetails.sex && !allowedSex.includes(userDetails.sex)) {
+			throw new Error(`Invalid sex value. Must be one of: ${allowedSex.join(", ")}`);
+		}
+		
+		// Check if email already exists
+		const { data: existingUser } = await supabaseAdmin
+			.from("user")
+			.select("*")
+			.eq("account_email", account_email)
+			.single();
+		if (existingUser) throw new Error("Email already in use.");
+
 		// Hash pw
 		const salt = await bcrypt.genSalt(12);
-		userDetails.password = await bcrypt.hash(password, salt);
+		const hashedPassword = await bcrypt.hash(password, salt);
+		userDetails.password = hashedPassword;
+		userDetails.user_type = "Student";
+		userDetails.sex = userDetails.sex || "Prefer not to say";
 		
-		// mock... replace once there's input for Student
+		// create supabase auth user
+		const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+			email: account_email,
+			password,
+			email_confirm: true,
+		});
+
+		if (authError) {
+			throw new Error(authError.message);
+		}
+
+		const user = authData.user;
+	
+		// Mock student record 
 		const studentDetails: NewStudent = {
 			student_number: Math.floor(100000 + Math.random() * 900000),
 			housing_status: "Not Assigned",
 			emergency_contact_name: null,
 			emergency_contact_number: null,
-			emergency_contact_relationship: null
+			emergency_contact_relationship: null,
 		};
+		
 
 		// mock... replace once there's input for StudentAcademic
 		const studentAcademicDetails: NewStudentAcademic = {
