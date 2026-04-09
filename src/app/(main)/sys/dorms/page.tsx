@@ -45,17 +45,6 @@ const stubUser: SidebarUser = {
   initials: 'LF',
 };
 
-// Hardcoded list of users for the table - in a real app, this would come from an API
-const stubUsers: User[] = [
-  { id: '1', name: 'Sampaguita Dorm',     dormAddress: '123 Roxas St, Diliman, QC',  managerEmail: 'ldelarosa@up.edu.ph',   status: 'Accepting', dormitory: 'Luis Dela Rosa',    capacity: 32, rooms: 32, occupied: 30 },
-  { id: '2', name: 'Ilang-Ilang Dorm',    dormAddress: '45 Kamuning Rd, QC',         managerEmail: 'jiantonio@up.edu.ph',   status: 'Accepting', dormitory: 'Justine Antonio',   capacity: 40, rooms: 40, occupied: 38 },
-  { id: '3', name: 'Rosal Dorm',          dormAddress: '78 UP Campus, Diliman',      managerEmail: 'phfababeir@up.edu.ph',  status: 'Accepting', dormitory: 'Paul Fababeir',     capacity: 25, rooms: 25, occupied: 20 },
-  { id: '4', name: 'Kamia Dorm',          dormAddress: '12 Maginhawa St, QC',        managerEmail: 'jpomamos@up.edu.ph',    status: 'Disabled',  dormitory: 'Jun Paul Omamos',   capacity: 20, rooms: 20, occupied: 0  },
-  { id: '5', name: 'Cadena de Amor Dorm', dormAddress: '9 Lakandula St, QC',         managerEmail: 'jguevarra@up.edu.ph',   status: 'Accepting', dormitory: 'Joy Guevarra',      capacity: 30, rooms: 30, occupied: 27 },
-  { id: '6', name: 'Adelfa Dorm',         dormAddress: '3 Tandang Sora Ave, QC',     managerEmail: 'hespinocilla@up.edu.ph',status: 'Disabled',  dormitory: 'Haira Espinocilla', capacity: 18, rooms: 18, occupied: 0  },
-  { id: '7', name: 'Molave Dorm',         dormAddress: '55 Esteban Abada, QC',       managerEmail: 'alfernandez@up.edu.ph', status: 'Accepting', dormitory: 'Althea Fernandez',  capacity: 22, rooms: 22, occupied: 19 },
-];
-
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
   { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',       read: false, time: '1h ago'    },
@@ -108,11 +97,11 @@ function StatusBadge({ status }: { status: string }) {
 // Main User Management Page component
 export default function UserManagementPage({
   user = stubUser,
-  users: initialUsers = stubUsers,
   notifications = stubNotifications,
   onLogout,
 }: UserManagementProps) {
-  const [userList, setUserList] = useState<User[]>(initialUsers);
+  const [housingList, setHousingList] = useState<>;
+
   const [showModal, setShowModal] = useState(false);
   const [filters, setFilters] = useState<UserFiltersState>({
     search: '', status: 'All Status', occupancy: 'All',
