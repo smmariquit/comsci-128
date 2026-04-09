@@ -93,7 +93,6 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 const assignRoom = async (roomId: number, studentId: string) => {
 	try {
 		await roomData.insertAccommodation(roomId, studentId);
-		await roomData.update(roomId, {occupancy_status: "Partially Occupied" as any});
 
 		return { success: true };
 	} catch (error: any) {
@@ -105,15 +104,6 @@ const assignRoom = async (roomId: number, studentId: string) => {
 const unassignRoom = async (roomId: number, studentId: string) => {
 	try {
 		await roomData.endAccommodation(roomId, studentId);
-
-		const room = await roomData.findAllRoomDetailed();
-		const currentRoom = room.find(r => r.room_id === roomId);
-
-		if (!currentRoom || currentRoom.current_occupants === 0) {
-			await roomData.update(roomId, { occupancy_status: "Empty" as any});
-		} else {
-			await roomData.update(roomId, { occupancy_status: "Partially Occupied" as any});
-		}
 
 		return { success: true }
 	} catch (error: any) {
