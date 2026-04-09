@@ -118,23 +118,26 @@ async function findAllRoomDetailed () {
 
 	return (data || []).map((room) => {
 		let displayStatus = room.occupancy_status;
+		const normalizedStatus = displayStatus?.toLowerCase() || "";
+
 		// force tell it is occupied
-		if (displayStatus?.toLowerCase().includes("occupied")) {
+		if (normalizedStatus.includes("occupied") || normalizedStatus.includes("partially occupied")) {
 			displayStatus = "Occupied";
-		} else if (!displayStatus || displayStatus?.toLowerCase().includes("empty")) {
+		} else {
 			displayStatus = "Empty"
 		}
 
-		const validTypes = ["Single", "Double", "Shared", "Bedspace"];
-		let displayType = validTypes.includes(room.room_type) ? room.room_type: "Bedspace";
+		let displayType = "Shared"; //default (for <= 3)
 
-		if (!validTypes.includes(displayType)) {
-			displayType = "Shared";
+		if (room.maximum_occupants === 1) {
+			displayType = "Single";
+		} else if (room.maximum_occupants === 2) {
+			displayType = "Double";
 		}
 
 		return {
 			room_id: room.room_id,
-			room_code: String(room.room_id) || "N/A",
+			room_code: room.room_code,
 			housing_name: room.housing?.housing_name || "Unassigned",
 			room_type: displayType,
 			maximum_occupants: room.maximum_occupants || 0,
