@@ -53,7 +53,7 @@ export default function HousingCards({ cards }: { cards: any[] }) {
             <div 
                 key={card.id} 
                 onClick={() => handleCardClick(card.id)}
-                className="cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02]"
+                className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02]"
             >
                 <Image
                 src="/assets/placeholders/housing-414x264.svg"
@@ -62,7 +62,7 @@ export default function HousingCards({ cards }: { cards: any[] }) {
                 height={264}
                 className="block h-auto w-full"
                 />
-                <div className="bg-[#1C2632] px-3.5 py-2.5 text-m font-semibold text-[#C9642A]  font-[family-name:var(--font-geist-sans)]">
+                <div className="flex-1 bg-[#1C2632] px-3.5 py-2.5 text-m font-semibold text-[#C9642A] truncate font-[family-name:var(--font-geist-sans)]">
                 {card.name}
                 </div>
             </div>
