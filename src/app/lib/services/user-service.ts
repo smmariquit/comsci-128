@@ -149,5 +149,6 @@ export const userService = {
 	getAllUser,
 	updateUser,
 	deactivateUser,
-	getUserCount
+	getUserCount,
+	getActiveUserCount
 };
