@@ -5,7 +5,7 @@ import {
 	RoomUpdate,
 	RoomWithParentHousing,
 } from "@/models/room";
-import { RoomRow } from "@/components/admin/rooms/roomtable";
+import { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
 
 async function create(data: RoomInsert): Promise<Room | null> {
 	const { data: newRecord, error } = await supabase
@@ -121,32 +121,29 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 	if (error) throw new Error(error.message);
 
 	return (data || []).map((room) => {
-		let displayStatus = room.occupancy_status;
-		const normalizedStatus = displayStatus?.toLowerCase() || "";
+		const occupantCount = room.tenants?.length || 0;
+		const max = room.maximum_occupants;
 
-		// force tell it is occupied
-		if (normalizedStatus.includes("occupied") || normalizedStatus.includes("partially occupied")) {
-			displayStatus = "Occupied";
-		} else {
-			displayStatus = "Empty"
-		}
+		let derivedStatus: OccupancyStatus = "Empty";
+		if (occupantCount > 0) {
+			derivedStatus = "Occupied";
+		} 
 
-		let displayType: RoomRow['room_type'] = "Shared" //default (for <= 3)
-
-		if (room.maximum_occupants === 1) {
-			displayType = "Single";
-		} else if (room.maximum_occupants === 2) {
-			displayType = "Double";
+		let derivedType: RoomRow['room_type'] = "Shared";
+		if (max === 1) {
+			derivedType = "Single";
+		} else if (max === 2) {
+			derivedType = "Double";
 		}
 
 		return {
 			room_id: room.room_id,
 			room_code: room.room_code,
 			housing_name: room.housing?.housing_name || "Unassigned",
-			room_type: displayType,
-			maximum_occupants: room.maximum_occupants || 0,
-			current_occupants: room.tenants?.length || 0,
-			occupancy_status: displayStatus,
+			room_type: derivedType,
+			maximum_occupants: room.maximum_occupants,
+			current_occupants: room.occupants_count,
+			occupancy_status: derivedStatus,
 			assigned_tenants: (room.tenants || []).map((t: any) => {
 				const s = t.student;
 				const firstName = s?.user?.first_name || "Unknown";
@@ -177,15 +174,14 @@ async function insertAccommodation(roomId: number, studentId: string) {
 	return data;
 }
 
-async function endAccommodation(roomId: number, studentId: string) {
+async function endAccommodation(roomId: number, studentId: number) {
 	const { error } = await supabase
 		.from("student_accommodation_history")
-		.update({ moveout_date: new Date().toISOString().split('T')[0] })
+		.delete()
 		.eq("room_id", roomId)
 		.eq("account_number", studentId)
-		.is("moveout_date", null);
 	
-	if (error) throw new Error(error.message)
+	if (error) throw new Error(error.message);
 }
 
 async function findUnassignedStudents() {
@@ -199,7 +195,7 @@ async function findUnassignedStudents() {
 			)	
 		`);
 
-	if (error) throw new Error(error.message)
+	if (error) throw new Error(error.message);
 
 	return (data || []).map(item => {
 		const u = Array.isArray(item.user) ? item.user[0] : item.user;
@@ -209,6 +205,57 @@ async function findUnassignedStudents() {
 			name: u ? `${u.first_name || ""} ${u.last_name || ""}`.trim() : ""
 		};
 	});
+}
+
+async function getOccupantCount(roomId: number, increment: number) {
+	const { data, error: fetchError } = await supabase
+		.from("room")
+		.select('occupants_count, maximum_occupants')
+		.eq('room_id', roomId)
+		.single();
+	
+	if (fetchError) throw new Error(fetchError.message);
+
+	const newCount = Math.max(0, (data.occupants_count || 0) + increment)
+
+	const { error: updateError } = await supabase
+	.from("room")
+	.update({
+		occupants_count: newCount,
+	})
+	.eq('room_id', roomId);
+
+	if (updateError) throw new Error(updateError.message);
+	
+	return newCount;
+}
+
+async function getAccountbyStudentNumber(studentNumber: string) {
+	const { data, error } = await supabase
+		.from("student")
+		.select('account_number')
+		.eq('student_number', studentNumber)
+
+	if (error || !data) {
+		throw new Error(error.message);
+	}
+
+	if(!data || data.length === 0) {
+		throw new Error(`No student found: ${studentNumber}`);
+	}
+
+	return data[0].account_number;
+}
+
+async function updateStudentHousingStatus(accountNumber: number, status: string) {
+	const { error } = await supabase
+		.from("student")
+		.update({
+			housing_status: status
+		})
+		.eq('account_number', accountNumber)
+
+		if (error) throw new Error(error.message);
 }
 
 export const roomData = {
@@ -222,4 +269,7 @@ export const roomData = {
 	insertAccommodation,
 	endAccommodation,
 	findUnassignedStudents,
+	getOccupantCount,
+	getAccountbyStudentNumber,
+	updateStudentHousingStatus,
 };
