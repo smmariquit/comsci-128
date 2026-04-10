@@ -158,20 +158,3 @@ export const deletePayment = async (id: number) => {
 		.select()
 		.single();
 };
-
-export async function getHousingDetailsofStudent(studentAccountNumber: number) {
-	// get the details of the housing and room of a student given a student's account number
-	
-	const { data: studentHousingDetails, error } = await supabase
-		.from("housing")
-		.select(`
-			*,
-			room!inner(*),
-			student_accommodation_history!inner(*)
-		`)
-		.eq("student_accommodation_history.account_number", studentAccountNumber);
-
-	if (error) throw new Error(`getHousingDetailsofStudent Error: ${error.message}`);
-
-	return studentHousingDetails;
-}
