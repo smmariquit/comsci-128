@@ -67,7 +67,13 @@ async function findAllBillings(): Promise<BillRow[]> {
 		due_date,
 		issue_date,
 		date_paid,
-		student_account_number
+		student_account_number,
+		student:student!student_account_number (
+			user:user!account_number (
+				first_name,
+				last_name
+			)
+		)
 	`)
 	.eq("is_deleted", false);
 
@@ -81,7 +87,7 @@ async function findAllBillings(): Promise<BillRow[]> {
 			housing_name: "Unassigned",
 			bill_type: b.bill_type,
 			amount: Number(b.amount),
-			status: b.Status as PaymentStatus,
+			status: b.status as PaymentStatus,
 			due_date: b.due_date,
 			issue_date: b.issue_date,
 			date_paid: b.date_paid,
