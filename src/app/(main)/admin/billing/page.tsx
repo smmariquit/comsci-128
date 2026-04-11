@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { C } from "@/lib/palette";
 import BillTable, { MOCK_BILLS } from "@/app/components/admin/billings/billingtable";
 import BillFilters from "@/app/components/admin/billings/billingfilters";
-import  IssueBillModal from "@/app/components/admin/billings/billingmodal";
+import  IssueBillModal, {ViewBillModal} from "@/app/components/admin/billings/billingmodal";
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
+import { billingService } from "@/app/lib/services/billing-service";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
@@ -112,6 +113,30 @@ const HOUSING_OPTIONS = [...new Set(MOCK_BILLS.map((b) => b.housing_name))];
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function BillingPage() {
+  
+  const [bills, setBills] = useState<BillRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+    loadBills();
+  }, []);
+
+  async function loadBills() {
+    if (!isLoading) setIsLoading(true);
+
+    try {
+      const data = await billingService.fetchAllBills();
+      setBills(data);
+    } catch (error) {
+      console.error("Refresh Load Error: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   // ── Filter state ────────────────────────────────────────────────────────────
   const [search,      setSearch]      = useState("");
@@ -126,7 +151,8 @@ export default function BillingPage() {
 
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
-    return MOCK_BILLS.filter((b) => {
+    if (!bills) return [];
+    return bills.filter((b) => {
       const q              = search.toLowerCase();
       const matchesSearch  = !q || b.student_name.toLowerCase().includes(q);
       const matchesStatus  = status   === "All" || b.status      === status;
@@ -139,7 +165,7 @@ export default function BillingPage() {
 
       return matchesSearch && matchesStatus && matchesType && matchesHousing && matchesFrom && matchesTo;
     });
-  }, [search, status, billType, housing, dueDateFrom, dueDateTo]);
+  }, [bills, search, status, billType, housing, dueDateFrom, dueDateTo]);
 
   // ── Summary stats ───────────────────────────────────────────────────────────
   const totalAmount  = filtered.reduce((s, b) => s + b.amount, 0);
@@ -150,29 +176,66 @@ export default function BillingPage() {
   // ── Table handlers ──────────────────────────────────────────────────────────
   function handleView(row: BillRow) {
     console.log("View bill:", row);
-    // TODO: open ViewBillModal
+    setSelectedBill(row);
   }
 
-  function handleMarkPaid(row: BillRow) {
-    console.log("Mark as paid:", row);
-    // TODO: confirmation + PATCH bill status → "Paid", set date_paid
+  async function handleMarkPaid(row: BillRow) {
+    if (!confirm(`Mark transaction #${row.transaction_id} as paid?`)) return;
+
+    try {
+      await billingService.markAsPaid(row.transaction_id);
+      await loadBills();
+    } catch (error) {
+      console.error ("Error handleMarkPaid: ", error);
+    }
   }
 
-  function handleDelete(row: BillRow) {
-    console.log("Delete bill:", row);
-    // TODO: confirmation modal + soft-delete (is_deleted = true)
+  async function handleDelete(row: BillRow) {
+    if (!confirm(`Mark transaction #${row.transaction_id} as deleted?`)) return;
+
+    try {
+      await billingService.removeBill(row.transaction_id);
+      await loadBills();
+    } catch (error) {
+      console.error ("Error handleDelete: ", error);
+    }
   }
+
 
   // ── Issue Bill submit ───────────────────────────────────────────────────────
-  function handleIssue(form: IssueBillForm) {
-    console.log("Issue bill:", form);
-    // TODO: for each charge in form.charges, POST to /api/bills:
-    //   { student_name, housing_name, student_account_number,
-    //     bill_type: charge.type, amount: charge.amount,
-    //     due_date: form.due_date, issue_date: form.issue_date,
-    //     status: "Pending", manager_account_number }
-    setIssueOpen(false);
+  async function handleIssue(form: IssueBillForm) {
+    try {
+      setIsLoading(true);
+  
+      const issuePromises = form.charges
+        .filter(c => parseFloat(c.amount) > 0)
+        .map(charge => {
+          const dbType = charge.type === "Other" ? "Miscellaneous" : charge.type;
+          const studentId = form.student_account_number ?? 
+            bills.find(b => b.student_name === form.student_name)?.student_account_number;
+
+          return billingService.createBill({
+            student_account_number: studentId,
+            bill_type: dbType,
+            amount: parseFloat(charge.amount),
+            due_date: form.due_date,
+            issue_date: form.issue_date,
+            status: "Pending"
+          });
+        });
+      
+        await Promise.all(issuePromises);
+
+        setIssueOpen(false);
+        await loadBills();
+    } catch (error) {
+      console.error("Failed to handleIssue: ", error);
+    } finally {
+      setIsLoading(false);
+    }
   }
+
+  if (!isMounted) return <div style={{ padding: 28 }}>Initializing...</div>;
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -268,7 +331,12 @@ export default function BillingPage() {
         onSubmit={handleIssue}
       />
 
-      
+      {selectedBill && (
+        <ViewBillModal 
+          bill={selectedBill} 
+          onClose={() => setSelectedBill(null)} 
+        />
+      )}
 
     </div>
   );
