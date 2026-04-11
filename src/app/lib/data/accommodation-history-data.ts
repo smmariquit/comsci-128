@@ -11,12 +11,13 @@ export async function getCurrentTenantsByHousingId(housingId: number) {
       account_number,
       movein_date,
       moveout_date,
-      room:room_id (
+      room:room!room_id (
         room_id,
         housing_id
       ),
-      student:account_number (
-        user:account_number (
+      student:student!account_number (
+        account_number,
+        user:user!account_number (
           first_name,
           middle_name,
           last_name
@@ -27,6 +28,7 @@ export async function getCurrentTenantsByHousingId(housingId: number) {
     .gte("moveout_date", today)
 
   if (error) throw new Error(error.message)
+
 
   return (data ?? []).filter((t: any) => t.room?.housing_id === housingId)
 }
