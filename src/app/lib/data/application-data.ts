@@ -188,3 +188,19 @@ export async function getDocumentsByApplicationId(applicationId: number) {
   if (error) throw error
   return data
 }
+
+export async function assignRoomToApplication(
+  applicationId: number,
+  roomId: number
+) {
+  const { data, error } = await supabase
+    .from("application")
+    .update({ room_id: roomId })
+    .eq("application_id", applicationId)
+    .eq("is_deleted", false)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  return data
+}
