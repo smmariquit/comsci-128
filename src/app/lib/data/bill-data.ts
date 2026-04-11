@@ -1,3 +1,5 @@
+import { BillRow } from "@/app/components/admin/billings/billingtable";
+import { PaymentStatus } from "@/app/components/admin/reports/reportsmock";
 import { supabase } from "@/app/lib/supabase";
 
 export type ActionType = "Application Status" | "Bill Status";
@@ -52,3 +54,60 @@ export async function updateAuditLog(
 	if (error) throw error;
 	return data;
 }
+
+// FIND ALL BILLINGS
+export async function findAllBillings(): Promise<BillRow[]> {
+	const { data, error } = await supabase
+	.from("bill")
+	.select(`
+		transaction_id,
+		amount,
+		status,
+		bill_type,
+		due_date,
+		issue_date,
+		date_paid,
+		student_account_number
+	`)
+	.eq("is_deleted", false);
+
+	if (error) throw new Error(error.message);
+
+	return (data || []).map((b: any) => {
+		return {
+			transaction_id: b.transaction_id,
+			student_name: `${b.student?.user?.first_name} ${b.student?.user?.last_name}`,
+			student_account_number: b.student_account_number,
+			housing_name: "Unassigned",
+			bill_type: b.bill_type,
+			amount: Number(b.amount),
+			status: b.Status as PaymentStatus,
+			due_date: b.due_date,
+			issue_date: b.issue_date,
+			date_paid: b.date_paid,
+		};
+	});
+}
+
+export async function updateStatus(txnId: number, status: PaymentStatus, datePaid?: String) {
+	const payload: any = {status};
+	if (datePaid) payload.date_paid = datePaid;
+
+	const { data, error } = await supabase
+		.from("bill")
+		.update(payload)
+		.eq("transaction_id", txnId)
+		.select()
+		.single();
+
+	if (error) throw new Error(error.message);
+}
+
+export async function deleteBilling(txnId: number) {
+	const { error } = await supabase
+		.from("bill")
+		.update({ is_deleted: true })
+		.eq("transaction_id", txnId);
+
+	if (error) throw new Error(error.message)
+} 
