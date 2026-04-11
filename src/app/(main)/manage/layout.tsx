@@ -46,13 +46,20 @@ export default function ManageLayout({
             </div>
 
             <div className="flex items-center gap-6 text-sm">
-              <button className="hover:text-blue-500/50 transition-colors">
-                Notifs
-              </button>
+              {/* change for notifs later*/}
+              <Link
+                href="/manage" 
+                className="hover:text-[var(--light-yellow)] transition-colors"
+              >
+                Notifications
+              </Link>
 
-              <button className="hover:text-blue-500/50 transition-colors">
+              <Link
+                href="/profile"
+                className="hover:text-[var(--light-yellow)] transition-colors"
+              >
                 Profile
-              </button>
+              </Link>
             </div>
 
           </div>
@@ -74,8 +81,8 @@ export default function ManageLayout({
         {children}
       </main>
 
-      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-4 text-sm">
-        © 2026 Manager Dashboard
+      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
+        © 2026 CMSC 128 Project
       </footer>
     </div>    
   );

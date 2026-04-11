@@ -7,22 +7,34 @@ import Link from "next/link";
 
 function MainStatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="bg-gray-800 p-6 rounded-xl">
-      <p className="text-sm text-gray-400">{label}</p>
-      <p className="text-3xl font-bold text-white">{value}</p>
+    <div className="bg-gray-800 p-6 rounded-xl min-h-80 flex flex-col justify-center">      
+      <p className="text-sm text-[var(--cream)]">{label}</p>
+      <p className="text-3xl font-bold text-[var(--dark-orange)]">{value}</p>
     </div>
   );
 }
 
-function StatCard({ label, value }: { label: string; value: string | number }) {
+function StatCard({ 
+  label, 
+  value,
+  icon,
+}: { 
+  label: string; 
+  value: string | number;
+  icon: string; 
+}) {
   return (
-    <div className="bg-gray-700 p-4 rounded-lg flex items-center gap-4">
+    <div className="h-30 bg-[var(--cream)] py-3 px-6 rounded-lg flex items-center gap-4 border-t-4 border-[var(--dark-orange)] shadow-md">
       {/* pic placeholder*/}
-      <div className="w-10 h-10 bg-white rounded"></div>
+       <img
+        src={icon || "/assets/placeholders/housing-card.svg"}
+        alt={label}
+        className="w-12 h-12 object-contain flex-shrink-0"
+      />
 
-      <div>
-        <p className="text-lg font-bold text-white">{value}</p>
-        <p className="text-sm text-gray-300">{label}</p>
+      <div className="flex flex-col justify-center">
+        <p className="text-lg font-bold text-[var(--dark-blue)]">{value}</p>
+        <p className="text-sm text-[var(--dark-orange)]">{label}</p>
       </div>
     </div>
   );
@@ -31,17 +43,29 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 function DormCard({
   id,
   name,
+  image,
   location,
 }: {
   id: number;
   name: string;
+  image: string;
   location: string;
 }) {
   return (
-    <Link href={`/manage/accommodations/`}> {/* Specific dorm page to do */}
-      <div className="bg-white p-4 rounded shadow hover:shadow-lg transition cursor-pointer">
-        <h3 className="font-bold text-lg text-gray-800">{name}</h3>
-        <p className="text-sm text-gray-600">{location}</p>
+    <Link href={`/manage/accommodations/${id}`}> {/*to be modified when there is a specific dorm page*/}
+      <div className="relative h-64 rounded-xl overflow-hidden shadow cursor-pointer group">
+
+        <img
+          src={image || "/assets/placeholders/housing-card.svg"}
+          alt={name}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+        />
+        
+        <div className="absolute bottom-0 w-full bg-[var(--dark-blue)]/60 text-[var(--light-yellow)] p-2 text-center">
+          <p className="font-semibold leading-tight">{name}</p>
+          <p className="text-xs opacity-80">{location}</p>
+        </div>
+
       </div>
     </Link>
   );
@@ -68,26 +92,23 @@ export default async function MgrDashboardPage() {
   ])
 
   return (
-    <div className="flex flex-col gap-10 text-[var(--dark-blue)]">
+    <div className="flex flex-col gap-10 text-[var(--dark-orange)] bg-[var(--cream)]">
 
 
-      <section className="flex flex-col gap-6 px-6">
-        <h1 className="text-3xl font-bold">Manager Dashboard</h1>
+      <section className="flex flex-col gap-6 p-6">
 
+        <MainStatCard label="Gross Revenue" value={stats.total} />
 
-        <MainStatCard label="Total Applicants" value={stats.total} />
+        {/* placeholder for statistics*/} 
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard label="New Applicants" value={stats.pending} />
-          <StatCard label="Approved Applications" value={stats.approved} />
-          <StatCard label="Rejected Applications" value={stats.rejected} />
-        </div>
+          <StatCard label="New Applicants" value={stats.pending} icon='/assets/placeholders/avatar-128x128.svg' />
+          <StatCard label="Approved Applications" value={stats.approved} icon='/assets/placeholders/avatar-128x128.svg'/>
+          <StatCard label="Rejected Applications" value={stats.rejected} icon='/assets/placeholders/avatar-128x128.svg'/>
 
-        {/* placeholder for statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard label="Total Rooms" value={roomStats.totalRooms} />
-          <StatCard label="Total Occupants" value={roomStats.totalOccupants} />
-          <StatCard label="Vacant Rooms" value={roomStats.totalFreeRooms} />
+          <StatCard label="Total Rooms" value={roomStats.totalRooms} icon='/assets/placeholders/avatar-128x128.svg'/>
+          <StatCard label="Total Occupants" value={roomStats.totalOccupants} icon='/assets/placeholders/avatar-128x128.svg'/>
+          <StatCard label="Vacant Rooms" value={roomStats.totalFreeRooms} icon='/assets/placeholders/avatar-128x128.svg'/>
         </div>
 
       </section>
@@ -95,8 +116,8 @@ export default async function MgrDashboardPage() {
 
 
 
-      <section className="flex flex-col gap-4 p-6 bg-[var(--teal)]/30 ">
-        <h2 className="text-xl font-semibold">Dorms Managed</h2>
+      <section className="flex flex-col gap-4 p-6 bg-[var(--teal)]/70 ">
+        <h2 className="text-xl text-[var(--dark-blue)] font-semibold">Dorms Managed</h2>
 
         {/* filter */}
         <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
@@ -105,7 +126,7 @@ export default async function MgrDashboardPage() {
 
 
         {/* Dorm Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-2">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 p-2">
 
           {/* <DormCard id={1} name="Dorm A" location="Grove" />
           <DormCard id={2} name="Dorm B" location="Umali" />
@@ -118,6 +139,7 @@ export default async function MgrDashboardPage() {
                 key={dorm.housing_id}
                 id={dorm.housing_id}
                 name={dorm.housing_name}
+                image={'/assets/placeholders/housing-card.svg'}
                 location={dorm.housing_address}
               />
             ))
@@ -133,7 +155,7 @@ export default async function MgrDashboardPage() {
       <section className="flex flex-col gap-4 px-6">
         <h2 className="text-xl font-semibold text-[var(--dark-orange)]">Recent Activities</h2>
 
-        <div className="flex flex-col gap-2 p-4 border-orange-500">
+        <div className="flex flex-col gap-1 p-4 border-orange-500">
           <ActivityItem text="Wen Ruohan applied to Dorm A" />
           <ActivityItem text="Wen Zhuliu was approved for Dorm B" />
           <ActivityItem text="Wen Chao was rejected for Dorm C" />
