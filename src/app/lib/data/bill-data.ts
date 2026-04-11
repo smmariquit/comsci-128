@@ -56,7 +56,7 @@ export async function updateAuditLog(
 }
 
 // FIND ALL BILLINGS
-export async function findAllBillings(): Promise<BillRow[]> {
+async function findAllBillings(): Promise<BillRow[]> {
 	const { data, error } = await supabase
 	.from("bill")
 	.select(`
@@ -89,7 +89,8 @@ export async function findAllBillings(): Promise<BillRow[]> {
 	});
 }
 
-export async function updateStatus(txnId: number, status: PaymentStatus, datePaid?: String) {
+// UPDATE BILLING STATUS
+async function updateBilling(txnId: number, status: PaymentStatus, datePaid?: String) {
 	const payload: any = {status};
 	if (datePaid) payload.date_paid = datePaid;
 
@@ -103,7 +104,8 @@ export async function updateStatus(txnId: number, status: PaymentStatus, datePai
 	if (error) throw new Error(error.message);
 }
 
-export async function deleteBilling(txnId: number) {
+// DELETE BILLING
+async function deleteBilling(txnId: number) {
 	const { error } = await supabase
 		.from("bill")
 		.update({ is_deleted: true })
@@ -111,3 +113,9 @@ export async function deleteBilling(txnId: number) {
 
 	if (error) throw new Error(error.message)
 } 
+
+export const billingData = {
+	findAllBillings,
+	updateBilling,
+	deleteBilling
+}
