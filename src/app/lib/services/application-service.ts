@@ -1,10 +1,17 @@
 
 
-import { getApplicationStats, getApplicationsWithStudentDetails, 
-  getApplicationDetailById, getDocumentsByApplicationId,
-  updateApplication
+import { 
+  getApplicationStats, 
+  getApplicationsWithStudentDetails, 
+  getApplicationDetailById, 
+  getDocumentsByApplicationId,
+  updateApplication,
+  assignRoomToApplication,
+  getApprovedUnassignedByHousingName
 
 } from "@/app/lib/data/application-data";
+
+import { accommodationHistoryData } from "@/lib/data/accommodation-history-data";
 
 const getDashboardStats = async () => {
   try {
@@ -60,6 +67,26 @@ const updateApplicationStatus = async (
   } catch (error) {
     console.error("Error: ", error)
     throw new Error("Failed to update application status")
+  }
+}
+
+const assignApplicantToRoom = async (
+  applicationId: number,
+  roomId: number,
+  studentAccountNumber: number,
+  moveoutDate: string
+) => {
+  try {
+
+    const updated = await assignRoomToApplication(applicationId, roomId)
+    if (!updated) throw new Error("Failed to assign room to application.")
+
+    await accommodationHistoryData.createTenantRecord(studentAccountNumber, roomId, moveoutDate)
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to assign applicant to room.")
   }
 }
 

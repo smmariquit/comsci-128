@@ -58,7 +58,7 @@ const getCurrentTenantsByRoomId = async (roomId: number) => {
   return data ?? []
 }
 
-const createTenantRecord =async(
+const createTenantRecord = async(
   accountNumber: number,
   roomId: number,
   moveoutDate: string
