@@ -95,5 +95,6 @@ export const applicationService = {
   getApplications,
   getApplicationDetail,      
   getApplicationDocuments, 
-  updateApplicationStatus
+  updateApplicationStatus,
+  assignApplicantToRoom
 }
