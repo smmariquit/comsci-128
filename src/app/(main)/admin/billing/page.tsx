@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { C } from "@/lib/palette";
 import BillTable, { MOCK_BILLS } from "@/app/components/admin/billings/billingtable";
 import BillFilters from "@/app/components/admin/billings/billingfilters";
@@ -8,6 +8,7 @@ import  IssueBillModal from "@/app/components/admin/billings/billingmodal";
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
+import { billingService } from "@/app/lib/services/billing-service";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
@@ -112,6 +113,20 @@ const HOUSING_OPTIONS = [...new Set(MOCK_BILLS.map((b) => b.housing_name))];
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function BillingPage() {
+  
+  const [bills, setBills] = useState<BillRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadBills();
+  }, []);
+
+  async function loadBills() {
+    setIsLoading(true);
+    const data = await billingService.fetchAllBills();
+    setBills(data);
+    setIsLoading(false);
+  }
 
   // ── Filter state ────────────────────────────────────────────────────────────
   const [search,      setSearch]      = useState("");
@@ -126,7 +141,7 @@ export default function BillingPage() {
 
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
-    return MOCK_BILLS.filter((b) => {
+    return bills.filter((b) => {
       const q              = search.toLowerCase();
       const matchesSearch  = !q || b.student_name.toLowerCase().includes(q);
       const matchesStatus  = status   === "All" || b.status      === status;
@@ -153,15 +168,28 @@ export default function BillingPage() {
     // TODO: open ViewBillModal
   }
 
-  function handleMarkPaid(row: BillRow) {
-    console.log("Mark as paid:", row);
-    // TODO: confirmation + PATCH bill status → "Paid", set date_paid
+  async function handleMarkPaid(row: BillRow) {
+    if (!confirm(`Mark transaction #${row.transaction_id} as paid?`)) return;
+
+    try {
+      await billingService.markAsPaid(row.transaction_id);
+      await loadBills();
+    } catch (error) {
+      console.error ("Error handleMarkPaid: ", error);
+    }
   }
 
-  function handleDelete(row: BillRow) {
-    console.log("Delete bill:", row);
-    // TODO: confirmation modal + soft-delete (is_deleted = true)
+  async function handleDelete(row: BillRow) {
+    if (!confirm(`Mark transaction #${row.transaction_id} as deleted?`)) return;
+
+    try {
+      await billingService.removeBill(row.transaction_id);
+      await loadBills();
+    } catch (error) {
+      console.error ("Error handleDelete: ", error);
+    }
   }
+
 
   // ── Issue Bill submit ───────────────────────────────────────────────────────
   function handleIssue(form: IssueBillForm) {

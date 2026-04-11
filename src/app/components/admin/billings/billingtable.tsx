@@ -112,7 +112,11 @@ const STATUS_STYLE: Record<PaymentStatus, { bg: string; dot: string; text: strin
 };
 
 function StatusBadge({ status }: { status: PaymentStatus }) {
-  const s = STATUS_STYLE[status];
+  const s = STATUS_STYLE[status] || {
+    bg: "rgba(0,0,0,0.05)", 
+    dot: "#ccc", 
+    text: "#666"
+  };
   return (
     <span style={{
       display: "inline-flex",
