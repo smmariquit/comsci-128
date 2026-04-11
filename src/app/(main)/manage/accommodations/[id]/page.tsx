@@ -1,10 +1,43 @@
 import Link from "next/link";
 import { housingService } from "@/app/lib/services/housing-service";
 
-export default async function HousingDetailPage({
+
+function UnitCard({
+  id,
+  name,
+  occupants,
+  freeSlots,
+  bedType,
+}: {
+  id: number;
+  name: string;
+  occupants: number;
+  freeSlots: number;
+  bedType: string;
+}) {
+  return (
+    <Link
+      href={`/manage/accommodations/occupants/${id}`}
+      className="block"
+    >
+      <div className="rounded-lg p-4 bg-[var(--dark-blue)] flex flex-col justify-between min-h-[150px] hover:brightness-90 transition cursor-pointer">
+        <h3 className="text-lg text-[var(--dark-orange)] font-semibold mb-1">{name}</h3>
+
+        <div className="text-sm text-[var(--cream)] flex flex-col gap-1">
+          <span>Occupants: {occupants}</span>
+          <span>Free Slots: {freeSlots}</span>
+          <span>Bed Type: {bedType}</span>
+        </div>
+
+      </div>
+    </Link>
+  );
+}
+
+export default async function Page({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params
   const housing = await housingService.getHousingWithRooms(Number(id))
@@ -17,40 +50,130 @@ export default async function HousingDetailPage({
     )
   }
 
+  const units = housing.room.map((room) => {
+  const max = room.maximum_occupants ?? 0;
+
+    return {
+      id: room.room_id,
+      name: `Unit #${room.room_id}`,
+      occupants: max,
+      freeSlots: 0, //remember this placehlder
+      bedType: room.room_type,
+    };
+  });
+  {/*tbr when there are tenants */}
+  const tenants = [
+    {
+      id: 1,
+      name: "Wei Wuxian",
+      unit: "Unit# 227",
+      start: "2026-03-01",
+      end: "2026-06-01",
+    },
+    {
+      id: 2,
+      name: "Lan Wangji",
+      unit: "Unit# 227",
+      start: "2026-03-05",
+      end: "2026-06-05",
+    },
+    {
+      id: 3,
+      name: "Lan Xichen",
+      unit: "Unit# 228",
+      start: "2026-03-10",
+      end: "2026-06-10",
+    },
+  ];
+
+
   return (
-    <main className="min-h-screen flex flex-col p-6 gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-500">{housing.housing_name}</h1>
-          <p className="text-gray-500 text-sm mt-1">{housing.housing_address}</p>
+    <main className="min-h-screen bg-[var(--cream)] text-[var(--dark-orange)] flex flex-col gap-6 p-6">
+      {/*
+      <Link
+        href="/manage/accommodations"
+        className="text-sm text-blue-600 hover:underline"
+      >
+        ← Back to Accommodations
+      </Link>
+      */}
+      
+      <div className="relative h-[40vh] min-h-[250px] rounded-xl overflow-hidden">
+        <img
+          src="/assets/placeholders/housing-card.svg"
+          className="w-full h-full object-cover"
+        />
+
+        <div className="absolute inset-0 bg-black/40" />
+
+        <div className="absolute bottom-0 w-full flex justify-between items-center p-4 text-[var(--dark-orange)]">
+          <h2 className="text-2xl font-semibold">
+            {housing.housing_name}
+          </h2>
+
+          <Link
+            href={`/manage/accommodations/${housing.housing_id}/assignment`}
+            className="bg-[var(--dark-orange)] text-[var(--dark-blue)] px-4 py-2 rounded text-sm font-medium hover:brightness-90 hover:shadow-md transition"          >
+            Assign Rooms
+          </Link>
         </div>
-        <Link href="/manage/accommodations" className="text-sm text-gray-500 hover:underline">
-          ← Back to Accommodations
-        </Link>
       </div>
 
-      {housing.room.length === 0 ? (
-        <p className="text-gray-500">No rooms found for this housing.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {housing.room.map((room) => (
-            <div
-              key={room.room_id}
-              className="bg-white rounded-xl shadow p-4 flex flex-col gap-2"
-            >
-              <h2 className="text-lg font-bold text-gray-800 bg-gray-300">
-                Unit #{room.room_id}
-              </h2>
-              <div className="flex flex-col gap-1 text-sm text-gray-600">
-                <span> Free Slots: </span>
-                <span> Max Occupants: {room.maximum_occupants ?? "N/A"}</span>
-                <span> Status: {room.occupancy_status}</span>
-                <span> Bed Type: {room.room_type}</span>
-              </div>
-            </div>
-          ))}
+
+      <div className="flex flex-col gap-6 bg-[var(--teal)]-500 py-20 px-10 rounded-lg">
+        <h1 className="text-2xl font-semibold text-[var(--dark-blue)]">Units</h1>
+
+        <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
+          Filter (to be implemented)
         </div>
-      )}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {units.map((unit) => (
+          <UnitCard key={unit.id} {...unit} />
+        ))}
+        </div>
+      </div>
+
+
+      <div className="flex flex-col gap-6 px-12 pb-10">
+        <h2 className="text-2xl text-[var(--dark-blue)] font-semibold">All Tenants</h2>
+
+        <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
+          Filter (to be implemented)
+        </div>
+
+        <div className="rounded-lg overflow-hidden bg-yellow-100">
+          <table className="w-full text-sm">
+            <thead className="bg-[var(--dark-blue)] text-[var(--dark-orange)]">
+              <tr>
+                <th className="text-left p-3">Name</th>
+                <th className="text-left p-3">Unit</th>
+                <th className="text-left p-3">Start of Stay</th>
+                <th className="text-left p-3">End of Stay</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {tenants.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="p-3 text-gray-400">
+                    No tenants yet.
+                  </td>
+                </tr>
+              ) : (
+                tenants.map((tenant) => (
+                  <tr key={tenant.id} className="border-t text-[var(--dark-blue)] hover:bg-black/5">
+                    <td className="p-3">{tenant.name}</td>
+                    <td className="p-3">{tenant.unit}</td>
+                    <td className="p-3">{tenant.start}</td>
+                    <td className="p-3">{tenant.end}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </main>
-  )
+  );
 }

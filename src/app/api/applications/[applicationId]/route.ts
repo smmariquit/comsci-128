@@ -19,8 +19,6 @@ export async function PATCH(
 
     const { applicationId } = await params
     const application_Id = Number(applicationId)
-    console.log("params id: ", applicationId)
-    console.log("application id: ", applicationId)
 
     if (isNaN(application_Id)) {
       return NextResponse.json({ message: "Invalid application ID." }, { status: 400 })
