@@ -1,3 +1,4 @@
+import { create } from "domain";
 import { billingData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
 
@@ -30,8 +31,18 @@ const removeBill = async (txnId: number) => {
     }
 };
 
+const createBill = async (billDetails: any) => {
+    try {
+        return await billingData.createBilling(billDetails);
+    } catch (error) {
+        console.error("Service Error (createBill): ", error);
+        throw new Error("Failed to create billing");
+    }
+};
+
 export const billingService = {
     fetchAllBills,
     markAsPaid,
     removeBill,
+    createBill,
 };
