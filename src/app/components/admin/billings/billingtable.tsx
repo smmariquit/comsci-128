@@ -146,7 +146,11 @@ const BILL_TYPE_STYLE: Record<BillType, { bg: string; text: string }> = {
 };
 
 function BillTypeTag({ type }: { type: BillType }) {
-  const s = BILL_TYPE_STYLE[type];
+  const s = BILL_TYPE_STYLE[type] || { 
+    bg: "rgba(0,0,0,0.05)", 
+    text: "#666" 
+  };
+
   return (
     <span style={{
       background: s.bg,

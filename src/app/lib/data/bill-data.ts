@@ -1,4 +1,4 @@
-import { BillRow } from "@/app/components/admin/billings/billingtable";
+import { BillRow, BillType } from "@/app/components/admin/billings/billingtable";
 import { PaymentStatus } from "@/app/components/admin/reports/reportsmock";
 import { supabase } from "@/app/lib/supabase";
 
@@ -82,12 +82,14 @@ async function findAllBillings(): Promise<BillRow[]> {
 	return (data || []).map((b: any) => {
 		return {
 			transaction_id: b.transaction_id,
-			student_name: `${b.student?.user?.first_name} ${b.student?.user?.last_name}`,
+			student_name: b.student?.user 
+				? `${b.student?.user?.first_name} ${b.student?.user?.last_name}` 
+				: "Unknown Student",
 			student_account_number: b.student_account_number,
 			housing_name: "Unassigned",
-			bill_type: b.bill_type,
+			bill_type: (b.bill_type?.trim().charAt(0).toUpperCase() + b.bill_type?.trim().slice(1).toLowerCase() || "Miscellaneous") as BillType,
 			amount: Number(b.amount),
-			status: b.status as PaymentStatus,
+			status: (b.status?.trim() || "Pending" ) as PaymentStatus,
 			due_date: b.due_date,
 			issue_date: b.issue_date,
 			date_paid: b.date_paid,
@@ -120,8 +122,19 @@ async function deleteBilling(txnId: number) {
 	if (error) throw new Error(error.message)
 } 
 
+async function createBilling(billDetails: any) {
+	const { data, error } = await supabase
+		.from("bill")
+		.insert([billDetails])
+		.select()
+		.single();
+	
+		if (error) throw new Error(error.message);
+}
+
 export const billingData = {
 	findAllBillings,
 	updateBilling,
-	deleteBilling
+	deleteBilling,
+	createBilling,
 }
