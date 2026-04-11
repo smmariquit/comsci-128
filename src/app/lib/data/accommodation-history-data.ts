@@ -58,7 +58,32 @@ const getCurrentTenantsByRoomId = async (roomId: number) => {
   return data ?? []
 }
 
+const createTenantRecord =async(
+  accountNumber: number,
+  roomId: number,
+  moveoutDate: string
+) => {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const moveinDate = tomorrow.toISOString().split("T")[0]
+
+  const { data, error } = await supabase
+    .from("student_accommodation_history")
+    .insert({
+      account_number: accountNumber,
+      room_id: roomId,
+      movein_date: moveinDate,
+      moveout_date: moveoutDate,
+    })
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  return data
+}
+
 export const accommodationHistoryData = {
   getCurrentTenantsByHousingId,
-  getCurrentTenantsByRoomId
+  getCurrentTenantsByRoomId,
+  createTenantRecord
 }
