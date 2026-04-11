@@ -22,6 +22,7 @@ export type Database = {
           expected_moveout_date: string
           housing_name: string | null
           is_deleted: boolean | null
+          landlord_account_number: number
           manager_account_number: number | null
           preferred_room_type: Database["public"]["Enums"]["RoomType"] | null
           room_id: number | null
@@ -34,6 +35,7 @@ export type Database = {
           expected_moveout_date: string
           housing_name?: string | null
           is_deleted?: boolean | null
+          landlord_account_number: number
           manager_account_number?: number | null
           preferred_room_type?: Database["public"]["Enums"]["RoomType"] | null
           room_id?: number | null
@@ -46,6 +48,7 @@ export type Database = {
           expected_moveout_date?: string
           housing_name?: string | null
           is_deleted?: boolean | null
+          landlord_account_number?: number
           manager_account_number?: number | null
           preferred_room_type?: Database["public"]["Enums"]["RoomType"] | null
           room_id?: number | null
@@ -53,10 +56,17 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "application_landlord_account_number_fkey"
+            columns: ["landlord_account_number"]
+            isOneToOne: false
+            referencedRelation: "landlord"
+            referencedColumns: ["account_number"]
+          },
+          {
             foreignKeyName: "application_manager_account_number_fkey"
             columns: ["manager_account_number"]
             isOneToOne: false
-            referencedRelation: "manager"
+            referencedRelation: "housing_admin"
             referencedColumns: ["account_number"]
           },
           {
@@ -200,6 +210,7 @@ export type Database = {
           housing_name: string
           housing_type: Database["public"]["Enums"]["HousingType"]
           is_deleted: boolean | null
+          landlord_account_number: number
           manager_account_number: number | null
           rent_price: number
           start_application_date: string | null
@@ -212,6 +223,7 @@ export type Database = {
           housing_name: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
+          landlord_account_number?: number
           manager_account_number?: number | null
           rent_price: number
           start_application_date?: string | null
@@ -224,16 +236,24 @@ export type Database = {
           housing_name?: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
+          landlord_account_number?: number
           manager_account_number?: number | null
           rent_price?: number
           start_application_date?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "housing_landlord_account_number_fkey"
+            columns: ["landlord_account_number"]
+            isOneToOne: false
+            referencedRelation: "landlord"
+            referencedColumns: ["account_number"]
+          },
+          {
             foreignKeyName: "housing_manager_account_number_fkey"
             columns: ["manager_account_number"]
             isOneToOne: false
-            referencedRelation: "manager"
+            referencedRelation: "housing_admin"
             referencedColumns: ["account_number"]
           },
         ]
@@ -510,7 +530,7 @@ export type Database = {
             foreignKeyName: "system_admin_account_number_fkey"
             columns: ["account_number"]
             isOneToOne: true
-            referencedRelation: "manager"
+            referencedRelation: "user"
             referencedColumns: ["account_number"]
           },
         ]
@@ -572,7 +592,12 @@ export type Database = {
     }
     Enums: {
       ActionType: "Application Status" | "Bill Status"
-      ApplicationStatus: "Pending" | "Rejected" | "Approved" | "Cancelled"
+      ApplicationStatus:
+        | "Pending Manager Approval"
+        | "Pending Admin Approval"
+        | "Approved"
+        | "Cancelled"
+        | "Rejected"
       BillType: "Rent" | "Utility" | "WiFi"
       DocumentType: "Form 5" | "Payment Receipt" | "Contract" | "Waiver"
       HousingStatus: "Assigned" | "Not Assigned"
@@ -713,7 +738,13 @@ export const Constants = {
   public: {
     Enums: {
       ActionType: ["Application Status", "Bill Status"],
-      ApplicationStatus: ["Pending", "Rejected", "Approved", "Cancelled"],
+      ApplicationStatus: [
+        "Pending Manager Approval",
+        "Pending Admin Approval",
+        "Approved",
+        "Cancelled",
+        "Rejected",
+      ],
       BillType: ["Rent", "Utility", "WiFi"],
       DocumentType: ["Form 5", "Payment Receipt", "Contract", "Waiver"],
       HousingStatus: ["Assigned", "Not Assigned"],
