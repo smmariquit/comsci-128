@@ -64,14 +64,13 @@ export default async function AccommodationsPage() {
 
   return (
     <main className="min-h-screen flex flex-col p-6 gap-6 bg-[var(--cream)]">
-      {/*}
-      <section className="flex items-center justify-between">
+      
+      {/* <section className="flex items-center justify-between">
         <Link href="/manage" className="text-sm text-gray-500 hover:underline">
           ← Back to Dashboard
         </Link>
-      </section>
-      */}
-
+      </section> */}
+     
       <section className="flex flex-col gap-4 px-5">
         <h1 className="text-3xl text-[var(--dark-orange)] font-semibold">Accommodations List</h1>
 
