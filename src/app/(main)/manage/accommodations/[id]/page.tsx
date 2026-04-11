@@ -8,15 +8,17 @@ function UnitCard({
   occupants,
   freeSlots,
   bedType,
+  housingId
 }: {
   id: number;
   name: string;
   occupants: number;
   freeSlots: number;
   bedType: string;
+  housingId: number;
 }) {
   return (
-    <Link href={`/manage/accommodations/occupants/${id}`} className="block">
+    <Link href={`/manage/accommodations/${housingId}/${id}`} className="block">
       <div className="rounded-lg p-4 bg-[var(--dark-blue)] flex flex-col justify-between min-h-[150px] hover:brightness-90 transition cursor-pointer">
         <h3 className="text-lg text-[var(--dark-orange)] font-semibold mb-1">{name}</h3>
         <div className="text-sm text-[var(--cream)] flex flex-col gap-1">
@@ -61,6 +63,7 @@ export default async function Page({
       occupants: currentOccupants,
       freeSlots,
       bedType: room.room_type,
+      housingId: housing.housing_id
     }
   })
 

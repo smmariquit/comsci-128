@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
+
+
 const getCurrentTenantsByHousingId = async (housingId: number) => {
   const today = new Date().toISOString().split("T")[0]
 

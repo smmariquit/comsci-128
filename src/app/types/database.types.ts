@@ -568,7 +568,7 @@ export type Database = {
       ManagerType: "Housing Administrator" | "Landlord"
       OccupancyStatus: "Fully Occupied" | "Empty" | "Partially Occupied"
       PaymentStatus: "Pending" | "Paid" | "Overdue"
-      RoomType: "Single" | "Double" | "Shared"
+      RoomType: "Women Only" | "Men Only" | "Co-ed"
       Sex: "Male" | "Female" | "Prefer not to say"
       StudentStanding: "Freshman" | "Sophomore" | "Junior" | "Senior"
       StudentStatus: "Active" | "Delayed" | "Graduating"
@@ -709,7 +709,7 @@ export const Constants = {
       ManagerType: ["Housing Administrator", "Landlord"],
       OccupancyStatus: ["Fully Occupied", "Empty", "Partially Occupied"],
       PaymentStatus: ["Pending", "Paid", "Overdue"],
-      RoomType: ["Single", "Double", "Shared"],
+      RoomType: ["Women Only", "Men Only", "Co-ed"],
       Sex: ["Male", "Female", "Prefer not to say"],
       StudentStanding: ["Freshman", "Sophomore", "Junior", "Senior"],
       StudentStatus: ["Active", "Delayed", "Graduating"],
