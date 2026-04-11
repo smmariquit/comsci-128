@@ -112,7 +112,11 @@ const STATUS_STYLE: Record<PaymentStatus, { bg: string; dot: string; text: strin
 };
 
 function StatusBadge({ status }: { status: PaymentStatus }) {
-  const s = STATUS_STYLE[status];
+  const s = STATUS_STYLE[status] || {
+    bg: "rgba(0,0,0,0.05)", 
+    dot: "#ccc", 
+    text: "#666"
+  };
   return (
     <span style={{
       display: "inline-flex",
@@ -142,7 +146,11 @@ const BILL_TYPE_STYLE: Record<BillType, { bg: string; text: string }> = {
 };
 
 function BillTypeTag({ type }: { type: BillType }) {
-  const s = BILL_TYPE_STYLE[type];
+  const s = BILL_TYPE_STYLE[type] || { 
+    bg: "rgba(0,0,0,0.05)", 
+    text: "#666" 
+  };
+
   return (
     <span style={{
       background: s.bg,
