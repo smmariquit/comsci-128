@@ -68,8 +68,8 @@ async function findAllBillings(): Promise<BillRow[]> {
 		issue_date,
 		date_paid,
 		student_account_number,
-		student:student!student_account_number (
-			user:user!account_number (
+		student(
+			user(
 				first_name,
 				last_name
 			)

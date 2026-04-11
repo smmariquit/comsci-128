@@ -116,10 +116,12 @@ export default function BillingPage() {
   
   const [bills, setBills] = useState<BillRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
   useEffect(() => {
+    setIsMounted(true);
     loadBills();
   }, []);
 
@@ -149,6 +151,7 @@ export default function BillingPage() {
 
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
+    if (!bills) return [];
     return bills.filter((b) => {
       const q              = search.toLowerCase();
       const matchesSearch  = !q || b.student_name.toLowerCase().includes(q);
@@ -162,7 +165,7 @@ export default function BillingPage() {
 
       return matchesSearch && matchesStatus && matchesType && matchesHousing && matchesFrom && matchesTo;
     });
-  }, [search, status, billType, housing, dueDateFrom, dueDateTo]);
+  }, [bills, search, status, billType, housing, dueDateFrom, dueDateTo]);
 
   // ── Summary stats ───────────────────────────────────────────────────────────
   const totalAmount  = filtered.reduce((s, b) => s + b.amount, 0);
@@ -231,6 +234,8 @@ export default function BillingPage() {
       setIsLoading(false);
     }
   }
+
+  if (!isMounted) return <div style={{ padding: 28 }}>Initializing...</div>;
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
