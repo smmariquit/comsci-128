@@ -63,16 +63,14 @@ const createTenantRecord = async(
   roomId: number,
   moveoutDate: string
 ) => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const moveinDate = tomorrow.toISOString().split("T")[0]
+  const today = new Date().toISOString().split("T")[0] 
 
   const { data, error } = await supabase
     .from("student_accommodation_history")
     .insert({
       account_number: accountNumber,
       room_id: roomId,
-      movein_date: moveinDate,
+      movein_date: today,
       moveout_date: moveoutDate,
     })
     .select()

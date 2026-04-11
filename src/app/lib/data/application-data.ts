@@ -215,9 +215,9 @@ export async function getApprovedUnassignedByHousingName(housingName: string) {
       housing_name,
       expected_moveout_date,
       student_account_number,
-      student:student_account_number (
+      student:student!account_number (
         account_number,
-        user:account_number!student_account_number_fkey (
+        user:user!account_number (
           first_name,
           middle_name,
           last_name

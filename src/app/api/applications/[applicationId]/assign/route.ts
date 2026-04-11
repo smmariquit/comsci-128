@@ -5,10 +5,11 @@ import { applicationService } from "@/app/lib/services/application-service";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ applicationId: string }> }
 ) {
   try {
-    const applicationId = Number(params.id)
+    const {applicationId: rawId} = await params
+    const applicationId = Number(rawId)
 
     if (isNaN(applicationId)) {
       return NextResponse.json({ message: "Invalid application ID." }, { status: 400 })
