@@ -42,7 +42,7 @@ const updateRoom = async (
 			return { error: "Room Not Found." };
 		}
 
-		const validRoomTypes: RoomType[] = ["Single", "Double", "Shared"];
+		const validRoomTypes: RoomType[] = ["Women Only", "Men Only", "Co-ed"];
 		if (
 			updates.room_type &&
 			!validRoomTypes.includes(updates.room_type as RoomType)

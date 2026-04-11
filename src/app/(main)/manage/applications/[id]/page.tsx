@@ -1,6 +1,6 @@
 
 import { applicationService } from "@/app/lib/services/application-service";
-import ReviewClient from "./_components/ReviewClient";
+
 import Link from "next/link";
 import ReviewWrapper from "./_components/ReviewWrapper";
 
