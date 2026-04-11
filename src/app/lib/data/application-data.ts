@@ -189,6 +189,7 @@ export async function getDocumentsByApplicationId(applicationId: number) {
   return data
 }
 
+// ASSIGN ROOM ID FOR AN APPLICATION ENTRY
 export async function assignRoomToApplication(
   applicationId: number,
   roomId: number
@@ -203,4 +204,31 @@ export async function assignRoomToApplication(
 
   if (error) throw new Error(error.message)
   return data
+}
+
+//FETCH APPROVED APPLICATIONS WITH NULL ROOM ID
+export async function getApprovedUnassignedByHousingName(housingName: string) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      housing_name,
+      expected_moveout_date,
+      student_account_number,
+      student:student_account_number (
+        account_number,
+        user:account_number!student_account_number_fkey (
+          first_name,
+          middle_name,
+          last_name
+        )
+      )
+    `)
+    .eq("application_status", "Approved")
+    .eq("housing_name", housingName)
+    .eq("is_deleted", false)
+    .is("room_id", null)
+
+  if (error) throw new Error(error.message)
+  return data ?? []
 }
