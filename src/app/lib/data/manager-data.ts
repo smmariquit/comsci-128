@@ -1,6 +1,7 @@
 import { supabase } from "../supabase";
 import { User, NewUser, UpdateUser } from "@/models/user";
 import { Manager, NewManager, UpdateManager } from "@/models/manager";
+import { Housing} from "@/models/housing";
 import { userData } from "./user-data";
 
 export const createManager = async (
