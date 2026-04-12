@@ -110,6 +110,20 @@ async function getRoomOccupantCount(roomId: number): Promise<number> {
   return count ?? 0;
 }
 
+// GET submitted application details of a student (Pending Status)
+async function getHousingOptions(accountNumber: number) {
+  const { data, error } = await supabase
+    .from('application')
+    .select(`application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, manager_account_number, student_account_number`)
+    .eq('student_account_number', accountNumber)
+    .eq('application_status', "Pending")
+    .eq('is_deleted', false);
+
+  if (error) throw error;
+	return data;
+}
+
 export const studentData = {
     createUserStudent
 }
+
