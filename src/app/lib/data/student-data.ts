@@ -110,6 +110,24 @@ async function getRoomOccupantCount(roomId: number): Promise<number> {
   return count ?? 0;
 }
 
+async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
+  // get the accommodation history of a student and their user + student details
+  
+  const { data, error } = await supabase
+    .from("student_accommodation_history")
+    .select(`
+        *,
+        student!inner(*),
+        room!inner(*),
+        housing!inner(*),
+        user!inner(*)
+      `)
+    .eq("student_accommodation_history.account_number", studentAccountNumber);
+
+  if (error) throw new Error(`getAccommodatio nHistoryOfStudent Error: ${error.message}`);
+  return data;
+}
+
 export const studentData = {
     createUserStudent
 }
