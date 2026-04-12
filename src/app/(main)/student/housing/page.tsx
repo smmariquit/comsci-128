@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Housing } from "@/app/lib/models/housing";
+import { Housing } from "@/models/housing";
 
 export default function Page() {
 	const [dorms, setDorms] = useState([]);

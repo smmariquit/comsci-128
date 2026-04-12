@@ -1,7 +1,13 @@
 "use client";
-
-import { getRoomById, Room, RoomType } from "@/app/lib/data/room-data";
-import { updateRoomDetails } from "@/app/lib/services/room-service";
+/*
+    TODO:
+        replace direct call with api layer
+*/
+// ------------------------------------------
+import { roomData } from "@/data/room-data"; // data and service must be separated
+import { roomService } from "@/services/room-service";
+// ------------------------------------------
+import { Room, RoomType } from "@/models/room";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -18,11 +24,11 @@ export default function Page() {
 	useEffect(() => {
 		const fetchInitialData = async () => {
 			try {
-				const data = await getRoomById(testId);
+				const data = await roomData.findByRoomId(testId);
 				if (data) {
 					setRoom(data);
 					setSelectedType(data.room_type);
-					setMaxOccupants(data.maximum_occupants);
+					setMaxOccupants(data.maximum_occupants!);
 				}
 			} catch (error) {
 				console.error(error);
@@ -33,7 +39,7 @@ export default function Page() {
 	}, []);
 
 	const handleSave = async () => {
-		const result = await updateRoomDetails(testId, {
+		const result = await roomService.updateRoom(testId, {
 			room_type: selectedType,
 			maximum_occupants: maxOccupants,
 		});
@@ -41,7 +47,7 @@ export default function Page() {
 		if (result.error) {
 			alert(result.error); // Show SRS validation error (e.g., "Invalid Room")
 		} else {
-			setRoom(result.data);
+			setRoom(result.data!);
 			setIsEditing(false);
 			alert("Room updated successfully!");
 		}

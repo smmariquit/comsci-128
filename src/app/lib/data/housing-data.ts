@@ -103,6 +103,42 @@ async function deactivate(housingId: number): Promise<Housing | null> {
 	return data;
 }
 
+async function getHousingDetailsOfStudent(studentAccountNumber: number) {
+	// get the details of the housing and room of a student given a student's account number
+	
+	const { data: studentHousingDetails, error } = await supabase
+		.from("housing")
+		.select(`
+			*,
+			room!inner(*),
+			student_accommodation_history!inner(*)
+		`)
+		.eq("student_accommodation_history.account_number", studentAccountNumber);
+
+	if (error) throw new Error(`getHousingDetailsofStudent Error: ${error.message}`);
+
+	return studentHousingDetails;
+}
+
+async function getStudentsHousedPerHousing(managerId: number, housingId: number) {
+  // get details of list of students housed per housing
+
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      *,
+      room!inner(*),
+      student_accommodation_history!inner(*),
+      student!inner(*),
+      user!inner(*)
+    `)
+    .eq("housing.housing_id", housingId)
+    .eq("housing.manager_account_number", managerId);
+
+  if (error) throw new Error(`getStudentsHousedPerHousing Error: ${error.message}`);
+  return data;
+}
+
 export const housingData = {
 	create,
 	findAll,
@@ -110,4 +146,6 @@ export const housingData = {
 	findWithRooms,
 	update,
 	deactivate,
+	getHousingDetailsOfStudent,
+	getStudentsHousedPerHousing
 };
