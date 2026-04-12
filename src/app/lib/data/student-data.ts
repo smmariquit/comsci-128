@@ -111,7 +111,7 @@ async function getRoomOccupantCount(roomId: number): Promise<number> {
 }
 
 // GET submitted application details of a student (Pending Status)
-async function getHousingOptions(accountNumber: number) {
+async function getSubmittedApplication(accountNumber: number) {
   const { data, error } = await supabase
     .from('application')
     .select(`application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, manager_account_number, student_account_number`)
