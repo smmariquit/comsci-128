@@ -16,7 +16,7 @@ export default function Page() {
 	const [isEditing, setIsEditing] = useState(false);
 	const [loading, setLoading] = useState(true);
 
-	const [selectedType, setSelectedType] = useState<RoomType>("Single");
+	const [selectedType, setSelectedType] = useState<RoomType>("Co-ed");
 	const [maxOccupants, setMaxOccupants] = useState<number>(1);
 
 	const testId = 5;
