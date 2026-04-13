@@ -1,6 +1,8 @@
 import { supabase } from '@/app/lib/supabase';
 
-export type ActionType = 'Application Status' | 'Bill Status'
+export type ActionType = 'Application Status' | 'Bill Status' | 'Auth Register' | 'Auth Logic' | 'Change Auth Password' | 'Delete Account'
+| 'Update User Role' | 'Submit Application' | 'Update Application Status' | 'Withdraw Application' | 'Create Housing' | 'Update Housing' |
+'Assign Student Housing' | 'Assign Bill' | 'Update Bill Status' | 'Issue Bill Refund'
 
 export interface AuditLog{
     audit_id?: number
