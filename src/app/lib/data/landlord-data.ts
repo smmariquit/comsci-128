@@ -1,5 +1,4 @@
 import { supabase } from "@/app/lib/supabase";
-<<<<<<< HEAD
 import { User, NewUser } from "@/app/lib/models/user";
 import { createManager } from "@/app/lib/data/manager-data";
  
@@ -33,51 +32,6 @@ export async function getAllLandlords() {
   const { data, error } = await supabase
     .from("landlord")
     .select(`
-=======
-import { User, NewUser, UpdateUser } from "@/models/user";
-import { Manager, NewManager, UpdateManager } from "@/models/manager";
-import { createManager } from "@/app/lib/data/manager-data";
-
-// promote User from Student to Housing Admin (Manager rather)
-export async function createHousingAdmin(userDetails: NewUser, managerDetails: NewManager) {
-  // managerDetails.manager_type must already be set to "Housing Admin"
-
-  const newManagerData = await createManager(
-		userDetails,
-    managerDetails,
-	);
-
-	// if (managerError || !newManagerData) {
-	// 	console.error(
-	// 		"Error creating manager in createHousingAdmin:",
-	// 		managerError?.message,
-	// 	);
-	// 	return { data: null, error: managerError };
-	// }
-
-  managerDetails.account_number = newManagerData.account_number
-
-	// Insert into housing_admin
-	const { data, error: adminError } = await supabase
-		.from("housing_admin")
-		.insert([managerDetails])
-		.select();
-
-	if (adminError) {
-		console.error(
-			"Error inserting into housing_admin:",
-			adminError.message,
-		);
-		return { data: null, error: adminError };
-	}
-
-	return data[0];
-}
-
-// Read all housing admins with user details
-export async function getAllHousingAdmins() {
-	const { data, error } = await supabase.from("housing_admin").select(`
->>>>>>> f10af6eae1b2b5596c18f711f6be0f4758a24f38
       account_number,
       manager:landlord_account_number_fkey (
         manager_type,
@@ -140,11 +94,6 @@ export async function getLandlordById(accountNumber: number) {
  
   return { data, error: null };
 }
-<<<<<<< HEAD
- 
-//Delete landlord (Uncomment if needed)
-// export async function deleteLandlord(accountNumber: number) {
-=======
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
 export async function getTotalTenantsByLandlord(accountNumber: number) {
@@ -171,7 +120,6 @@ export async function getTotalTenantsByLandlord(accountNumber: number) {
 
 //Delete housing admin (uncomment if needed)
 // export async function deleteHousingAdmin(accountNumber: number) {
->>>>>>> f10af6eae1b2b5596c18f711f6be0f4758a24f38
 //   const { error } = await supabase
 //     .from("landlord")
 //     .delete()
