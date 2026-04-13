@@ -1,33 +1,8 @@
 import { supabase } from "../supabase";
-import { User, NewUser } from "@/models/user";
+import { User, NewUser, UpdateUser } from "@/models/user";
+import { Manager, NewManager, UpdateManager } from "@/models/manager";
+import { Housing} from "@/models/housing";
 import { userData } from "./user-data";
-
-// Review create manager to match userData
-// export const createManager = async (
-// 	userDetails: User,
-// 	password: string,
-// 	manager_type: string,
-// ) => {
-// 	// const userAccountNumber = await userData.create(
-// 	// 	userDetails,
-// 	// 	"Manager",
-// 	// 	password,
-// 	// );
-
-// 	const { data, error } = await supabase
-// 		.from("manager")
-// 		.insert([
-// 			{
-// 				account_number: userAccountNumber,
-// 				manager_type: manager_type,
-// 			},
-// 		])
-// 		.select()
-// 		.single();
-
-// 	if (error) throw error;
-// 	return data;
-// };
 
 // Create Manger for land lord and housing manager
 export const createManager = async (
