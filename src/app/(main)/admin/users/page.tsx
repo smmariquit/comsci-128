@@ -2,7 +2,7 @@ import UsersFilterTableWrapper from "@/app/components/admin/user/userfilter_tabl
 import { userData } from "@/lib/data/user-data";
 
 export default async function UsersPage() {
-  const managedHousingIds = [3, 12, 13, 14, 16, 18];
+  const managedHousingIds = [3, 12, 13, 14, 16, 18]; //Temporary since no auth yet
 
   const liveUsers = await userData.getUsersForHousingAdmin(managedHousingIds);
 
