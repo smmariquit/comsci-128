@@ -1,7 +1,7 @@
 "use client";
 
 import { C } from "@/lib/palette";
-import type { ReportType } from "@/app/(main)/admin/reports/page";
+import type { ReportType } from "@/app/components/admin/reports/reports_wrapper";
 
 interface Props {
   reportType:     ReportType;
@@ -45,9 +45,9 @@ const STATUS_OPTIONS: Record<ReportType, { label: string; value: string }[]> = {
   occupancy: [
     { value: "All",               label: "All Statuses" },
     { value: "Empty",             label: "Empty" },
-    { value: "Occupied",          label: "Occupied" },
-    { value: "Reserved",          label: "Reserved" },
-    { value: "Under Maintenance", label: "Under Maintenance" },
+    { value: "Partially Occupied",          label: "Partially Occupied" },
+    { value: "Fully Occupied",          label: "Fully Occupied" },
+    // { value: "Under Maintenance", label: "Under Maintenance" },
   ],
   application: [
     { value: "All",       label: "All Statuses" },

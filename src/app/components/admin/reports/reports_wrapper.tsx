@@ -59,6 +59,11 @@ export default function ReportsWrapper({ liveOccupancy } : ReportsClientProps) {
 
   // ── Filtered data ───────────────────────────────────────────────────────────
 
+  const filteredHousingOptions = useMemo(() => {
+    const uniqueNames = new Set(liveOccupancy.map(row => row.housing_name));
+    return Array.from(uniqueNames).sort();
+  }, [liveOccupancy]);
+
   const filteredOccupancy = useMemo(() => liveOccupancy.filter((r) => {
     const q = search.toLowerCase();
     return (
@@ -219,7 +224,7 @@ export default function ReportsWrapper({ liveOccupancy } : ReportsClientProps) {
       <ReportFilters
         reportType={activeTab}
         search={search}   housing={housing}
-        housingOptions={ALL_HOUSING}
+        housingOptions={filteredHousingOptions}
         status={status}
         dateFrom={dateFrom} dateTo={dateTo}
         onSearch={setSearch}   onHousing={setHousing}
