@@ -591,6 +591,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      A: "A"
       ActionType: "Application Status" | "Bill Status"
       ApplicationStatus:
         | "Pending Manager Approval"
@@ -737,6 +738,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      A: ["A"],
       ActionType: ["Application Status", "Bill Status"],
       ApplicationStatus: [
         "Pending Manager Approval",
