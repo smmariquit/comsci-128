@@ -69,7 +69,10 @@ export default function RecentApplications({ data }: Props) {
           </thead>
           <tbody>
             {data.map((row, i) => {
-              const s = STATUS_STYLES[row.application_status];
+              const s = STATUS_STYLES[row.application_status] || {
+                bg: "rgba(0,0,0,0.5)",
+                text: "#666"
+              };
               return (
                 <tr
                   key={row.application_id}
