@@ -142,6 +142,7 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
     const { data: applications, error: appliError } = await supabase
         .from("application")
         .select(`
+            application_id,
             student_account_number,
             application_status,
             housing_name,
@@ -213,12 +214,14 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
             localHousingStatus = "Pending";
             is_inactive = false; 
 
+            const appRoom = userApps[0].room as any;
 			currentHousingId = appRoom?.housing_id;
             currentHousingName = userApps[0].housing_name || appRoom?.housing?.housing_name;
         }
 
         return {
             account_number: user.account_number,
+            application_id: userApps.length > 0 ? userApps[0].application_id : undefined,
             full_name: `${user.first_name} ${user.last_name}`,
             account_email: user.account_email,
             phone_number: user.phone_number,
