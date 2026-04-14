@@ -1,54 +1,59 @@
 import { userData } from "@/data/user-data";
-import { NewUser } from "@/models/user";
-import { Student, NewStudent, UpdateStudent } from "@/models/student";
-import { StudentAcademic, NewStudentAcademic, UpdateStudentAcademic } from "@/models/student_academic";
-import { StudentAccommodationHistory, NewStudentAccommodationHistory, UpdateStudentAccommodationHistory } from "@/models/student_accommodation";
+import type { NewStudent, Student } from "@/models/student";
+import type {
+  NewStudentAcademic,
+  StudentAcademic,
+} from "@/models/student_academic";
+import type { StudentAccommodationHistory } from "@/models/student_accommodation";
+import type { NewUser } from "@/models/user";
 
 import { supabase } from "../supabase";
 
-export type StudentStanding = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior';
-export type StudentStatus = 'Active' | 'Delayed' | 'Graduating';
-export type HousingStatus = 'Assigned' | 'Not Assigned';
+export type StudentStanding = "Freshman" | "Sophomore" | "Junior" | "Senior";
+export type StudentStatus = "Active" | "Delayed" | "Graduating";
+export type HousingStatus = "Assigned" | "Not Assigned";
 
 async function createUserStudent(
-    userDetails: NewUser,
-    studentDetails: NewStudent,
-    studentAcademicDetails: NewStudentAcademic
+  userDetails: NewUser,
+  studentDetails: NewStudent,
+  studentAcademicDetails: NewStudentAcademic,
 ): Promise<Student> {
+  const newUserData = await userData.createUser(userDetails);
 
-	const newUserData = await userData.createUser(userDetails);
-    
-    studentDetails.account_number = newUserData.account_number;
-    studentAcademicDetails.account_number = newUserData.account_number;
+  studentDetails.account_number = newUserData.account_number;
+  studentAcademicDetails.account_number = newUserData.account_number;
 
-	const { data, error } = await supabase
-		.from("student")
-		.insert([studentDetails])
-		.select();
-
-	if (error) throw new Error(`Create Student Error: ${error.message}`);
-
-    createStudentAcademic(studentAcademicDetails)
-
-    return data[0];
-}
-
-async function createStudentAcademic(academicData: NewStudentAcademic): Promise<NewStudentAcademic> {
   const { data, error } = await supabase
-    .from('student_academic')
-    .insert([academicData])
+    .from("student")
+    .insert([studentDetails])
     .select();
 
-  if (error) throw new Error(`Academic Record Creation Error: ${error.message}`);
+  if (error) throw new Error(`Create Student Error: ${error.message}`);
+
+  createStudentAcademic(studentAcademicDetails);
 
   return data[0];
 }
 
-async function getStudentAcademicById(accountNumber: number) {
+async function createStudentAcademic(
+  academicData: NewStudentAcademic,
+): Promise<NewStudentAcademic> {
   const { data, error } = await supabase
-    .from('student_academic')
-    .select('*')
-    .eq('account_number', accountNumber)
+    .from("student_academic")
+    .insert([academicData])
+    .select();
+
+  if (error)
+    throw new Error(`Academic Record Creation Error: ${error.message}`);
+
+  return data[0];
+}
+
+async function _getStudentAcademicById(accountNumber: number) {
+  const { data, error } = await supabase
+    .from("student_academic")
+    .select("*")
+    .eq("account_number", accountNumber)
     .single();
 
   if (error) throw new Error(error.message);
@@ -57,11 +62,14 @@ async function getStudentAcademicById(accountNumber: number) {
 
 // UPDATE academic record
 
-async function updateStudentAcademic(accountNumber: number, updates: Partial<StudentAcademic>) {
+async function _updateStudentAcademic(
+  accountNumber: number,
+  updates: Partial<StudentAcademic>,
+) {
   const { data, error } = await supabase
-    .from('student_academic')
+    .from("student_academic")
     .update(updates)
-    .eq('account_number', accountNumber)
+    .eq("account_number", accountNumber)
     .select()
     .single();
 
@@ -70,9 +78,11 @@ async function updateStudentAcademic(accountNumber: number, updates: Partial<Stu
 }
 
 // CREATE a stay record (Check-in)
-async function createAccommodationHistory(history: StudentAccommodationHistory) {
+async function _createAccommodationHistory(
+  history: StudentAccommodationHistory,
+) {
   const { data, error } = await supabase
-    .from('student_accommodation_history')
+    .from("student_accommodation_history")
     .insert([history])
     .select()
     .single();
@@ -82,15 +92,15 @@ async function createAccommodationHistory(history: StudentAccommodationHistory) 
 }
 
 // UPDATE a stay record (Check-out)
-async function recordMoveOut(accountNumber: number, actualDate: string) {
+async function _recordMoveOut(accountNumber: number, actualDate: string) {
   const { data, error } = await supabase
-    .from('student_accommodation_history')
-    .update({ 
+    .from("student_accommodation_history")
+    .update({
       actual_move_out_date: actualDate,
-      status: 'Not Assigned'
+      status: "Not Assigned",
     })
-    .eq('account_number', accountNumber)
-    .is('actual_move_out_date', null) // Ensures we only update the active stay
+    .eq("account_number", accountNumber)
+    .is("actual_move_out_date", null) // Ensures we only update the active stay
     .select();
 
   if (error) throw new Error(error.message);
@@ -99,20 +109,20 @@ async function recordMoveOut(accountNumber: number, actualDate: string) {
 
 // GET current occupants in a room (Logic for room.ts)
 // Counts records where the student has not yet moved out.
-async function getRoomOccupantCount(roomId: number): Promise<number> {
+async function _getRoomOccupantCount(roomId: number): Promise<number> {
   const { count, error } = await supabase
-    .from('student_accommodation_history')
-    .select('*', { count: 'exact', head: true })
-    .eq('room_id', roomId)
-    .is('actual_move_out_date', null);
+    .from("student_accommodation_history")
+    .select("*", { count: "exact", head: true })
+    .eq("room_id", roomId)
+    .is("actual_move_out_date", null);
 
   if (error) throw new Error(error.message);
   return count ?? 0;
 }
 
-async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
+async function _getAccommodationHistoryOfStudent(studentAccountNumber: number) {
   // get the accommodation history of a student and their user + student details
-  
+
   const { data, error } = await supabase
     .from("student_accommodation_history")
     .select(`
@@ -124,10 +134,13 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
       `)
     .eq("student_accommodation_history.account_number", studentAccountNumber);
 
-  if (error) throw new Error(`getAccommodatio nHistoryOfStudent Error: ${error.message}`);
+  if (error)
+    throw new Error(
+      `getAccommodatio nHistoryOfStudent Error: ${error.message}`,
+    );
   return data;
 }
 
 export const studentData = {
-    createUserStudent
-}
+  createUserStudent,
+};

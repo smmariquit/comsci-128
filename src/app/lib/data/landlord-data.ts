@@ -1,7 +1,7 @@
-import { supabase } from "@/app/lib/supabase";
-import { User, NewUser, UpdateUser } from "@/models/user";
-import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { createManager } from "@/app/lib/data/manager-data";
+import { supabase } from "@/app/lib/supabase";
+import type { NewManager, } from "@/models/manager";
+import type { NewUser, } from "@/models/user";
 
 // promote User from Student to Housing Admin (Manager rather)
 export async function createHousingAdmin(userDetails: NewUser, managerDetails: NewManager) {
@@ -122,7 +122,7 @@ export async function getTotalRoomsByLandlord(accountNumber: number) {
 
 	if (error) {
 		console.error("Error counting rooms by landlord:", error.message);
-export async function getTotalPropertiesByLandlord(accountNumber: number) {
+export async function _getTotalPropertiesByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("housing")
 		.select("housing_id", { count: "exact", head: true })
@@ -138,7 +138,7 @@ export async function getTotalPropertiesByLandlord(accountNumber: number) {
 }
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
-export async function getTotalTenantsByLandlord(accountNumber: number) {
+export async function _getTotalTenantsByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("student_accommodation_history")
 		.select(
@@ -160,7 +160,7 @@ export async function getTotalTenantsByLandlord(accountNumber: number) {
 	return { data: count ?? 0, error: null };
 }
 
-export async function getGrossRevenueByLandlord(accountNumber: number) {
+export async function _getGrossRevenueByLandlord(accountNumber: number) {
 	const { data: tenants, error: tenantError } = await supabase
 		.from("student_accommodation_history")
 		.select(
