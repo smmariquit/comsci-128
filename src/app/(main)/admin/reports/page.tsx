@@ -6,7 +6,15 @@ export default async function ReportsPage() {
   const managedHousingIds = [3, 12, 13, 14, 16, 18];
 
   // server-side fetch
-  const liveOccupancy = await reportData.getOccupancyReport(managedHousingIds);
+  const [liveOccupancy, liveApplications] = await Promise.all([
+    reportData.getOccupancyReport(managedHousingIds),
+    reportData.getApplicationReport(managedHousingIds)
+  ]);
 
-  return <ReportsWrapper liveOccupancy={liveOccupancy} />;
+  return (
+    <ReportsWrapper
+      liveOccupancy={liveOccupancy}
+      liveApplications={liveApplications}
+    />
+  );
 }

@@ -30,13 +30,14 @@ const TABS: { key: ReportType; label: string }[] = [
   { key: "accommodation", label: "Accommodation History" },
 ];
 
-interface ReportsClientProps {
+interface ReportsWrapperProps {
   liveOccupancy: OccupancyReportRow[];
+  liveApplications: ApplicationReportRow[];
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function ReportsWrapper({ liveOccupancy } : ReportsClientProps) {
+export default function ReportsWrapper({ liveOccupancy, liveApplications } : ReportsWrapperProps) {
   // ── Active tab ──────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<ReportType>("occupancy");
 
@@ -73,7 +74,7 @@ export default function ReportsWrapper({ liveOccupancy } : ReportsClientProps) {
     );
   }), [liveOccupancy, search, housing, status]);
 
-  const filteredApplications = useMemo(() => MOCK_APPLICATIONS.filter((r) => {
+  const filteredApplications = useMemo(() => liveApplications.filter((r) => {
     const q = search.toLowerCase();
     const date = new Date(r.expected_moveout_date);
     return (
@@ -83,7 +84,7 @@ export default function ReportsWrapper({ liveOccupancy } : ReportsClientProps) {
       (!dateFrom || date >= new Date(dateFrom)) &&
       (!dateTo   || date <= new Date(dateTo))
     );
-  }), [search, housing, status, dateFrom, dateTo]);
+  }), [liveApplications, search, housing, status, dateFrom, dateTo]);
 
   const filteredRevenue = useMemo(() => MOCK_REVENUE.filter((r) => {
     const q = search.toLowerCase();
