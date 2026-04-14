@@ -79,7 +79,16 @@ async function findAllBillings(): Promise<BillRow[]> {
 
 	if (error) throw new Error(error.message);
 
+	const now = new Date();
+
 	return (data || []).map((b: any) => {
+		const dueDate = new Date(b.due_date);
+		let currentStatus = (b.status || "Pending") as PaymentStatus;
+
+		// overdue logic
+		if (currentStatus === "Pending" && now > dueDate) {
+			currentStatus = "Overdue";
+		}
 		return {
 			transaction_id: b.transaction_id,
 			student_name: b.student?.user 
@@ -89,7 +98,7 @@ async function findAllBillings(): Promise<BillRow[]> {
 			housing_name: "Unassigned",
 			bill_type: (b.bill_type?.trim().charAt(0).toUpperCase() + b.bill_type?.trim().slice(1).toLowerCase() || "Miscellaneous") as BillType,
 			amount: Number(b.amount),
-			status: (b.status?.trim() || "Pending" ) as PaymentStatus,
+			status: currentStatus,
 			due_date: b.due_date,
 			issue_date: b.issue_date,
 			date_paid: b.date_paid,
