@@ -1,37 +1,38 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import Link from "next/link";
+import { useState } from "react";
 
 export default function Page() {
   const [roomDeleteId, setRoomDeleteId] = useState("");
 
-	// Mock token to pass backend's authorization check
-	const authHeader = { Authorization: "Bearer local-dev-token" };
+  // Mock token to pass backend's authorization check
+  const authHeader = { Authorization: "Bearer local-dev-token" };
 
   const handleDeleteRoom = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+    e.preventDefault();
 
-      if (!confirm(`Are you sure you want to delete Room ${roomDeleteId}?`)) return;
+    if (!confirm(`Are you sure you want to delete Room ${roomDeleteId}?`))
+      return;
 
-      try {
-          const res = await fetch(`/api/rooms/${roomDeleteId}`, {
-              method: "DELETE",
-              headers: authHeader, 
-          });
+    try {
+      const res = await fetch(`/api/rooms/${roomDeleteId}`, {
+        method: "DELETE",
+        headers: authHeader,
+      });
 
-          const result = await res.json();
+      const result = await res.json();
 
-          if (res.ok) {
-              alert("Room deleted successfully!");
-              setRoomDeleteId("");
-          } else {
-              // Displays your "Room must be Empty" or "Not Found" error
-              alert(`Error: ${result.error}`);
-          }
-      } catch (err) {
-          alert("System error. Check console.");
+      if (res.ok) {
+        alert("Room deleted successfully!");
+        setRoomDeleteId("");
+      } else {
+        // Displays your "Room must be Empty" or "Not Found" error
+        alert(`Error: ${result.error}`);
       }
+    } catch (_err) {
+      alert("System error. Check console.");
+    }
   };
 
   return (
@@ -39,44 +40,49 @@ export default function Page() {
       <h1 className="text-4xl font-bold text-center mb-8">Admin Rooms Page</h1>
       {/* ROOM DELETION SECTION */}
       <section
-          style={{
-              marginTop: "40px",
-              border: "2px solid rgba(255, 0, 0, 1)",
-              padding: "20px",
-              borderRadius: "8px",
-          }}
+        style={{
+          marginTop: "40px",
+          border: "2px solid rgba(255, 0, 0, 1)",
+          padding: "20px",
+          borderRadius: "8px",
+        }}
       >
-          
-          <form onSubmit={handleDeleteRoom} style={{ display: "flex", gap: "10px" }}>
-              <input
-                  placeholder="Enter Room ID"
-                  value={roomDeleteId}
-                  onChange={(e) => setRoomDeleteId(e.target.value)}
-                  style={{
-                      padding: "8px",
-                      color: "black",
-                      flex: 1,
-                      borderRadius: "4px"
-                  }}
-                  required
-              />
-              <button
-                  type="submit"
-                  style={{
-                      padding: "8px 20px",
-                      cursor: "pointer",
-                      backgroundColor: "#fff",
-                      color: "#ff0000",
-                      border: "none",
-                      fontWeight: "bold",
-                  }}
-              >
-                  DELETE ROOM
-              </button>
-          </form>
+        <form
+          onSubmit={handleDeleteRoom}
+          style={{ display: "flex", gap: "10px" }}
+        >
+          <input
+            placeholder="Enter Room ID"
+            value={roomDeleteId}
+            onChange={(e) => setRoomDeleteId(e.target.value)}
+            style={{
+              padding: "8px",
+              color: "black",
+              flex: 1,
+              borderRadius: "4px",
+            }}
+            required
+          />
+          <button
+            type="submit"
+            style={{
+              padding: "8px 20px",
+              cursor: "pointer",
+              backgroundColor: "#fff",
+              color: "#ff0000",
+              border: "none",
+              fontWeight: "bold",
+            }}
+          >
+            DELETE ROOM
+          </button>
+        </form>
       </section>
       <div className="flex gap-4 flex-wrap justify-center">
-        <Link href="/admin" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
+        <Link
+          href="/admin"
+          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
+        >
           Back to Dashboard
         </Link>
       </div>
