@@ -1,6 +1,6 @@
 import { C } from "@/lib/palette";
 
-export type ApplicationStatus = "Pending" | "Approved" | "Rejected" | "Cancelled";
+export type ApplicationStatus = "Pending Manager Approval" | "Pending Admin Approval" |"Pending" | "Approved" | "Rejected" | "Cancelled";
 
 export interface ApplicationRow {
   application_id: number;
@@ -12,6 +12,8 @@ export interface ApplicationRow {
 }
 
 const STATUS_STYLES: Record<ApplicationStatus, { bg: string; text: string }> = {
+  "Pending Admin Approval": C.statusPending,
+  "Pending Manager Approval": C.statusPending,
   Pending:   C.statusPending,
   Approved:  C.statusApproved,
   Rejected:  C.statusRejected,
