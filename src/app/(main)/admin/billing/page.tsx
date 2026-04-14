@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useState, useMemo, useEffect } from "react";
 import { C } from "@/lib/palette";

@@ -1,0 +1,1477 @@
+openapi: 3.0.3
+info:
+  title: University Student Accommodation Tracker API (Implemented Endpoints)
+  version: 1.1.0
+  description: |
+    OpenAPI specification aligned with current code and SRS.
+servers:
+  - url: /api
+    description: Next.js API routes
+
+tags:
+  - name: Implemented - OpenAPI
+  - name: Implemented - Housing
+  - name: Implemented - Rooms
+  - name: Implemented - Users
+paths:
+  /openapi:
+    get:
+      tags: [Implemented - OpenAPI]
+      summary: Fetch raw OpenAPI YAML
+      operationId: getOpenApiSpec
+      responses:
+        '200':
+          description: OpenAPI YAML
+          content:
+            application/yaml:
+              schema:
+                type: string
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /housing:
+    get:
+      tags: [Implemented - Housing]
+      summary: List housing records
+      operationId: getHousingList
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/HousingSortBy'
+        - $ref: '#/components/parameters/SortDir'
+        - in: query
+          name: manager_account_number
+          schema:
+            type: integer
+        - in: query
+          name: housing_type
+          schema:
+            $ref: '#/components/schemas/HousingType'
+        - in: query
+          name: is_deleted
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Housing list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HousingListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Implemented - Housing]
+      summary: Create housing record
+      operationId: createHousing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HousingCreateRequest'
+      responses:
+        '201':
+          description: Housing created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Housing'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /housing/{housingId}:
+    parameters:
+      - $ref: '#/components/parameters/HousingId'
+    get:
+      tags: [Implemented - Housing]
+      summary: Get housing by ID (optionally with rooms)
+      operationId: getHousingById
+      responses:
+        '200':
+          description: Housing record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    oneOf:
+                      - $ref: '#/components/schemas/Housing'
+                      - $ref: '#/components/schemas/HousingWithRooms'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Implemented - Housing]
+      summary: Update housing by ID
+      operationId: updateHousingById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HousingUpdateRequest'
+      responses:
+        '200':
+          description: Housing updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Housing'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Implemented - Housing]
+      summary: Soft-delete housing by ID
+      operationId: deactivateHousingById
+      responses:
+        '200':
+          description: Housing deactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Housing'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /rooms:
+    get:
+      tags: [Implemented - Rooms]
+      summary: List room records
+      operationId: getRoomList
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/RoomSortBy'
+        - $ref: '#/components/parameters/SortDir'
+        - in: query
+          name: housing_id
+          schema:
+            type: integer
+        - in: query
+          name: room_type
+          schema:
+            $ref: '#/components/schemas/RoomType'
+        - in: query
+          name: occupancy_status
+          schema:
+            $ref: '#/components/schemas/OccupancyStatus'
+        - in: query
+          name: payment_status
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+        - in: query
+          name: is_deleted
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Room list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Implemented - Rooms]
+      summary: Create room record
+      operationId: createRoom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomCreateRequest'
+      responses:
+        '201':
+          description: Room created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /rooms/{roomId}:
+    parameters:
+      - $ref: '#/components/parameters/RoomId'
+    get:
+      tags: [Implemented - Rooms]
+      summary: Get room by ID
+      operationId: getRoomById
+      responses:
+        '200':
+          description: Room record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Implemented - Rooms]
+      summary: Soft-delete room by ID
+      operationId: deactivateRoomById
+      responses:
+        '200':
+          description: Room deactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Room'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /users:
+    get:
+      tags: [Implemented - Users]
+      summary: List users
+      operationId: getUserList
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/UserSortBy'
+        - $ref: '#/components/parameters/SortDir'
+        - in: query
+          name: user_type
+          schema:
+            $ref: '#/components/schemas/UserType'
+        - in: query
+          name: is_deleted
+          schema:
+            type: boolean
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search by name/email
+      responses:
+        '200':
+          description: User list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Implemented - Users]
+      summary: Create user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      tags: [Implemented - Users]
+      summary: Get user by ID
+      operationId: getUserById
+      responses:
+        '200':
+          description: User record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Implemented - Users]
+      summary: Update user by ID
+      operationId: updateUserById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Implemented - Users]
+      summary: Soft-delete user by ID
+      operationId: deactivateUserById
+      responses:
+        '200':
+          description: User deactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+# reusable parts of openapi
+components:
+  parameters:
+    HousingId:
+      in: path # it lives in the url path
+      name: housingId 
+      required: true 
+      schema: { type: integer }
+    RoomId:
+      in: path
+      name: roomId
+      required: true
+      schema: { type: integer }
+    UserId:
+      in: path
+      name: id
+      required: true
+      schema: { type: integer }
+    ApplicationId:
+      in: path
+      name: applicationId
+      required: true
+      schema: { type: integer }
+    AuditId:
+      in: path
+      name: auditId
+      required: true
+      schema: { type: integer }
+    TransactionId:
+      in: path
+      name: transactionId
+      required: true
+      schema: { type: integer }
+    AccountNumber:
+      in: path
+      name: accountNumber
+      required: true
+      schema: { type: integer }
+    ManagerAccountNumber:
+      in: path
+      name: managerAccountNumber
+      required: true
+      schema: { type: integer }
+    DocumentId:
+      in: path
+      name: documentId
+      required: true
+      schema: { type: integer }
+
+    # limit and offset for pagination
+    # no cursor pagination, just offset pagination
+    Limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Offset:
+      in: query
+      name: offset
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    SortDir:
+      in: query
+      name: sort_dir
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+
+    # 
+    HousingSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [housing_name, rent_price, start_application_date, end_application_date, housing_id]
+        default: housing_name
+    RoomSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [room_id, housing_id, room_type, occupancy_status, payment_status]
+        default: room_id
+    UserSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [last_name, first_name, account_email, account_number, user_type]
+        default: account_number
+    ApplicationSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [application_id, expected_moveout_date, actual_moveout_date, application_status, housing_name, preferred_room_type]
+        default: application_id
+    BillSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [transaction_id, due_date, issue_date, amount, status, bill_type]
+        default: issue_date
+    AuditSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [timestamp, audit_id, action_type, user_name]
+        default: timestamp
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+
+    ListMeta:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        total:
+          type: integer
+          nullable: true
+
+    HousingType:
+      type: string
+      enum: [Non-UP Housing, UP Housing]
+    RoomType:
+      type: string
+      enum: [Single, Double, Shared]
+    OccupancyStatus:
+      type: string
+      enum: [Fully Occupied, Empty, Partially Occupied]
+    PaymentStatus:
+      type: string
+      enum: [Pending, Paid, Overdue]
+    UserType:
+      type: string
+      enum: [Student, Manager, System Admin]
+    Sex:
+      type: string
+      enum: [Male, Female, Prefer not to say]
+    ApplicationStatus:
+      type: string
+      enum: [Pending, Rejected, Approved, Cancelled]
+    ActionType:
+      type: string
+      enum: [Application Status, Bill Status]
+    BillType:
+      type: string
+      enum: [Rent, Utility, WiFi]
+    ManagerType:
+      type: string
+      enum: [Housing Administrator, Landlord]
+
+    Housing:
+      type: object
+      properties:
+        housing_id: { type: integer }
+        housing_name: { type: string }
+        housing_address: { type: string }
+        housing_type:
+          $ref: '#/components/schemas/HousingType'
+        rent_price: { type: number }
+        manager_account_number:
+          type: integer
+          nullable: true
+        start_application_date:
+          type: string
+          format: date
+          nullable: true
+        end_application_date:
+          type: string
+          format: date
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    HousingWithRooms:
+      allOf:
+        - $ref: '#/components/schemas/Housing'
+        - type: object
+          properties:
+            room:
+              type: array
+              items:
+                $ref: '#/components/schemas/Room'
+
+    Room:
+      type: object
+      properties:
+        room_id: { type: integer }
+        housing_id: { type: integer }
+        room_type:
+          $ref: '#/components/schemas/RoomType'
+        maximum_occupants:
+          type: integer
+          nullable: true
+        occupancy_status:
+          allOf:
+            - $ref: '#/components/schemas/OccupancyStatus'
+          nullable: true
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatus'
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    User:
+      type: object
+      properties:
+        account_number: { type: integer }
+        account_email:
+          type: string
+          format: email
+        first_name: { type: string }
+        middle_name:
+          type: string
+          nullable: true
+        last_name: { type: string }
+        password: { type: string }
+        sex:
+          $ref: '#/components/schemas/Sex'
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        phone_number:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          format: date
+          nullable: true
+        home_address:
+          type: string
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    Application:
+      type: object
+      properties:
+        application_id: { type: integer }
+        housing_name:
+          type: string
+          nullable: true
+        preferred_room_type:
+          allOf:
+            - $ref: '#/components/schemas/RoomType'
+          nullable: true
+        application_status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        expected_moveout_date:
+          type: string
+          format: date
+        actual_moveout_date:
+          type: string
+          format: date
+          nullable: true
+        room_id:
+          type: integer
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    AuditLog:
+      type: object
+      properties:
+        audit_id: { type: integer }
+        timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        action_type:
+          allOf:
+            - $ref: '#/components/schemas/ActionType'
+          nullable: true
+        audit_description:
+          type: string
+          nullable: true
+        user_id:
+          type: integer
+          nullable: true
+        user_name:
+          type: string
+          nullable: true
+        account_number:
+          type: integer
+          nullable: true
+
+    Bill:
+      type: object
+      properties:
+        transaction_id: { type: integer }
+        amount: { type: number }
+        bill_type:
+          $ref: '#/components/schemas/BillType'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        due_date:
+          type: string
+          format: date-time
+        issue_date:
+          type: string
+          format: date-time
+        date_paid:
+          type: string
+          format: date-time
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    Manager:
+      type: object
+      properties:
+        account_number: { type: integer }
+        manager_type:
+          $ref: '#/components/schemas/ManagerType'
+        user:
+          $ref: '#/components/schemas/User'
+
+    ManagerBank:
+      type: object
+      properties:
+        bank_number: { type: integer }
+        account_number:
+          type: integer
+          nullable: true
+        bank_name: { type: string }
+        bank_type: { type: string }
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    ManagerPayment:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        account_number:
+          type: integer
+          nullable: true
+        bank_number:
+          type: integer
+        bank_type: { type: string }
+        transaction_id:
+          type: integer
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+        manager:
+          $ref: '#/components/schemas/Manager'
+        bill:
+          $ref: '#/components/schemas/Bill'
+
+    HousingAdmin:
+      type: object
+      properties:
+        account_number: { type: integer }
+        manager:
+          type: object
+          properties:
+            manager_type:
+              $ref: '#/components/schemas/ManagerType'
+            user:
+              $ref: '#/components/schemas/User'
+
+    HousingCreateRequest:
+      type: object
+      required: [housing_name, housing_address, rent_price]
+      properties:
+        housing_name: { type: string }
+        housing_address: { type: string }
+        housing_type:
+          $ref: '#/components/schemas/HousingType'
+        rent_price: { type: number }
+        manager_account_number:
+          type: integer
+          nullable: true
+        start_application_date:
+          type: string
+          format: date
+        end_application_date:
+          type: string
+          format: date
+
+    HousingUpdateRequest:
+      type: object
+      properties:
+        housing_name: { type: string }
+        housing_address: { type: string }
+        housing_type:
+          $ref: '#/components/schemas/HousingType'
+        rent_price: { type: number }
+        manager_account_number:
+          type: integer
+          nullable: true
+        start_application_date:
+          type: string
+          format: date
+        end_application_date:
+          type: string
+          format: date
+        is_deleted: { type: boolean }
+
+    RoomCreateRequest:
+      type: object
+      required: [housing_id]
+      properties:
+        housing_id: { type: integer }
+        room_type:
+          $ref: '#/components/schemas/RoomType'
+        maximum_occupants: { type: integer }
+        occupancy_status:
+          $ref: '#/components/schemas/OccupancyStatus'
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatus'
+
+    UserCreateRequest:
+      type: object
+      required: [account_email, first_name, last_name, password]
+      properties:
+        account_email:
+          type: string
+          format: email
+        first_name: { type: string }
+        middle_name:
+          type: string
+          nullable: true
+        last_name: { type: string }
+        password: { type: string }
+        sex:
+          $ref: '#/components/schemas/Sex'
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        contact_email:
+          type: string
+          format: email
+        phone_number: { type: string }
+        birthday:
+          type: string
+          format: date
+        home_address: { type: string }
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        account_email:
+          type: string
+          format: email
+        first_name: { type: string }
+        middle_name:
+          type: string
+          nullable: true
+        last_name: { type: string }
+        password: { type: string }
+        sex:
+          $ref: '#/components/schemas/Sex'
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        phone_number:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          format: date
+          nullable: true
+        home_address:
+          type: string
+          nullable: true
+        is_deleted: { type: boolean }
+
+    ApplicationCreateRequest:
+      type: object
+      required: [expected_moveout_date]
+      properties:
+        housing_name:
+          type: string
+          nullable: true
+        preferred_room_type:
+          $ref: '#/components/schemas/RoomType'
+        application_status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        expected_moveout_date:
+          type: string
+          format: date
+        actual_moveout_date:
+          type: string
+          format: date
+          nullable: true
+        room_id:
+          type: integer
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted: { type: boolean }
+
+    ApplicationUpdateRequest:
+      type: object
+      properties:
+        housing_name:
+          type: string
+          nullable: true
+        preferred_room_type:
+          $ref: '#/components/schemas/RoomType'
+        application_status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        expected_moveout_date:
+          type: string
+          format: date
+        actual_moveout_date:
+          type: string
+          format: date
+          nullable: true
+        room_id:
+          type: integer
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted: { type: boolean }
+
+    AuditLogCreateRequest:
+      type: object
+      required: [timestamp, action_type, audit_description, user_id, user_name, account_number]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        action_type:
+          $ref: '#/components/schemas/ActionType'
+        audit_description:
+          type: string
+        user_id:
+          type: integer
+        user_name:
+          type: string
+        account_number:
+          type: integer
+
+    AuditLogUpdateRequest:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        action_type:
+          $ref: '#/components/schemas/ActionType'
+        audit_description:
+          type: string
+        user_id:
+          type: integer
+        user_name:
+          type: string
+        account_number:
+          type: integer
+
+    BillCreateRequest:
+      type: object
+      required: [amount, due_date]
+      properties:
+        amount: { type: number }
+        bill_type:
+          $ref: '#/components/schemas/BillType'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        due_date:
+          type: string
+          format: date-time
+        issue_date:
+          type: string
+          format: date-time
+        date_paid:
+          type: string
+          format: date-time
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted: { type: boolean }
+
+    BillUpdateRequest:
+      type: object
+      properties:
+        amount: { type: number }
+        bill_type:
+          $ref: '#/components/schemas/BillType'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        due_date:
+          type: string
+          format: date-time
+        issue_date:
+          type: string
+          format: date-time
+        date_paid:
+          type: string
+          format: date-time
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted: { type: boolean }
+
+    ManagerUpdateRequest:
+      type: object
+      properties:
+        manager_type:
+          $ref: '#/components/schemas/ManagerType'
+        is_deleted:
+          type: boolean
+
+    ManagerBankCreateRequest:
+      type: object
+      required: [bank_number, bank_name, bank_type]
+      properties:
+        account_number:
+          type: integer
+          nullable: true
+        bank_number: { type: integer }
+        bank_name: { type: string }
+        bank_type: { type: string }
+
+    ManagerBankUpdateRequest:
+      type: object
+      properties:
+        account_number:
+          type: integer
+          nullable: true
+        bank_name: { type: string }
+        bank_type: { type: string }
+        is_deleted:
+          type: boolean
+
+    ManagerPaymentCreateRequest:
+      type: object
+      required: [bank_number, bank_type]
+      properties:
+        account_number:
+          type: integer
+          nullable: true
+        bank_number: { type: integer }
+        bank_type: { type: string }
+        transaction_id:
+          type: integer
+          nullable: true
+
+    ManagerPaymentUpdateRequest:
+      type: object
+      properties:
+        account_number:
+          type: integer
+          nullable: true
+        bank_number: { type: integer }
+        bank_type: { type: string }
+        transaction_id:
+          type: integer
+          nullable: true
+        is_deleted:
+          type: boolean
+
+    HousingListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Housing'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    RoomListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ApplicationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    AuditLogListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    BillListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bill'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ManagerListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Manager'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ManagerBankListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagerBank'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ManagerPaymentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagerPayment'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    HousingAdminListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HousingAdmin'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    CountResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+
+    GrossRevenueResponse:
+      type: object
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+          example: PHP
+
+    OccupancyRateResponse:
+      type: object
+      properties:
+        occupied:
+          type: integer
+        capacity:
+          type: integer
+        ratio:
+          type: number
+
+    StudentActiveHousingResponse:
+      type: object
+      properties:
+        student_account_number:
+          type: integer
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room:
+          $ref: '#/components/schemas/Room'
+        manager:
+          $ref: '#/components/schemas/Manager'
+        stay_start:
+          type: string
+          format: date
+        stay_end:
+          type: string
+          format: date
+          nullable: true
+
+    BillingSummaryResponse:
+      type: object
+      properties:
+        student_account_number:
+          type: integer
+        total_unpaid:
+          type: number
+        total_overdue:
+          type: number
+        total_paid:
+          type: number
+        by_bill_type:
+          type: array
+          items:
+            type: object
+            properties:
+              bill_type:
+                $ref: '#/components/schemas/BillType'
+              amount:
+                type: number
+
+    AccommodationHistoryEntry:
+      type: object
+      properties:
+        student_account_number:
+          type: integer
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room:
+          $ref: '#/components/schemas/Room'
+        move_in_date:
+          type: string
+          format: date
+        expected_move_out_date:
+          type: string
+          format: date
+          nullable: true
+        actual_move_out_date:
+          type: string
+          format: date
+          nullable: true
+
+    AccommodationHistoryListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccommodationHistoryEntry'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    HousingOption:
+      type: object
+      properties:
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room_type:
+          $ref: '#/components/schemas/RoomType'
+        available_slots:
+          type: integer
+
+    HousingOptionListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HousingOption'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    BillingDetail:
+      type: object
+      properties:
+        bill:
+          $ref: '#/components/schemas/Bill'
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room:
+          $ref: '#/components/schemas/Room'
+        student:
+          $ref: '#/components/schemas/User'
+        manager:
+          $ref: '#/components/schemas/Manager'
+
+    BillingDetailListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BillingDetail'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    StudentBalance:
+      type: object
+      properties:
+        student_account_number:
+          type: integer
+        student_name:
+          type: string
+        total_balance:
+          type: number
+
+    StudentBalanceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentBalance'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    TenantRecord:
+      type: object
+      properties:
+        student:
+          $ref: '#/components/schemas/User'
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room:
+          $ref: '#/components/schemas/Room'
+        start_of_stay:
+          type: string
+          format: date
+        end_of_stay:
+          type: string
+          format: date
+          nullable: true
+
+    TenantRecordListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantRecord'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ManagerDormSummary:
+      type: object
+      properties:
+        housing:
+          $ref: '#/components/schemas/Housing'
+        total_occupants:
+          type: integer
+        available_slots:
+          type: integer
+        room_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoomType'
+
+    ManagerDormSummaryListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagerDormSummary'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    Document:
+      type: object
+      properties:
+        document_id:
+          type: integer
+        application_id:
+          type: integer
+        file_name:
+          type: string
+        file_type:
+          type: string
+        file_url:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time
+        uploaded_by_account_number:
+          type: integer
+
+    DocumentCreateRequest:
+      type: object
+      required: [application_id, file_name, file_type, file_url]
+      properties:
+        application_id:
+          type: integer
+        file_name:
+          type: string
+        file_type:
+          type: string
+        file_url:
+          type: string
+
+    DocumentUpdateRequest:
+      type: object
+      properties:
+        file_name:
+          type: string
+        file_type:
+          type: string
+        file_url:
+          type: string
+
+    DocumentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+

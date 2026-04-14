@@ -7,6 +7,7 @@ import AuditLogTable from "@/components/admin/audits/auditlogtable";
 import { MOCK_AUDIT_LOGS } from "@/components/admin/audits/audit";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
+import Link from "next/link";
 
 export default function Page() {
   // ── State ───────────────────────────────────────────────────────────────────
