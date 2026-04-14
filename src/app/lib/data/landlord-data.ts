@@ -107,7 +107,6 @@ export async function getHousingAdminById(accountNumber: number) {
 	return { data, error: null };
 }
 
-// Count total rooms across all housing owned by a landlord
 export async function getTotalRoomsByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("room")
