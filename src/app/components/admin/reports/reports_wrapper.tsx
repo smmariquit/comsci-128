@@ -33,11 +33,12 @@ const TABS: { key: ReportType; label: string }[] = [
 interface ReportsWrapperProps {
   liveOccupancy: OccupancyReportRow[];
   liveApplications: ApplicationReportRow[];
+  liveAccommodationHistory: AccommodationHistoryRow[];
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function ReportsWrapper({ liveOccupancy, liveApplications } : ReportsWrapperProps) {
+export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAccommodationHistory } : ReportsWrapperProps) {
   // ── Active tab ──────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<ReportType>("occupancy");
 
@@ -98,7 +99,7 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications } : Rep
     );
   }), [search, housing, status, dateFrom, dateTo]);
 
-  const filteredAccommodation = useMemo(() => MOCK_ACCOMMODATION.filter((r) => {
+  const filteredAccommodation = useMemo(() => liveAccommodationHistory.filter((r) => {
     const q = search.toLowerCase();
     const date = new Date(r.movein_date);
     return (
@@ -108,7 +109,7 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications } : Rep
       (!dateFrom || date >= new Date(dateFrom)) &&
       (!dateTo   || date <= new Date(dateTo))
     );
-  }), [search, housing, status, dateFrom, dateTo]);
+  }), [liveAccommodationHistory, search, housing, status, dateFrom, dateTo]);
 
   // ── Stat cards per tab ──────────────────────────────────────────────────────
 
