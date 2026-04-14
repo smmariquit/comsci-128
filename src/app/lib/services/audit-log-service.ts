@@ -9,3 +9,7 @@ const getAllAuditLogs = async (): Promise<AuditLog[]> => {
         throw new Error("Failed to fetch audit logs.");
     }
 };
+
+export const auditLogService = {
+    getAllAuditLogs
+}
