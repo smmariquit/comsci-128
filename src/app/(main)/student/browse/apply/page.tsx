@@ -4,14 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import StudentNavBar from "../../_components/StudentNavBar"; 
 import { getDormDetails } from "../_actions";
+import { createApplication, type PreferredRoomType, type ApplicationStatus } from "@/app/lib/data/application-data";
 
 export default function ApplyPage() {
+    const dateNow = new Date(Date.now()).toISOString().split('T')[0];
     const router = useRouter();
     const searchParams = useSearchParams();
     const dormId = searchParams.get("id")?? undefined;
     const [dormData, setDormData] = useState<any>(null);
 
-    const room_types = ["Male", "Female", "Coed", "No preference"];
+    const room_types = ["Women Only", "Men Only", "Co-ed"];
 
     const [selectedRoomType, setSelectedRoomType] = useState("");
     const [moveOutDate, setMoveOutDate] = useState("");
@@ -30,6 +32,46 @@ export default function ApplyPage() {
         }
         fetchData();
     }, [dormId]);
+
+    const submitApplication = async () => {
+        if (moveOutDate <= dateNow) {
+            alert("Move-out date cannot be in the past");
+            return;
+        }
+        if (selectedRoomType === "") {
+            alert("Please select a room type");
+            return;
+        }
+        if (fileName === "") {
+            alert("Please upload a file");
+            return;
+        }
+        const application = {
+            dormId: dormId,
+            selectedRoomType: selectedRoomType,
+            moveOutDate: moveOutDate,
+            fileName: fileName,
+        }
+        const response = await createApplication(
+            {
+                housing_name: dormData?.housing_name || "",
+                preferred_room_type: selectedRoomType as PreferredRoomType,
+                application_status: "Pending Manager Approval" as ApplicationStatus,
+                expected_moveout_date: moveOutDate,
+                actual_moveout_date: null,
+                room_id: null,
+                manager_account_number: dormData?.manager_account_number || null,
+                student_account_number: dormData?.student_account_number || null,
+                landlord_account_number: dormData?.landlord_account_number || null,
+                is_deleted: false,
+            }
+        )
+        if (response) {
+            alert("Application submitted successfully");
+        } else {
+            alert("Application submission failed");
+        }
+    }
 
     const headerName = dormData?.housing_name || "Housing";
 
@@ -59,7 +101,7 @@ export default function ApplyPage() {
                     </svg>
                 </button>
 
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); submitApplication(); }}>
                     {/* Header banner */}
                     <div className="rounded-[10px] bg-[#1C2632] px-6 py-4 text-white">
                         <h2 className="text-xl font-medium font-[family-name:var(--font-geist-sans)]">

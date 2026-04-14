@@ -12,11 +12,12 @@ export interface Application {
 	housing_name: string;
 	preferred_room_type: PreferredRoomType;
 	application_status: ApplicationStatus;
-	expected_moveout_date: Date;
-	actual_moveout_data: Date;
-	room_id?: number;
-	manager_account_number: number;
-	student_account_number: number;
+	expected_moveout_date: string;
+	actual_moveout_date: string | null;
+	room_id?: number | null;
+	manager_account_number: number | null;
+	student_account_number: number | null;
+	landlord_account_number: number;
 	is_deleted?: boolean;
 }
 
