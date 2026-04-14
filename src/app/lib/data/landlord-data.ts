@@ -129,6 +129,54 @@ export async function getTotalTenantsByLandlord(accountNumber: number) {
 	return { data: count ?? 0, error: null };
 }
 
+export async function getGrossRevenueByLandlord(accountNumber: number) {
+	const { data: tenants, error: tenantError } = await supabase
+		.from("student_accommodation_history")
+		.select(
+			`
+        account_number,
+        room:room_id!inner(
+          housing:housing_id!inner(landlord_account_number)
+        )
+      `,
+		)
+		.eq("room.housing.landlord_account_number", accountNumber);
+
+	if (tenantError) {
+		console.error(
+			"Error fetching tenants for revenue:",
+			tenantError.message,
+		);
+		return { data: null, error: tenantError };
+	}
+
+	const studentIds = [
+		...new Set(tenants?.map((t) => t.account_number) ?? []),
+	];
+
+	if (studentIds.length === 0) {
+		return { data: 0, error: null };
+	}
+
+	const { data: bills, error: billError } = await supabase
+		.from("bill")
+		.select("amount")
+		.in("student_account_number", studentIds)
+		.eq("is_deleted", false);
+
+	if (billError) {
+		console.error("Error fetching bills for revenue:", billError.message);
+		return { data: null, error: billError };
+	}
+
+	const grossRevenue = bills?.reduce(
+		(sum, bill) => sum + Number(bill.amount),
+		0,
+	) ?? 0;
+
+	return { data: grossRevenue, error: null };
+}
+
 //Delete housing admin (uncomment if needed)
 // export async function deleteHousingAdmin(accountNumber: number) {
 //   const { error } = await supabase
