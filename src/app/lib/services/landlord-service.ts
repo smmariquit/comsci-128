@@ -1,6 +1,7 @@
 import {
 	getAllHousingAdmins,
 	getHousingAdminById,
+	getTotalRoomsByLandlord,
 	getTotalTenantsByLandlord,
 } from "@/app/lib/data/landlord-data";
 
@@ -36,6 +37,31 @@ const fetchHousingAdminById = async (accountNumber: number) => {
 	}
 };
 
+const fetchTotalRoomsByLandlord = async (accountNumber: number) => {
+	try {
+		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
+			throw new Error("Invalid landlord account number.");
+		}
+
+		const result = await getTotalRoomsByLandlord(accountNumber);
+		if (result.error) {
+			throw new Error(result.error.message || "Failed to count rooms.");
+		}
+
+		return result.data ?? 0;
+	} catch (error: unknown) {
+		if (
+			error instanceof Error &&
+			error.message === "Invalid landlord account number."
+		) {
+			throw error;
+		}
+
+		console.error("Error counting rooms by landlord:", error);
+		throw new Error("Failed to count rooms by landlord.");
+	}
+};
+
 const fetchTotalTenantsByLandlord = async (accountNumber: number) => {
 	try {
 		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
@@ -64,5 +90,6 @@ const fetchTotalTenantsByLandlord = async (accountNumber: number) => {
 export const landlordService = {
 	fetchAllHousingAdmins,
 	fetchHousingAdminById,
+	fetchTotalRoomsByLandlord,
 	fetchTotalTenantsByLandlord,
 };
