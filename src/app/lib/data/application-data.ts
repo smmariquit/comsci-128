@@ -32,9 +32,26 @@ export async function createApplication(application: Application) {
 
 // READ ALL APPLICATIONS
 export async function getAllApplications() {
-  const { data, error } = await supabase.from("application").select("*");
-  if (error) throw error;
-  return data;
+	const { data, error } = await supabase
+	.from("application")
+	.select(`
+		application_id,
+		housing_name,
+		preferred_room_type,
+		expected_moveout_date,
+		application_status,
+		student:student!student_account_number (
+			housing_status,
+			user:user!account_number (
+				first_name,
+				last_name
+			)
+		)
+	`)
+	.eq("is_deleted", false);
+
+	if (error) throw error;
+	return data;
 }
 
 // READ APPLICATION BASED ON APPLICATION ID
