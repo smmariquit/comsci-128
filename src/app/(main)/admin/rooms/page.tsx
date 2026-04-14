@@ -1,91 +1,260 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
+import RoomTable, { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
+import RoomFilters, {
+  OccupancyFilter,
+  TypeFilter,
+} from  "@/components/admin/rooms/roomfilters";
+import { roomData } from "@/app/lib/data/room-data";
+import { roomService } from "@/app/lib/services/room-service";
 
 export default function Page() {
-  const [roomDeleteId, setRoomDeleteId] = useState("");
+    const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
 
-  // Mock token to pass backend's authorization check
-  const authHeader = { Authorization: "Bearer local-dev-token" };
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [showFormModal, setShowFormModal] = useState(false);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+  // ── Raw Data ──────────────────────────────────────────
+  const [rooms, setRooms] = useState<RoomRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleDeleteRoom = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // ── Filter State ──────────────────────────────────────
+  const [search, setSearch] = useState("");
+  const [occupancy, setOccupancy] = useState<OccupancyFilter>("All");
+  const [roomType, setRoomType] = useState<TypeFilter>("All");
+  const [housing, setHousing] = useState("All");
 
-    if (!confirm(`Are you sure you want to delete Room ${roomDeleteId}?`))
-      return;
+  // ── Derived Options ───────────────────────────────────
+  const housingOptions = Array.from(
+    new Set(rooms.map((r) => r.housing_name))
+  );
+
+  // ── Filtering Logic ───────────────────────────────────
+  const filteredRooms = rooms.filter((room) => {
+    const roomCode = String(room.room_code || "").toLowerCase() || "";
+    const searchTerm = search.toLowerCase();
+
+    const matchesSearch =
+      roomCode.includes(searchTerm) ||
+      (room.assigned_tenants || []).some((t) =>
+        t.id?.toLowerCase().includes(searchTerm) ||
+        t.name?.toLowerCase().includes(searchTerm)
+      );
+
+    const matchesOccupancy =
+      occupancy === "All" || room.occupancy_status === occupancy;
+
+    const matchesType =
+      roomType === "All" || room.room_type === roomType;
+
+    const matchesHousing =
+      housing === "All" || room.housing_name === housing;
+
+    return (
+      matchesSearch &&
+      matchesOccupancy &&
+      matchesType &&
+      matchesHousing
+    );
+  });
+    const handleView = (room: RoomRow) => {
+            setSelectedRoom(room);
+            setShowViewModal(true);
+    };
+    const handleEdit = (room: RoomRow) => {
+    setSelectedRoom(room);
+    setShowFormModal(true);
+    };
+    const handleAssign = (room: RoomRow) => {
+    setSelectedRoom(room);
+    setShowAssignModal(true);
+    };
+
+  // ── Handlers ──────────────────────────────────────────
+  const handleDelete = async (row: RoomRow) => {
+    //confirm
+    if (!window.confirm(`Are you sure you want to deactivate ${row.room_code}?`)) return;
 
     try {
-      const res = await fetch(`/api/rooms/${roomDeleteId}`, {
-        method: "DELETE",
-        headers: authHeader,
-      });
+      setIsLoading(true);
+      await roomData.deactivate(row.room_id);
 
-      const result = await res.json();
-
-      if (res.ok) {
-        alert("Room deleted successfully!");
-        setRoomDeleteId("");
-      } else {
-        // Displays your "Room must be Empty" or "Not Found" error
-        alert(`Error: ${result.error}`);
-      }
-    } catch (_err) {
-      alert("System error. Check console.");
+      setRooms((prev) => prev.filter((r) => r.room_id !== row.room_id));
+    } catch (err) {
+      console.error("Failed to deactivate: ", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleToggle = async (row: RoomRow) => {
+    const nextStatus = row.occupancy_status === "Empty" ? "Fully Occupied" : "Empty";
+    const nextStatusUI: OccupancyStatus = nextStatus === "Fully Occupied" ? "Occupied" : "Empty";
+
+    try {
+      await roomData.update(row.room_id, { occupancy_status: nextStatus as any });
+
+      setRooms((prev) => 
+        prev.map((r) => r.room_id === row.room_id ? { ...r, occupancy_status: nextStatusUI} : r
+    ));
+    } catch (err) {
+      console.error("Failed to update status: ", err);
+    }
+  };
+
+  const handleFormSubmit = async (form: RoomForm) => {
+    if (!selectedRoom) return;
+
+    try {
+      setIsLoading(true);
+
+      const dbStatus = form.occupancy_status === "Occupied" ? "Fully Occupied" : form.occupancy_status;
+
+      await roomData.update(selectedRoom.room_id, {
+        room_type: form.room_type as any,
+        maximum_occupants: Number(form.maximum_occupants),
+        occupancy_status: dbStatus as any,
+      });
+
+      const updatedRooms = await roomData.findAllRoomDetailed();
+      setRooms(updatedRooms);
+
+      setShowFormModal(false);
+      setSelectedRoom(null);
+    } catch (err) {
+      console.error("Failed to update room: ", err);
+    } finally {
+      setIsLoading(false)
+    }
+  };
+
+  const handleAssignSubmit = async (studentId: string) => {
+    if (!selectedRoom) return;
+
+    try {
+      setIsLoading(true);
+
+      await roomService.assignRoom(selectedRoom.room_id, studentId);
+
+      const liveRooms = await roomData.findAllRoomDetailed();
+      setRooms(liveRooms);
+
+      setShowAssignModal(false);
+      setSelectedRoom(null);
+    } catch (err) {
+      console.error("Failed to submit assignment: ", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUnassign = async (studentId: string) => {
+    if (!selectedRoom) return;
+
+    try {
+      setIsLoading(true);
+
+      await roomService.unassignRoom(selectedRoom.room_id, studentId);
+
+      const liveRooms = await roomData.findAllRoomDetailed();
+      setRooms(liveRooms);
+
+      const updateSelected = liveRooms.find(r => r.room_id === selectedRoom.room_id);
+      setSelectedRoom(updateSelected || null);
+
+    } catch (err) {
+      console.error("Failed to unassign: ", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch Data
+  useEffect(() => {
+    async function loadLiveData() {
+      try {
+        const liveRooms = await roomData.findAllRoomDetailed();
+        setRooms(liveRooms);
+      } catch (err) {
+        console.error("Failed to fetch rooms:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadLiveData();
+  }, []);
+
+  if (isLoading) return <div className="p-6">Syncing with the database...</div>;
+
+  // ── UI ────────────────────────────────────────────────
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">Admin Rooms Page</h1>
-      {/* ROOM DELETION SECTION */}
-      <section
-        style={{
-          marginTop: "40px",
-          border: "2px solid rgba(255, 0, 0, 1)",
-          padding: "20px",
-          borderRadius: "8px",
-        }}
-      >
-        <form
-          onSubmit={handleDeleteRoom}
-          style={{ display: "flex", gap: "10px" }}
-        >
-          <input
-            placeholder="Enter Room ID"
-            value={roomDeleteId}
-            onChange={(e) => setRoomDeleteId(e.target.value)}
-            style={{
-              padding: "8px",
-              color: "black",
-              flex: 1,
-              borderRadius: "4px",
-            }}
-            required
-          />
-          <button
-            type="submit"
-            style={{
-              padding: "8px 20px",
-              cursor: "pointer",
-              backgroundColor: "#fff",
-              color: "#ff0000",
-              border: "none",
-              fontWeight: "bold",
-            }}
-          >
-            DELETE ROOM
-          </button>
-        </form>
-      </section>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link
-          href="/admin"
-          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
-        >
-          Back to Dashboard
-        </Link>
-      </div>
-    </main>
+    <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+      
+      {/* Filters */}
+      <RoomFilters
+        search={search}
+        occupancy={occupancy}
+        roomType={roomType}
+        housing={housing}
+        housingOptions={housingOptions}
+        onSearch={setSearch}
+        onOccupancy={setOccupancy}
+        onRoomType={setRoomType}
+        onHousing={setHousing}
+      />
+
+      {/* Table */}
+      <RoomTable
+        data={filteredRooms}
+        onView={handleView}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onOverrideAssign={handleAssign}
+        onToggleOccupancy={handleToggle}
+       
+      />
+
+      {showViewModal && selectedRoom && (
+        <ViewRoomModal
+          room={selectedRoom}
+          onClose={() => {
+            setShowViewModal(false);
+            setSelectedRoom(null);
+          }}
+        />
+      )}
+
+      {showFormModal && selectedRoom && (
+        <RoomFormModal
+          mode="edit"
+          initial={{
+            housing_name: selectedRoom.housing_name,
+            room_type: selectedRoom.room_type,
+            maximum_occupants: String(selectedRoom.maximum_occupants),
+            occupancy_status: selectedRoom.occupancy_status,
+          }}
+          housingOptions={housingOptions}
+          onClose={() => {
+            setShowFormModal(false);
+            setSelectedRoom(null);
+          }}
+          onSubmit={handleFormSubmit}
+        />
+      )}
+
+      {showAssignModal && selectedRoom && (
+        <OverrideAssignModal
+          room={selectedRoom}
+          onClose={() => {
+            setShowAssignModal(false);
+            setSelectedRoom(null);
+          }}
+          onAssign={(studentId) => handleAssignSubmit(studentId)}
+          onUnassign={(studentId) => handleUnassign(studentId)}
+        />
+      )}
+    </div>
   );
 }
