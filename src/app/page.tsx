@@ -1,7 +1,14 @@
-
 import Link from "next/link";
+import { createSupabaseServerClient } from "./lib/server-client";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  console.log({ user });
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center space-y-4">
