@@ -1,5 +1,6 @@
 import {
 	getAllHousingAdmins,
+	getGrossRevenueByLandlord,
 	getHousingAdminById,
 	getTotalPropertiesByLandlord,
 	getTotalTenantsByLandlord,
@@ -87,8 +88,36 @@ const fetchTotalTenantsByLandlord = async (accountNumber: number) => {
 	}
 };
 
+const fetchGrossRevenueByLandlord = async (accountNumber: number) => {
+	try {
+		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
+			throw new Error("Invalid landlord account number.");
+		}
+
+		const result = await getGrossRevenueByLandlord(accountNumber);
+		if (result.error) {
+			throw new Error(
+				result.error.message || "Failed to calculate gross revenue.",
+			);
+		}
+
+		return result.data ?? 0;
+	} catch (error: unknown) {
+		if (
+			error instanceof Error &&
+			error.message === "Invalid landlord account number."
+		) {
+			throw error;
+		}
+
+		console.error("Error calculating gross revenue:", error);
+		throw new Error("Failed to calculate gross revenue.");
+	}
+};
+
 export const landlordService = {
 	fetchAllHousingAdmins,
+	fetchGrossRevenueByLandlord,
 	fetchHousingAdminById,
 	fetchTotalPropertiesByLandlord,
 	fetchTotalTenantsByLandlord,
