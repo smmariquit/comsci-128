@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import AuditFilters, { type AuditFiltersState } from '@/app/(main)/sys/component/audit-filters';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
+import { ActionType } from '@/app/lib/data/audit-log-data';
 
 // Types
-export type ActionType = 'Login' | 'Logout' | 'Create' | 'Update' | 'Delete' | 'Export'; // temporary - hde ko anong pwedeng category ng actions to be logged
+//export type ActionType = 'Login' | 'Logout' | 'Create' | 'Update' | 'Delete' | 'Export'; // temporary - hde ko anong pwedeng category ng actions to be logged
 export type ModuleType = 'Auth' | 'Dorms' | 'Rooms' | 'Occupancy' | 'Users' | 'Reports';
 export type StatusType = 'Success' | 'Failed'; // iniisip ko this can be helpful primarily sa auth part - mga successful log ins and nour ??
 
@@ -40,20 +40,6 @@ const stubUser: SidebarUser = {
   initials: 'LF',
 };
 
-const stubLogs: AuditLog[] = [
-  { id: '1',  timestamp: '2026-03-30T09:42:11', userName: 'Luthelle Fernandez', userRole: 'System Admin', userInitials: 'LF',                              action: 'Login',  module: 'Auth',      ipAddress: '192.168.1.4', status: 'Success', description: 'Admin logged in successfully.'              },
-  { id: '2',  timestamp: '2026-03-30T09:38:55', userName: 'Luthelle Fernandez', userRole: 'System Admin', userInitials: 'LF',                              action: 'Create', module: 'Dorms',     ipAddress: '192.168.1.4', status: 'Success', description: 'Created Sampaguita Dorm entry.'              },
-  { id: '3',  timestamp: '2026-03-30T09:21:30', userName: 'Luis Dela Rosa',     userRole: 'Dorm Manager', userInitials: 'LD', userColor: 'bg-violet-600',  action: 'Update', module: 'Occupancy', ipAddress: '10.0.0.22',   status: 'Success', description: 'Updated occupancy count for Room 3.'         },
-  { id: '4',  timestamp: '2026-03-30T09:15:02', userName: 'Justine Antonio',    userRole: 'Dorm Manager', userInitials: 'JA', userColor: 'bg-emerald-600', action: 'Login',  module: 'Auth',      ipAddress: '172.16.0.8',  status: 'Failed',  description: 'Wrong password — 3rd attempt.'               },
-  { id: '5',  timestamp: '2026-03-30T09:10:44', userName: 'Paul Fababeir',      userRole: 'Dorm Manager', userInitials: 'PF', userColor: 'bg-blue-600',    action: 'Update', module: 'Rooms',     ipAddress: '10.0.0.55',   status: 'Success', description: 'Marked Room 12 as under maintenance.'        },
-  { id: '6',  timestamp: '2026-03-30T08:58:17', userName: 'Luthelle Fernandez', userRole: 'System Admin', userInitials: 'LF',                              action: 'Delete', module: 'Users',     ipAddress: '192.168.1.4', status: 'Success', description: 'Removed inactive user account #88.'          },
-  { id: '7',  timestamp: '2026-03-30T08:45:00', userName: 'Joy Guevarra',       userRole: 'Dorm Manager', userInitials: 'JG', userColor: 'bg-orange-500',  action: 'Export', module: 'Reports',   ipAddress: '10.0.0.71',   status: 'Success', description: 'Exported Q1 occupancy report as CSV.'        },
-  { id: '8',  timestamp: '2026-03-30T08:33:29', userName: 'Justine Antonio',    userRole: 'Dorm Manager', userInitials: 'JA', userColor: 'bg-emerald-600', action: 'Login',  module: 'Auth',      ipAddress: '172.16.0.8',  status: 'Success', description: 'Logged in after password reset.'             },
-  { id: '9',  timestamp: '2026-03-30T08:20:11', userName: 'Luis Dela Rosa',     userRole: 'Dorm Manager', userInitials: 'LD', userColor: 'bg-violet-600',  action: 'Update', module: 'Dorms',     ipAddress: '10.0.0.22',   status: 'Success', description: 'Updated dorm address for Sampaguita.'        },
-  { id: '10', timestamp: '2026-03-30T08:04:03', userName: 'Luthelle Fernandez', userRole: 'System Admin', userInitials: 'LF',                              action: 'Logout', module: 'Auth',      ipAddress: '192.168.1.4', status: 'Success', description: 'Admin session ended.'                        },
-  { id: '11', timestamp: '2026-03-30T07:50:22', userName: 'Haira Espinocilla',  userRole: 'Dorm Manager', userInitials: 'HE', userColor: 'bg-rose-500',    action: 'Login',  module: 'Auth',      ipAddress: '10.0.0.91',   status: 'Failed',  description: 'Account disabled — login blocked.'           },
-  { id: '12', timestamp: '2026-03-30T07:41:08', userName: 'Althea Fernandez',   userRole: 'Dorm Manager', userInitials: 'AF', userColor: 'bg-sky-600',     action: 'Update', module: 'Occupancy', ipAddress: '10.0.0.34',   status: 'Success', description: 'Updated Molave Dorm occupancy to 19.'        },
-];
 
 const stubNotifications = [
   { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',       read: false, time: '1h ago'    },
@@ -81,22 +67,42 @@ function formatDate(iso: string) {
   });
 }
 
-// Action badge styles -> design for each category of action logged
 const ACTION_STYLES: Record<ActionType, string> = {
-  Login:  'bg-orange-50   text-orange-600  ring-1 ring-orange-200',
-  Logout: 'bg-[#eae8e1]  text-[#1a2332]/50 ring-1 ring-[#1a2332]/10',
-  Create: 'bg-emerald-50  text-emerald-700 ring-1 ring-emerald-200',
-  Update: 'bg-blue-50     text-blue-700    ring-1 ring-blue-200',
-  Delete: 'bg-rose-50     text-rose-600    ring-1 ring-rose-200',
-  Export: 'bg-violet-50   text-violet-700  ring-1 ring-violet-200',
+  'Application Status':        'bg-blue-50      text-blue-700      ring-1 ring-blue-200',
+  'Bill Status':               'bg-amber-50     text-amber-700     ring-1 ring-amber-200',
+  'Auth Register':             'bg-emerald-50   text-emerald-700   ring-1 ring-emerald-200',
+  'Auth Logic':                'bg-orange-50    text-orange-600    ring-1 ring-orange-200',
+  'Change Auth Password':      'bg-yellow-50    text-yellow-700    ring-1 ring-yellow-200',
+  'Delete Account':            'bg-rose-50      text-rose-600      ring-1 ring-rose-200',
+  'Update User Role':          'bg-purple-50    text-purple-700    ring-1 ring-purple-200',
+  'Submit Application':        'bg-sky-50       text-sky-700       ring-1 ring-sky-200',
+  'Update Application Status': 'bg-indigo-50    text-indigo-700    ring-1 ring-indigo-200',
+  'Withdraw Application':      'bg-red-50       text-red-600       ring-1 ring-red-200',
+  'Create Housing':            'bg-teal-50      text-teal-700      ring-1 ring-teal-200',
+  'Update Housing':            'bg-cyan-50      text-cyan-700      ring-1 ring-cyan-200',
+  'Assign Student Housing':    'bg-lime-50      text-lime-700      ring-1 ring-lime-200',
+  'Assign Bill':               'bg-orange-50    text-orange-700    ring-1 ring-orange-200',
+  'Update Bill Status':        'bg-amber-50     text-amber-600     ring-1 ring-amber-200',
+  'Issue Bill Refund':         'bg-green-50     text-green-700     ring-1 ring-green-200',
 };
+
 const ACTION_DOT: Record<ActionType, string> = {
-  Login:  'bg-orange-500',
-  Logout: 'bg-[#1a2332]/30',
-  Create: 'bg-emerald-500',
-  Update: 'bg-blue-500',
-  Delete: 'bg-rose-500',
-  Export: 'bg-violet-500',
+  'Application Status':        'bg-blue-500',
+  'Bill Status':               'bg-amber-500',
+  'Auth Register':             'bg-emerald-500',
+  'Auth Logic':                'bg-orange-500',
+  'Change Auth Password':      'bg-yellow-500',
+  'Delete Account':            'bg-rose-500',
+  'Update User Role':          'bg-purple-500',
+  'Submit Application':        'bg-sky-500',
+  'Update Application Status': 'bg-indigo-500',
+  'Withdraw Application':      'bg-red-500',
+  'Create Housing':            'bg-teal-500',
+  'Update Housing':            'bg-cyan-500',
+  'Assign Student Housing':    'bg-lime-500',
+  'Assign Bill':               'bg-orange-600',
+  'Update Bill Status':        'bg-amber-600',
+  'Issue Bill Refund':         'bg-green-500',
 };
 
 // Format of Action baadge
@@ -153,7 +159,6 @@ function PageBtn({ children, onClick, active, disabled }: {
 // Main Component
 export default function AuditLogsPage({
   user              = stubUser,
-  logs: initialLogs = stubLogs,
   notifications     = stubNotifications,
   onLogout,
 }: AuditLogsPageProps) {
@@ -161,9 +166,63 @@ export default function AuditLogsPage({
     search: '', action: 'All Actions', module: 'All Modules', status: 'All Status',
   });
   const [page, setPage] = useState(1);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+  // Fetch audit logs from API
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch('/api/audit-log');
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        console.log('Raw audit data:', data);
+
+        const rawLogs = Array.isArray(data) ? data : data.data ?? [];
+
+        // Transform DB fields to match AuditLog interface
+        const transformed: AuditLog[] = rawLogs.map((log: any) => ({
+          id:           String(log.audit_id || ''),
+          timestamp:    log.timestamp || '',
+          userName:     log.user_name || 'Unknown',
+          userRole:     log.user_role || '—',
+          userInitials: log.user_name
+                          ? log.user_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+                          : '??',
+          action:       log.action_type || 'Login',
+          module:       log.module || 'Auth',
+          ipAddress:    log.partial_ip || '—',
+          status:       log.status || 'Success',
+          description:  log.audit_description || '',
+        }));
+
+        console.log('Transformed logs:', transformed);
+
+        setAuditLogs(transformed);
+      } catch (error) {
+        console.error('Error fetching audit logs:', error);
+        setError(error instanceof Error ? error.message : 'Failed to fetch audit logs');
+        setAuditLogs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLogs();
+  }, []);
+
 
   // Filtering
-  const filtered = initialLogs.filter((l) => {
+  const filtered = auditLogs.filter((l) => {
     const q = filters.search.toLowerCase();
     const matchSearch =
       l.userName.toLowerCase().includes(q)  ||

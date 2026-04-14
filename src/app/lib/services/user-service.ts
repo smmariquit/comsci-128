@@ -48,15 +48,10 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 		}
 
 		// Insert user
-<<<<<<< HEAD
-		const createdUser = await userData.createUser(userDetails);
-		return createdUser;
-=======
 		// const createdUser = await userData.createUser(userDetails);
 		const createdUserStudent = await studentData.createUserStudent(userDetails, studentDetails, studentAcademicDetails);
 
 		return createdUserStudent;
->>>>>>> f10af6eae1b2b5596c18f711f6be0f4758a24f38
 	} catch (error) {
 		console.error("Error: ", error);
 		throw error;
