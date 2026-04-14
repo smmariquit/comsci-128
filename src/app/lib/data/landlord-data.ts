@@ -130,9 +130,7 @@ export async function getTotalTenantsByLandlord(accountNumber: number) {
 	return { data: count ?? 0, error: null };
 }
 
-// Get the gross revenue for a landlord by summing all bill amounts for their tenants
 export async function getGrossRevenueByLandlord(accountNumber: number) {
-	// Get all tenant account numbers under this landlord's properties
 	const { data: tenants, error: tenantError } = await supabase
 		.from("student_accommodation_history")
 		.select(
