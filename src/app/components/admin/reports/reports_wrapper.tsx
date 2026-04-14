@@ -130,7 +130,7 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications } : Rep
   function ApplicationStats() {
     const d = filteredApplications;
     const approved  = d.filter(r => r.application_status === "Approved").length;
-    const pending   = d.filter(r => r.application_status === "Pending").length;
+    const pending   = d.filter(r => r.application_status === "Pending Admin Approval" || "Pending Manager Approval").length;
     const rejected  = d.filter(r => r.application_status === "Rejected").length;
     return (
       <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
