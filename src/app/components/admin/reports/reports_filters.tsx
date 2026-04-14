@@ -1,7 +1,7 @@
 "use client";
 
 import { C } from "@/lib/palette";
-import type { ReportType } from "@/app/(main)/admin/reports/page";
+import type { ReportType } from "@/app/components/admin/reports/reports_wrapper";
 
 interface Props {
   reportType:     ReportType;
@@ -45,13 +45,14 @@ const STATUS_OPTIONS: Record<ReportType, { label: string; value: string }[]> = {
   occupancy: [
     { value: "All",               label: "All Statuses" },
     { value: "Empty",             label: "Empty" },
-    { value: "Occupied",          label: "Occupied" },
-    { value: "Reserved",          label: "Reserved" },
-    { value: "Under Maintenance", label: "Under Maintenance" },
+    { value: "Partially Occupied",          label: "Partially Occupied" },
+    { value: "Fully Occupied",          label: "Fully Occupied" },
+    // { value: "Under Maintenance", label: "Under Maintenance" },
   ],
   application: [
     { value: "All",       label: "All Statuses" },
-    { value: "Pending",   label: "Pending" },
+    { value: "Pending Manager Approval",   label: "Pending Manager Approval" },
+    { value: "Pending Admin Approval",   label: "Pending Admin Approval" },
     { value: "Approved",  label: "Approved" },
     { value: "Rejected",  label: "Rejected" },
     { value: "Cancelled", label: "Cancelled" },
@@ -64,10 +65,9 @@ const STATUS_OPTIONS: Record<ReportType, { label: string; value: string }[]> = {
   ],
   accommodation: [
     { value: "All",      label: "All Types" },
-    { value: "Single",   label: "Single" },
-    { value: "Double",   label: "Double" },
-    { value: "Suite",    label: "Suite" },
-    { value: "Bedspace", label: "Bedspace" },
+    { value: "Men Only",   label: "Men Only" },
+    { value: "Women Only",   label: "Women Only" },
+    { value: "Co-ed",    label: "Co-ed" },
   ],
 };
 
