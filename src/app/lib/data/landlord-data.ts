@@ -107,6 +107,28 @@ export async function getHousingAdminById(accountNumber: number) {
 	return { data, error: null };
 }
 
+// Count total rooms across all housing owned by a landlord
+export async function getTotalRoomsByLandlord(accountNumber: number) {
+	const { count, error } = await supabase
+		.from("room")
+		.select(
+			`
+        room_id,
+        housing:housing_id!inner(landlord_account_number)
+      `,
+			{ count: "exact", head: true },
+		)
+		.eq("housing.landlord_account_number", accountNumber)
+		.eq("is_deleted", false);
+
+	if (error) {
+		console.error("Error counting rooms by landlord:", error.message);
+		return { data: null, error };
+	}
+
+	return { data: count ?? 0, error: null };
+}
+
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
 export async function getTotalTenantsByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
