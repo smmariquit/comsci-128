@@ -2,7 +2,7 @@
 
 export type OccupancyStatus  = "Empty" | "Partially Occupied" | "Fully Occupied";
 export type RoomType         = "Women Only" | "Men Only" | "Co-ed";
-export type ApplicationStatus= "Pending" | "Approved" | "Rejected" | "Cancelled";
+export type ApplicationStatus= "Pending Manager Approval" | "Pending Admin Approval" | "Approved" | "Rejected" | "Cancelled";
 export type PaymentStatus    = "Pending" | "Paid" | "Overdue";
 export type BillType         = "Rent" | "Utility" | "Maintenance" | "Miscellaneous";
 

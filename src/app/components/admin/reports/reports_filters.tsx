@@ -51,7 +51,8 @@ const STATUS_OPTIONS: Record<ReportType, { label: string; value: string }[]> = {
   ],
   application: [
     { value: "All",       label: "All Statuses" },
-    { value: "Pending",   label: "Pending" },
+    { value: "Pending Manager Approval",   label: "Pending Manager Approval" },
+    { value: "Pending Admin Approval",   label: "Pending Admin Approval" },
     { value: "Approved",  label: "Approved" },
     { value: "Rejected",  label: "Rejected" },
     { value: "Cancelled", label: "Cancelled" },
