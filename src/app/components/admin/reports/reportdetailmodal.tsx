@@ -10,7 +10,7 @@ import type {
   OccupancyReportRow, ApplicationReportRow,
   RevenueReportRow, AccommodationHistoryRow,
 } from "./reportsmock";
-import type { ReportType } from "@/app/(main)/admin/reports/page";
+import type { ReportType } from "@/app/components/admin/reports/reports_wrapper";
 
 // ── Union type for any drillable row ─────────────────────────────────────────
 
