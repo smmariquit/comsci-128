@@ -1,0 +1,43 @@
+name: Daily Staging Sync
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-staging-to-main:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for diff
+        id: diff
+        run: |
+          git fetch origin main staging
+          if git diff --quiet origin/main..origin/staging; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or update PR
+        if: steps.diff.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING_PR=$(gh pr list --base main --head staging --json number --jq '.[0].number')
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists"
+          else
+            gh pr create \
+              --base main \
+              --head staging \
+              --title "sync: merge staging to main" \
+              --body "Automated PR to sync changes from staging to main. Triggered by GitHub Actions."
+          fi
