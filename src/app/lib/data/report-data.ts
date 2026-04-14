@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase"; 
-import type { OccupancyReportRow } from "@/app/components/admin/reports/reportsmock";
+import type { OccupancyReportRow, ApplicationReportRow } from "@/app/components/admin/reports/reportsmock";
 
 async function getOccupancyReport(managedHousingIds: number[]): Promise<OccupancyReportRow[]> {
     const { data: rooms, error } = await supabase
@@ -33,6 +33,51 @@ async function getOccupancyReport(managedHousingIds: number[]): Promise<Occupanc
     });
 }
 
+async function getApplicationReport(managedHousingIds: number[]): Promise<ApplicationReportRow[]> {
+    const { data: applications, error } = await supabase
+        .from("application")
+        .select(`
+            application_id,
+            housing_name,
+            preferred_room_type,
+            application_status,
+            expected_moveout_date,
+            actual_moveout_date,
+            student!inner (
+                student_number,
+                user!inner (
+                    first_name,
+                    last_name
+                )
+            ),
+            room!inner ( housing_id )
+        `)
+        .in("room.housing_id", managedHousingIds)
+        .eq("is_deleted", false);
+
+    if (error) throw new Error("Failed to fetch application report: " + error.message);
+
+    return (applications || []).map((app: any) => {
+        const studentObj = Array.isArray(app.student) ? app.student[0] : app.student;
+        const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
+
+        const firstName = userObj?.first_name || "";
+        const lastName = userObj?.last_name || "";
+
+        return {
+            application_id: app.application_id,
+            student_name: `${firstName} ${lastName}`.trim() || "Unknown Student",
+            student_number: studentObj?.student_number?.toString() || "N/A",
+            housing_name: app.housing_name || "Unknown Property",
+            preferred_room_type: app.preferred_room_type,
+            application_status: app.application_status,
+            expected_moveout_date: app.expected_moveout_date,
+            actual_moveout_date: app.actual_moveout_date || undefined,
+        };
+    });
+}
+
 export const reportData = {
     getOccupancyReport,
+    getApplicationReport
 };
