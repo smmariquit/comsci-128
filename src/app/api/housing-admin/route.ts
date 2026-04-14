@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Call housing admin service
-        const newHousingAdmin = await addHousingAdmin(body, body.password);
+        const newHousingAdmin = await addHousingAdmin(body);
 
         // OK Response upon successful creation
         return NextResponse.json(
