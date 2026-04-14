@@ -107,7 +107,6 @@ export async function getHousingAdminById(accountNumber: number) {
 	return { data, error: null };
 }
 
-// Count the number of housing (properties) owned by a landlord
 export async function getTotalPropertiesByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("housing")
