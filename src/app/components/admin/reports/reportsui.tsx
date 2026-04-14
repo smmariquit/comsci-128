@@ -182,9 +182,9 @@ export function Tag({ label, bg, text }: { label:string; bg:string; text:string 
 
 const OCC_S: Record<OccupancyStatus, { bg:string; dot:string; text:string }> = {
   Empty:              { bg:"rgba(86,115,117,0.12)",  dot:C.teal,   text:C.teal },
-  Occupied:           { bg:"rgba(201,100,42,0.13)",  dot:C.orange, text:C.orange },
-  Reserved:           { bg:"rgba(227,175,100,0.18)", dot:"#D4A017",text:"#A07820" },
-  "Under Maintenance":{ bg:"rgba(28,38,50,0.08)",    dot:C.navy,   text:C.navy },
+  "Partially Occupied":           { bg:"rgba(201,100,42,0.13)",  dot:C.orange, text:C.orange },
+  // Reserved:           { bg:"rgba(227,175,100,0.18)", dot:"#D4A017",text:"#A07820" },
+  "Fully Occupied":{ bg:"rgba(28,38,50,0.08)",    dot:C.navy,   text:C.navy },
 };
 export function OccupancyBadge({ status }: { status: OccupancyStatus }) {
   const s = OCC_S[status];
@@ -192,10 +192,10 @@ export function OccupancyBadge({ status }: { status: OccupancyStatus }) {
 }
 
 const ROOM_T: Record<RoomType, { bg:string; text:string }> = {
-  Single:   { bg:"rgba(86,115,117,0.14)",  text:C.teal },
-  Double:   { bg:"rgba(227,175,100,0.18)", text:"#A07820" },
-  Suite:    { bg:"rgba(201,100,42,0.13)",  text:C.orange },
-  Bedspace: { bg:"rgba(28,38,50,0.08)",    text:C.navy },
+  "Women Only":   { bg:"rgba(86,115,117,0.14)",  text:C.teal },
+  // Double:   { bg:"rgba(227,175,100,0.18)", text:"#A07820" },
+  "Men Only":    { bg:"rgba(201,100,42,0.13)",  text:C.orange },
+  "Co-ed": { bg:"rgba(28,38,50,0.08)",    text:C.navy },
 };
 export function RoomTypeTag({ type }: { type: RoomType }) {
   const s = ROOM_T[type];

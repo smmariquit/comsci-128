@@ -1,7 +1,7 @@
 // ── Shared Types ──────────────────────────────────────────────────────────────
 
-export type OccupancyStatus  = "Empty" | "Occupied" | "Reserved" | "Under Maintenance";
-export type RoomType         = "Single" | "Double" | "Suite" | "Bedspace";
+export type OccupancyStatus  = "Empty" | "Partially Occupied" | "Fully Occupied";
+export type RoomType         = "Women Only" | "Men Only" | "Co-ed";
 export type ApplicationStatus= "Pending" | "Approved" | "Rejected" | "Cancelled";
 export type PaymentStatus    = "Pending" | "Paid" | "Overdue";
 export type BillType         = "Rent" | "Utility" | "Maintenance" | "Miscellaneous";
@@ -19,14 +19,14 @@ export interface OccupancyReportRow {
 }
 
 export const MOCK_OCCUPANCY: OccupancyReportRow[] = [
-  { room_id:1, room_code:"KRH-101", housing_name:"Kalayaan Residence Hall", room_type:"Single",   maximum_occupants:1, current_occupants:1, occupancy_status:"Occupied" },
-  { room_id:2, room_code:"KRH-102", housing_name:"Kalayaan Residence Hall", room_type:"Double",   maximum_occupants:2, current_occupants:1, occupancy_status:"Occupied" },
-  { room_id:3, room_code:"KRH-103", housing_name:"Kalayaan Residence Hall", room_type:"Bedspace", maximum_occupants:4, current_occupants:0, occupancy_status:"Empty" },
-  { room_id:4, room_code:"KRH-104", housing_name:"Kalayaan Residence Hall", room_type:"Suite",    maximum_occupants:3, current_occupants:2, occupancy_status:"Occupied" },
-  { room_id:5, room_code:"KRH-105", housing_name:"Kalayaan Residence Hall", room_type:"Single",   maximum_occupants:1, current_occupants:0, occupancy_status:"Reserved" },
-  { room_id:6, room_code:"IRM-201", housing_name:"Ilagan Residence Hall",   room_type:"Double",   maximum_occupants:2, current_occupants:0, occupancy_status:"Under Maintenance" },
-  { room_id:7, room_code:"IRM-202", housing_name:"Ilagan Residence Hall",   room_type:"Bedspace", maximum_occupants:6, current_occupants:5, occupancy_status:"Occupied" },
-  { room_id:8, room_code:"IRM-203", housing_name:"Ilagan Residence Hall",   room_type:"Single",   maximum_occupants:1, current_occupants:0, occupancy_status:"Empty" },
+  { room_id:1, room_code:"KRH-101", housing_name:"Kalayaan Residence Hall", room_type:"Women Only",   maximum_occupants:1, current_occupants:1, occupancy_status:"Fully Occupied" },
+  { room_id:2, room_code:"KRH-102", housing_name:"Kalayaan Residence Hall", room_type:"Women Only",   maximum_occupants:2, current_occupants:1, occupancy_status:"Partially Occupied" },
+  { room_id:3, room_code:"KRH-103", housing_name:"Kalayaan Residence Hall", room_type:"Men Only", maximum_occupants:4, current_occupants:0, occupancy_status:"Empty" },
+  { room_id:4, room_code:"KRH-104", housing_name:"Kalayaan Residence Hall", room_type:"Men Only",    maximum_occupants:3, current_occupants:2, occupancy_status:"Partially Occupied" },
+  { room_id:5, room_code:"KRH-105", housing_name:"Kalayaan Residence Hall", room_type:"Men Only",   maximum_occupants:1, current_occupants:0, occupancy_status:"Empty" },
+  { room_id:6, room_code:"IRM-201", housing_name:"Ilagan Residence Hall",   room_type:"Co-ed",   maximum_occupants:2, current_occupants:0, occupancy_status:"Empty" },
+  { room_id:7, room_code:"IRM-202", housing_name:"Ilagan Residence Hall",   room_type:"Co-ed", maximum_occupants:6, current_occupants:5, occupancy_status:"Partially Occupied" },
+  { room_id:8, room_code:"IRM-203", housing_name:"Ilagan Residence Hall",   room_type:"Co-ed",   maximum_occupants:1, current_occupants:0, occupancy_status:"Empty" },
 ];
 
 // ── Application Report ────────────────────────────────────────────────────────
@@ -43,12 +43,12 @@ export interface ApplicationReportRow {
 }
 
 export const MOCK_APPLICATIONS: ApplicationReportRow[] = [
-  { application_id:101, student_name:"Maria Santos",   student_number:"2021-00001", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Single",   application_status:"Approved",  expected_moveout_date:"2025-05-31" },
-  { application_id:102, student_name:"Juan dela Cruz", student_number:"2021-00002", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Double",   application_status:"Pending",   expected_moveout_date:"2025-05-31" },
-  { application_id:103, student_name:"Ana Reyes",      student_number:"2020-00045", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Bedspace", application_status:"Rejected",  expected_moveout_date:"2025-05-31" },
-  { application_id:104, student_name:"Ramon Bautista", student_number:"2022-00011", housing_name:"Ilagan Residence Hall",   preferred_room_type:"Suite",    application_status:"Approved",  expected_moveout_date:"2025-06-30" },
-  { application_id:105, student_name:"Lorna Villanueva",student_number:"2019-00088",housing_name:"Ilagan Residence Hall",   preferred_room_type:"Single",   application_status:"Cancelled", expected_moveout_date:"2025-06-30", actual_moveout_date:"2025-03-15" },
-  { application_id:106, student_name:"Carlos Mendoza", student_number:"2023-00033", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Double",   application_status:"Pending",   expected_moveout_date:"2025-07-31" },
+  { application_id:101, student_name:"Maria Santos",   student_number:"2021-00001", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Women Only",   application_status:"Approved",  expected_moveout_date:"2025-05-31" },
+  { application_id:102, student_name:"Juan dela Cruz", student_number:"2021-00002", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Men Only",   application_status:"Pending",   expected_moveout_date:"2025-05-31" },
+  { application_id:103, student_name:"Ana Reyes",      student_number:"2020-00045", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Women Only", application_status:"Rejected",  expected_moveout_date:"2025-05-31" },
+  { application_id:104, student_name:"Ramon Bautista", student_number:"2022-00011", housing_name:"Ilagan Residence Hall",   preferred_room_type:"Co-ed",    application_status:"Approved",  expected_moveout_date:"2025-06-30" },
+  { application_id:105, student_name:"Lorna Villanueva",student_number:"2019-00088",housing_name:"Ilagan Residence Hall",   preferred_room_type:"Co-ed",   application_status:"Cancelled", expected_moveout_date:"2025-06-30", actual_moveout_date:"2025-03-15" },
+  { application_id:106, student_name:"Carlos Mendoza", student_number:"2023-00033", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Men Only",   application_status:"Pending",   expected_moveout_date:"2025-07-31" },
 ];
 
 // ── Revenue Report ────────────────────────────────────────────────────────────
@@ -90,12 +90,12 @@ export interface AccommodationHistoryRow {
 }
 
 export const MOCK_ACCOMMODATION: AccommodationHistoryRow[] = [
-  { account_number:1001, student_name:"Maria Santos",    student_number:"2021-00001", room_id:1, room_code:"KRH-101", housing_name:"Kalayaan Residence Hall", room_type:"Single",   movein_date:"2024-06-01", moveout_date:"2024-10-31" },
-  { account_number:1001, student_name:"Maria Santos",    student_number:"2021-00001", room_id:2, room_code:"KRH-102", housing_name:"Kalayaan Residence Hall", room_type:"Double",   movein_date:"2024-11-01", moveout_date:"2025-05-31" },
-  { account_number:1002, student_name:"Juan dela Cruz",  student_number:"2021-00002", room_id:3, room_code:"KRH-103", housing_name:"Kalayaan Residence Hall", room_type:"Bedspace", movein_date:"2024-08-15", moveout_date:"2025-05-31" },
-  { account_number:1003, student_name:"Ana Reyes",       student_number:"2020-00045", room_id:4, room_code:"KRH-104", housing_name:"Kalayaan Residence Hall", room_type:"Suite",    movein_date:"2023-06-01", moveout_date:"2024-05-31" },
-  { account_number:1004, student_name:"Ramon Bautista",  student_number:"2022-00011", room_id:7, room_code:"IRM-202", housing_name:"Ilagan Residence Hall",   room_type:"Bedspace", movein_date:"2024-06-01", moveout_date:"2025-06-30" },
-  { account_number:1005, student_name:"Lorna Villanueva",student_number:"2019-00088", room_id:6, room_code:"IRM-201", housing_name:"Ilagan Residence Hall",   room_type:"Double",   movein_date:"2022-06-01", moveout_date:"2023-05-31" },
+  { account_number:1001, student_name:"Maria Santos",    student_number:"2021-00001", room_id:1, room_code:"KRH-101", housing_name:"Kalayaan Residence Hall", room_type:"Women Only",   movein_date:"2024-06-01", moveout_date:"2024-10-31" },
+  { account_number:1001, student_name:"Maria Santos",    student_number:"2021-00001", room_id:2, room_code:"KRH-102", housing_name:"Kalayaan Residence Hall", room_type:"Women Only",   movein_date:"2024-11-01", moveout_date:"2025-05-31" },
+  { account_number:1002, student_name:"Juan dela Cruz",  student_number:"2021-00002", room_id:3, room_code:"KRH-103", housing_name:"Kalayaan Residence Hall", room_type:"Men Only", movein_date:"2024-08-15", moveout_date:"2025-05-31" },
+  { account_number:1003, student_name:"Ana Reyes",       student_number:"2020-00045", room_id:4, room_code:"KRH-104", housing_name:"Kalayaan Residence Hall", room_type:"Women Only",    movein_date:"2023-06-01", moveout_date:"2024-05-31" },
+  { account_number:1004, student_name:"Ramon Bautista",  student_number:"2022-00011", room_id:7, room_code:"IRM-202", housing_name:"Ilagan Residence Hall",   room_type:"Co-ed", movein_date:"2024-06-01", moveout_date:"2025-06-30" },
+  { account_number:1005, student_name:"Lorna Villanueva",student_number:"2019-00088", room_id:6, room_code:"IRM-201", housing_name:"Ilagan Residence Hall",   room_type:"Co-ed",   movein_date:"2022-06-01", moveout_date:"2023-05-31" },
 ];
 
 // ── Shared helpers ────────────────────────────────────────────────────────────

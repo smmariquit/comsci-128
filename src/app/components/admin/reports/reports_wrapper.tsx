@@ -30,9 +30,13 @@ const TABS: { key: ReportType; label: string }[] = [
   { key: "accommodation", label: "Accommodation History" },
 ];
 
+interface ReportsClientProps {
+  liveOccupancy: OccupancyReportRow[];
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function ReportsWrapper() {
+export default function ReportsWrapper({ liveOccupancy } : ReportsClientProps) {
   // ── Active tab ──────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<ReportType>("occupancy");
 
@@ -55,14 +59,14 @@ export default function ReportsWrapper() {
 
   // ── Filtered data ───────────────────────────────────────────────────────────
 
-  const filteredOccupancy = useMemo(() => MOCK_OCCUPANCY.filter((r) => {
+  const filteredOccupancy = useMemo(() => liveOccupancy.filter((r) => {
     const q = search.toLowerCase();
     return (
       (!q || r.room_code.toLowerCase().includes(q) || r.housing_name.toLowerCase().includes(q)) &&
       (housing === "All" || r.housing_name === housing) &&
       (status  === "All" || r.occupancy_status === status)
     );
-  }), [search, housing, status]);
+  }), [liveOccupancy, search, housing, status]);
 
   const filteredApplications = useMemo(() => MOCK_APPLICATIONS.filter((r) => {
     const q = search.toLowerCase();
@@ -104,17 +108,15 @@ export default function ReportsWrapper() {
 
   function OccupancyStats() {
     const d = filteredOccupancy;
-    const occupied  = d.filter(r => r.occupancy_status === "Occupied").length;
+    const fully_occupied  = d.filter(r => r.occupancy_status === "Fully Occupied").length;
+    const partial_occupied  = d.filter(r => r.occupancy_status === "Partially Occupied").length;
     const empty     = d.filter(r => r.occupancy_status === "Empty").length;
-    const reserved  = d.filter(r => r.occupancy_status === "Reserved").length;
-    const maintenance = d.filter(r => r.occupancy_status === "Under Maintenance").length;
     return (
       <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
         <StatCard label="Total Rooms"   value={d.length} />
-        <StatCard label="Occupied"      value={occupied}    deltaSub="rooms" />
+        <StatCard label="Fully Occupied"      value={fully_occupied}    deltaSub="rooms" />
+        <StatCard label="Partially Occupied"      value={partial_occupied}    deltaSub="rooms" />
         <StatCard label="Empty"         value={empty}       deltaSub="rooms" />
-        <StatCard label="Reserved"      value={reserved}    deltaSub="rooms" />
-        <StatCard label="Maintenance"   value={maintenance} deltaSub="rooms" />
       </div>
     );
   }
