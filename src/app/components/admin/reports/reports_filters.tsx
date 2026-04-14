@@ -65,10 +65,9 @@ const STATUS_OPTIONS: Record<ReportType, { label: string; value: string }[]> = {
   ],
   accommodation: [
     { value: "All",      label: "All Types" },
-    { value: "Single",   label: "Single" },
-    { value: "Double",   label: "Double" },
-    { value: "Suite",    label: "Suite" },
-    { value: "Bedspace", label: "Bedspace" },
+    { value: "Men Only",   label: "Men Only" },
+    { value: "Women Only",   label: "Women Only" },
+    { value: "Co-ed",    label: "Co-ed" },
   ],
 };
 
