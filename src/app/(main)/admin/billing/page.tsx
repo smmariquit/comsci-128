@@ -104,10 +104,6 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-// ── Housing options from mock ─────────────────────────────────────────────────
-
-const HOUSING_OPTIONS = [...new Set(MOCK_BILLS.map((b) => b.housing_name))];
-
 // ─────────────────────────────────────────────────────────────────────────────
 // PAGE
 // ─────────────────────────────────────────────────────────────────────────────
@@ -173,6 +169,12 @@ export default function BillingPage() {
   const pendingCount = filtered.filter((b) => b.status === "Pending").length;
   const overdueCount = filtered.filter((b) => b.status === "Overdue").length;
 
+  // ── Housing Options ─────────────────────────────────────────────────
+
+  const HOUSING_OPTIONS = useMemo(() => {
+    return [...new Set(bills.map((b) => b.housing_name))].filter(Boolean);
+  }, [bills]);
+
   // ── Table handlers ──────────────────────────────────────────────────────────
   function handleView(row: BillRow) {
     console.log("View bill:", row);
@@ -206,13 +208,21 @@ export default function BillingPage() {
   async function handleIssue(form: IssueBillForm) {
     try {
       setIsLoading(true);
+
+      const studentId = form.student_account_number ??
+        bills.find(b => b.student_name.toLowerCase() === form.student_name.toLowerCase())?.student_account_number;
+
+      if (!studentId) {
+        alert('Student not found (handleIssue)!');
+        return;
+      }
   
       const issuePromises = form.charges
         .filter(c => parseFloat(c.amount) > 0)
         .map(charge => {
           const dbType = charge.type === "Other" ? "Miscellaneous" : charge.type;
-          const studentId = form.student_account_number ?? 
-            bills.find(b => b.student_name === form.student_name)?.student_account_number;
+          // const studentId = form.student_account_number ?? 
+          //   bills.find(b => b.student_name === form.student_name)?.student_account_number;
 
           return billingService.createBill({
             student_account_number: studentId,
