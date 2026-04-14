@@ -107,7 +107,6 @@ export async function getHousingAdminById(accountNumber: number) {
 	return { data, error: null };
 }
 
-// Count the number of students who are in a dormitory that is managed by a certain landlord number
 export async function getTotalTenantsByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("student_accommodation_history")
@@ -115,12 +114,12 @@ export async function getTotalTenantsByLandlord(accountNumber: number) {
 			`
         account_number,
         room:room_id!inner(
-          housing:housing_id!inner(manager_account_number)
+          housing:housing_id!inner(landlord_account_number)
         )
       `,
 			{ count: "exact", head: true },
 		)
-		.eq("room.housing.manager_account_number", accountNumber);
+		.eq("room.housing.landlord_account_number", accountNumber);
 
 	if (error) {
 		console.error("Error counting tenants by landlord:", error.message);
