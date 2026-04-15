@@ -3,7 +3,6 @@ import { createStudent } from "../data/student-data";
 
 export const addStudent = async (
     userDetails: NewUser,
-    password: string,
     student_number: Number,
 ): Promise<any> => {
     try {
