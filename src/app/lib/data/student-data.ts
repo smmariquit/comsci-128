@@ -10,7 +10,7 @@ export type StudentStanding = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior';
 export type StudentStatus = 'Active' | 'Delayed' | 'Graduating';
 export type HousingStatus = 'Assigned' | 'Not Assigned';
 
-async function createUserStudent(
+async function create(
     userDetails: NewUser,
     studentDetails: NewStudent,
     studentAcademicDetails: NewStudentAcademic
@@ -129,5 +129,5 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 }
 
 export const studentData = {
-    createUserStudent
+    create
 }
