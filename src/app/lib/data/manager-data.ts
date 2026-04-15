@@ -4,37 +4,6 @@ import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { Housing} from "@/models/housing";
 import { userData } from "./user-data";
 
-// Create Manger for land lord and housing manager
-export const createManager = async (
-  userDetails: NewUser,
-  password: string,
-  manager_type: "Landlord" | "Housing Administrator"
-) => {
-
-  // set fields as manager
-  const managerUser: NewUser = {
-    ...userDetails,
-    user_type: "Manager",
-    password: password,
-  };
-
-  // create user
-  const newUser = await userData.createUser(managerUser);
-
-  // create manager
-  const { data, error } = await supabase
-    .from('manager')
-    .insert([{
-      account_number: newUser.account_number,
-      manager_type: manager_type
-    }])
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-};
-
 // READ managers
 export const getManagers = async () => {
 	return await supabase
