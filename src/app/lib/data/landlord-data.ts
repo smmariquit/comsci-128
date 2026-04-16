@@ -1,16 +1,16 @@
 import { createManager } from "@/app/lib/data/manager-data";
 import { supabase } from "@/app/lib/supabase";
-import type { NewManager, } from "@/models/manager";
-import type { NewUser, } from "@/models/user";
+import type { NewManager } from "@/models/manager";
+import type { NewUser } from "@/models/user";
 
 // promote User from Student to Housing Admin (Manager rather)
-export async function createHousingAdmin(userDetails: NewUser, managerDetails: NewManager) {
-  // managerDetails.manager_type must already be set to "Housing Admin"
+export async function createHousingAdmin(
+	userDetails: NewUser,
+	managerDetails: NewManager,
+) {
+	// managerDetails.manager_type must already be set to "Housing Admin"
 
-  const newManagerData = await createManager(
-		userDetails,
-    managerDetails,
-	);
+	const newManagerData = await createManager(userDetails, managerDetails);
 
 	// if (managerError || !newManagerData) {
 	// 	console.error(
@@ -20,7 +20,7 @@ export async function createHousingAdmin(userDetails: NewUser, managerDetails: N
 	// 	return { data: null, error: managerError };
 	// }
 
-  managerDetails.account_number = newManagerData.account_number
+	managerDetails.account_number = newManagerData.account_number;
 
 	// Insert into housing_admin
 	const { data, error: adminError } = await supabase
@@ -122,6 +122,11 @@ export async function getTotalRoomsByLandlord(accountNumber: number) {
 
 	if (error) {
 		console.error("Error counting rooms by landlord:", error.message);
+        return { data: null, error };
+	}
+    return { data: count ?? 0, error: null };
+}
+
 export async function _getTotalPropertiesByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("housing")
@@ -200,10 +205,8 @@ export async function _getGrossRevenueByLandlord(accountNumber: number) {
 		return { data: null, error: billError };
 	}
 
-	const grossRevenue = bills?.reduce(
-		(sum, bill) => sum + Number(bill.amount),
-		0,
-	) ?? 0;
+	const grossRevenue =
+		bills?.reduce((sum, bill) => sum + Number(bill.amount), 0) ?? 0;
 
 	return { data: grossRevenue, error: null };
 }
