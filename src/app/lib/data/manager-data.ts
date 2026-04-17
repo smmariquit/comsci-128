@@ -87,13 +87,20 @@ const findManagerProfileById = async (
 };
 
 // UPDATE manager
-export const updateManager = async (account_number: number, updates: any) => {
-	return await supabase
+const updateManager = async (account_number: number, updates: any) => {
+	const { data, error } = await supabase
 		.from("manager")
 		.update(updates)
 		.eq("account_number", account_number)
 		.select()
 		.single();
+
+	if (error) {
+		console.error("Error fetching student profile:", error);
+		return null;
+	}
+
+	return data;
 };
 
 // DELETE manager (soft delete only)
@@ -181,7 +188,7 @@ export const getPayments = async () => {
 };
 
 // UPDATE payments
-export const updatePayment = async (id: number, updates: any) => {
+const updatePayment = async (id: number, updates: any) => {
 	return await supabase
 		.from("manager_payment_details")
 		.update(updates)
@@ -202,4 +209,6 @@ export const deletePayment = async (id: number) => {
 
 export const managerData = {
 	findManagerProfileById,
+	updateManager,
+	updatePayment,
 };
