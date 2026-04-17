@@ -33,5 +33,30 @@ export async function PATCH(
 	request: NextRequest,
 	{ params }: { params: Promise<{ id: string }> },
 ) {
-	// update profile
+	try {
+		const body = await request.json();
+		const { id } = await params;
+		const updated = await profileAction.updateStudentProfile(
+			Number(id),
+			body,
+		);
+
+		// Send Response
+		if (!updated) {
+			// Student not found
+			return NextResponse.json(
+				{ message: "student not found." },
+				{ status: 404 },
+			);
+		}
+
+		// Student found
+		return NextResponse.json(updated, { status: 200 });
+	} catch (error: any) {
+		console.error("Error updating student profile:", error);
+		return NextResponse.json(
+			{ message: "Failed to update student.", error: error.message },
+			{ status: 500 },
+		);
+	}
 }
