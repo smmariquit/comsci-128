@@ -3,8 +3,8 @@ import type {
 	TablesInsert,
 	TablesUpdate,
 } from "@/app/types/database.types";
-import { User } from "@/models/user";
-import { StudentAcademic } from "@/models/student_academic";
+import { NewUser, User } from "@/models/user";
+import { NewStudentAcademic, StudentAcademic } from "@/models/student_academic";
 
 export type Student = Tables<"student">;
 export type NewStudent = TablesInsert<"student">;
@@ -14,4 +14,9 @@ export type StudentProfile = Omit<User, "password" | "is_deleted"> & {
 	student: (Student & {
 		student_academic: StudentAcademic[];
 	})[];
+};
+export type NewStudentProfile = Omit<NewUser, "password" | "is_deleted"> & {
+	student: Omit<NewStudent, "student_number"> & {
+		student_academic: Partial<NewStudentAcademic>;
+	};
 };
