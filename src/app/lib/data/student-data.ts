@@ -1,8 +1,14 @@
 import { userData } from "@/data/user-data";
-import type { NewStudent, Student, StudentProfile } from "@/models/student";
+import type {
+	NewStudent,
+	Student,
+	StudentProfile,
+	UpdateStudent,
+} from "@/models/student";
 import type {
 	NewStudentAcademic,
 	StudentAcademic,
+	UpdateStudentAcademic,
 } from "@/models/student_academic";
 import type { StudentAccommodationHistory } from "@/models/student_accommodation";
 import type { NewUser } from "@/models/user";
@@ -96,6 +102,25 @@ async function findStudentProfileById(
 	return data;
 }
 
+async function updateStudent(
+	accountNumber: number,
+	updates: UpdateStudent,
+): Promise<Student | null> {
+	console.log(updates);
+	const { data, error } = await supabase
+		.from("student")
+		.update(updates)
+		.eq("account_number", accountNumber)
+		.select()
+		.single();
+
+	if (error) {
+		console.error("Error updating student:", error);
+		return null;
+	}
+	return data;
+}
+
 async function _getStudentAcademicById(accountNumber: number) {
 	const { data, error } = await supabase
 		.from("student_academic")
@@ -109,18 +134,22 @@ async function _getStudentAcademicById(accountNumber: number) {
 
 // UPDATE academic record
 
-async function _updateStudentAcademic(
+async function updateStudentAcademic(
 	accountNumber: number,
-	updates: Partial<StudentAcademic>,
-) {
+	updates: UpdateStudentAcademic,
+): Promise<StudentAcademic | null> {
+	console.log(updates);
 	const { data, error } = await supabase
 		.from("student_academic")
 		.update(updates)
 		.eq("account_number", accountNumber)
-		.select()
 		.single();
 
-	if (error) throw new Error(error.message);
+	if (error) {
+		console.error("Error updating student academic:", error);
+		return null;
+	}
+	console.log(data);
 	return data;
 }
 
@@ -197,4 +226,6 @@ async function _getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 export const studentData = {
 	createUserStudent,
 	findStudentProfileById,
+	updateStudent,
+	updateStudentAcademic,
 };
