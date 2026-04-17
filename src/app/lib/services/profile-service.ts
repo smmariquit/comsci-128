@@ -1,6 +1,6 @@
 import { studentData } from "@/data/student-data";
 import { NewStudentProfile, StudentProfile } from "@/models/student";
-import { ManagerProfile } from "../models/manager";
+import { ManagerProfile, NewManagerProfile } from "../models/manager";
 import { managerData } from "../data/manager-data";
 import { userData } from "../data/user-data";
 
@@ -73,9 +73,44 @@ async function updateStudentProfile(
 	}
 }
 
-async function updateManagerProfile(profileData: unknown) {
-	// TODO: implement updating the manager profile
-	throw new Error("updateManagerProfile not implemented");
+async function updateManagerProfile(
+	userId: number,
+	profileData: NewManagerProfile,
+): Promise<ManagerProfile | null> {
+	try {
+		const {
+			account_number,
+			account_email,
+			user_type,
+			manager,
+			...userUpdates
+		} = profileData;
+
+		const updatedUser = await userData.updateUser(userId, userUpdates);
+		if (!updatedUser) return null;
+
+		if (manager) {
+			const {
+				account_number,
+				manager_payment_details,
+				...managerDetails
+			} = manager;
+
+			await managerData.updateManager(userId, managerDetails);
+
+			if (manager_payment_details) {
+				const { account_number, ...paymentDetails } =
+					manager_payment_details;
+
+				await managerData.updatePayment(userId, paymentDetails);
+			}
+		}
+
+		return await managerData.findManagerProfileById(userId);
+	} catch (error: any) {
+		console.error("Error updating manager profile:", error.message);
+		throw new Error("Failed to update profile");
+	}
 }
 
 export const profileAction = {
