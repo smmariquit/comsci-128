@@ -49,7 +49,7 @@ async function createStudentAcademic(
 	return data[0];
 }
 
-async function getStudentProfileById(
+async function findStudentProfileById(
 	accountNumber: number,
 ): Promise<StudentProfile | null> {
 	const { data, error } = await supabase
@@ -196,5 +196,5 @@ async function _getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 
 export const studentData = {
 	createUserStudent,
-	getStudentProfileById,
+	findStudentProfileById,
 };
