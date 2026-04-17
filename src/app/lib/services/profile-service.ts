@@ -1,5 +1,7 @@
 import { studentData } from "@/data/student-data";
 import { StudentProfile } from "@/models/student";
+import { ManagerProfile } from "../models/manager";
+import { managerData } from "../data/manager-data";
 
 async function getStudentProfile(
 	userId: number,
@@ -15,9 +17,18 @@ async function getStudentProfile(
 	}
 }
 
-async function getManagerProfile() {
-	// TODO: implement retrieving the manager profile
-	throw new Error("getManagerProfile not implemented");
+async function getManagerProfile(
+	userId: number,
+): Promise<ManagerProfile | null> {
+	try {
+		const managerProfile = await managerData.findManagerProfileById(userId);
+		if (!managerProfile) return null;
+
+		return managerProfile;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
 }
 
 async function updateStudentProfile(profileData: unknown) {
