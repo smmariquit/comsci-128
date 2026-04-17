@@ -5,7 +5,7 @@ async function getStudentProfile(
 	userId: number,
 ): Promise<StudentProfile | null> {
 	try {
-		const studentProfile = await studentData.getStudentProfileById(userId);
+		const studentProfile = await studentData.findStudentProfileById(userId);
 		if (!studentProfile) return null;
 
 		return studentProfile;
