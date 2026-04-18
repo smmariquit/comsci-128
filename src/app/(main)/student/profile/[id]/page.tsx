@@ -38,10 +38,10 @@ export default function StudentProfilePage() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-[#1C2632] flex items-center justify-center text-white">Loading...</div>;
+  if (loading) return <div className="min-h-screen bg-[#1C2632] flex items-center justify-center text-white font-[family-name:var(--font-geist-mono)]">Loading...</div>;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#1C2632]">
+    <div className="flex flex-col min-h-screen bg-[#1C2632] font-[family-name:var(--font-geist-sans)]">
       <StudentNavBar path="Student Profile" />
 
       {/* Main Content*/}
@@ -63,7 +63,7 @@ export default function StudentProfilePage() {
 
           {/* Navigation Tabs */}
           <div className="w-full space-y-3 mb-12">
-            {["Personal Information", "Contact Information", "Banking Details"].map((tab) => (
+            {["Personal Information", "Emergency Contact"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -87,32 +87,57 @@ export default function StudentProfilePage() {
           </button>
         </div>
 
-        {/* Right Side Input Forms */}
+        {/* RIGHT FORM AREA */}
         <div className="flex-1 flex flex-col gap-6 pt-10">
           <h3 className="text-[#1C2632] text-xl font-bold border-b border-[#E3AF64] pb-2 mb-4">
             {activeTab}
           </h3>
-          
-          <ProfileInput 
-            label="First Name"
-            value={student?.first_name} 
-            onChange={(val: any) => setStudent({...student, first_name: val})} 
-          />
-          <ProfileInput 
-            label="Last Name"
-            value={student?.last_name} 
-            onChange={(val: any) => setStudent({...student, last_name: val})} 
-          />
-          <ProfileInput 
-            label="Email Address"
-            value={student?.account_email} 
-            disabled 
-          />
+
+          {activeTab === "Personal Information" && (
+            <>
+              <ProfileInput 
+                label="First Name" 
+                value={student.first_name} 
+                onChange={(val: any) => setStudent({...student, first_name: val})} 
+              />
+              <ProfileInput 
+                label="Last Name" 
+                value={student.last_name} 
+                onChange={(val: any) => setStudent({...student, last_name: val})} 
+              />
+              <ProfileInput 
+                label="Email" 
+                value={student.account_email} 
+                disabled 
+              />
+            </>
+          )}
+
+          {activeTab === "Emergency Contact" && (
+            <>
+              <ProfileInput 
+                label="Emergency Contact Name" 
+                value={student.emergency_contact_name} 
+                onChange={(val: any) => setStudent({...student, emergency_contact_name: val})} 
+              />
+              <ProfileInput 
+                label="Emergency Contact Number" 
+                value={student.emergency_contact_number} 
+                onChange={(val: any) => setStudent({...student, emergency_contact_number: val})} 
+              />
+              <ProfileInput 
+                label="Relationship" 
+                value={student.emergency_contact_relationship} 
+                onChange={(val: any) => setStudent({...student, emergency_contact_relationship: val})} 
+              />
+            </>
+          )}
+
         </div>
-      </div>
-    </div>
-  );
-}
+              </div>
+            </div>
+          );
+        }
 
 
 function ProfileInput({ label, value, onChange, disabled = false }: any) {
@@ -126,7 +151,7 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
         disabled={disabled}
         value={value || ""}
         onChange={(e) => onChange && onChange(e.target.value)}
-        className={`w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
+        className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
           disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
         }`}
       />
