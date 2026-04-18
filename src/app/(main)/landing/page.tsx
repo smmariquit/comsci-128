@@ -1,4 +1,11 @@
+"use client";
+
 import React from 'react';
+import { useEffect, useState } from "react";
+import { floatingAnimations } from "./animations";
+import ServicesSection from "./ServicesSection";
+import ShowcaseSection from "./ShowcaseSection";
+
 
 export default function LandingPage() {
   // Mapping colors
@@ -15,6 +22,10 @@ export default function LandingPage() {
       className="min-h-screen font-[family-name:var(--font-geist-sans)]"
       style={{ backgroundColor: colors.cream, color: colors.navy }}
     >
+
+      {/*animation for circles*/}      
+      <style>{floatingAnimations}</style>
+
       {/* Title w Login/signup */}
       <nav className="flex justify-between items-center px-8 py-6 md:px-16">
         <div className="font-bold text-xl font-[family-name:var(--font-geist-sans)]">Title</div>
@@ -32,63 +43,39 @@ export default function LandingPage() {
       </nav>
 
       {/* Welcome*/}
-      <section className="relative px-8 md:px-16 pt-16 pb-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
+      <section className="relative min-h-[75vh] flex items-start pt-16 md:pt-16 px-12 md:px-24 md:pb-12 pb-2 overflow-hidden">
+        <div className="w-full flex flex-col md:flex-row justify-around gap-20">
             <div className="max-w-xl z-10">
-                <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight">
+                <h1 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight leading-tight">
                     Welcome, <span style={{ color: colors.light_blue }}>Isko</span>
                 </h1>
-                <p className="text-lg leading-relaxed opacity-80 max-w-md font-[family-name:var(--font-geist-mono)]">
+                <p className="text-base leading-relaxed opacity-80 max-w-md font-[family-name:var(--font-geist-mono)]">
                     Website description Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
                     sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                 </p>
             </div>
 
             {/* Decorative Circles Container */}
-            <div className="hidden md:block relative w-96 h-96">
-                <div 
-                    className="absolute top-0 right-0 w-72 h-72 border-[1px] rounded-full z-0" 
-                    style={{ borderColor: colors.light_blue }}
-                />
-                
-                <div 
-                    className="absolute top-30 right-50 w-56 h-56 rounded-full opacity-60 z-10" 
-                    style={{ backgroundColor: colors.gold }}
-                />
+            <div className="hidden md:block relative w-[28rem] h-[28rem] self-center">
+                {/* Front Circle */}
+              <div 
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 right-auto w-92 h-92 border rounded-full floatSlow" 
+                style={{ borderColor: colors.light_blue }} 
+              />
+                {/* Back Circle */}
+              <div 
+                className="absolute top-[60%] left-[25%] -translate-x-1/2 -translate-y-1/2 right-auto w-72 h-72 rounded-full opacity-60 blur-[2px] floatSlowAlt" 
+                style={{ backgroundColor: colors.gold }} 
+              />
             </div>
         </div>
       </section>
 
       {/* Services  */}
-      <section 
-        className="py-20 px-8 md:px-16"
-        style={{ backgroundColor: colors.navy }}
-      >
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-white text-2xl font-bold text-center mb-12 font-[family-name:var(--font-geist-sans)]">
-            Our Services
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div 
-                key={i} 
-                style={{ backgroundColor: colors.orange }}
-                className="aspect-[4/5] rounded-2xl shadow-xl hover:scale-105 transition-transform cursor-pointer" 
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      <ServicesSection />
 
       {/* Photos slideshow */}
-      <section className="py-20 px-8 md:px-16">
-        <div className="max-w-7xl mx-auto">
-          <div 
-            className="w-full h-96 rounded-3xl opacity-40" 
-            style={{ backgroundColor: colors.light_blue }}
-          />
-        </div>
-      </section>
+      <ShowcaseSection />
 
       {/* Footer */}
       <footer 
