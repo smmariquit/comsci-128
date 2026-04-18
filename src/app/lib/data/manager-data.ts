@@ -1,33 +1,27 @@
+import type { Manager, ManagerProfile, NewManager } from "@/models/manager";
+import type { NewUser } from "@/models/user";
 import { supabase } from "../supabase";
-import { User } from "@/models/user";
 import { userData } from "./user-data";
 
-// Review create manager to match userData
-// export const createManager = async (
-// 	userDetails: User,
-// 	password: string,
-// 	manager_type: string,
-// ) => {
-// 	// const userAccountNumber = await userData.create(
-// 	// 	userDetails,
-// 	// 	"Manager",
-// 	// 	password,
-// 	// );
+export const createManager = async (
+	userDetails: NewUser,
+	managerDetails: NewManager,
+): Promise<Manager> => {
+	// CREATE row in "manager" table & RETURN the created manager object
 
-// 	const { data, error } = await supabase
-// 		.from("manager")
-// 		.insert([
-// 			{
-// 				account_number: userAccountNumber,
-// 				manager_type: manager_type,
-// 			},
-// 		])
-// 		.select()
-// 		.single();
+	const newUserData = await userData.createUser(userDetails);
 
-// 	if (error) throw error;
-// 	return data;
-// };
+	managerDetails.account_number = newUserData.account_number;
+
+	const { data, error } = await supabase
+		.from("manager")
+		.insert([managerDetails])
+		.select();
+
+	if (error) throw error;
+
+	return data[0];
+};
 
 // READ managers
 export const getManagers = async () => {
@@ -50,14 +44,63 @@ export const findManagerById = async (account_number: number) => {
 	return data;
 };
 
+const findManagerProfileById = async (
+	account_number: number,
+): Promise<ManagerProfile | null> => {
+	const { data, error } = await supabase
+		.from("user")
+		.select(
+			`
+            account_number,
+            account_email,
+            first_name,
+            middle_name,
+            last_name,
+            sex,
+            birthday,
+            home_address,
+            phone_number,
+            contact_email,
+            profile_picture,
+            user_type,
+            manager:manager_account_number_fkey(
+                account_number,
+                manager_type,
+                manager_payment_details:manager_payment_details_account_number_fkey(
+                    account_number,
+                    bank_number,
+                    bank_type
+                )
+            )
+            `,
+		)
+		.eq("account_number", account_number)
+		.eq("is_deleted", false)
+		.single();
+
+	if (error) {
+		console.error("Error fetching student profile:", error);
+		return null;
+	}
+
+	return data;
+};
+
 // UPDATE manager
-export const updateManager = async (account_number: number, updates: any) => {
-	return await supabase
+const updateManager = async (account_number: number, updates: any) => {
+	const { data, error } = await supabase
 		.from("manager")
 		.update(updates)
 		.eq("account_number", account_number)
 		.select()
 		.single();
+
+	if (error) {
+		console.error("Error fetching student profile:", error);
+		return null;
+	}
+
+	return data;
 };
 
 // DELETE manager (soft delete only)
@@ -145,7 +188,7 @@ export const getPayments = async () => {
 };
 
 // UPDATE payments
-export const updatePayment = async (id: number, updates: any) => {
+const updatePayment = async (id: number, updates: any) => {
 	return await supabase
 		.from("manager_payment_details")
 		.update(updates)
@@ -162,4 +205,10 @@ export const deletePayment = async (id: number) => {
 		.eq("id", id)
 		.select()
 		.single();
+};
+
+export const managerData = {
+	findManagerProfileById,
+	updateManager,
+	updatePayment,
 };
