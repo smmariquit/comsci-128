@@ -1,12 +1,12 @@
 import { supabase } from "@/app/lib/supabase";
 import { User, NewUser, UpdateUser } from "@/models/user";
 import { Manager, NewManager, UpdateManager } from "@/models/manager";
-import { createManager } from "@/app/lib/data/manager-data";
+import { managerData } from "@/app/lib/data/manager-data";
 
 async function create(userDetails: NewUser, managerDetails: NewManager) {
   // Call createManager with manager_type "Landlord"
   // createManager internally calls createUser with user_type "Manager"
-  const newManagerData = await createManager(
+  const newManagerData = await managerData.create(
     userDetails,
     managerDetails,
   );
