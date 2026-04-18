@@ -15,7 +15,16 @@ export default function StudentProfilePage() {
       try {
         const res = await fetch(`/api/student/profile/${id}`);
         const data = await res.json();
-        setStudent(data);
+        
+        setStudent({
+          ...data,
+          emergency_contact_name: data.student?.emergency_contact_name,
+          emergency_contact_number: data.student?.emergency_contact_number,
+          emergency_contact_relationship: data.student?.emergency_contact_relationship,
+          degree_program: data.student?.student_academic?.degree_program,
+          standing: data.student?.student_academic?.standing,
+          status: data.student?.student_academic?.status,
+        });
       } catch (err) {
         console.error("Failed to load profile", err);
       } finally {
@@ -30,9 +39,11 @@ export default function StudentProfilePage() {
       const res = await fetch(`/api/student/profile/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(student),
+
+        body: JSON.stringify(student), 
       });
-      if (res.ok) alert("Profile updated successfully!");
+      
+      if (res.ok) alert("All records updated successfully!");
     } catch (err) {
       alert("Error saving changes.");
     }
