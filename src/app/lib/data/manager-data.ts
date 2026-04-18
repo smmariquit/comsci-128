@@ -4,13 +4,13 @@ import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { Housing} from "@/models/housing";
 import { userData } from "./user-data";
 
-export const createManager = async (
+const create = async (
 	userDetails: NewUser,
 	managerDetails: NewManager
 ): Promise<Manager> => {
 	// CREATE row in "manager" table & RETURN the created manager object
 
-	const newUserData = await userData.createUser(userDetails);
+	const newUserData = await userData.create(userDetails);
 
 	managerDetails.account_number = newUserData.account_number;
 
@@ -25,7 +25,7 @@ export const createManager = async (
 };
 
 // READ managers
-export const getManagers = async () => {
+const getAll = async () => {
 	return await supabase
 		.from("manager")
 		.select(`*, "user" (*)`)
@@ -33,7 +33,7 @@ export const getManagers = async () => {
 };
 
 // FIND manager by ID
-export const findManagerById = async (account_number: number) => {
+const findById = async (account_number: number) => {
 	const { data, error } = await supabase
 		.from("manager")
 		.select(`*, "user" (*)`)
@@ -46,7 +46,7 @@ export const findManagerById = async (account_number: number) => {
 };
 
 // UPDATE manager
-export const updateManager = async (account_number: number, updates: any) => {
+const update = async (account_number: number, updates: any) => {
 	return await supabase
 		.from("manager")
 		.update(updates)
@@ -56,7 +56,7 @@ export const updateManager = async (account_number: number, updates: any) => {
 };
 
 // DELETE manager (soft delete only)
-export const deleteManager = async (account_number: number) => {
+const deactivate = async (account_number: number) => {
 	return await supabase
 		.from("manager")
 		.update({ is_deleted: true })
@@ -68,7 +68,7 @@ export const deleteManager = async (account_number: number) => {
 // manager_bank
 
 // CREATE manager bank
-export const createManagerBank = async (bankData: any) => {
+const createBankDetails = async (bankData: any) => {
 	return await supabase
 		.from("manager_bank")
 		.insert([bankData])
@@ -77,7 +77,7 @@ export const createManagerBank = async (bankData: any) => {
 };
 
 // READ banks using manager
-export const getManagerBanks = async (account_number: number) => {
+const getBanks = async (account_number: number) => {
 	return await supabase
 		.from("manager_bank")
 		.select("*")
@@ -86,7 +86,7 @@ export const getManagerBanks = async (account_number: number) => {
 };
 
 // UPDATE banks
-export const updateManagerBank = async (bank_number: number, updates: any) => {
+const updateBankDetails = async (bank_number: number, updates: any) => {
 	return await supabase
 		.from("manager_bank")
 		.update(updates)
@@ -96,7 +96,7 @@ export const updateManagerBank = async (bank_number: number, updates: any) => {
 };
 
 // DELETE bank (soft Delete)
-export const deleteManagerBank = async (bank_number: number) => {
+const deleteBankDetails = async (bank_number: number) => {
 	return await supabase
 		.from("manager_bank")
 		.update({ is_deleted: true })
@@ -108,7 +108,7 @@ export const deleteManagerBank = async (bank_number: number) => {
 // manager_payment_details
 
 // CREATE manager_payment
-export const createPayment = async (paymentData: any) => {
+const addPaymentDetails = async (paymentData: any) => {
 	const { transaction_id } = paymentData;
 
 	const { data: res, error } = await supabase
@@ -132,7 +132,7 @@ export const createPayment = async (paymentData: any) => {
 };
 
 // READ payments
-export const getPayments = async () => {
+const getPaymentDetails = async () => {
 	return await supabase
 		.from("manager_payment_details")
 		.select(`*, manager (*), bill (*)`)
@@ -140,7 +140,7 @@ export const getPayments = async () => {
 };
 
 // UPDATE payments
-export const updatePayment = async (id: number, updates: any) => {
+const updatePaymentDetails = async (id: number, updates: any) => {
 	return await supabase
 		.from("manager_payment_details")
 		.update(updates)
@@ -150,7 +150,7 @@ export const updatePayment = async (id: number, updates: any) => {
 };
 
 // DELETE payments
-export const deletePayment = async (id: number) => {
+const deletePaymentDetails = async (id: number) => {
 	return await supabase
 		.from("manager_payment_details")
 		.update({ is_deleted: true })
@@ -158,3 +158,19 @@ export const deletePayment = async (id: number) => {
 		.select()
 		.single();
 };
+
+export const managerData = {
+	create,
+	getAll,
+	findById,
+	update,
+	deactivate,
+	createBankDetails,
+	getBanks,
+	updateBankDetails,
+	deleteBankDetails,
+	addPaymentDetails,
+	getPaymentDetails,
+	updatePaymentDetails,
+	deletePaymentDetails
+}
