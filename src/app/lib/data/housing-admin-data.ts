@@ -4,7 +4,7 @@ import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { createManager } from "@/app/lib/data/manager-data";
 
 // promote User from Student to Housing Admin (Manager rather)
-export async function createHousingAdmin(userDetails: NewUser, managerDetails: NewManager) {
+async function create(userDetails: NewUser, managerDetails: NewManager) {
   // managerDetails.manager_type must already be set to "Housing Admin"
 
   const newManagerData = await createManager(
@@ -32,7 +32,7 @@ export async function createHousingAdmin(userDetails: NewUser, managerDetails: N
 }
 
 // Read all housing admins with user details
-export async function getAllHousingAdmins() {
+async function getAll() {
 	const { data, error } = await supabase.from("housing_admin").select(`
       account_number,
       manager:account_number (
@@ -63,7 +63,7 @@ export async function getAllHousingAdmins() {
 }
 
 // Read single housing admin with user details by account_number
-export async function getHousingAdminById(accountNumber: number) {
+async function getById(accountNumber: number) {
 	const { data, error } = await supabase
 		.from("housing_admin")
 		.select(
@@ -98,3 +98,9 @@ export async function getHousingAdminById(accountNumber: number) {
 
 	return { data, error: null };
 }
+
+export const housingAdminData = {
+  create,
+  getAll,
+  getById,
+};
