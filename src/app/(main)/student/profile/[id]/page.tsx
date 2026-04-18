@@ -108,11 +108,6 @@ export default function StudentProfilePage() {
             value={student?.account_email} 
             disabled 
           />
-          <ProfileInput 
-            label="Student Number"
-            value={student?.student_number} 
-            onChange={(val: any) => setStudent({...student, student_number: val})} 
-          />
         </div>
       </div>
     </div>
