@@ -17,3 +17,20 @@ async function create(userDetails: NewUser): Promise<number | null> {
     if (error) throw new Error(error.message);
     return data ? data.account_number : null;
 }
+
+async function getById(accountNumber: number) {
+  const { data, error } = await supabase
+    .from('system_admin')
+    .select(`
+      account_number,
+      manager:account_number (
+        manager_type,
+        user:account_number (*)
+      )
+    `)
+    .eq('account_number', accountNumber)
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
