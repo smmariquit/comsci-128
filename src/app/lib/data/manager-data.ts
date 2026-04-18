@@ -1,3 +1,5 @@
+import type { Manager, NewManager } from "@/models/manager";
+import type { NewUser } from "@/models/user";
 import { supabase } from "../supabase";
 import { NewUser } from "@/models/user";
 import { Manager, NewManager } from "@/models/manager";
@@ -8,20 +10,20 @@ const create = async (
 	userDetails: NewUser,
 	managerDetails: NewManager
 ): Promise<Manager> => {
-	// CREATE row in "manager" table & RETURN the created manager object
+  // CREATE row in "manager" table & RETURN the created manager object
 
 	const newUserData = await userData.create(userDetails);
 
-	managerDetails.account_number = newUserData.account_number;
+  managerDetails.account_number = newUserData.account_number;
 
-	const { data, error } = await supabase
-		.from("manager")
-		.insert([managerDetails])
-		.select();
+  const { data, error } = await supabase
+    .from("manager")
+    .insert([managerDetails])
+    .select();
 
-	if (error) throw error;
+  if (error) throw error;
 
-	return data[0];
+  return data[0];
 };
 
 // READ managers

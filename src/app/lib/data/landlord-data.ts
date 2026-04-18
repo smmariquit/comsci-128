@@ -11,7 +11,7 @@ async function create(userDetails: NewUser, managerDetails: NewManager) {
     managerDetails,
   );
 
-  managerDetails.account_number = newManagerData.account_number
+	managerDetails.account_number = newManagerData.account_number;
 
   // Insert into housing_admin
   const { data, error: adminError } = await supabase
