@@ -34,3 +34,21 @@ async function getById(accountNumber: number) {
   if (error) throw new Error(error.message);
   return data;
 }
+
+async function update(accountNumber: number, updates: any) {
+  const { data, error } = await supabase
+    .from('system_admin')
+    .update(updates)
+    .eq('account_number', accountNumber)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export const systemAdminData = {
+  create,
+  getById,
+  update
+}
