@@ -1,8 +1,8 @@
 import { supabase } from "@/app/lib/supabase";
 
-export type ActionType = "Application Status" | "Bill Status";
+type ActionType = "Application Status" | "Bill Status";
 
-export interface AuditLog {
+interface AuditLog {
 	audit_id?: number;
 	timestamp: string;
 	action_type: ActionType;
@@ -12,8 +12,7 @@ export interface AuditLog {
 	account_number: number;
 }
 
-// CREATE AUDIT LOG
-export async function createAuditLog(audit_log: AuditLog) {
+async function create(audit_log: AuditLog) {
 	const { data, error } = await supabase
 		.from("audit_log")
 		.insert([audit_log])
@@ -22,15 +21,13 @@ export async function createAuditLog(audit_log: AuditLog) {
 	return data;
 }
 
-// READ ALL AUDIT LOGS
-export async function getAllAuditLogs() {
+async function getAll() {
 	const { data, error } = await supabase.from("audit_log").select("*");
 	if (error) throw error;
 	return data;
 }
 
-// READ AUDIT LOGS BASED ON ACCOUNT NUMBER
-export async function getAuditLogByAccountNumber(account_number: number) {
+async function getByAccountNumber(account_number: number) {
 	const { data, error } = await supabase
 		.from("audit_log")
 		.select("*")
@@ -40,7 +37,7 @@ export async function getAuditLogByAccountNumber(account_number: number) {
 }
 
 // UPDATE AUDIT LOGS
-export async function updateAuditLog(
+async function updateAuditLog(
 	audit_id: number,
 	updatedFields: Partial<AuditLog>,
 ) {
@@ -51,4 +48,10 @@ export async function updateAuditLog(
 		.select();
 	if (error) throw error;
 	return data;
+}
+
+export const auditLogData = {
+	create,
+	getAll,
+	getByAccountNumber
 }
