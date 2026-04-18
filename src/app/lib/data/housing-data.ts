@@ -120,7 +120,7 @@ async function getHousingDetailsOfStudent(studentAccountNumber: number) {
 	return studentHousingDetails;
 }
 
-async function getStudentsHousedPerHousing(managerId: number, housingId: number) {
+async function getStudentsHoused(managerId: number, housingId: number) {
   // get details of list of students housed per housing
 
   const { data, error } = await supabase
@@ -147,5 +147,5 @@ export const housingData = {
 	update,
 	deactivate,
 	getHousingDetailsOfStudent,
-	getStudentsHousedPerHousing
+	getStudentsHoused
 };
