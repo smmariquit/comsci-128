@@ -10,7 +10,6 @@ async function create(
     studentDetails: NewStudent,
     studentAcademicDetails: NewStudentAcademic
 ): Promise<Student> {
-  const newUserData = await userData.createUser(userDetails);
 
 	const newUserData = await userData.create(userDetails);
     
@@ -41,7 +40,7 @@ async function createAcademic(academicData: NewStudentAcademic): Promise<NewStud
   return data[0];
 }
 
-async function _getStudentAcademicById(accountNumber: number) {
+async function getStudentAcademicById(accountNumber: number) {
   const { data, error } = await supabase
     .from("student_academic")
     .select("*")
@@ -65,7 +64,7 @@ async function updateAcademicDetails(accountNumber: number, updates: Partial<Stu
 }
 
 // CREATE a stay record (Check-in)
-async function _createAccommodationHistory(
+async function createAccommodationHistory(
   history: StudentAccommodationHistory,
 ) {
   const { data, error } = await supabase
@@ -79,7 +78,7 @@ async function _createAccommodationHistory(
 }
 
 // UPDATE a stay record (Check-out)
-async function _recordMoveOut(accountNumber: number, actualDate: string) {
+async function recordMoveOut(accountNumber: number, actualDate: string) {
   const { data, error } = await supabase
     .from("student_accommodation_history")
     .update({
@@ -96,7 +95,7 @@ async function _recordMoveOut(accountNumber: number, actualDate: string) {
 
 // GET current occupants in a room (Logic for room.ts)
 // Counts records where the student has not yet moved out.
-async function _getRoomOccupantCount(roomId: number): Promise<number> {
+async function getRoomOccupantCount(roomId: number): Promise<number> {
   const { count, error } = await supabase
     .from("student_accommodation_history")
     .select("*", { count: "exact", head: true })
@@ -107,7 +106,7 @@ async function _getRoomOccupantCount(roomId: number): Promise<number> {
   return count ?? 0;
 }
 
-async function _getAccommodationHistoryOfStudent(studentAccountNumber: number) {
+async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
   // get the accommodation history of a student and their user + student details
 
   const { data, error } = await supabase
