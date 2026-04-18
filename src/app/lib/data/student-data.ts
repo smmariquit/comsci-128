@@ -1,14 +1,9 @@
 import { userData } from "@/data/user-data";
 import { NewUser } from "@/models/user";
-import { Student, NewStudent, UpdateStudent } from "@/models/student";
-import { StudentAcademic, NewStudentAcademic, UpdateStudentAcademic } from "@/models/student_academic";
-import { StudentAccommodationHistory, NewStudentAccommodationHistory, UpdateStudentAccommodationHistory } from "@/models/student_accommodation";
-
+import { Student, NewStudent } from "@/models/student";
+import { StudentAcademic, NewStudentAcademic } from "@/models/student_academic";
+import { StudentAccommodationHistory } from "@/models/student_accommodation";
 import { supabase } from "../supabase";
-
-export type StudentStanding = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior';
-export type StudentStatus = 'Active' | 'Delayed' | 'Graduating';
-export type HousingStatus = 'Assigned' | 'Not Assigned';
 
 async function create(
     userDetails: NewUser,
