@@ -49,7 +49,9 @@ export default function StudentProfilePage() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-[#1C2632] flex items-center justify-center text-white font-[family-name:var(--font-geist-mono)]">Loading...</div>;
+  if (loading) return <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
+                </div>;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#1C2632] font-[family-name:var(--font-geist-sans)]">
