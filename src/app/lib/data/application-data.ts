@@ -28,16 +28,16 @@ async function getById(application_id: number) {
 async function getByManager(
 	manager_account_number: number,
 ) {
-	const { data, error } = await supabase
-		.from("application")
-		.select(
-			`application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, student_account_number, is_deleted, manager:manager_account_number(account_number)`,
-		)
-		.eq("manager.account_number", manager_account_number)
-		.eq("is_deleted", false);
+  const { data, error } = await supabase
+    .from("application")
+    .select(
+      `application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, student_account_number, is_deleted, manager:manager_account_number(account_number)`,
+    )
+    .eq("manager.account_number", manager_account_number)
+    .eq("is_deleted", false);
 
-	if (error) throw error;
-	return data;
+  if (error) throw error;
+  return data;
 }
 
 async function getByHousing(housing_id: number) {
@@ -53,14 +53,14 @@ async function update(
 	application_id: number,
 	updatedFields: Partial<Application>,
 ) {
-	const { data, error } = await supabase
-		.from("application")
-		.update(updatedFields)
-		.eq("application_id", application_id)
-		.eq("is_deleted", false)
-		.select();
-	if (error) throw error;
-	return data;
+  const { data, error } = await supabase
+    .from("application")
+    .update(updatedFields)
+    .eq("application_id", application_id)
+    .eq("is_deleted", false)
+    .select();
+  if (error) throw error;
+  return data;
 }
 
 async function remove(application_id: number) {
