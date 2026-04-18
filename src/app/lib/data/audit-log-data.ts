@@ -1,4 +1,5 @@
 import { supabase } from "@/app/lib/supabase";
+import { AuditLog } from "@/models/audit_log"
 
 async function create(audit_log: AuditLog) {
 	const { data, error } = await supabase
