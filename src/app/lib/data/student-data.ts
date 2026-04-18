@@ -23,7 +23,7 @@ async function create(
 
 	if (error) throw new Error(`Create Student Error: ${error.message}`);
 
-    createStudentAcademic(studentAcademicDetails)
+    createAcademic(studentAcademicDetails)
 
     return data[0];
 }
