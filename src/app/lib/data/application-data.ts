@@ -1,24 +1,5 @@
 import { supabase } from "@/app/lib/supabase";
-
-export type PreferredRoomType = "Single" | "Double" | "Shared";
-export type ApplicationStatus =
-	| "Approved"
-	| "Pending"
-	| "Cancelled"
-	| "Rejected";
-
-export interface Application {
-	application_id?: number;
-	housing_name: string;
-	preferred_room_type: PreferredRoomType;
-	application_status: ApplicationStatus;
-	expected_moveout_date: Date;
-	actual_moveout_data: Date;
-	room_id?: number;
-	manager_account_number: number;
-	student_account_number: number;
-	is_deleted?: boolean;
-}
+import { Application, NewApplication, UpdateApplication } from "@/models/application"
 
 // CREATE APPLICATION
 export async function createApplication(application: Application) {
