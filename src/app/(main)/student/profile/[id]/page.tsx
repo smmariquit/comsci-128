@@ -63,7 +63,7 @@ export default function StudentProfilePage() {
 
           {/* Navigation Tabs */}
           <div className="w-full space-y-3 mb-12">
-            {["Personal Information", "Emergency Contact"].map((tab) => (
+            {["Personal Information", "Emergency Contact", "Academic Information"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -101,6 +101,11 @@ export default function StudentProfilePage() {
                 onChange={(val: any) => setStudent({...student, first_name: val})} 
               />
               <ProfileInput 
+                label="Middle Name" 
+                value={student.middle_name} 
+                onChange={(val: any) => setStudent({...student, middle_name: val})} 
+              />
+              <ProfileInput 
                 label="Last Name" 
                 value={student.last_name} 
                 onChange={(val: any) => setStudent({...student, last_name: val})} 
@@ -133,6 +138,30 @@ export default function StudentProfilePage() {
             </>
           )}
 
+          {activeTab === "Academic Information" && (
+            <>
+              <ProfileInput 
+                label="Degree Program" 
+                value={student?.degree_program} 
+                onChange={(val: string) => setStudent({...student, degree_program: val})} 
+              />
+
+              <ProfileSelect 
+                label="Standing" 
+                value={student?.standing} 
+                options={["Freshman", "Sophomore", "Junior", "Senior"]}
+                onChange={(val: string) => setStudent({...student, standing: val})} 
+              />
+
+              <ProfileSelect 
+                label="Status" 
+                value={student?.status} 
+                options={["Active", "Graduating", "Delayed"]}
+                onChange={(val: string) => setStudent({...student, status: val})} 
+              />
+            </>
+          )}
+
         </div>
               </div>
             </div>
@@ -155,6 +184,34 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
           disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
         }`}
       />
+    </div>
+  );
+}
+
+function ProfileSelect({ label, value, options, onChange }: any) {
+  return (
+    <div className="flex flex-col gap-1 w-full max-w-2xl">
+      <label className="text-sm font-bold text-[#567375] ml-2 uppercase tracking-wide font-[family-name:var(--font-geist-sans)]">
+        {label}
+      </label>
+      <select
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] font-[family-name:var(--font-geist-mono)] appearance-none cursor-pointer"
+        style={{
+          backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C2632' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 1rem center",
+          backgroundSize: "1.5em",
+        }}
+      >
+        <option value="" disabled>Select {label}</option>
+        {options.map((opt: string) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
