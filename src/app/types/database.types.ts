@@ -599,7 +599,24 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      ActionType: "Application Status" | "Bill Status"
+      ActionType:
+        | "Application Status"
+        | "Bill Status"
+        | "Auth Register"
+        | "Auth Login"
+        | "Change Auth Password"
+        | "Delete Account"
+        | "Update User Role"
+        | "Update User Details"
+        | "Submit Application"
+        | "Update Application Status"
+        | "Withdraw Application"
+        | "Create Housing"
+        | "Update Housing"
+        | "Assign Room"
+        | "Assign Bill"
+        | "Issue Bill Refund"
+        | "Update Bill Status"
       ApplicationStatus:
         | "Pending Manager Approval"
         | "Pending Admin Approval"
@@ -745,7 +762,25 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      ActionType: ["Application Status", "Bill Status"],
+      ActionType: [
+        "Application Status",
+        "Bill Status",
+        "Auth Register",
+        "Auth Login",
+        "Change Auth Password",
+        "Delete Account",
+        "Update User Role",
+        "Update User Details",
+        "Submit Application",
+        "Update Application Status",
+        "Withdraw Application",
+        "Create Housing",
+        "Update Housing",
+        "Assign Room",
+        "Assign Bill",
+        "Issue Bill Refund",
+        "Update Bill Status",
+      ],
       ApplicationStatus: [
         "Pending Manager Approval",
         "Pending Admin Approval",
