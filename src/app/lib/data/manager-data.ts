@@ -1,5 +1,3 @@
-import type { Manager, NewManager } from "@/models/manager";
-import type { NewUser } from "@/models/user";
 import { supabase } from "../supabase";
 import { NewUser } from "@/models/user";
 import { Manager, NewManager } from "@/models/manager";
