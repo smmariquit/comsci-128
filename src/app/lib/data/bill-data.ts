@@ -1,21 +1,17 @@
 import { supabase } from "../supabase";
 
-// joins for FKs
-// CREATE bill
-export const createBill = async (billData: any) => {
+const create = async (billData: any) => {
 	return await supabase.from("bill").insert([billData]).select().single();
 };
 
-// READ all bills
-export const getAllBills = async () => {
+const getAll = async () => {
 	return await supabase
 		.from("bill")
 		.select("*, manager(*), student(*)")
 		.eq("is_deleted", false);
 };
 
-// READ bill using id
-export const getBillById = async (transaction_id: number) => {
+const getById = async (transaction_id: number) => {
 	return await supabase
 		.from("bill")
 		.select("*, manager(*), student(*)")
@@ -24,8 +20,7 @@ export const getBillById = async (transaction_id: number) => {
 		.single();
 };
 
-// UPDATE bill
-export const updateBill = async (transaction_id: number, updates: any) => {
+const update = async (transaction_id: number, updates: any) => {
 	return await supabase
 		.from("bill")
 		.update(updates)
@@ -34,8 +29,7 @@ export const updateBill = async (transaction_id: number, updates: any) => {
 		.single();
 };
 
-// updates bill as paid
-export const markBillAsPaid = async (transaction_id: number) => {
+const markAsPaid = async (transaction_id: number) => {
 	return await supabase
 		.from("bill")
 		.update({
@@ -47,8 +41,8 @@ export const markBillAsPaid = async (transaction_id: number) => {
 		.single();
 };
 
-// DELETE bill
-export const deleteBill = async (transaction_id: number) => {
+// delete bill
+const remove = async (transaction_id: number) => {
 	return await supabase
 		.from("bill")
 		.update({ is_deleted: true })
@@ -56,7 +50,7 @@ export const deleteBill = async (transaction_id: number) => {
 };
 
 // GET bills by manager
-export const getBillsByManager = async (account_number: number) => {
+const getBillsOfManager = async (account_number: number) => {
 	return await supabase
 		.from("bill")
 		.select("*, student(*)")
@@ -65,7 +59,7 @@ export const getBillsByManager = async (account_number: number) => {
 };
 
 // GET bills per student
-export const getBillsByStudent = async (account_number: number) => {
+const getBillsOfStudent = async (account_number: number) => {
 	return await supabase
 		.from("bill")
 		.select("*, manager(*)")
@@ -74,7 +68,7 @@ export const getBillsByStudent = async (account_number: number) => {
 };
 
 // GET bills based on their payment status
-export const getBillsByStatus = async (status: string) => {
+const getBillsByStatus = async (status: string) => {
 	return await supabase
 		.from("bill")
 		.select("*, manager(*), student(*)")
@@ -83,7 +77,7 @@ export const getBillsByStatus = async (status: string) => {
 };
 
 // gets overdue bills
-export const getOverdueBills = async () => {
+const getOverdueBills = async () => {
 	const today = new Date().toISOString();
 
 	return await supabase
@@ -95,7 +89,7 @@ export const getOverdueBills = async () => {
 };
 
 // total balance per student
-export const getTotalBalance = async (account_number: number) => {
+const getTotalBalance = async (account_number: number) => {
 	const { data, error } = await supabase
 		.from("bill")
 		.select("amount, status")
@@ -110,4 +104,18 @@ export const getTotalBalance = async (account_number: number) => {
 		}
 	}, 0);
 	return total ?? 0;
+};
+
+export const billData = {
+	create,
+	getAll,
+	getById,
+	update,
+	markAsPaid,
+	remove,
+	getBillsOfManager,
+	getBillsOfStudent,
+	getBillsByStatus,
+	getOverdueBills,
+	getTotalBalance
 };
