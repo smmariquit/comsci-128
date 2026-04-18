@@ -2,9 +2,8 @@ import { supabase } from "@/app/lib/supabase";
 import { User, NewUser, UpdateUser } from "@/models/user";
 import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { createManager } from "@/app/lib/data/manager-data";
- 
-//Create landlord
-export async function createLandlord(userDetails: NewUser, managerDetails: NewManager) {
+
+async function create(userDetails: NewUser, managerDetails: NewManager) {
   // Call createManager with manager_type "Landlord"
   // createManager internally calls createUser with user_type "Manager"
   const newManagerData = await createManager(
@@ -31,7 +30,7 @@ export async function createLandlord(userDetails: NewUser, managerDetails: NewMa
   return data[0];}
  
 // Read all landlords with user details
-export async function getAllLandlords() {
+async function getAll() {
   const { data, error } = await supabase
     .from("landlord")
     .select(`
@@ -64,7 +63,7 @@ export async function getAllLandlords() {
 }
  
 // Read single landlord with user details by account_number
-export async function getLandlordById(accountNumber: number) {
+async function getById(accountNumber: number) {
   const { data, error } = await supabase
     .from("landlord")
     .select(`
@@ -97,3 +96,9 @@ export async function getLandlordById(accountNumber: number) {
  
   return { data, error: null };
 }
+
+export const landlordData = {
+  create,
+  getAll,
+  getById
+};
