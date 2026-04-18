@@ -1,7 +1,7 @@
 import { User, NewUser, UpdateUser } from "@/models/user";
 import { supabase } from "../supabase";
 
-async function createUser(userDetails: NewUser): Promise<User> {
+async function create(userDetails: NewUser): Promise<User> {
 	// this is for returning the newly inserted user
 	const { data, error } = await supabase
 		.from("user")
@@ -15,7 +15,7 @@ async function createUser(userDetails: NewUser): Promise<User> {
 	return data[0];
 }
 
-async function findAllUsers(): Promise<User[]> {
+async function findAll(): Promise<User[]> {
 	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
 	const { data, error } = await supabase
@@ -28,7 +28,7 @@ async function findAllUsers(): Promise<User[]> {
 	return data ?? null;
 }
 
-async function findUserById(userId: number): Promise<User | null> {
+async function findById(userId: number): Promise<User | null> {
 	const { data, error } = await supabase
 		.from("user")
 		.select()
@@ -40,7 +40,7 @@ async function findUserById(userId: number): Promise<User | null> {
 	return data && data.length > 0 ? data[0] : null;
 }
 
-async function findUserByEmail(userEmail: string): Promise<User | null> {
+async function findByEmail(userEmail: string): Promise<User | null> {
 	const { data, error } = await supabase
 		.from("user")
 		.select()
@@ -52,7 +52,7 @@ async function findUserByEmail(userEmail: string): Promise<User | null> {
 	return data && data.length > 0 ? data[0] : null;
 }
 
-async function updateUser(
+async function update(
 	userId: number,
 	userDetails: UpdateUser,
 ): Promise<UpdateUser | null> {
@@ -70,7 +70,7 @@ async function updateUser(
 	return data && data.length > 0 ? data[0] : null;
 }
 
-async function deactivateUserById(userId: number): Promise<UpdateUser | null> {
+async function deactivate(userId: number): Promise<UpdateUser | null> {
 	// This function takes a USERID of type STRING.
 	// CHANGES is_deleted field to true if user is found, otherwise return null.
 
@@ -86,10 +86,10 @@ async function deactivateUserById(userId: number): Promise<UpdateUser | null> {
 }
 
 export const userData = {
-	createUser,
-	findAllUsers,
-	findUserById,
-	findUserByEmail,
-	updateUser,
-	deactivateUserById,
+	create,
+	findAll,
+	findById,
+	findByEmail,
+	update,
+	deactivate,
 };
