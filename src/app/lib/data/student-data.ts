@@ -1,27 +1,21 @@
 import { userData } from "@/data/user-data";
-import type { NewStudent, Student } from "@/models/student";
-import type {
-  NewStudentAcademic,
-  StudentAcademic,
-} from "@/models/student_academic";
-import type { StudentAccommodationHistory } from "@/models/student_accommodation";
-import type { NewUser } from "@/models/user";
-
+import { NewUser } from "@/models/user";
+import { Student, NewStudent } from "@/models/student";
+import { StudentAcademic, NewStudentAcademic } from "@/models/student_academic";
+import { StudentAccommodationHistory } from "@/models/student_accommodation";
 import { supabase } from "../supabase";
 
-export type StudentStanding = "Freshman" | "Sophomore" | "Junior" | "Senior";
-export type StudentStatus = "Active" | "Delayed" | "Graduating";
-export type HousingStatus = "Assigned" | "Not Assigned";
-
-async function createUserStudent(
-  userDetails: NewUser,
-  studentDetails: NewStudent,
-  studentAcademicDetails: NewStudentAcademic,
+async function create(
+    userDetails: NewUser,
+    studentDetails: NewStudent,
+    studentAcademicDetails: NewStudentAcademic
 ): Promise<Student> {
   const newUserData = await userData.createUser(userDetails);
 
-  studentDetails.account_number = newUserData.account_number;
-  studentAcademicDetails.account_number = newUserData.account_number;
+	const newUserData = await userData.create(userDetails);
+    
+    studentDetails.account_number = newUserData.account_number;
+    studentAcademicDetails.account_number = newUserData.account_number;
 
   const { data, error } = await supabase
     .from("student")
@@ -30,14 +24,12 @@ async function createUserStudent(
 
   if (error) throw new Error(`Create Student Error: ${error.message}`);
 
-  createStudentAcademic(studentAcademicDetails);
+    createAcademic(studentAcademicDetails)
 
   return data[0];
 }
 
-async function createStudentAcademic(
-  academicData: NewStudentAcademic,
-): Promise<NewStudentAcademic> {
+async function createAcademic(academicData: NewStudentAcademic): Promise<NewStudentAcademic> {
   const { data, error } = await supabase
     .from("student_academic")
     .insert([academicData])
@@ -60,12 +52,7 @@ async function _getStudentAcademicById(accountNumber: number) {
   return data;
 }
 
-// UPDATE academic record
-
-async function _updateStudentAcademic(
-  accountNumber: number,
-  updates: Partial<StudentAcademic>,
-) {
+async function updateAcademicDetails(accountNumber: number, updates: Partial<StudentAcademic>) {
   const { data, error } = await supabase
     .from("student_academic")
     .update(updates)
@@ -142,5 +129,12 @@ async function _getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 }
 
 export const studentData = {
-  createUserStudent,
-};
+    create,
+    createAcademic,
+    getStudentAcademicById,
+    updateAcademicDetails,
+    createAccommodationHistory,
+    recordMoveOut,
+    getRoomOccupantCount,
+    getAccommodationHistoryOfStudent
+}
