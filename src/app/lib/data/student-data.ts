@@ -10,13 +10,13 @@ export type StudentStanding = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior';
 export type StudentStatus = 'Active' | 'Delayed' | 'Graduating';
 export type HousingStatus = 'Assigned' | 'Not Assigned';
 
-async function createUserStudent(
+async function create(
     userDetails: NewUser,
     studentDetails: NewStudent,
     studentAcademicDetails: NewStudentAcademic
 ): Promise<Student> {
 
-	const newUserData = await userData.createUser(userDetails);
+	const newUserData = await userData.create(userDetails);
     
     studentDetails.account_number = newUserData.account_number;
     studentAcademicDetails.account_number = newUserData.account_number;
@@ -33,7 +33,7 @@ async function createUserStudent(
     return data[0];
 }
 
-async function createStudentAcademic(academicData: NewStudentAcademic): Promise<NewStudentAcademic> {
+async function createAcademic(academicData: NewStudentAcademic): Promise<NewStudentAcademic> {
   const { data, error } = await supabase
     .from('student_academic')
     .insert([academicData])
@@ -55,9 +55,7 @@ async function getStudentAcademicById(accountNumber: number) {
   return data;
 }
 
-// UPDATE academic record
-
-async function updateStudentAcademic(accountNumber: number, updates: Partial<StudentAcademic>) {
+async function updateAcademicDetails(accountNumber: number, updates: Partial<StudentAcademic>) {
   const { data, error } = await supabase
     .from('student_academic')
     .update(updates)
@@ -129,5 +127,12 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 }
 
 export const studentData = {
-    createUserStudent
+    create,
+    createAcademic,
+    getStudentAcademicById,
+    updateAcademicDetails,
+    createAccommodationHistory,
+    recordMoveOut,
+    getRoomOccupantCount,
+    getAccommodationHistoryOfStudent
 }
