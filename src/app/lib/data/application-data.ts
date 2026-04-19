@@ -73,6 +73,20 @@ async function remove(application_id: number) {
 	return data;
 }
 
+async function getDocuments(applicationId: number) {
+	// get the documents uploaded under the application
+	// only contains the links of the images/files to the storage in Supabase
+
+	const { data, error } = await supabase
+		.from("application")
+		.select("*, document!inner(*)")
+		.eq("application.application_id", applicationId);
+
+	if(error) throw new Error(`Get Submitted Documents under Application Error: ${error.message}`);
+
+	return data;
+}
+
 export const applicationData = {
 	create,
 	getAll,
@@ -80,5 +94,6 @@ export const applicationData = {
 	getByManager,
 	getByHousing,
 	update,
-	remove	
+	remove,
+	getDocuments
 }
