@@ -105,8 +105,6 @@ const deleteBankDetails = async (bank_number: number) => {
 		.single();
 };
 
-// manager_payment_details
-
 // CREATE manager_payment
 const addPaymentDetails = async (paymentData: any) => {
 	const { transaction_id } = paymentData;
@@ -159,6 +157,46 @@ const deletePaymentDetails = async (id: number) => {
 		.single();
 };
 
+// List of approved applicants that have no room assigned yet
+// Involves: user, student, application, manager
+export async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      application_status,
+      expected_moveout_date,
+      actual_moveout_date,
+      housing_name,
+      preferred_room_type,
+      room_id,
+      student:student_account_number (
+        account_number,
+        student_number,
+        user:account_number (
+          first_name,
+          middle_name,
+          last_name,
+          account_email
+        )
+      ),
+      manager:manager_account_number (
+        account_number
+      )
+    `)
+    .eq("application_status", "Approved")
+    .is("room_id", null)                          // unassigned — no room yet
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching unassigned approved applicants:", error.message);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
+}
+
 export const managerData = {
 	create,
 	getAll,
@@ -172,5 +210,6 @@ export const managerData = {
 	addPaymentDetails,
 	getPaymentDetails,
 	updatePaymentDetails,
-	deletePaymentDetails
+	deletePaymentDetails,
+	getUnassignedApprovedApplicants
 }
