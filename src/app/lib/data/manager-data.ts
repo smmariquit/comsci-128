@@ -232,6 +232,45 @@ async function getTotalRoomsManaged(managerAccountNumber: number) {
   return { data, totalRooms, error: null };
 }
 
+// Total tenants managed by a manager
+// Involves: manager, housing, room, student_accommodation_history
+async function getTotalTenantsManaged(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      housing_id,
+      housing_name,
+      room:room (
+        room_id,
+        room_type,
+        occupancy_status,
+        maximum_occupants,
+        student_accommodation_history:student_accommodation_history (
+          account_number,
+          movein_date,
+          moveout_date
+        )
+      )
+    `)
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching total tenants by manager:", error.message);
+    return { data: null, error, totalTenants: 0 };
+  }
+
+  // Count total tenants across all rooms
+  const totalTenants = data?.reduce((acc, housing) => {
+    const tenantsInHousing = housing.room?.reduce((roomAcc: number, room: any) => {
+      return roomAcc + (room.student_accommodation_history?.length ?? 0);
+    }, 0) ?? 0;
+    return acc + tenantsInHousing;
+  }, 0) ?? 0;
+
+  return { data, totalTenants, error: null };
+}
+
 export const managerData = {
 	create,
 	getAll,
@@ -246,5 +285,7 @@ export const managerData = {
 	getPaymentDetails,
 	updatePaymentDetails,
 	deletePaymentDetails,
-	getUnassignedApprovedApplicants
+	getUnassignedApprovedApplicants,
+	getTotalRoomsManaged,
+	getTotalTenantsManaged
 }
