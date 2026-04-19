@@ -97,8 +97,25 @@ async function getById(accountNumber: number) {
   return { data, error: null };
 }
 
+async function getPendingAdminApplications(landlordAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      *,
+      user!inner(*)
+    `)
+    .eq("application.application_status", "Pending Admin Approval")
+    .eq("appplication.landlord_account_number", landlordAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) throw new Error(`getAccommodatio nHistoryOfStudent Error: ${error.message}`);
+  
+  return data;
+}
+
 export const landlordData = {
   create,
   getAll,
-  getById
+  getById,
+  getPendingAdminApplications
 };
