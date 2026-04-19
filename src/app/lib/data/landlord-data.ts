@@ -27,7 +27,8 @@ async function create(userDetails: NewUser, managerDetails: NewManager) {
     return { data: null, error: adminError };
   }
 
-  return data[0];}
+  return data[0];
+}
  
 // Read all landlords with user details
 async function getAll() {
@@ -98,19 +99,24 @@ async function getById(accountNumber: number) {
 }
 
 async function getPendingAdminApplications(landlordAccountNumber: number) {
-  const { data, error } = await supabase
+  // get the list of applications with status = "Pending Admin Approval"
+  // get the count of applications with the same status
+  
+  const { data: listOfPending, count: totalPending, error } = await supabase
     .from("application")
     .select(`
-      *,
-      user!inner(*)
-    `)
+        *,
+        user!inner(*)
+      `,
+      { count: 'exact' }
+    )
     .eq("application.application_status", "Pending Admin Approval")
     .eq("appplication.landlord_account_number", landlordAccountNumber)
     .eq("is_deleted", false);
 
   if (error) throw new Error(`getAccommodatio nHistoryOfStudent Error: ${error.message}`);
   
-  return data;
+  return { listOfPending, totalPending };
 }
 
 export const landlordData = {
