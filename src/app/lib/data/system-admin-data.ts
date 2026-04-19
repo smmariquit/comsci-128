@@ -1,42 +1,24 @@
-import { supabase } from "@/lib/supabase";
-import { User, NewUser, UpdateUser } from "@/models/user";
-import { Manager, NewManager, UpdateManager } from "@/models/manager";
+import { supabase } from "../supabase";
+import { User, NewUser } from "@/models/user";
 import { userData } from "@/data/user-data";
-import { housingData } from "@/data/housing-data";
-import { 
-  createManager, 
-  createManagerBank, 
-  createPayment 
-} from "@/data/manager-data";
 
-// CREATE System Admin
+async function create(userDetails: NewUser): Promise<number | null> {
+    // create system admin in system_admin table and user table
 
-export async function createSystemAdmin(userDetails: NewUser, managerDetails: NewManager) {
-    // managerDetails.manager_type must already be set to "System Admin"
+	const newUserData = await userData.create(userDetails);
 
-    const newManagerData = await createManager(userDetails, managerDetails);
-
-    managerDetails.account_number = newManagerData.account_number
-
-    // Insert into housing_admin
+    // Link to system_admin table
     const { data, error } = await supabase
-        .from("system_admin")
-        .insert([managerDetails])
-        .select();
+        .from('system_admin')
+        .insert({ account_number: newUserData.account_number })
+        .select('account_number')
+        .single();
 
-    if (error) {
-        console.error(
-            "Error inserting into system_admin:",
-            error.message,
-        );
-        return { data: null, error: error };
-    }
-
-    return data[0];
+    if (error) throw new Error(error.message);
+    return data ? data.account_number : null;
 }
 
-//READ: Get System Admin 
-export async function getSystemAdminById(accountNumber: number) {
+async function getById(accountNumber: number) {
   const { data, error } = await supabase
     .from('system_admin')
     .select(`
@@ -53,8 +35,7 @@ export async function getSystemAdminById(accountNumber: number) {
   return data;
 }
 
-// UPDATE for admin-specific fields
-export async function updateSystemAdmin(accountNumber: number, updates: any) {
+async function update(accountNumber: number, updates: any) {
   const { data, error } = await supabase
     .from('system_admin')
     .update(updates)
@@ -67,12 +48,19 @@ export async function updateSystemAdmin(accountNumber: number, updates: any) {
 }
 
 // READ all users (manager, landlord, housing_admin, student)
-export async function getSystemAdminAllUsers() {
+export async function getAllUsers() {
   return await userData.findAllUsers();
 }
 
 // READ all housing 
-export async function getSystemAdminAllHousing() {
+export async function getAllHousing() {
   return await housingData.findAll();
 }
 
+export const systemAdminData = {
+  create,
+  getById,
+  update,
+  getAllUsers,
+  getAllHousing
+}
