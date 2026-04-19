@@ -159,7 +159,7 @@ const deletePaymentDetails = async (id: number) => {
 
 // List of approved applicants that have no room assigned yet
 // Involves: user, student, application, manager
-export async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
+async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
   const { data, error } = await supabase
     .from("application")
     .select(`
@@ -195,6 +195,41 @@ export async function getUnassignedApprovedApplicants(managerAccountNumber: numb
   }
 
   return { data, error: null };
+}
+
+// Total rooms managed by a housing admin
+// Involves: manager, housing, room
+async function getTotalRoomsManaged(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      housing_id,
+      housing_name,
+      housing_address,
+      housing_type,
+      rent_price,
+      room:room (
+        room_id,
+        room_type,
+        occupancy_status,
+        payment_status,
+        maximum_occupants
+      )
+    `)
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching total rooms by manager:", error.message);
+    return { data: null, error, totalRooms: 0 };
+  }
+
+  // Count total rooms across all housings
+  const totalRooms = data?.reduce((acc, housing) => {
+    return acc + (housing.room?.length ?? 0);
+  }, 0) ?? 0;
+
+  return { data, totalRooms, error: null };
 }
 
 export const managerData = {
