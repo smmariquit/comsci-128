@@ -47,8 +47,20 @@ async function update(accountNumber: number, updates: any) {
   return data;
 }
 
+// READ all users (manager, landlord, housing_admin, student)
+export async function getAllUsers() {
+  return await userData.findAllUsers();
+}
+
+// READ all housing 
+export async function getAllHousing() {
+  return await housingData.findAll();
+}
+
 export const systemAdminData = {
   create,
   getById,
-  update
+  update,
+  getAllUsers,
+  getAllHousing
 }
