@@ -1,4 +1,5 @@
 import { userData } from "@/data/user-data";
+import { roomData } from "./room-data";
 import { NewUser } from "@/models/user";
 import { Student, NewStudent } from "@/models/student";
 import { StudentAcademic, NewStudentAcademic } from "@/models/student_academic";
@@ -119,6 +120,18 @@ async function getSubmittedApplications(accountNumber: number) {
 	return data;
 }
 
+// GET list of avaiable housing options
+async function getHousingOptions(){
+  const { data, error } = await supabase
+    .from('housing')
+    .select(`housing_id, housing_name, start_application_date, end_application_date, housing_address, housing_type, rent_price, manager_account_number, room!inner(occupancy_status)`)
+    .neq('room.occupancy_status', "Fully Occupied")
+    .eq('is_deleted', false)
+
+  if (error) throw error;
+	return data;
+}
+
 async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
   // get the accommodation history of a student and their user + student details
 
@@ -149,5 +162,6 @@ export const studentData = {
     recordMoveOut,
     getRoomOccupantCount,
     getSubmittedApplications,
+    getHousingOptions,
     getAccommodationHistoryOfStudent
 }
