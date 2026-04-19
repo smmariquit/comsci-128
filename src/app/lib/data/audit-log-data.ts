@@ -1,100 +1,32 @@
 import { supabase } from "@/app/lib/supabase";
+import { AuditLog } from "@/models/audit_log"
 
-export type PreferredRoomType = "Single" | "Double" | "Shared";
-export type ApplicationStatus =
-	| "Approved"
-	| "Pending"
-	| "Cancelled"
-	| "Rejected";
-
-export interface Application {
-	application_id?: number;
-	housing_name: string;
-	preferred_room_type: PreferredRoomType;
-	application_status: ApplicationStatus;
-	expected_moveout_date: Date;
-	actual_moveout_data: Date;
-	room_id?: number;
-	manager_account_number: number;
-	student_account_number: number;
-	is_deleted?: boolean;
-}
-
-// CREATE APPLICATION
-export async function createApplication(application: Application) {
+async function create(audit_log: AuditLog) {
 	const { data, error } = await supabase
-		.from("application")
-		.insert([application])
+		.from("audit_log")
+		.insert([audit_log])
 		.select();
 	if (error) throw error;
 	return data;
 }
 
-// READ ALL APPLICATIONS
-export async function getAllApplications() {
-	const { data, error } = await supabase.from("application").select("*");
+async function getAll() {
+	const { data, error } = await supabase.from("audit_log").select("*");
 	if (error) throw error;
 	return data;
 }
 
-// READ APPLICATION BASED ON APPLICATION ID
-export async function getApplicationsByApplicationId(application_id: number) {
+async function getByAccountNumber(account_number: number) {
 	const { data, error } = await supabase
-		.from("application")
+		.from("audit_log")
 		.select("*")
-		.eq("application_id", application_id);
+		.eq("account_number", account_number);
 	if (error) throw error;
 	return data;
 }
 
-// READ APPLICATION BASED ON MANAGER ACCOUNT NUMBER
-export async function getApplicationsByManagerAccounttNumber(
-	manager_account_number: number,
-) {
-	const { data, error } = await supabase
-		.from("application")
-		.select(
-			`application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, student_account_number, is_deleted, manager:manager_account_number(account_number)`,
-		)
-		.eq("manager.account_number", manager_account_number)
-		.eq("is_deleted", false);
-
-	if (error) throw error;
-	return data;
-}
-
-// READ APPLICATION BASED ON HOUSING ID
-export async function getApplicationsByHousingId(housing_id: number) {
-	const { data, error } = await supabase
-		.from("application")
-		.select(`*, room:room_id(housing_id)`)
-		.eq("room.housing_id", housing_id);
-	if (error) throw error;
-	return data;
-}
-
-// UPDATE APPLICATION
-export async function updateApplication(
-	application_id: number,
-	updatedFields: Partial<Application>,
-) {
-	const { data, error } = await supabase
-		.from("application")
-		.update(updatedFields)
-		.eq("application_id", application_id)
-		.eq("is_deleted", false)
-		.select();
-	if (error) throw error;
-	return data;
-}
-
-// DELETE APPLICATION (SOFT DELETION)
-export async function deleteApplication(application_id: number) {
-	const { data, error } = await supabase
-		.from("application")
-		.update({ is_deleted: true })
-		.eq("application_id", application_id)
-		.select();
-	if (error) throw error;
-	return data;
+export const auditLogData = {
+	create,
+	getAll,
+	getByAccountNumber
 }
