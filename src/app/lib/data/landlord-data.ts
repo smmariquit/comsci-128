@@ -119,9 +119,28 @@ async function getPendingAdminApplications(landlordAccountNumber: number) {
   return { listOfPending, totalPending };
 }
 
+async function getTotalRoomsManaged(accountNumber: number) {
+	const { count, error } = await supabase
+		.from("room")
+		.select(
+			`
+        room_id,
+        housing:housing_id!inner(landlord_account_number)
+      `,
+			{ count: "exact", head: true },
+		)
+		.eq("housing.landlord_account_number", accountNumber)
+		.eq("is_deleted", false);
+
+	if (error) {
+		console.error("Error counting rooms by landlord:", error.message);
+	}
+}
+
 export const landlordData = {
   create,
   getAll,
   getById,
-  getPendingAdminApplications
+  getPendingAdminApplications,
+  getTotalRoomsManaged
 };
