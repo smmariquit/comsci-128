@@ -99,8 +99,47 @@ async function getById(accountNumber: number) {
 	return { data, error: null };
 }
 
+// List of pending applications based on managed housings of a manager
+// Involves: application, student, manager, housing (optional grouping)
+async function getPendingManagerApplications(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      application_status,
+      housing_name,
+      preferred_room_type,
+      expected_moveout_date,
+      student:student_account_number (
+        account_number,
+        student_number,
+        housing_status,
+        user:account_number (
+          first_name,
+          middle_name,
+          last_name,
+          account_email
+        )
+      ),
+      manager:manager_account_number (
+        account_number
+      )
+    `)
+    .eq("application_status", "Pending Manager Approval")
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching pending applications by manager:", error.message);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
+}
+
 export const housingAdminData = {
   create,
   getAll,
   getById,
+  getPendingManagerApplications
 };
