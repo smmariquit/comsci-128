@@ -153,6 +153,25 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
   return data;
 }
 
+async function getActiveHousingDetails(studentAccountNumber: number) {
+  // get the details of the active housing and room of a student given a student's account number
+
+  const { data: studentHousingDetails, error } = await supabase
+    .from("student_accommodation_history")
+    .select(`
+			*,
+			room!inner(*),
+			housing!inner(*)
+		`)
+    .eq("account_number", studentAccountNumber)
+    .is("student_accommodation_history.moveout_date", null);
+
+  if (error)
+    throw new Error(`getHousingDetailsofStudent Error: ${error.message}`);
+
+  return studentHousingDetails;
+}
+
 export const studentData = {
     create,
     createAcademic,
@@ -163,5 +182,6 @@ export const studentData = {
     getRoomOccupantCount,
     getSubmittedApplications,
     getHousingOptions,
-    getAccommodationHistoryOfStudent
+    getAccommodationHistoryOfStudent,
+    getActiveHousingDetails
 }
