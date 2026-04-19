@@ -95,6 +95,7 @@ export type Database = {
         Row: {
           account_number: number | null
           action_type: Database["public"]["Enums"]["ActionType"] | null
+          assigned_manager: number | null
           audit_description: string | null
           audit_id: number
           partial_ip: string
@@ -104,6 +105,7 @@ export type Database = {
         Insert: {
           account_number?: number | null
           action_type?: Database["public"]["Enums"]["ActionType"] | null
+          assigned_manager?: number | null
           audit_description?: string | null
           audit_id?: never
           partial_ip: string
@@ -113,6 +115,7 @@ export type Database = {
         Update: {
           account_number?: number | null
           action_type?: Database["public"]["Enums"]["ActionType"] | null
+          assigned_manager?: number | null
           audit_description?: string | null
           audit_id?: never
           partial_ip?: string
@@ -125,6 +128,13 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: false
             referencedRelation: "user"
+            referencedColumns: ["account_number"]
+          },
+          {
+            foreignKeyName: "audit_log_assigned_manager_fkey"
+            columns: ["assigned_manager"]
+            isOneToOne: false
+            referencedRelation: "manager"
             referencedColumns: ["account_number"]
           },
         ]
