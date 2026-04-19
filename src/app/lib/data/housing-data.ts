@@ -103,24 +103,6 @@ async function deactivate(housingId: number): Promise<Housing | null> {
   return data;
 }
 
-async function getHousingDetailsOfStudent(studentAccountNumber: number) {
-  // get the details of the housing and room of a student given a student's account number
-
-  const { data: studentHousingDetails, error } = await supabase
-    .from("housing")
-    .select(`
-			*,
-			room!inner(*),
-			student_accommodation_history!inner(*)
-		`)
-    .eq("student_accommodation_history.account_number", studentAccountNumber);
-
-  if (error)
-    throw new Error(`getHousingDetailsofStudent Error: ${error.message}`);
-
-  return studentHousingDetails;
-}
-
 async function getStudentsHoused(managerId: number, housingId: number) {
   // get details of list of students housed per housing
 
@@ -148,6 +130,5 @@ export const housingData = {
 	findWithRooms,
 	update,
 	deactivate,
-	getHousingDetailsOfStudent,
 	getStudentsHoused
 };
