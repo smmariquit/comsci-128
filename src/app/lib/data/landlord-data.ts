@@ -137,10 +137,26 @@ async function getTotalRoomsManaged(accountNumber: number) {
 	}
 }
 
+async function getTotalProperties(accountNumber: number) {
+	const { count, error } = await supabase
+		.from("housing")
+		.select("housing_id", { count: "exact", head: true })
+		.eq("landlord_account_number", accountNumber)
+		.eq("is_deleted", false);
+
+	if (error) {
+		console.error("Error counting properties by landlord:", error.message);
+		return { data: null, error };
+	}
+
+	return { data: count ?? 0, error: null };
+}
+
 export const landlordData = {
   create,
   getAll,
   getById,
   getPendingAdminApplications,
-  getTotalRoomsManaged
+  getTotalRoomsManaged,
+  getTotalProperties
 };
