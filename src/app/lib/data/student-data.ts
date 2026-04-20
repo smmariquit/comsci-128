@@ -106,7 +106,6 @@ async function getRoomOccupantCount(roomId: number): Promise<number> {
   return count ?? 0;
 }
 
-<<<<<<< HEAD
 // GET submitted application details of a student (Pending Status)
 async function getSubmittedApplication(accountNumber: number) {
   const { data, error } = await supabase
@@ -155,11 +154,6 @@ async function getRoomOccupancyRate(roomId: number){
 	return count; //incomplete
 }
 
-export const studentData = {
-    createUserStudent
-}
-
-=======
 async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
   // get the accommodation history of a student and their user + student details
 
@@ -176,7 +170,7 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 
   if (error)
     throw new Error(
-      `getAccommodatio nHistoryOfStudent Error: ${error.message}`,
+      `getAccommodationHistoryOfStudent Error: ${error.message}`,
     );
   return data;
 }
@@ -191,4 +185,3 @@ export const studentData = {
     getRoomOccupantCount,
     getAccommodationHistoryOfStudent
 }
->>>>>>> a4bf2a2eb8680dd2e8c8e4aabf5148f4576f1b36
