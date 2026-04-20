@@ -6,13 +6,6 @@ import { StudentAcademic, NewStudentAcademic } from "@/models/student_academic";
 import { StudentAccommodationHistory } from "@/models/student_accommodation";
 import { supabase } from "../supabase";
 
-<<<<<<< HEAD
-export type StudentStanding = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior';
-export type StudentStatus = 'Active' | 'Delayed' | 'Graduating';
-export type HousingStatus = 'Assigned' | 'Not Assigned';
-
-=======
->>>>>>> a1d9103712e46952ad215740578855b26657abe6
 async function create(
     userDetails: NewUser,
     studentDetails: NewStudent,
@@ -161,9 +154,6 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 }
 
 export const studentData = {
-<<<<<<< HEAD
-    create
-=======
     create,
     createAcademic,
     getStudentAcademicById,
@@ -174,5 +164,4 @@ export const studentData = {
     getSubmittedApplications,
     getHousingOptions,
     getAccommodationHistoryOfStudent
->>>>>>> a1d9103712e46952ad215740578855b26657abe6
 }

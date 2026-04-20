@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -373,36 +372,3 @@ export default function DashboardPage({
 			</div>
 		);
 	}
-=======
-import Link from "next/link";
-
-export default function Page() {
-  return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">
-        System Dashboard Page
-      </h1>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link
-          href="/sys/logs"
-          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
-        >
-          Logs
-        </Link>
-        <Link
-          href="/sys/roles"
-          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
-        >
-          Roles
-        </Link>
-        <Link
-          href="/sys/users"
-          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
-        >
-          Users
-        </Link>
-      </div>
-    </main>
-  );
-}
->>>>>>> a1d9103712e46952ad215740578855b26657abe6

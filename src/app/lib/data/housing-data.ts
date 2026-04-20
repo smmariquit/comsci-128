@@ -21,21 +21,12 @@ async function create(housingDetails: HousingInsert): Promise<Housing | null> {
 }
 
 // Fetches all active dorms, sorted alphabetically
-<<<<<<< HEAD
-export async function findAllHousing(): Promise<Housing[]> {
-	const { data, error } = await supabase
-		.from("housing")
-		.select("*")
-		.eq("is_deleted", false)
-		.order("housing_name", { ascending: true });
-=======
 async function findAll(): Promise<Housing[] | []> {
   const { data, error } = await supabase
     .from("housing")
     .select("*")
     .eq("is_deleted", false)
     .order("housing_name", { ascending: true });
->>>>>>> a1d9103712e46952ad215740578855b26657abe6
 
   if (error) throw new Error(error.message);
   return data ?? [];
@@ -161,17 +152,12 @@ async function getStudentsHoused(managerId: number, housingId: number) {
 
 export const housingData = {
 	create,
-	findAllHousing,
+	findAll,
 	findById,
 	findWithRooms,
 	update,
 	deactivate,
 	countAllHousing,
 	getHousingDetailsOfStudent,
-<<<<<<< HEAD
-	getStudentsHousedPerHousing
-}
-=======
 	getStudentsHoused
 };
->>>>>>> a1d9103712e46952ad215740578855b26657abe6
