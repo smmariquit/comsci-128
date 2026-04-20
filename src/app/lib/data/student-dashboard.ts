@@ -24,15 +24,6 @@ export async function getStudentApplicationStatus(studentAccountNumber: number) 
     return data;
 }
 
-export function getApplicationSteps(application: any) {
-    return [
-        { label: "Dorm Chosen", isDone: true },
-        { label: "Application Submitted", isDone: !!application },
-        { label: "Manager Review", isDone: application?.application_status === "Approved" },
-        { label: "Room Assigned", isDone: !!application?.room_id },
-    ];
-}
-
 export async function getStudentBillingHistory(studentAccountNumber: number) {
     const { data, error } = await supabase
         .from("bill") 
@@ -43,72 +34,53 @@ export async function getStudentBillingHistory(studentAccountNumber: number) {
             bill_type,
             due_date,
             issue_date,
-            date_paid
+            date_paid,
+            proof_of_payment_url
         `) 
         .eq("student_account_number", studentAccountNumber)
-        .order("issue_date", { ascending: false }); // Ordered by issue date for better UX
+        .order("issue_date", { ascending: false });
 
     if (error) throw error;
     return data;
 }
 
-export function getComputedNotifications(application: any, billing: any[]) {
-    const notifications = [];
-    if (application) {
-        if (application.application_status === "Approved") {
-            notifications.push({
-                id: `app-${application.application_id}`,
-                type: "SUCCESS",
-                title: "Application Approved",
-                message: `Congrats! Your application for ${application.room?.housing?.housing_name || 'housing'} has been approved.`,
-                created_at: application.updated_at || new Date().toISOString()
-            });
-        } else if (application.application_status === "Rejected") {
-            notifications.push({
-                id: `app-${application.application_id}`,
-                type: "ERROR",
-                title: "Application Rejected",
-                message: "Unfortunately, your housing application was not approved at this time.",
-                created_at: application.updated_at || new Date().toISOString()
-            });
-        }
-    }
+/**
+ * Fetches all non-deleted applications to show history
+ */
+export async function getAccommodationHistory(studentAccountNumber: number) {
+    const { data, error } = await supabase
+        .from("application")
+        .select(`
+            application_id,
+            application_status,
+            created_at,
+            room:room_id (
+                room_type,
+                housing:housing_id (housing_name)
+            )
+        `)
+        .eq("student_account_number", studentAccountNumber)
+        .eq("is_deleted", false)
+        .order("created_at", { ascending: false });
 
-    const unpaidBills = billing.filter(b => b.status === "Unpaid");
-    unpaidBills.forEach(bill => {
-        notifications.push({
-            id: `bill-${bill.transaction_id}`,
-            type: "WARNING",
-            title: "Pending Payment",
-            message: `You have an outstanding ${bill.bill_type} bill of ₱${bill.amount}.`,
-            created_at: bill.issue_date
-        });
-    });
-
-    return notifications.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+    if (error) throw error;
+    return data;
 }
 
-export async function getCompleteDashboardData(studentAccountNumber: number) {
-    try {
-        const [application, billing] = await Promise.all([
-            getStudentApplicationStatus(studentAccountNumber),
-            getStudentBillingHistory(studentAccountNumber)
-        ]);
+/**
+ * Links the uploaded proof of payment URL to a specific bill
+ */
+export async function updateBillPaymentProof(transactionId: string, publicUrl: string) {
+    const { data, error } = await supabase
+        .from("bill")
+        .update({ 
+            proof_of_payment_url: publicUrl, 
+            status: "Pending", // Change from 'Unpaid' to 'Pending' for manager review
+            date_paid: new Date().toISOString() 
+        })
+        .eq("transaction_id", transactionId)
+        .select();
 
-        const steps = getApplicationSteps(application);
-        
-        const notifications = getComputedNotifications(application, billing);
-
-        return {
-            application,
-            billing,
-            notifications,
-            steps
-        };
-    } catch (error) {
-        console.error("Error in getCompleteDashboardData:", error);
-        throw error;
-    }
+    if (error) throw error;
+    return data;
 }
