@@ -1,5 +1,4 @@
 import { userData } from "@/data/user-data";
-import { roomData } from "./room-data";
 import { NewUser } from "@/models/user";
 import { Student, NewStudent, UpdateStudent } from "@/models/student";
 import { StudentAcademic, NewStudentAcademic, UpdateStudentAcademic } from "@/models/student_academic";
@@ -124,16 +123,39 @@ async function getSubmittedApplication(accountNumber: number) {
 	return data;
 }
 
-// GET list of avaiable housing options
-async function getHousingOptions(){
-  const { data, error } = await supabase
+// GET list of available housing options based on rent_price (asc), housing_type, room_type
+async function getHousingOptions({ sortOrder = 'asc', housingType = null, roomType = null}){
+  let query = supabase
     .from('housing')
-    .select(`housing_id, housing_name, start_application_date, end_application_date, housing_address, housing_type, rent_price, manager_account_number, room!inner(occupancy_status)`)
+    .select(`housing_id, housing_name, start_application_date, end_application_date, housing_address, housing_type, rent_price, manager_account_number, room!inner(room_id, occupancy_status, room_type)`)
     .neq('room.occupancy_status', "Fully Occupied")
     .eq('is_deleted', false)
+    .order('rent_price', { ascending: sortOrder === 'asc'});
+
+  if (housingType) {
+    query = query.eq('housing_type', housingType);
+  }
+
+  if (roomType) {
+    query = query.eq('room.room_type', roomType);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
 	return data;
+}
+
+// GET ratio of occupied rooms to total rooms
+async function getRoomOccupancyRate(roomId: number){
+  const { count, error } = await supabase
+    .from('student_accommodation_history')
+    .select('*', { count: 'exact', head: true })
+    .eq('room_id', roomId)
+    .is('actual_move_out_date', null);
+
+  if (error) throw error;
+	return count; //incomplete
 }
 
 export const studentData = {
