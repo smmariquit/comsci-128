@@ -19,8 +19,6 @@ export type Database = {
           actual_moveout_date: string | null
           application_id: number
           application_status: Database["public"]["Enums"]["ApplicationStatus"]
-          document_type: string | null
-          document_url: string | null
           expected_moveout_date: string
           housing_name: string | null
           is_deleted: boolean | null
@@ -34,8 +32,6 @@ export type Database = {
           actual_moveout_date?: string | null
           application_id?: never
           application_status?: Database["public"]["Enums"]["ApplicationStatus"]
-          document_type?: string | null
-          document_url?: string | null
           expected_moveout_date: string
           housing_name?: string | null
           is_deleted?: boolean | null
@@ -49,8 +45,6 @@ export type Database = {
           actual_moveout_date?: string | null
           application_id?: never
           application_status?: Database["public"]["Enums"]["ApplicationStatus"]
-          document_type?: string | null
-          document_url?: string | null
           expected_moveout_date?: string
           housing_name?: string | null
           is_deleted?: boolean | null
@@ -504,19 +498,19 @@ export type Database = {
         Row: {
           account_number: number
           movein_date: string
-          moveout_date: string
+          moveout_date: string | null
           room_id: number
         }
         Insert: {
           account_number: number
           movein_date: string
-          moveout_date: string
+          moveout_date?: string | null
           room_id: number
         }
         Update: {
           account_number?: number
           movein_date?: string
-          moveout_date?: string
+          moveout_date?: string | null
           room_id?: number
         }
         Relationships: [
