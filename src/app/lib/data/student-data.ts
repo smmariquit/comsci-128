@@ -4,6 +4,12 @@ import { Student, NewStudent } from "@/models/student";
 import { StudentAcademic, NewStudentAcademic } from "@/models/student_academic";
 import { StudentAccommodationHistory } from "@/models/student_accommodation";
 import { supabase } from "../supabase";
+import { Room } from "@/models/room";
+
+type RoomPerHousing = {
+  total: number;
+  occupied: number;
+};
 
 async function create(
     userDetails: NewUser,
@@ -143,15 +149,49 @@ async function getHousingOptions({ sortOrder = 'asc', housingType = null, roomTy
 }
 
 // GET ratio of occupied rooms to total rooms
-async function getRoomOccupancyRate(roomId: number){
-  const { count, error } = await supabase
-    .from('student_accommodation_history')
+async function getRoomOccupancyRate(){
+  const housingDetails: Record<number, RoomPerHousing> = {};
+  //gets all total rooms
+  const { count: totalRooms, error: totalError } = await supabase
+    .from('room')
     .select('*', { count: 'exact', head: true })
-    .eq('room_id', roomId)
-    .is('actual_move_out_date', null);
+    .eq('is_deleted', false)
+  
+  if (totalError) throw totalError;
 
-  if (error) throw error;
-	return count; //incomplete
+  //gets all occupied rooms
+  const { count: occupiedRooms, error: occupiedError } = await supabase
+    .from('room')
+    .select('*', { count: 'exact', head: true})
+    .eq('is_deleted', false)
+    .gte('occupants_count', 1);
+
+  if (occupiedError) throw occupiedError;
+
+  //counts total rooms per housing
+  totalRooms.forEach((room: Room) => {
+    if (!housingDetails[room.housing_id]){
+      housingDetails[room.housing_id] = { total: 0, occupied: 0};
+    }
+    housingDetails[room.housing_id].total += 1;
+    
+  });
+
+  //counts occupied rooms per housing
+  occupiedRooms.forEach((room: Room) => {
+    if (!housingDetails[room.housing_id]){
+      housingDetails[room.housing_id] = { total: 0, occupied: 0};
+    }
+    housingDetails[room.housing_id].occupied += 1;
+    
+  });
+
+  //returns occupancy rate (in decimal form)
+  const occupancyRate = Object.entries(housingDetails).map(([housing_id, stats]) =>
+    stats.total > 0 ? stats.occupied / stats.total : 0
+  );
+
+	return occupancyRate;
 }
 
 async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
