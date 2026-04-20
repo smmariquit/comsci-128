@@ -1,4 +1,8 @@
-import { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
+import type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "@/app/types/database.types";
 
 export type Student = Tables<"student">;
 export type NewStudent = TablesInsert<"student">;
