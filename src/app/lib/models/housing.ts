@@ -1,5 +1,9 @@
-import { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
-import { Room } from "@/models/room";
+import type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "@/app/types/database.types";
+import type { Room } from "@/models/room";
 
 // Define Housing record based on DB schema
 export type Housing = Tables<"housing">;
