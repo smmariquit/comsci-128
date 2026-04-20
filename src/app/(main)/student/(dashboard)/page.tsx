@@ -10,13 +10,14 @@ export default async function DashboardPage() {
     const currUser = await userData.findById(21);
     const userHousingStatus = await getHousingStatus(currUser!.account_number);
     const userHousingDetails = await getCompleteDashboardData(currUser!.account_number);
+    console.log(userHousingDetails);
     const userName = `${currUser?.first_name} ${currUser?.last_name}`;
 
     function DashboardContent(housing_status: String) {
         if(housing_status == "Assigned") { // user with assigned housing
             return AssignedDashboard(userName, userHousingDetails);
         }
-        return NotAssignedDashboard(userName);
+        return NotAssignedDashboard(userName, userHousingDetails.steps);
     }
 
     return (
