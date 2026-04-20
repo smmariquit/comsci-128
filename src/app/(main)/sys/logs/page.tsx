@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 'use client';
+=======
+import Link from "next/link";
+>>>>>>> a1d9103712e46952ad215740578855b26657abe6
 
 import { useState, useEffect } from 'react';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
@@ -108,6 +112,7 @@ const ACTION_DOT: Record<ActionType, string> = {
 // Format of Action baadge
 function ActionBadge({ action }: { action: ActionType }) {
   return (
+<<<<<<< HEAD
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold ${ACTION_STYLES[action]}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${ACTION_DOT[action]}`} />
       {action}
@@ -371,6 +376,17 @@ export default function AuditLogsPage({
           </div>
 
         </div>
+=======
+    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
+      <h1 className="text-4xl font-bold text-center mb-8">System Logs Page</h1>
+      <div className="flex gap-4 flex-wrap justify-center">
+        <Link
+          href="/sys"
+          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
+        >
+          Back to Dashboard
+        </Link>
+>>>>>>> a1d9103712e46952ad215740578855b26657abe6
       </div>
     </div>
   );

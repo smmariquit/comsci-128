@@ -1,15 +1,20 @@
 import { NewUser } from "@/models/user";
 import {
 	getAllHousingAdmins,
+	_getGrossRevenueByLandlord,
 	getHousingAdminById,
-	getTotalTenantsByLandlord,
-} from "@/app/lib/data/landlord-data";
+	_getTotalPropertiesByLandlord,
+	getTotalRoomsByLandlord,
+	_getTotalTenantsByLandlord,
+} from "@/data/landlord-data";
 
 const fetchAllHousingAdmins = async () => {
 	try {
 		const result = await getAllHousingAdmins();
 		if (result.error) {
-			throw new Error(result.error.message || "Failed to fetch housing admins.");
+			throw new Error(
+				result.error.message || "Failed to fetch housing admins.",
+			);
 		}
 
 		return result.data ?? [];
@@ -27,7 +32,9 @@ const fetchHousingAdminById = async (accountNumber: number) => {
 				return null;
 			}
 
-			throw new Error(result.error.message || "Failed to fetch housing admin.");
+			throw new Error(
+				result.error.message || "Failed to fetch housing admin.",
+			);
 		}
 
 		return result.data;
@@ -37,13 +44,66 @@ const fetchHousingAdminById = async (accountNumber: number) => {
 	}
 };
 
+const _fetchTotalRoomsByLandlord = async (accountNumber: number) => {
+	try {
+		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
+			throw new Error("Invalid landlord account number.");
+		}
+		const result = await getTotalRoomsByLandlord(accountNumber);
+
+		if (result.error) {
+			throw new Error(
+				result.error.message || "Failed to count properties.",
+			);
+		}
+
+		return result.data ?? 0;
+	} catch (error: unknown) {
+		if (
+			error instanceof Error &&
+			error.message === "Invalid landlord account number."
+		) {
+			throw error;
+		}
+
+		console.error("Error counting rooms by landlord:", error);
+		throw new Error("Failed to count rooms.");
+	}
+};
+
+const fetchTotalPropertiesByLandlord = async (accountNumber: number) => {
+	try {
+		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
+			throw new Error("Invalid landlord account number.");
+		}
+		const result = await _getTotalPropertiesByLandlord(accountNumber);
+		if (result.error) {
+			throw new Error(
+				result.error.message || "Failed to count properties.",
+			);
+		}
+
+		return result.data ?? 0;
+	} catch (error: unknown) {
+		if (
+			error instanceof Error &&
+			error.message === "Invalid landlord account number."
+		) {
+			throw error;
+		}
+
+		console.error("Error counting properties by landlord:", error);
+		throw new Error("Failed to count properties by landlord.");
+	}
+};
+
 const fetchTotalTenantsByLandlord = async (accountNumber: number) => {
 	try {
 		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
 			throw new Error("Invalid landlord account number.");
 		}
 
-		const result = await getTotalTenantsByLandlord(accountNumber);
+		const result = await _getTotalTenantsByLandlord(accountNumber);
 		if (result.error) {
 			throw new Error(result.error.message || "Failed to count tenants.");
 		}
@@ -62,8 +122,38 @@ const fetchTotalTenantsByLandlord = async (accountNumber: number) => {
 	}
 };
 
-export const landlordService = {
+const fetchGrossRevenueByLandlord = async (accountNumber: number) => {
+	try {
+		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
+			throw new Error("Invalid landlord account number.");
+		}
+
+		const result = await _getGrossRevenueByLandlord(accountNumber);
+		if (result.error) {
+			throw new Error(
+				result.error.message || "Failed to calculate gross revenue.",
+			);
+		}
+
+		return result.data ?? 0;
+	} catch (error: unknown) {
+		if (
+			error instanceof Error &&
+			error.message === "Invalid landlord account number."
+		) {
+			throw error;
+		}
+
+		console.error("Error calculating gross revenue:", error);
+		throw new Error("Failed to calculate gross revenue.");
+	}
+};
+
+export const _landlordService = {
 	fetchAllHousingAdmins,
+	fetchGrossRevenueByLandlord,
 	fetchHousingAdminById,
+	fetchTotalRoomsByLandlord: _fetchTotalRoomsByLandlord,
+	fetchTotalPropertiesByLandlord,
 	fetchTotalTenantsByLandlord,
 };

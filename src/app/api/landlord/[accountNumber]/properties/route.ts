@@ -20,12 +20,15 @@ export async function GET(
 			);
 		}
 
-		const totalTenants =
-			await _landlordService.fetchTotalTenantsByLandlord(
+		const totalProperties =
+			await _landlordService.fetchTotalPropertiesByLandlord(
 				parsedAccountNumber,
 			);
 
-		return NextResponse.json({ data: { totalTenants } }, { status: 200 });
+		return NextResponse.json(
+			{ data: { totalProperties } },
+			{ status: 200 },
+		);
 	} catch (error: unknown) {
 		if (error instanceof Error) {
 			if (error.message === "Invalid landlord account number.") {

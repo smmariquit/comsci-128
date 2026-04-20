@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -151,8 +152,12 @@ export default function UserManagementPage({
   });
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
     const paginated  = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+=======
+import Link from "next/link";
+>>>>>>> a1d9103712e46952ad215740578855b26657abe6
 
   return (
+<<<<<<< HEAD
     <div className="flex min-h-screen bg-[#eae8e1]">
 
       {/* 'Add Manager' Modal */}
@@ -248,6 +253,17 @@ export default function UserManagementPage({
             </div>
           </div>
         </div>
+=======
+    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
+      <h1 className="text-4xl font-bold text-center mb-8">System Roles Page</h1>
+      <div className="flex gap-4 flex-wrap justify-center">
+        <Link
+          href="/sys"
+          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
+        >
+          Back to Dashboard
+        </Link>
+>>>>>>> a1d9103712e46952ad215740578855b26657abe6
       </div>
     </div>
   );

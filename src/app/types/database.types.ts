@@ -89,34 +89,49 @@ export type Database = {
         Row: {
           account_number: number | null
           action_type: Database["public"]["Enums"]["ActionType"] | null
+          assigned_manager: number | null
           audit_description: string | null
           audit_id: number
           partial_ip: string
           timestamp: string | null
-          user_id: number | null
           user_name: string | null
         }
         Insert: {
           account_number?: number | null
           action_type?: Database["public"]["Enums"]["ActionType"] | null
+          assigned_manager?: number | null
           audit_description?: string | null
           audit_id?: never
           partial_ip: string
           timestamp?: string | null
-          user_id?: number | null
           user_name?: string | null
         }
         Update: {
           account_number?: number | null
           action_type?: Database["public"]["Enums"]["ActionType"] | null
+          assigned_manager?: number | null
           audit_description?: string | null
           audit_id?: never
           partial_ip?: string
           timestamp?: string | null
-          user_id?: number | null
           user_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_account_number_fkey"
+            columns: ["account_number"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["account_number"]
+          },
+          {
+            foreignKeyName: "audit_log_assigned_manager_fkey"
+            columns: ["assigned_manager"]
+            isOneToOne: false
+            referencedRelation: "manager"
+            referencedColumns: ["account_number"]
+          },
+        ]
       }
       bill: {
         Row: {
@@ -483,19 +498,19 @@ export type Database = {
         Row: {
           account_number: number
           movein_date: string
-          moveout_date: string
+          moveout_date: string | null
           room_id: number
         }
         Insert: {
           account_number: number
           movein_date: string
-          moveout_date: string
+          moveout_date?: string | null
           room_id: number
         }
         Update: {
           account_number?: number
           movein_date?: string
-          moveout_date?: string
+          moveout_date?: string | null
           room_id?: number
         }
         Relationships: [
@@ -548,6 +563,7 @@ export type Database = {
           middle_name: string | null
           password: string
           phone_number: string | null
+          profile_picture: string | null
           sex: Database["public"]["Enums"]["Sex"]
           user_type: Database["public"]["Enums"]["UserType"]
         }
@@ -563,6 +579,7 @@ export type Database = {
           middle_name?: string | null
           password: string
           phone_number?: string | null
+          profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
           user_type?: Database["public"]["Enums"]["UserType"]
         }
@@ -578,6 +595,7 @@ export type Database = {
           middle_name?: string | null
           password?: string
           phone_number?: string | null
+          profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
           user_type?: Database["public"]["Enums"]["UserType"]
         }
@@ -591,7 +609,24 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      ActionType: "Application Status" | "Bill Status"
+      ActionType:
+        | "Application Status"
+        | "Bill Status"
+        | "Auth Register"
+        | "Auth Login"
+        | "Change Auth Password"
+        | "Delete Account"
+        | "Update User Role"
+        | "Update User Details"
+        | "Submit Application"
+        | "Update Application Status"
+        | "Withdraw Application"
+        | "Create Housing"
+        | "Update Housing"
+        | "Assign Room"
+        | "Assign Bill"
+        | "Issue Bill Refund"
+        | "Update Bill Status"
       ApplicationStatus:
         | "Pending Manager Approval"
         | "Pending Admin Approval"
@@ -737,7 +772,25 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      ActionType: ["Application Status", "Bill Status"],
+      ActionType: [
+        "Application Status",
+        "Bill Status",
+        "Auth Register",
+        "Auth Login",
+        "Change Auth Password",
+        "Delete Account",
+        "Update User Role",
+        "Update User Details",
+        "Submit Application",
+        "Update Application Status",
+        "Withdraw Application",
+        "Create Housing",
+        "Update Housing",
+        "Assign Room",
+        "Assign Bill",
+        "Issue Bill Refund",
+        "Update Bill Status",
+      ],
       ApplicationStatus: [
         "Pending Manager Approval",
         "Pending Admin Approval",
