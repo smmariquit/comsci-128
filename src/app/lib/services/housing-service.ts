@@ -29,13 +29,8 @@ const getHousing = async (housingId: number): Promise<Housing | null> => {
 };
 
 const getAllHousing = async (): Promise<Housing[] | null> => {
-<<<<<<< HEAD
-	try {
-		const housingDetail = await housingData.findAllHousing();
-=======
   try {
     const housingDetail = await housingData.findAll();
->>>>>>> a1d9103712e46952ad215740578855b26657abe6
 
     if (!housingDetail) return null;
 
@@ -110,18 +105,10 @@ const getHousingCount = async(): Promise<number | null> => {
 
 
 export const housingService = {
-<<<<<<< HEAD
 	addHousing,
 	getHousing,
 	getAllHousing,
 	updateHousing,
 	deactivateHousing,
 	getHousingCount
-=======
-  addHousing,
-  getHousing,
-  getAllHousing,
-  updateHousing,
-  deactivateHousing,
->>>>>>> a1d9103712e46952ad215740578855b26657abe6
 };
