@@ -182,6 +182,28 @@ async function getHousingCardsData() {
     });
 }
 
+async function uploadHousingImage(housingId: number, file: File): Promise<Housing | null> {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `housing-${housingId}-${Date.now()}.${fileExt}`;
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("dorm_images")
+        .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false 
+        });
+
+    if (uploadError) throw new Error("Storage Upload Error: " + uploadError.message);
+
+    const { data: publicUrlData } = supabase.storage
+        .from("dorm_images")
+        .getPublicUrl(uploadData.path);
+
+    const imageUrl = publicUrlData.publicUrl;
+
+    return await update(housingId, { housing_image: imageUrl } as Partial<HousingUpdate>);
+}
+
 export const housingData = {
 	create,
 	findAll,
@@ -192,4 +214,5 @@ export const housingData = {
 	getHousingCardsData,
   getHousingDetailsOfStudent,
   getStudentsHousedPerHousing,
+  uploadHousingImage
 };
