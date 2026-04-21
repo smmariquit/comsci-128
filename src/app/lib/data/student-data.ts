@@ -169,7 +169,7 @@ async function getRoomOccupancyRate(){
   if (occupiedError) throw occupiedError;
 
   //counts total rooms per housing
-  totalRooms?.forEach((room: Room) => {
+  totalRooms?.forEach((room) => {
     if (!housingDetails[room.housing_id]){
       housingDetails[room.housing_id] = { total: 0, occupied: 0};
     }
@@ -178,7 +178,7 @@ async function getRoomOccupancyRate(){
   });
 
   //counts occupied rooms per housing
-  occupiedRooms?.forEach((room: Room) => {
+  occupiedRooms?.forEach((room) => {
     if (!housingDetails[room.housing_id]){
       housingDetails[room.housing_id] = { total: 0, occupied: 0};
     }
