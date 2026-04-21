@@ -165,6 +165,8 @@ const countAllManager = async (): Promise<number | null> => {
 	if (error) throw new Error(error.message);
 
 	return count;
+}
+
 // List of approved applicants that have no room assigned yet
 // Involves: user, student, application, manager
 async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
