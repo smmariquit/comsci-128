@@ -127,9 +127,7 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 		let derivedStatus: OccupancyStatus = "Empty";
 		if (occupantCount > 0 && occupantCount < max) {
 			derivedStatus = "Partially Occupied";
-		} 
-
-		
+		}
 
 		return {
 			room_id: room.room_id,
@@ -253,13 +251,7 @@ async function updateStudentHousingStatus(accountNumber: number, status: string)
 		if (error) throw new Error(error.message);
 }
 
-const getTenants = async (managerAccountNumber: number) => {
-    const { data: manager, error: managerError } = await supabase
-      .from('manager')
-      .select('account_number, manager_type')
-      .eq('account_number', managerAccountNumber)
 
-  if (managerError || !manager) throw new Error('Unauthorized');
 
 async function getRoomStats() {
   const { data, error } = await supabase
@@ -290,7 +282,6 @@ export const roomData = {
 	endAccommodation,
 	findUnassignedStudents,
 	getOccupantCount,
-  getTenants,
 	getAccountbyStudentNumber,
 	updateStudentHousingStatus,
 	getRoomStats

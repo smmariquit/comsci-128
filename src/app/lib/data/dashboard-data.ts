@@ -1,17 +1,14 @@
 import { userData } from "./user-data";
 import { roomData } from "./room-data";
-import { getAllApplications } from "./application-data";
-import { getAllBills } from "./housing-admin-data";
+import { applicationData } from "./application-data";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 
 export async function getHousingAdmingDashboardData() {
-    const [allStudents, allRooms, allBills] = await Promise.all([
+    const [allStudents, allRooms, allApps] = await Promise.all([
         userData.findStudents(),
         roomData.findAllRoomDetailed(),
-        getAllBills(),
+        applicationData.getApplicationsWithStudentDetails(),
     ]);
-
-    const allApps = await getAllApplications();
 
     const formattedApps = allApps.map((app: any) => ({
         application_id: app.application_id,
@@ -37,7 +34,7 @@ export async function getHousingAdmingDashboardData() {
 
         return {
             room_type: type,
-            occupied: roomsType.filter(r => r.occupancy_status == "Occupied").length,
+            occupied: roomsType.filter(r => r.occupancy_status === "Partially Occupied" || r.occupancy_status === "Fully Occupied").length,
             empty: roomsType.filter(r => r.occupancy_status === "Empty").length,
         }
     });
