@@ -123,6 +123,41 @@ async function getStudentsHoused(managerId: number, housingId: number) {
   return data;
 }
 
+const getRoomDetails = async (housingId: number, roomId: number) => {
+  const { data, error } = await supabase
+    .from('room')
+    .select(`
+      room_id,
+      room_type,
+      maximum_occupants,
+
+      student_accommodation_history (
+        movein_date,
+        moveout_date,
+
+        student_academic (
+          account_number,
+          standing,
+          status,
+          degree_program
+        )
+      )
+    `)
+    .eq('housing_id', housingId)
+    .eq('room_id', roomId)
+    .eq('is_deleted', false)
+    .single();
+
+  if (error) throw error;
+
+
+  return {
+    room_id: data.room_id,
+    room_type: data.room_type,
+    
+  };
+};
+
 export const housingData = {
 	create,
 	findAll,
@@ -130,5 +165,6 @@ export const housingData = {
 	findWithRooms,
 	update,
 	deactivate,
-	getStudentsHoused
+	getStudentsHoused,
+  getRoomDetails
 };
