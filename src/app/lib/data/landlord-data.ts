@@ -98,70 +98,35 @@ async function getById(accountNumber: number) {
 	return { data, error: null };
 }
 
-async function getPendingAdminApplications(landlordAccountNumber: number) {
-	// get the list of applications with status = "Pending Admin Approval"
-	// get the count of applications with the same status
-
-	const {
-		data: listOfPending,
-		count: totalPending,
-		error,
-	} = await supabase
-		.from("application")
-		.select(
-			`
-        *,
-        user!inner(*)
+// Count the number of students who are in a dormitory that is managed by a certain landlord number
+export async function getTotalTenantsByLandlord(accountNumber: number) {
+  const { count, error } = await supabase
+    .from("student_accommodation_history")
+    .select(
+      `
+        account_number,
+        room:room_id!inner(
+          housing:housing_id!inner(manager_account_number)
+        )
       `,
-			{ count: "exact" },
-		)
-		.eq("application.application_status", "Pending Admin Approval")
-		.eq("appplication.landlord_account_number", landlordAccountNumber)
-		.eq("is_deleted", false);
+      { count: "exact", head: true },
+    )
+    .eq("room.housing.manager_account_number", accountNumber);
 
-	if (error)
-		throw new Error(
-			`getAccommodatio nHistoryOfStudent Error: ${error.message}`,
-		);
+  if (error) {
+    console.error("Error counting tenants by landlord:", error.message);
+    return { data: null, error };
+  }
 
-	return { listOfPending, totalPending };
+  return { data: count ?? 0, error: null };
 }
 
-async function getTotalRoomsManaged(accountNumber: number) {
-	const { count, error } = await supabase
-		.from("room")
-		.select(
-			`
-        room_id,
-        housing:housing_id!inner(landlord_account_number)
-      `,
-			{ count: "exact", head: true },
-		)
-		.eq("housing.landlord_account_number", accountNumber)
-		.eq("is_deleted", false);
-
-	if (error) {
-		console.error("Error counting rooms by landlord:", error.message);
-		throw new Error();
-	}
-
-	return count;
-}
-
-async function getTotalProperties(accountNumber: number) {
-	const { count, error } = await supabase
-		.from("housing")
-		.select("housing_id", { count: "exact", head: true })
-		.eq("landlord_account_number", accountNumber)
-		.eq("is_deleted", false);
-
-	if (error) {
-		console.error("Error counting properties by landlord:", error.message);
-		return { data: null, error };
-	}
-
-	return { data: count ?? 0, error: null };
-}
+//Delete housing admin (uncomment if needed)
+// export async function deleteHousingAdmin(accountNumber: number) {
+//   const { error } = await supabase
+//     .from("housing_admin")
+//     .delete()
+//     .eq("account_number", accountNumber);
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
 async function getTotalTenantsManaged(accountNumber: number) {
