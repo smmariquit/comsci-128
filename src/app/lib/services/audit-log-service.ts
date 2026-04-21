@@ -23,13 +23,9 @@ async function getAuditLogs(userId: string, role: Role, account_number: number):
     }
 }
 
-async function getRecent(userId: string, role: Role, account_number: number): Promise<AuditLog[]> {
+async function getRecentLogs(): Promise<AuditLog[]> {
     try {
-        // Authorization check
-        if (!userId) {
-            throw new Error("User must be authenticated");
-        }
-
+        
         const recentLogs = await auditLogData.getRecent();
 
         if (!recentLogs || recentLogs.length === 0) {
@@ -44,5 +40,6 @@ async function getRecent(userId: string, role: Role, account_number: number): Pr
 }
 
 export const auditLogService = {
-    getAuditLogs
+    getAuditLogs,
+    getRecentLogs
 }
