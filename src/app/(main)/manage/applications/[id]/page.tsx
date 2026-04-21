@@ -42,6 +42,7 @@ export default async function ApplicationReviewPage({
     : "Unknown"
 
   return (
+<<<<<<< HEAD
     <div className="flex flex-col gap-6 p-8 bg-(--cream) text-(--dark-orange)">
 
       <Link href="/manage/applications">
@@ -62,9 +63,25 @@ export default async function ApplicationReviewPage({
           housingName={application.housing_name}
         />
 
+=======
+    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
+      <h1 className="text-4xl font-bold text-center mb-8">
+        Manage Application ID Page
+      </h1>
+      <div className="flex gap-4 flex-wrap justify-center">
+        <Link
+          href="/manage/applications"
+          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
+        >
+          Back to Applications
+        </Link>
+>>>>>>> 7c7bbe325cc2ad1e86e35d3d43d7acfaa20c4023
       </div>
     
     </div>
   );
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7c7bbe325cc2ad1e86e35d3d43d7acfaa20c4023
 }
