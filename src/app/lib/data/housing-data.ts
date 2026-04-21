@@ -6,7 +6,7 @@ import type {
   HousingWithRooms,
 } from "@/models/housing";
 
-// Define Housing record based on DB schema
+const TODAY = new Date().toISOString();
 
 // Inserts a new record and returns the created object with its new ID
 async function create(housingDetails: HousingInsert): Promise<Housing | null> {
@@ -103,24 +103,6 @@ async function deactivate(housingId: number): Promise<Housing | null> {
   return data;
 }
 
-async function getHousingDetailsOfStudent(studentAccountNumber: number) {
-  // get the details of the housing and room of a student given a student's account number
-
-  const { data: studentHousingDetails, error } = await supabase
-    .from("housing")
-    .select(`
-			*,
-			room!inner(*),
-			student_accommodation_history!inner(*)
-		`)
-    .eq("student_accommodation_history.account_number", studentAccountNumber);
-
-  if (error)
-    throw new Error(`getHousingDetailsofStudent Error: ${error.message}`);
-
-  return studentHousingDetails;
-}
-
 async function getStudentsHoused(managerId: number, housingId: number) {
   // get details of list of students housed per housing
 
@@ -141,6 +123,85 @@ async function getStudentsHoused(managerId: number, housingId: number) {
   return data;
 }
 
+const getRoomDetails = async (housingId: number, roomId: number) => {
+  const { data, error } = await supabase
+    .from('room')
+    .select(`
+      room_id,
+      room_type,
+      maximum_occupants,
+
+      student_accommodation_history (
+        movein_date,
+        moveout_date,
+
+        student_academic (
+          account_number,
+          standing,
+          status,
+          degree_program
+        )
+      )
+    `)
+    .eq('housing_id', housingId)
+    .eq('room_id', roomId)
+    .eq('is_deleted', false)
+    .single();
+
+  if (error) throw error;
+
+
+  return {
+    room_id: data.room_id,
+    room_type: data.room_type,
+    
+  };
+};
+
+// overdue or unpaid bills per student
+const getOverallUnpaidFees = async (student_account_number: number) => {
+  return await supabase
+    .from('bill')
+    .select(`
+      *,
+      student:student_account_number(
+        user:account_number(first_name, last_name),
+        student_accommodation_history (
+          room:room_id (room_id, housing:housing_id (housing_name))
+        )
+      ),
+      manager:manager_account_number(user:account_number (first_name, last_name))
+    `)
+    .eq('student_account_number', student_account_number)
+    .in('status', ['Pending', 'Overdue'])
+    .lt('due_date', TODAY)
+    .eq('is_deleted', false);
+};
+
+// Get occupancy rate of 1 housing
+// Returns a ratio = total current tenants / total maximum occupants
+async function getOccupancyRate(housingId: number): Promise<number> {
+	const { data, error } = await supabase
+		.from("room")
+		.select(`
+      occupants_count,
+      maximum_occupants,
+      housing!inner(housing_id)
+		`)
+		.eq("housing.housing_id", housingId)
+		.eq("housing.is_deleted", false);
+
+	if (error) throw new Error(`getOccupancyRateOfHousing Error: ${error.message}`);
+	if (!data || data.length === 0) return 0;
+
+	const totalCurrent = data.reduce((sum, room) => sum + (room.occupants_count ?? 0), 0);
+	const totalMaximum = data.reduce((sum, room) => sum + (room.maximum_occupants ?? 0), 0);
+
+	if (totalMaximum == 0) return 0;
+
+	return (totalCurrent / totalMaximum) * 100;
+}
+
 export const housingData = {
 	create,
 	findAll,
@@ -148,6 +209,8 @@ export const housingData = {
 	findWithRooms,
 	update,
 	deactivate,
-	getHousingDetailsOfStudent,
-	getStudentsHoused
+	getStudentsHoused,
+  getRoomDetails,
+  getOverallUnpaidFees,
+  getOccupancyRate
 };
