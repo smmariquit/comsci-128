@@ -1,6 +1,7 @@
 import { supabase } from "../supabase";
+import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill"
 
-const create = async (billData: any) => {
+const create = async (billData: Bill) => {
 	return await supabase.from("bill").insert([billData]).select().single();
 };
 
