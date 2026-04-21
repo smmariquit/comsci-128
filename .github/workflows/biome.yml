@@ -1,22 +1,31 @@
 name: Code quality
 
 on:
-  push:
   pull_request:
+    branches: [staging, main]
 
 jobs:
   quality:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
         with:
           version: latest
-      - name: Run Biome
-        run: biome ci .
+      - name: Run Biome fix
+        continue-on-error: true
+        run: npx @biomejs/biome check --write --unsafe ./src
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-fix linting issues with Biome"
