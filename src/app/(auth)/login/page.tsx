@@ -1,8 +1,8 @@
 "use client";
 
-import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
-import { User } from "@supabase/supabase-js";
+import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 // import { useRouter } from "next/navigation";
 // import Link from "next/link";
 
@@ -61,25 +61,22 @@ export default function LoginPage() {
         )}
 
         {!currentUser ? (
-          <form 
-          className="space-y-3"
-          onSubmit={handleSubmit}
-        >
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="Email"
-            className="w-full rounded border px-3 py-2"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Password"
-            className="w-full rounded border px-3 py-2"
-          />
-          {/* <Link href="/student"> */}
+          <form className="space-y-3" onSubmit={handleSubmit}>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="Email"
+              className="w-full rounded border px-3 py-2"
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Password"
+              className="w-full rounded border px-3 py-2"
+            />
+            {/* <Link href="/student"> */}
             <button
               type="submit"
               className="w-full rounded bg-black py-2 text-white"
@@ -92,10 +89,10 @@ export default function LoginPage() {
               onClick={handleGoogleSignIn}
               className="w-full rounded bg-black py-2 text-white"
             >
-                Continue with Google
+              Continue with Google
             </button>
-          {/* </Link> */}
-        </form>
+            {/* </Link> */}
+          </form>
         ) : (
           <button
             onClick={handleSignOut}

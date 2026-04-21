@@ -8,7 +8,7 @@ on:
 jobs:
   update-types:
     runs-on: ubuntu-latest
-    # Added permission block to ensure the bot can write back to your repo
+    environment: Production
     permissions:
       contents: write
       
@@ -21,12 +21,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Supabase CLI
-        run: npm install -g supabase
-
       - name: Generate Types
-        run: |
-          supabase gen types typescript --project-id ${{ secrets.SUPABASE_PROJECT_ID }} > src/app/types/database.types.ts
+        run: npx supabase gen types typescript --project-id ${{ secrets.SUPABASE_PROJECT_ID }} > src/app/types/database.types.ts
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
