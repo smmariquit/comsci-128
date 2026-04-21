@@ -1,5 +1,6 @@
 import Image from "next/image";
 import SearchBar from "./SearchBar";
+import { Suspense } from "react";
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 
@@ -56,7 +57,9 @@ export default async function DashboardPage() {
                 </div>
             </div>
 
-            <SearchBar />
+            <Suspense fallback={<div className="p-4 text-center text-[#EDE9DE]">Loading search...</div>}>
+                <SearchBar />
+            </Suspense>
 
             {/* HOUSING CARDS CONTAINER */}
             <div className="bg-[#EDE9DE] w-[90vw] p-6 mx-auto">

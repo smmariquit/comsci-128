@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { landlordService } from "@/services/landlord";
+import { landlordService } from "@/app/lib/services/landlord-service";
 
 export async function GET(
 	_req: NextRequest,

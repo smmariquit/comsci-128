@@ -1,21 +1,15 @@
 
 
-import { 
-  getApplicationStats, 
-  getApplicationsWithStudentDetails, 
-  getApplicationDetailById, 
-  getDocumentsByApplicationId,
-  updateApplication,
-  assignRoomToApplication,
-  getApprovedUnassignedByHousingName
+import { applicationData } from "@/app/lib/data/application-data";
+import { Database } from "@/app/types/database.types";
 
-} from "@/app/lib/data/application-data";
+type ApplicationStatus = Database["public"]["Enums"]["ApplicationStatus"];
 
 import { accommodationHistoryData } from "@/lib/data/accommodation-history-data";
 
 const getDashboardStats = async () => {
   try {
-    const stats = await getApplicationStats()
+    const stats = await applicationData.getApplicationStats()
     return stats
   } catch (error) {
     console.error("Error: ", error)
@@ -25,7 +19,7 @@ const getDashboardStats = async () => {
 
 const getApplications = async () => {
   try {
-    const applications = await getApplicationsWithStudentDetails()
+    const applications = await applicationData.getApplicationsWithStudentDetails()
     if (!applications) return []
     return applications
   } catch (error) {
@@ -36,7 +30,7 @@ const getApplications = async () => {
 
 const getApplicationDetail = async (applicationId: number) => {
   try {
-    const application = await getApplicationDetailById(applicationId)
+    const application = await applicationData.getApplicationDetailById(applicationId)
     if (!application) return null
     return application
   } catch (error) {
@@ -47,7 +41,7 @@ const getApplicationDetail = async (applicationId: number) => {
 
 const getApplicationDocuments = async (applicationId: number) => {
   try {
-    const documents = await getDocumentsByApplicationId(applicationId)
+    const documents = await applicationData.getDocumentsByApplicationId(applicationId)
     if (!documents) return []
     return documents
   } catch (error) {
@@ -58,10 +52,10 @@ const getApplicationDocuments = async (applicationId: number) => {
 
 const updateApplicationStatus = async (
   applicationId: number,
-  status: "Approved" | "Rejected" | "Pending" | "Cancelled"
+  status: ApplicationStatus
 ) => {
   try {
-    const updated = await updateApplication(applicationId, { application_status: status })
+    const updated = await applicationData.update(applicationId, { application_status: status })
     if (!updated) return null
     return updated
   } catch (error) {
@@ -78,7 +72,7 @@ const assignApplicantToRoom = async (
 ) => {
   try {
 
-    const updated = await assignRoomToApplication(applicationId, roomId)
+    const updated = await applicationData.assignRoomToApplication(applicationId, roomId)
     if (!updated) throw new Error("Failed to assign room to application.")
 
     await accommodationHistoryData.createTenantRecord(studentAccountNumber, roomId, moveoutDate)
@@ -87,6 +81,16 @@ const assignApplicantToRoom = async (
   } catch (error) {
     console.error("Error: ", error)
     throw new Error("Failed to assign applicant to room.")
+  }
+}
+
+const getApprovedUnassignedByHousingName = async (housingName: string) => {
+  try {
+    const applications = await applicationData.getApprovedUnassignedByHousingName(housingName)
+    return applications
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch approved unassigned applications.")
   }
 }
 
