@@ -113,7 +113,7 @@ async function getRoomOccupantCount(roomId: number): Promise<number> {
 }
 
 // GET submitted application details of a student (Pending Status)
-async function getSubmittedApplication(accountNumber: number) {
+async function getSubmittedApplications(accountNumber: number) {
   const { data, error } = await supabase
     .from('application')
     .select(`application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, manager_account_number, student_account_number`)
@@ -215,6 +215,122 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
   return data;
 }
 
+async function getActiveHousingDetails(studentAccountNumber: number) {
+  // get the details of the active housing and room of a student given a student's account number
+
+  const { data: studentHousingDetails, error } = await supabase
+    .from("student_accommodation_history")
+    .select(`
+			*,
+			room!inner(*),
+			housing!inner(*)
+		`)
+    .eq("account_number", studentAccountNumber)
+    .is("student_accommodation_history.moveout_date", null);
+
+  if (error)
+    throw new Error(`getHousingDetailsofStudent Error: ${error.message}`);
+
+  return studentHousingDetails;
+}
+
+const getBillingSummary = async (accountNumber: number) => {
+  const { data, error } = await supabase
+    .from('bill')
+    .select(`
+      transaction_id,
+      amount,
+      status,
+      due_date,
+      bill_type,
+      manager (
+        manager_type,
+        user:account_number (
+          first_name,
+          last_name
+        )
+      )
+    `)
+    .eq('student_account_number', accountNumber)
+    .eq('is_deleted', false);
+
+  if (error) throw error;
+
+  // Calculate total balance for Pending and Overdue bills
+  const total_outstanding = data
+    ?.filter((bill: any) => bill.status === 'Pending' || bill.status === 'Overdue')
+    ?.reduce((sum: number, bill: any) => sum + Number(bill.amount), 0) || 0;
+
+  // Detailed list including price and bill type
+  const breakdown = data.map((bill: any) => ({
+    id: bill.transaction_id,
+    amount: bill.amount,
+    bill_type: bill.bill_type,
+    status: bill.status,
+    due_date: bill.due_date,
+    pay_to: `${bill.manager?.user?.first_name} ${bill.manager?.user?.last_name}`,
+    manager_role: bill.manager?.manager_type
+  }));
+
+  return {
+    total_outstanding,
+    breakdown
+  };
+};
+
+const getBillingHistory = async (accountNumber: number) => {
+    const { data, error } = await supabase
+      .from('bill')
+      .select(`
+        transaction_id,
+        amount,
+        bill_type,
+        status,
+        date_paid,
+        due_date,
+        manager (
+          user:account_number (
+            first_name,
+            last_name
+          )
+        )
+      `)
+      .eq('student_account_number', accountNumber)
+      .eq('is_deleted', false)
+      .order('due_date', { ascending: false });
+
+    if (error) throw error;
+
+    return data;
+};
+
+const getUnpaidBills = async (accountNumber: number) => {
+    const { data, error } = await supabase
+      .from('bill')
+      .select(`
+        transaction_id,
+        amount,
+        bill_type,
+        due_date,
+        status,
+        manager (
+          user:account_number (
+            first_name,
+            last_name,
+            email
+          )
+        )
+      `)
+      .eq('student_account_number', accountNumber)
+      .in('status', ['Pending', 'Overdue'])
+      .eq('is_deleted', false)
+      .order('due_date', { ascending: true });
+
+    if (error) throw error;
+
+    return data;
+};
+
 export const studentData = {
     create,
     createAcademic,
@@ -223,5 +339,12 @@ export const studentData = {
     createAccommodationHistory,
     recordMoveOut,
     getRoomOccupantCount,
-    getAccommodationHistoryOfStudent
+    getSubmittedApplications,
+    getHousingOptions,
+    getRoomOccupancyRate,
+    getAccommodationHistoryOfStudent,
+    getActiveHousingDetails,
+    getBillingSummary,
+    getBillingHistory,
+    getUnpaidBills
 }

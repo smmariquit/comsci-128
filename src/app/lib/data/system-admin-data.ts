@@ -1,6 +1,7 @@
 import { supabase } from "../supabase";
 import { User, NewUser } from "@/models/user";
 import { userData } from "@/data/user-data";
+import { housingData } from "@/data/housing-data"
 
 async function create(userDetails: NewUser): Promise<number | null> {
     // create system admin in system_admin table and user table
@@ -48,12 +49,12 @@ async function update(accountNumber: number, updates: any) {
 }
 
 // READ all users (manager, landlord, housing_admin, student)
-export async function getAllUsers() {
-  return await userData.findAllUsers();
+async function getAllUsers() {
+  return await userData.findAll();
 }
 
 // READ all housing 
-export async function getAllHousing() {
+async function getAllHousing() {
   return await housingData.findAll();
 }
 

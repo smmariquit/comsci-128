@@ -19,6 +19,7 @@ export type Database = {
           actual_moveout_date: string | null
           application_id: number
           application_status: Database["public"]["Enums"]["ApplicationStatus"]
+          created_at: string | null
           document_type: string | null
           document_url: string | null
           expected_moveout_date: string
@@ -34,6 +35,7 @@ export type Database = {
           actual_moveout_date?: string | null
           application_id?: never
           application_status?: Database["public"]["Enums"]["ApplicationStatus"]
+          created_at?: string | null
           document_type?: string | null
           document_url?: string | null
           expected_moveout_date: string
@@ -49,6 +51,7 @@ export type Database = {
           actual_moveout_date?: string | null
           application_id?: never
           application_status?: Database["public"]["Enums"]["ApplicationStatus"]
+          created_at?: string | null
           document_type?: string | null
           document_url?: string | null
           expected_moveout_date?: string
@@ -148,6 +151,7 @@ export type Database = {
           is_deleted: boolean | null
           issue_date: string
           manager_account_number: number | null
+          proof_of_payment_url: string | null
           status: Database["public"]["Enums"]["PaymentStatus"]
           student_account_number: number | null
           transaction_id: number
@@ -160,6 +164,7 @@ export type Database = {
           is_deleted?: boolean | null
           issue_date?: string
           manager_account_number?: number | null
+          proof_of_payment_url?: string | null
           status?: Database["public"]["Enums"]["PaymentStatus"]
           student_account_number?: number | null
           transaction_id?: number
@@ -172,6 +177,7 @@ export type Database = {
           is_deleted?: boolean | null
           issue_date?: string
           manager_account_number?: number | null
+          proof_of_payment_url?: string | null
           status?: Database["public"]["Enums"]["PaymentStatus"]
           student_account_number?: number | null
           transaction_id?: number
@@ -504,19 +510,19 @@ export type Database = {
         Row: {
           account_number: number
           movein_date: string
-          moveout_date: string
+          moveout_date: string | null
           room_id: number
         }
         Insert: {
           account_number: number
           movein_date: string
-          moveout_date: string
+          moveout_date?: string | null
           room_id: number
         }
         Update: {
           account_number?: number
           movein_date?: string
-          moveout_date?: string
+          moveout_date?: string | null
           room_id?: number
         }
         Relationships: [
