@@ -219,7 +219,7 @@ interface RoomFormModalProps {
 export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode }: RoomFormModalProps) {
   const [form, setForm] = useState<RoomForm>({
     housing_name:      initial?.housing_name      ?? "",
-    room_type:         initial?.room_type          ?? "Single",
+    room_type:         initial?.room_type          ?? "Co-ed",
     maximum_occupants: initial?.maximum_occupants  ?? "1",
     occupancy_status:  initial?.occupancy_status   ?? "Empty",
   });
@@ -273,7 +273,7 @@ export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode
               onChange={(e) => setForm({ ...form, room_type: e.target.value as RoomType })}
               style={selectStyle}
             >
-              {(["Single", "Double", "Suite", "Bedspace"] as RoomType[]).map((t) => (
+              {(["Co-ed", "Women", "Men"] as RoomType[]).map((t) => (
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
@@ -289,22 +289,7 @@ export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode
             />
           </Field>
         </div>
-
-        {/* Row: Occupancy + Payment */}
-        <div style={{ display: "flex", gap: 12 }}>
-          <Field label="Occupancy Status" htmlFor="rm-occupancy">
-            <select aria-label="Occupany Status"
-              id="rm-occupancy"
-              value={form.occupancy_status}
-              onChange={(e) => setForm({ ...form, occupancy_status: e.target.value as OccupancyStatus })}
-              style={selectStyle}
-            >
-              {(["Empty", "Occupied", "Reserved", "Under Maintenance"] as OccupancyStatus[]).map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </Field>
-        </div>
+        
 
         {mode === "add" && (
           <div style={{
@@ -331,7 +316,7 @@ export function OverrideAssignModal({
 }) {
   const [name,   setName]   = useState("");
   const [number, setNumber] = useState("");
-  const isOccupied = room.occupancy_status === "Occupied";
+  const isOccupied = room.occupancy_status === "Fully Occupied";
   const isFull = room.current_occupants >= room.maximum_occupants;
   const hasTenants = room.assigned_tenants.length > 0;
 

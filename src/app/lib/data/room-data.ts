@@ -125,22 +125,17 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 		const max = room.maximum_occupants;
 
 		let derivedStatus: OccupancyStatus = "Empty";
-		if (occupantCount > 0) {
-			derivedStatus = "Occupied";
+		if (occupantCount > 0 && occupantCount < max) {
+			derivedStatus = "Partially Occupied";
 		} 
 
-		let derivedType: RoomRow['room_type'] = "Shared";
-		if (max === 1) {
-			derivedType = "Single";
-		} else if (max === 2) {
-			derivedType = "Double";
-		}
+		
 
 		return {
 			room_id: room.room_id,
 			room_code: room.room_code,
 			housing_name: room.housing?.housing_name || "Unassigned",
-			room_type: derivedType,
+			room_type: room.room_type,
 			maximum_occupants: room.maximum_occupants,
 			current_occupants: room.occupants_count,
 			occupancy_status: derivedStatus,

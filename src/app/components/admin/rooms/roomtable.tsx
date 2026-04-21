@@ -2,8 +2,8 @@ import { C } from "@/lib/palette";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type OccupancyStatus = "Empty" | "Occupied" | "Reserved" | "Under Maintenance";
-export type RoomType = "Single" | "Double" | "Shared" | "Bedspace";
+export type OccupancyStatus = "Empty" | "Partially Occupied" | "Fully Occupied" ;
+export type RoomType = "Co-ed" | "Women" | "Men" 
 
 export interface RoomRow {
   room_id: number;
@@ -19,10 +19,9 @@ export interface RoomRow {
 // ── Occupancy badge ───────────────────────────────────────────────────────────
 
 const OCCUPANCY_STYLE: Record<OccupancyStatus, { bg: string; dot: string; text: string }> = {
-  Empty:              { bg: "rgba(86,115,117,0.12)",  dot: C.teal,   text: C.teal },
-  Occupied:           { bg: "rgba(201,100,42,0.13)",  dot: C.orange, text: C.orange },
-  Reserved:           { bg: "rgba(227,175,100,0.18)", dot: C.amber,  text: "#A07820" },
-  "Under Maintenance":{ bg: "rgba(28,38,50,0.08)",    dot: C.navy,   text: C.navy },
+  "Empty":              { bg: "rgba(86,115,117,0.12)",  dot: C.teal,   text: C.teal },
+  "Partially Occupied": { bg: "rgba(201,100,42,0.13)",  dot: C.orange, text: C.orange },
+  "Fully Occupied":   { bg: "rgba(227,175,100,0.18)", dot: C.amber,  text: "#A07820" },
 };
 
 function OccupancyBadge({ status }: { status: OccupancyStatus }) {
@@ -49,14 +48,13 @@ function OccupancyBadge({ status }: { status: OccupancyStatus }) {
 // ── Room type tag ─────────────────────────────────────────────────────────────
 
 const TYPE_STYLE: Record<RoomType, { bg: string; text: string }> = {
-  Single:   { bg: "rgba(86,115,117,0.14)",  text: C.teal },
-  Double:   { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
-  Shared:    { bg: "rgba(201,100,42,0.13)",  text: C.orange },
-  Bedspace: { bg: "rgba(28,38,50,0.08)",    text: C.navy },
+  "Co-ed":   { bg: "rgba(86,115,117,0.14)",  text: C.teal },
+  "Women":   { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
+  "Men":     { bg: "rgba(201,100,42,0.13)",  text: C.orange },
 };
 
 function RoomTypeTag({ type }: { type: RoomType }) {
-  const s = TYPE_STYLE[type] ?? TYPE_STYLE["Bedspace"];
+  const s = TYPE_STYLE[type] ?? TYPE_STYLE["Co-ed"];
   return (
     <span style={{
       background: s.bg,
@@ -189,7 +187,7 @@ export default function RoomTable({
 
           <tbody>
             {data.map((row, i) => {
-              const isOccupied = row.occupancy_status === "Occupied";
+              const isOccupied = row.occupancy_status === "Fully Occupied";
 
               return (
                 <tr key={row.room_id} style={{
