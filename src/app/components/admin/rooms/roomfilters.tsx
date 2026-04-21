@@ -72,7 +72,7 @@ export default function RoomFilters({ search, occupancy, roomType, housing, hous
         onChange={(e) => onRoomType(e.target.value as TypeFilter)}
         style={{ ...selectBase, minWidth: 130 }}
       >
-        {(["All", "Single", "Double", "Suite", "Bedspace"] as TypeFilter[]).map((t) => (
+        {(["All", "Co-ed", "Women", "Men"] as TypeFilter[]).map((t) => (
           <option key={t} value={t}>{t === "All" ? "All Types" : t}</option>
         ))}
       </select>
@@ -85,7 +85,7 @@ export default function RoomFilters({ search, occupancy, roomType, housing, hous
         onChange={(e) => onOccupancy(e.target.value as OccupancyFilter)}
         style={{ ...selectBase, minWidth: 160 }}
       >
-        {(["All", "Empty", "Occupied", "Reserved", "Under Maintenance"] as OccupancyFilter[]).map((s) => (
+        {(["All", "Empty", "Partially Occupied", "Fully Occupied"] as OccupancyFilter[]).map((s) => (
           <option key={s} value={s}>{s === "All" ? "All Occupancy" : s}</option>
         ))}
       </select>
