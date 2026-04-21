@@ -88,12 +88,42 @@ async function update(
 
 //deletes a housing
 async function deactivate(housingId: number): Promise<Housing | null> {
-  const { data, error } = await supabase
-    .from("housing")
-    .update({ is_deleted: true }) // Soft delete
-    .eq("housing_id", housingId)
-    .select()
-    .single();
+	const { data, error } = await supabase
+		.from("housing")
+		.update({ is_deleted: true }) // Soft delete
+		.eq("housing_id", housingId)
+		.select()
+		.single();
+
+	if (error) {
+		if (error.code === "PGRST116") return null;
+		throw new Error(error.message);
+	}
+
+	return data;
+}
+
+const countAllHousing = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("housing")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
+async function getHousingDetailsOfStudent(studentAccountNumber: number) {
+	// get the details of the housing and room of a student given a student's account number
+	
+	const { data: studentHousingDetails, error } = await supabase
+		.from("housing")
+		.select(`
+			*,
+			room!inner(*),
+			student_accommodation_history!inner(*)
+		`)
+		.eq("student_accommodation_history.account_number", studentAccountNumber);
 
   if (error) {
     if (error.code === "PGRST116") return null;
@@ -209,7 +239,9 @@ export const housingData = {
 	findWithRooms,
 	update,
 	deactivate,
+  countAllHousing,
 	getStudentsHoused,
+  getHousingDetailsOfStudent.
   getRoomDetails,
   getOverallUnpaidFees,
   getOccupancyRate

@@ -21,8 +21,12 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 		if (!first_name) throw new Error("First name is required.");
 		if (!last_name) throw new Error("Last name is required.");
 		if (!password) throw new Error("Password is required");
-		// Student default
+
+		// Default to Student if not specified
+		if (!userDetails.user_type) {
 		userDetails.user_type = "Student";
+		}
+		
 		// Hash pw
 		const salt = await bcrypt.genSalt(12);
 		userDetails.password = await bcrypt.hash(password, salt);
@@ -138,10 +142,38 @@ const deactivateUser = async (
 	}
 };
 
+const getUserCount = async (): Promise<number | null> => {
+	try {
+		const userCount = await userData.countAllUser();
+		if (!userCount) return null;
+		
+		return userCount; 
+		
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+}
+
+const getActiveUserCount = async (): Promise<number | null> => {
+	try {
+		const userCount = await userData.countActiveUsers();
+		if (!userCount) return null;
+		
+		return userCount; 
+		
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+}
+
 export const userService = {
 	addUser,
 	getUser,
 	getAllUser,
 	updateUser,
 	deactivateUser,
+	getUserCount,
+	getActiveUserCount
 };
