@@ -273,7 +273,7 @@ export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode
               onChange={(e) => setForm({ ...form, room_type: e.target.value as RoomType })}
               style={selectStyle}
             >
-              {(["Co-ed", "Women", "Men"] as RoomType[]).map((t) => (
+              {(["Co-ed", "Women Only", "Men Only"] as RoomType[]).map((t) => (
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>

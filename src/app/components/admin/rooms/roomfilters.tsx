@@ -72,7 +72,7 @@ export default function RoomFilters({ search, occupancy, roomType, housing, hous
         onChange={(e) => onRoomType(e.target.value as TypeFilter)}
         style={{ ...selectBase, minWidth: 130 }}
       >
-        {(["All", "Co-ed", "Women", "Men"] as TypeFilter[]).map((t) => (
+        {(["All", "Co-ed", "Women Only", "Men Only"] as TypeFilter[]).map((t) => (
           <option key={t} value={t}>{t === "All" ? "All Types" : t}</option>
         ))}
       </select>
