@@ -1,53 +1,21 @@
-"use client";
-import { User } from "@/models/user";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import UsersFilterTableWrapper from "@/app/components/admin/user/userfilter_table_wrapper";
+import { userData } from "@/lib/data/user-data";
 
-export default function Page() {
-	const [users, setUsers] = useState<User[]>([]);
+export default async function UsersPage() {
+  const managedHousingIds = [3, 12, 13, 14, 16, 18]; //Temporary since no auth yet
 
-	useEffect(() => {
-		const fetchUsers = async () => {
-			try {
-				// from sample
-				const userId = "17";
-				const response = await fetch("/api/users", {
-					method: "GET",
-				});
+  const liveUsers = await userData.getUsersForHousingAdmin(managedHousingIds);
 
-				const user: User[] = await response.json();
-				setUsers(user);
-			} catch (error) {
-				console.error("Error: ", error);
-			}
-		};
-
-		fetchUsers();
-	}, []);
-
-	return (
-		<main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-			<h1 className="text-4xl font-bold text-center mb-8">
-				Admin Users Page
-			</h1>
-			<div>
-				<ul>
-					{users.map((users) => (
-						<li key={users.account_email}>
-							{users.first_name} {users.middle_name ?? ""}{" "}
-							{users.last_name} - {users.account_email}
-						</li>
-					))}
-				</ul>
-			</div>
-			<div className="flex gap-4 flex-wrap justify-center">
-				<Link
-					href="/admin"
-					className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
-				>
-					Back to Dashboard
-				</Link>
-			</div>
-		</main>
-	);
+  // ── Render ────────────────────────────────────────────────────────────────
+  return (
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 16,
+      padding: "24px",
+      fontFamily: "'DM Sans', sans-serif",
+    }}>
+      <UsersFilterTableWrapper liveUsers={liveUsers} />
+    </div>
+  );
 }

@@ -1,18 +1,22 @@
-import Link from 'next/link';
 
-export default function Page() {
+import { applicationService } from "@/app/lib/services/application-service";
+import Link from "next/link";
+import ApplicationsClient from "./_components/ApplicationsClient";
+
+
+export default async function ApplicationsPage() {
+
+  const applications = await applicationService.getApplications()
+
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">Manage Applications Page</h1>
-      <div className="flex gap-4 flex-wrap justify-center">        <Link href="/manage/applications/1" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Application #1
-        </Link>
-        <Link href="/manage/applications/2" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Application #2
-        </Link>        <Link href="/manage" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Back to Dashboard
-        </Link>
-      </div>
-    </main>
+    <div className="flex flex-col gap-8 p-8 bg-(--cream) text-(--dark-orange)">
+
+      <h1 className="text-3xl font-bold text-center">
+        Applicant List
+      </h1>
+      <ApplicationsClient applications={applications}/>
+
+    </div>
   );
+
 }
