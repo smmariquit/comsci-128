@@ -64,5 +64,6 @@ async function getByAccountNumber(account_number: number) {
 export const auditLogData = {
 	create,
 	getAll,
-	getByAccountNumber
+	getByAccountNumber,
+	getRecent
 }
