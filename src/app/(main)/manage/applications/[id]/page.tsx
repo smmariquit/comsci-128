@@ -72,5 +72,4 @@ export default async function ApplicationReviewPage({
     
     </div>
   );
-
 }
