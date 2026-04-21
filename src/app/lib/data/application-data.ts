@@ -87,13 +87,136 @@ async function getDocuments(applicationId: number) {
 	return data;
 }
 
-export const applicationData = {
-	create,
-	getAll,
-	getById,
-	getByManager,
-	getByHousing,
-	update,
-	remove,
-	getDocuments
+// GET SELECTED STATS FOR MANAGER DASHBOARD
+export async function getApplicationStats() {
+
+	const {data, error} = await supabase
+	.from("application")
+	.select("application_status")
+	.eq("is_deleted", false)
+
+	if (error) {
+    console.error("Error fetching applications stats: ", error)
+    throw new Error("Failed to fetch application stats")
+  }
+
+	const total = data.length
+	const pending = data.filter(a => a.application_status === "Pending").length
+	const approved = data.filter(a => a.application_status === "Approved").length
+	const rejected = data.filter(a => a.application_status === "Rejected").length
+
+	return { total, pending, approved, rejected }
+}
+
+// APPLICATION DATA JOINED WITH STUDENT ACCOUNT NUMBER
+export async function getApplicationsWithStudentDetails() {
+
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      housing_name,
+      application_status,
+      expected_moveout_date,
+      preferred_room_type,
+      student:student_account_number (
+        account_number,
+        user:user!account_number (
+          first_name,
+          middle_name,
+          last_name
+        )
+      )
+    `)
+    .eq("is_deleted", false)
+    .order("application_id", { ascending: false })
+
+  if (error) {
+    console.error("Error fetching applications with students: ", error)
+    throw new Error("Failed to fetch applications")
+  }
+
+  return data ?? []
+}
+
+// SINGLE APPLICATION DETAIL BY ID 
+export async function getApplicationDetailById(applicationId: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      housing_name,
+      application_status,
+      expected_moveout_date,
+      preferred_room_type,
+      student:student_account_number (
+        account_number,
+        user:user!account_number (
+          first_name,
+          middle_name,
+          last_name
+        )
+      )
+    `)
+    .eq("application_id", applicationId)
+    .eq("is_deleted", false)
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// RETRIEVE DOCUMENTS BY APPLICATION ID
+export async function getDocumentsByApplicationId(applicationId: number) {
+  const { data, error } = await supabase
+    .from("document")
+    .select("document_id, type, storage_link")
+    .eq("application_id", applicationId)
+
+  if (error) throw error
+  return data
+}
+
+// ASSIGN ROOM ID FOR AN APPLICATION ENTRY
+export async function assignRoomToApplication(
+  applicationId: number,
+  roomId: number
+) {
+  const { data, error } = await supabase
+    .from("application")
+    .update({ room_id: roomId })
+    .eq("application_id", applicationId)
+    .eq("is_deleted", false)
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+  return data
+}
+
+//FETCH APPROVED APPLICATIONS WITH NULL ROOM ID
+export async function getApprovedUnassignedByHousingName(housingName: string) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      housing_name,
+      expected_moveout_date,
+      student_account_number,
+      student:student!account_number (
+        account_number,
+        user:user!account_number (
+          first_name,
+          middle_name,
+          last_name
+        )
+      )
+    `)
+    .eq("application_status", "Approved")
+    .eq("housing_name", housingName)
+    .eq("is_deleted", false)
+    .is("room_id", null)
+
+  if (error) throw new Error(error.message)
+  return data ?? []
 }

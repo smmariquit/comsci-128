@@ -1,151 +1,48 @@
-"use client";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-/*
-    TODO:
-        replace direct call with api layer
-*/
-// ------------------------------------------
-import { roomData } from "@/data/room-data"; // data and service must be separated
-// ------------------------------------------
-import type { Room, RoomType } from "@/models/room";
-import { roomService } from "@/services/room-service";
 
-export default function Page() {
-  const [room, setRoom] = useState<Room | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  const [selectedType, setSelectedType] = useState<RoomType>("Co-ed");
-  const [maxOccupants, setMaxOccupants] = useState<number>(1);
+import { housingService } from "@/app/lib/services/housing-service";
+import { accommodationHistoryService } from "@/app/lib/services/accommodation-history-service";
+import UnitClient from "./_components/UnitClient";
 
-  const testId = 5;
+export default async function UnitPage({
+  params,
+}: {
+  params: Promise<{ id: string; unit: string }>
+}) {
+  const { id, unit } = await params
+  const roomId = Number(unit)
+  const housingId = Number(id)
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        const data = await roomData.findByRoomId(testId);
-        if (data) {
-          setRoom(data);
-          setSelectedType(data.room_type);
-          setMaxOccupants(data.maximum_occupants!);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-      setLoading(false);
-    };
-    fetchInitialData();
-  }, []);
+  console.log(roomId, housingId)
 
-  const handleSave = async () => {
-    const result = await roomService.updateRoom(testId, {
-      room_type: selectedType,
-      maximum_occupants: maxOccupants,
-    });
+  if (isNaN(roomId) || isNaN(housingId)) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Invalid room or housing ID.</p>
+      </main>
+    )
+  }
 
-    if (result.error) {
-      alert(result.error); // Show SRS validation error (e.g., "Invalid Room")
-    } else {
-      setRoom(result.data!);
-      setIsEditing(false);
-      alert("Room updated successfully!");
-    }
-  };
+  const [room, tenants] = await Promise.all([
+    housingService.getHousingWithRooms(housingId),
+    accommodationHistoryService.getTenantsByRoomId(roomId),
+  ])
 
-  if (loading)
-    return <div className="text-white text-center p-10">Loading Room...</div>;
+  const roomData = room?.room.find((r) => r.room_id === roomId)
+
+  if (!roomData) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Room not found.</p>
+      </main>
+    )
+  }
 
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">
-        Manage Accommodation Unit Page
-      </h1>
-
-      {/* Basic Detail Display */}
-      <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 w-96 mb-8 text-left">
-        {isEditing ? (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm mb-1">Room Type</label>
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value as RoomType)}
-                className="w-full p-2 bg-slate-700 rounded text-white"
-              >
-                <option value="Single">Single</option>
-                <option value="Double">Double</option>
-                <option value="Shared">Shared</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm mb-1">Max Occupants</label>
-              <input
-                type="number"
-                value={maxOccupants ?? 1}
-                onChange={(e) => setMaxOccupants(Number(e.target.value))}
-                className="w-full p-2 bg-slate-700 rounded text-white"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleSave}
-                className="bg-green-600 px-4 py-2 rounded font-bold flex-1"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="bg-gray-600 px-4 py-2 rounded flex-1"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {room ? (
-              <>
-                <p>
-                  <strong>Room ID:</strong> {room.room_id}
-                </p>
-                <p>
-                  <strong>Type:</strong> {room.room_type}
-                </p>
-                <p>
-                  <strong>Max Occupants:</strong> {room.maximum_occupants}
-                </p>
-                <p>
-                  <strong>Status:</strong> {room.occupancy_status}
-                </p>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="w-full mt-4 bg-blue-600 py-2 rounded font-bold"
-                >
-                  Edit Details
-                </button>
-              </>
-            ) : (
-              <p>Room {testId} not found in DB.</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link
-          href="/manage/accommodations/1/unit-a/occupants"
-          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
-        >
-          Occupants
-        </Link>
-        <Link
-          href="/manage/accommodations/1"
-          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
-        >
-          Back to Accommodation
-        </Link>
-      </div>
-    </main>
-  );
+    <UnitClient
+      room={roomData}
+      tenants={tenants}
+      housingId={housingId}
+    />
+  )
 }

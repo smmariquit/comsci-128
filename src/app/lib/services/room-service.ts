@@ -42,13 +42,13 @@ const updateRoom = async (
       return { error: "Room Not Found." };
     }
 
-    const validRoomTypes: RoomType[] = ["Co-ed", "Men Only", "Women Only"];
-    if (
-      updates.room_type &&
-      !validRoomTypes.includes(updates.room_type as RoomType)
-    ) {
-      return { error: "Invalid Room Type." };
-    }
+		const validRoomTypes: RoomType[] = ["Women Only", "Men Only", "Co-ed"];
+		if (
+			updates.room_type &&
+			!validRoomTypes.includes(updates.room_type as RoomType)
+		) {
+			return { error: "Invalid Room Type." };
+		}
 
     const incomingMax =
       updates.maximum_occupants ?? existingRoom.maximum_occupants;
@@ -90,10 +90,22 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
   }
 };
 
+const getRoomStats = async () => {
+
+	try{
+		const stats = await roomData.getRoomStats()
+		return stats 
+	} catch (error) {
+		console.error("Error: ", error)
+		throw new Error("Failed to fetch room stats")
+	}
+}
+
 export const roomService = {
-  addRoom,
-  getRoom,
-  getAllRooms,
-  updateRoom,
-  deactivateRoom,
+	addRoom,
+	getRoom,
+	getAllRooms,
+	updateRoom,
+	deactivateRoom,
+	getRoomStats
 };
