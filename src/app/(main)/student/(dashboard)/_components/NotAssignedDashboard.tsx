@@ -11,6 +11,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
     <svg className="w-24 h-24 fill-red-600" viewBox="0 0 640 640">
       <path d="M320 576C178.6 576 64 461.4 64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576zM320 384C302.3 384 288 398.3 288 416C288 433.7 302.3 448 320 448C337.7 448 352 433.7 352 416C352 398.3 337.7 384 320 384zM320 192C301.8 192 287.3 207.5 288.6 225.7L296 329.7C296.9 342.3 307.4 352 319.9 352C332.5 352 342.9 342.3 343.8 329.7L351.2 225.7C352.5 207.5 338.1 192 319.8 192z" />
     </svg>;
+
   function getApplicationStepStatus(stepIndex: number) {
     const stepStatus = userHousingDetails.steps[stepIndex].isDone
 
@@ -21,10 +22,18 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
     return crossIcon;
   }
 
+  function getApplication() {
+    return userHousingDetails?.application;
+  }
+
+  function getHousing() {
+    return getApplication()?.room?.housing;
+  }
+
   return (
     <div className="w-216 flex-1 flex flex-col justify-start items-start gap-4">
       <div className="w-216 h-9 px-9 py-2 bg-gray-800 rounded-full shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] inline-flex justify-start items-center gap-2.5 overflow-hidden">
-        <div className={hStyle}>Welcome, User!</div>
+        <div className={hStyle}>Welcome, {userName}</div>
       </div>
       <div className="w-216 flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
         <div className="self-stretch h-9 px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
@@ -56,15 +65,15 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
         <div className="self-stretch flex-1 px-9 py-4">
           <span className={`${tStyle} font-semibold `}>Housing Details</span>
           <ul className={`${tStyle} pb-4 px-4`}>
-            <li><span className="font-bold">Name:</span> {userHousingDetails.application.room.housing.housing_name}</li>
-            <li><span className="font-bold">Address:</span> {userHousingDetails.application.room.housing.housing_address}</li>
+            <li><span className="font-bold">Name:</span> {getHousing()?.housing_name}</li>
+            <li><span className="font-bold">Address:</span> {getHousing()?.housing_address}</li>
           </ul>
           <span className={`${tStyle} font-semibold `}>Room Details</span>
           <ul className={`${tStyle} pb-4 px-4`}>
-            <li><span className="font-bold">Room ID:</span> {userHousingDetails.application.room_id}</li>
-            <li><span className="font-bold">Room Type:</span> {userHousingDetails.application.room.room_type}</li>
+            <li><span className="font-bold">Room ID:</span> {getApplication()?.room_id}</li>
+            <li><span className="font-bold">Room Type:</span> {getApplication()?.room.room_type}</li>
           </ul>
-          <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {userHousingDetails.application.expected_moveout_date}</span>
+          <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {getApplication()?.expected_moveout_date}</span>
         </div>
       </div>
     </div>
