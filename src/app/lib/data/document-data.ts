@@ -5,7 +5,7 @@ async function create(documentContent: NewDocument): Promise<Document> {
 	const { data, error } = await supabase
 		.from("document")
 		.insert(documentContent)
-		.select();
+		.select("*");
 
     if (error) {
         throw new Error(error.message);
@@ -17,7 +17,7 @@ async function create(documentContent: NewDocument): Promise<Document> {
 async function findById(documentId: number): Promise<Document | null> {
 	const { data, error } = await supabase
 		.from("document")
-		.select()
+		.select("*")
 		.eq("document_id", documentId)
 		.eq("is_deleted", false);
 
