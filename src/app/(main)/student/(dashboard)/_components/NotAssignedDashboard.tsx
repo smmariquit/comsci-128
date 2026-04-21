@@ -2,7 +2,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
   const userHousingDetails = dashboardData as any;
   
   const hStyle = "justify-center text-white text-lg font-semibold font-[family-name:var(--font-DM_Sans)]";
-  const tStyle = "text-center justify-center text-black text-lg font-semibold font-[family-name:var(--font-DM_Sans)]";
+  const tStyle = "text-black text-lg font-[family-name:var(--font-DM_Sans)]";
   const checkIcon =
     <svg className="w-24 h-24 fill-green-700" viewBox="0 0 640 640">
       <path d="M320 576C178.6 576 64 461.4 64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576zM438 209.7C427.3 201.9 412.3 204.3 404.5 215L285.1 379.2L233 327.1C223.6 317.7 208.4 317.7 199.1 327.1C189.8 336.5 189.7 351.7 199.1 361L271.1 433C276.1 438 282.9 440.5 289.9 440C296.9 439.5 303.3 435.9 307.4 430.2L443.3 243.2C451.1 232.5 448.7 217.5 438 209.7z" />
@@ -33,19 +33,19 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
         <div className="self-stretch flex-1 px-24 py-4 inline-flex justify-between items-center overflow-hidden">
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(0)}
-            <div className={tStyle}>Dorm<br />Chosen</div>
+            <div className={`${tStyle} text-center justify-center font-semibold `}>Dorm<br />Chosen</div>
           </div>
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(1)}
-            <div className={tStyle}>Application<br />Submitted</div>
+            <div className={`${tStyle} text-center justify-center font-semibold `}>Application<br />Submitted</div>
           </div>
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(2)}
-            <div className={tStyle}>Manager<br />Review</div>
+            <div className={`${tStyle} text-center justify-center font-semibold `}>Manager<br />Review</div>
           </div>
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(3)}
-            <div className={tStyle}>Room<br />Assigned</div>
+            <div className={`${tStyle} text-center justify-center font-semibold `}>Room<br />Assigned</div>
           </div>
         </div>
       </div>
@@ -54,17 +54,17 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
           <div className={hStyle}>Application Details</div>
         </div>
         <div className="self-stretch flex-1 px-9 py-4">
-          <span className="text-black text-lg font-semibold font-[family-name:var(--font-DM_Sans)]">Housing Details</span>
-          <ul className="pb-4 px-4 text-black text-lg font-[family-name:var(--font-DM_Sans)]">
+          <span className={`${tStyle} font-semibold `}>Housing Details</span>
+          <ul className={`${tStyle} pb-4 px-4`}>
             <li><span className="font-bold">Name:</span> {userHousingDetails.application.room.housing.housing_name}</li>
             <li><span className="font-bold">Address:</span> {userHousingDetails.application.room.housing.housing_address}</li>
           </ul>
-          <span className="text-black text-lg font-semibold font-[family-name:var(--font-DM_Sans)]">Room Details</span>
-          <ul className="pb-4 px-4 text-black text-lg font-[family-name:var(--font-DM_Sans)]">
+          <span className={`${tStyle} font-semibold `}>Room Details</span>
+          <ul className={`${tStyle} pb-4 px-4`}>
             <li><span className="font-bold">Room ID:</span> {userHousingDetails.application.room_id}</li>
             <li><span className="font-bold">Room Type:</span> {userHousingDetails.application.room.room_type}</li>
           </ul>
-          <span className="text-black text-lg font-[family-name:var(--font-DM_Sans)]"><span className="text-black text-lg font-semibold font-[family-name:var(--font-DM_Sans)]">Expected Move Out Date:</span> {userHousingDetails.application.expected_moveout_date}</span>
+          <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {userHousingDetails.application.expected_moveout_date}</span>
         </div>
       </div>
     </div>
