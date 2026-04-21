@@ -16,58 +16,58 @@ async function getAll() {
 	return data;
 }
 
-async function getById(application_id: number) {
+async function getById(applicationId: number) {
 	const { data, error } = await supabase
 		.from("application")
 		.select("*")
-		.eq("application_id", application_id);
+		.eq("application_id", applicationId);
 	if (error) throw error;
 	return data;
 }
 
 async function getByManager(
-	manager_account_number: number,
+	managerAccountNumber: number,
 ) {
   const { data, error } = await supabase
     .from("application")
     .select(
       `application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, student_account_number, is_deleted, manager:manager_account_number(account_number)`,
     )
-    .eq("manager.account_number", manager_account_number)
+    .eq("manager.account_number", managerAccountNumber)
     .eq("is_deleted", false);
 
   if (error) throw error;
   return data;
 }
 
-async function getByHousing(housing_id: number) {
+async function getByHousing(housingId: number) {
 	const { data, error } = await supabase
 		.from("application")
 		.select(`*, room:room_id(housing_id)`)
-		.eq("room.housing_id", housing_id);
+		.eq("room.housing_id", housingId);
 	if (error) throw error;
 	return data;
 }
 
 async function update(
-	application_id: number,
+	applicationId: number,
 	updatedFields: Partial<Application>,
 ) {
   const { data, error } = await supabase
     .from("application")
     .update(updatedFields)
-    .eq("application_id", application_id)
+    .eq("application_id", applicationId)
     .eq("is_deleted", false)
     .select();
   if (error) throw error;
   return data;
 }
 
-async function remove(application_id: number) {
+async function remove(applicationId: number) {
 	const { data, error } = await supabase
 		.from("application")
 		.update({ is_deleted: true })
-		.eq("application_id", application_id)
+		.eq("application_id", applicationId)
 		.select();
 	if (error) throw error;
 	return data;
