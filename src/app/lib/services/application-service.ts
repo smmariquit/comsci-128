@@ -83,6 +83,8 @@ const assignApplicantToRoom = async (
   }
 }
 
+
+
 export const applicationService = {
   getDashboardStats,
   getApplications,

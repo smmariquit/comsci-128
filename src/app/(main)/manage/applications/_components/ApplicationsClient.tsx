@@ -17,13 +17,21 @@ const STATUSES = ["All Status", "Pending", "Approved", "Rejected", "Cancelled"]
 
 export default function ApplicationsClient({
   applications,
+  housings,
 }: {
   applications: Application[]
+  housings: { housing_id: number; housing_name: string }[]
 }) {
+
   const [statusFilter, setStatusFilter] = useState("All Status")
+  const [housingFilter, setHousingFilter] = useState("All Housing")
+
+  const [housingDropdownOpen, setHousingDropdownOpen] = useState(false)
 
   const filtered = applications.filter((app) => {
+
     if (statusFilter !== "All Status" && app.application_status !== statusFilter) return false
+    if (housingFilter !== "All Housing" && app.housing_name !== housingFilter) return false
     return true
   })
 
@@ -41,10 +49,49 @@ export default function ApplicationsClient({
           ))}
         </select>
 
-        {/* TODO: housing type filter*/}
-        <select className="p-2 border rounded bg-white text-black opacity-50 cursor-not-allowed" disabled>
+
+        {/* <select
+          className="p-2 border rounded bg-white text-black"
+          value={housingFilter}
+          onChange={(e) => setHousingFilter(e.target.value)}
+        >          
           <option>All Housing</option>
-        </select>
+          {housings.map((h) => (
+            <option key={h.housing_id} value={h.housing_name}>
+              {h.housing_name}
+            </option> ))}
+        </select> */}
+
+        <div className="relative">
+          <button
+            onClick={() => setHousingDropdownOpen(!housingDropdownOpen)}
+            className="p-2 border rounded border-gray-900 bg-white text-black min-w-[160px] text-left text-sm"
+          >
+            {housingFilter} ▾
+          </button>
+
+          {housingDropdownOpen && (
+            <div className="absolute z-10 mt-1 border-gray-900 bg-white border rounded shadow max-h-96 overflow-y-auto min-w-[160px]">
+              <div
+                onClick={() => { setHousingFilter("All Housing"); setHousingDropdownOpen(false) }}
+                className="px-3 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
+              >
+                All Housing
+              </div>
+              {housings.map((h) => (
+                <div
+                  key={h.housing_id}
+                  onClick={() => { setHousingFilter(h.housing_name); setHousingDropdownOpen(false) }}
+                  className="px-3 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
+                >
+                  {h.housing_name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      
+      
       </div>
 
       <div className="bg-white rounded-xl text-black shadow overflow-x-auto">
@@ -81,7 +128,8 @@ export default function ApplicationsClient({
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-sm font-semibold
                         ${app.application_status === "Approved" ? "bg-green-200 text-green-800" : ""}
-                        ${app.application_status === "Pending" ? "bg-yellow-200 text-yellow-800" : ""}
+                        ${app.application_status === "Pending Manager Approval" ? "bg-yellow-200 text-yellow-800" : ""}
+                        ${app.application_status === "Pending Admin Approval" ? "bg-yellow-200 text-yellow-800" : ""}
                         ${app.application_status === "Rejected" ? "bg-red-200 text-red-800" : ""}
                         ${app.application_status === "Cancelled" ? "bg-gray-200 text-gray-700" : ""}
                       `}>
