@@ -1,0 +1,2483 @@
+openapi: 3.0.3
+info:
+  title: Planned Endpoints
+  version: 1.1.0
+  description: |
+    Single source of truth for endpoints that we've planned but haven't made yet.
+
+servers:
+  - url: /api
+    description: Next.js API routes
+
+tags:
+  - name: Planned - Applications
+  - name: Planned - Audit Logs
+  - name: Planned - Billing
+  - name: Planned - Managers
+  - name: Planned - Housing Admins
+  - name: Planned - Reports
+  - name: Planned - Student Views
+  - name: Planned - Occupancy
+  - name: Planned - Documents
+paths:
+  /applications:
+    get:
+      tags: [Planned - Applications]
+      summary: List applications
+      operationId: listApplications
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/ApplicationSortBy'
+        - $ref: '#/components/parameters/SortDir'
+        - in: query
+          name: manager_account_number
+          schema: { type: integer }
+        - in: query
+          name: student_account_number
+          schema: { type: integer }
+        - in: query
+          name: housing_name
+          schema: { type: string }
+        - in: query
+          name: application_status
+          schema:
+            $ref: '#/components/schemas/ApplicationStatus'
+        - in: query
+          name: preferred_room_type
+          schema:
+            $ref: '#/components/schemas/RoomType'
+        - in: query
+          name: is_deleted
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Application list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationListResponse'
+    post:
+      tags: [Planned - Applications]
+      summary: Create application
+      operationId: createApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreateRequest'
+      responses:
+        '201':
+          description: Application created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+
+  /applications/{applicationId}:
+    parameters:
+      - $ref: '#/components/parameters/ApplicationId'
+    get:
+      tags: [Planned - Applications]
+      summary: Get application by ID
+      operationId: getApplicationById
+      responses:
+        '200':
+          description: Application record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Planned - Applications]
+      summary: Update application by ID
+      operationId: updateApplicationById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationUpdateRequest'
+      responses:
+        '200':
+          description: Application updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+    delete:
+      tags: [Planned - Applications]
+      summary: Soft-delete application by ID
+      operationId: deleteApplicationById
+      responses:
+        '200':
+          description: Application deleted
+
+  /applications/manager/{managerAccountNumber}:
+    get:
+      tags: [Planned - Applications]
+      summary: List applications by manager account number
+      operationId: getApplicationsByManager
+      parameters:
+        - $ref: '#/components/parameters/ManagerAccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/ApplicationSortBy'
+        - $ref: '#/components/parameters/SortDir'
+        - in: query
+          name: application_status
+          schema:
+            $ref: '#/components/schemas/ApplicationStatus'
+        - in: query
+          name: is_deleted
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Applications for manager
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationListResponse'
+
+  /applications/manager/{managerAccountNumber}/pending:
+    get:
+      tags: [Planned - Applications]
+      summary: Cursor-paginated pending applications by manager
+      description: Mirrors getPendingApplicationsByManagerPaginated complex query.
+      operationId: getPendingApplicationsByManagerPaginated
+      parameters:
+        - $ref: '#/components/parameters/ManagerAccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/CursorCreatedAt'
+        - $ref: '#/components/parameters/CursorApplicationId'
+      responses:
+        '200':
+          description: Cursor-paginated applications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedApplications'
+
+  /applications/housing/{housingId}:
+    get:
+      tags: [Planned - Applications]
+      summary: List applications by housing ID
+      operationId: getApplicationsByHousing
+      parameters:
+        - $ref: '#/components/parameters/HousingId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/ApplicationSortBy'
+        - $ref: '#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: Applications for housing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationListResponse'
+
+  /audit-logs:
+    get:
+      tags: [Planned - Audit Logs]
+      summary: List audit logs
+      operationId: listAuditLogs
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/AuditSortBy'
+        - $ref: '#/components/parameters/SortDir'
+        - in: query
+          name: action_type
+          schema:
+            $ref: '#/components/schemas/ActionType'
+        - in: query
+          name: account_number
+          schema: { type: integer }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Search in audit_description/user_name
+      responses:
+        '200':
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+    post:
+      tags: [Planned - Audit Logs]
+      summary: Create audit log
+      operationId: createAuditLog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditLogCreateRequest'
+      responses:
+        '201':
+          description: Audit log created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+
+  /audit-logs/{auditId}:
+    parameters:
+      - $ref: '#/components/parameters/AuditId'
+    patch:
+      tags: [Planned - Audit Logs]
+      summary: Update audit log
+      operationId: updateAuditLog
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditLogUpdateRequest'
+      responses:
+        '200':
+          description: Audit log updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+
+  /audit-logs/account/{accountNumber}:
+    get:
+      tags: [Planned - Audit Logs]
+      summary: List audit logs by account number
+      operationId: getAuditLogsByAccount
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/AuditSortBy'
+        - $ref: '#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: Audit logs by account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+
+  /bills:
+    get:
+      tags: [Planned - Billing]
+      summary: List bills
+      operationId: listBills
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/BillSortBy'
+        - $ref: '#/components/parameters/SortDir'
+        - in: query
+          name: manager_account_number
+          schema: { type: integer }
+        - in: query
+          name: student_account_number
+          schema: { type: integer }
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+        - in: query
+          name: bill_type
+          schema:
+            $ref: '#/components/schemas/BillType'
+        - in: query
+          name: overdue_only
+          schema: { type: boolean }
+        - in: query
+          name: from_due_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_due_date
+          schema: { type: string, format: date }
+        - in: query
+          name: is_deleted
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Bill list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillListResponse'
+    post:
+      tags: [Planned - Billing]
+      summary: Create bill
+      operationId: createBill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillCreateRequest'
+      responses:
+        '201':
+          description: Bill created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+
+  /bills/{transactionId}:
+    parameters:
+      - $ref: '#/components/parameters/TransactionId'
+    get:
+      tags: [Planned - Billing]
+      summary: Get bill by transaction ID
+      operationId: getBillById
+      responses:
+        '200':
+          description: Bill record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Planned - Billing]
+      summary: Update bill by transaction ID
+      operationId: updateBillById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillUpdateRequest'
+      responses:
+        '200':
+          description: Bill updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+    delete:
+      tags: [Planned - Billing]
+      summary: Soft-delete bill by transaction ID
+      operationId: deleteBillById
+      responses:
+        '200':
+          description: Bill deleted
+
+  /bills/{transactionId}/mark-paid:
+    patch:
+      tags: [Planned - Billing]
+      summary: Mark bill as paid
+      operationId: markBillAsPaid
+      parameters:
+        - $ref: '#/components/parameters/TransactionId'
+      responses:
+        '200':
+          description: Bill marked as paid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+
+  /bills/manager/{accountNumber}:
+    get:
+      tags: [Planned - Billing]
+      summary: List bills by manager account number
+      operationId: getBillsByManager
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/BillSortBy'
+        - $ref: '#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: Bills by manager
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillListResponse'
+
+  /bills/student/{accountNumber}:
+    get:
+      tags: [Planned - Billing]
+      summary: List bills by student account number
+      operationId: getBillsByStudent
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/BillSortBy'
+        - $ref: '#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: Bills by student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillListResponse'
+
+  /bills/status/{status}:
+    get:
+      tags: [Planned - Billing]
+      summary: List bills by payment status
+      operationId: getBillsByStatus
+      parameters:
+        - in: path
+          name: status
+          required: true
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/BillSortBy'
+        - $ref: '#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: Bills by status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillListResponse'
+
+  /bills/overdue:
+    get:
+      tags: [Planned - Billing]
+      summary: List overdue pending bills
+      operationId: getOverdueBills
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/BillSortBy'
+        - $ref: '#/components/parameters/SortDir'
+      responses:
+        '200':
+          description: Overdue bills
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillListResponse'
+
+  /bills/student/{accountNumber}/total-balance:
+    get:
+      tags: [Planned - Billing]
+      summary: Get total pending balance for a student
+      operationId: getStudentTotalBalance
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Student total balance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_number:
+                    type: integer
+                  total_balance:
+                    type: number
+
+  /managers:
+    get:
+      tags: [Planned - Managers]
+      summary: List managers (with user details)
+      operationId: listManagers
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - in: query
+          name: manager_type
+          schema:
+            $ref: '#/components/schemas/ManagerType'
+        - in: query
+          name: is_deleted
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Manager list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerListResponse'
+
+  /managers/{accountNumber}:
+    parameters:
+      - $ref: '#/components/parameters/AccountNumber'
+    get:
+      tags: [Planned - Managers]
+      summary: Get manager by account number
+      operationId: getManagerById
+      responses:
+        '200':
+          description: Manager record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manager'
+    patch:
+      tags: [Planned - Managers]
+      summary: Update manager
+      operationId: updateManagerById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagerUpdateRequest'
+      responses:
+        '200':
+          description: Manager updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manager'
+    delete:
+      tags: [Planned - Managers]
+      summary: Soft-delete manager
+      operationId: deleteManagerById
+      responses:
+        '200':
+          description: Manager deleted
+
+  /manager-banks:
+    get:
+      tags: [Planned - Managers]
+      summary: List manager bank records
+      operationId: listManagerBanks
+      parameters:
+        - in: query
+          name: account_number
+          schema: { type: integer }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Manager bank list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerBankListResponse'
+    post:
+      tags: [Planned - Managers]
+      summary: Create manager bank record
+      operationId: createManagerBank
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagerBankCreateRequest'
+      responses:
+        '201':
+          description: Manager bank created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerBank'
+
+  /manager-banks/{bankNumber}:
+    parameters:
+      - in: path
+        name: bankNumber
+        required: true
+        schema: { type: integer }
+    patch:
+      tags: [Planned - Managers]
+      summary: Update manager bank
+      operationId: updateManagerBankById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagerBankUpdateRequest'
+      responses:
+        '200':
+          description: Manager bank updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerBank'
+    delete:
+      tags: [Planned - Managers]
+      summary: Soft-delete manager bank
+      operationId: deleteManagerBankById
+      responses:
+        '200':
+          description: Manager bank deleted
+
+  /manager-payments:
+    get:
+      tags: [Planned - Managers]
+      summary: List manager payment records (joined)
+      operationId: listManagerPayments
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - in: query
+          name: account_number
+          schema: { type: integer }
+        - in: query
+          name: transaction_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Manager payment list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerPaymentListResponse'
+    post:
+      tags: [Planned - Managers]
+      summary: Create manager payment and mark bill as paid
+      operationId: createManagerPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagerPaymentCreateRequest'
+      responses:
+        '201':
+          description: Manager payment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerPayment'
+
+  /manager-payments/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+    patch:
+      tags: [Planned - Managers]
+      summary: Update manager payment
+      operationId: updateManagerPaymentById
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagerPaymentUpdateRequest'
+      responses:
+        '200':
+          description: Manager payment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerPayment'
+    delete:
+      tags: [Planned - Managers]
+      summary: Soft-delete manager payment
+      operationId: deleteManagerPaymentById
+      responses:
+        '200':
+          description: Manager payment deleted
+
+  /housing-admins:
+    get:
+      tags: [Planned - Housing Admins]
+      summary: List housing admins with nested manager/user details
+      operationId: listHousingAdmins
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Search by user name or email
+      responses:
+        '200':
+          description: Housing admin list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HousingAdminListResponse'
+
+  /housing-admins/{accountNumber}:
+    get:
+      tags: [Planned - Housing Admins]
+      summary: Get housing admin by account number
+      operationId: getHousingAdminById
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Housing admin record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HousingAdmin'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /reports/overdue-bills:
+    get:
+      tags: [Planned - Reports]
+      summary: Overdue billing report
+      operationId: getOverdueBillsReport
+      parameters:
+        - in: query
+          name: manager_account_number
+          schema: { type: integer }
+        - in: query
+          name: housing_name
+          schema: { type: string }
+        - in: query
+          name: from_due_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_due_date
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/BillSortBy'
+        - $ref: '#/components/parameters/SortDir'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Overdue bill report rows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillListResponse'
+
+  /students/{accountNumber}/active-housing:
+    get:
+      tags: [Planned - Student Views]
+      summary: Get active housing information of a student
+      operationId: getStudentActiveHousing
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Active housing details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentActiveHousingResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /students/{accountNumber}/billing-summary:
+    get:
+      tags: [Planned - Student Views]
+      summary: Get student billing summary (overall and breakdown)
+      operationId: getStudentBillingSummary
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Billing summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingSummaryResponse'
+
+  /students/{accountNumber}/billing-history:
+    get:
+      tags: [Planned - Student Views]
+      summary: Get student billing history
+      operationId: getStudentBillingHistory
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Billing history list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillListResponse'
+
+  /students/{accountNumber}/bills/active:
+    get:
+      tags: [Planned - Student Views]
+      summary: Get active unpaid bills for a student
+      operationId: getStudentActiveBills
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Active bill list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillListResponse'
+
+  /students/{accountNumber}/applications/submitted:
+    get:
+      tags: [Planned - Applications]
+      summary: Get submitted application details of a student
+      operationId: getStudentSubmittedApplications
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Student application submissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationListResponse'
+
+  /students/{accountNumber}/accommodation-history:
+    get:
+      tags: [Planned - Student Views]
+      summary: Get accommodation history of a given student
+      operationId: getStudentAccommodationHistory
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Accommodation history entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccommodationHistoryListResponse'
+
+  /students/{accountNumber}/current-housing:
+    get:
+      tags: [Planned - Student Views]
+      summary: Get details of current house of a student
+      operationId: getStudentCurrentHousing
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Current housing details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentActiveHousingResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /housing-options:
+    get:
+      tags: [Planned - Student Views]
+      summary: List housing options filtered by room type, housing type, and price sort
+      operationId: listHousingOptions
+      parameters:
+        - in: query
+          name: room_type
+          schema:
+            $ref: '#/components/schemas/RoomType'
+        - in: query
+          name: housing_type
+          schema:
+            $ref: '#/components/schemas/HousingType'
+        - in: query
+          name: sort_price
+          schema:
+            type: string
+            enum: [asc, desc]
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Housing option list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HousingOptionListResponse'
+
+  /applications/unassigned-approved:
+    get:
+      tags: [Planned - Applications]
+      summary: List approved applicants that are not yet assigned to a room
+      operationId: listUnassignedApprovedApplicants
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+          description: Manager or landlord account number
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Approved unassigned applicants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationListResponse'
+
+  /applications/pending-final-approval/count:
+    get:
+      tags: [Planned - Applications]
+      summary: Count applications pending final approval of housing admin or landlord
+      operationId: countPendingFinalApprovalApplications
+      x-clarification-needed: true
+      parameters:
+        - in: query
+          name: manager_account_number
+          schema:
+            type: integer
+          description: Required if filtered per assigned manager/housing admin
+      responses:
+        '200':
+          description: Pending final approval count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+
+  /managers/{accountNumber}/billings/detailed:
+    get:
+      tags: [Planned - Billing]
+      summary: List billings under manager or landlord with room and student details
+      operationId: listManagerBillingsDetailed
+      x-clarification-needed: true
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Detailed billing list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingDetailListResponse'
+
+  /managers/{accountNumber}/students/balance:
+    get:
+      tags: [Planned - Billing]
+      summary: Check current balance per student for a manager
+      operationId: listStudentBalanceByManager
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Student balances
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentBalanceListResponse'
+
+  /managers/{accountNumber}/students/unpaid-overdue:
+    get:
+      tags: [Planned - Billing]
+      summary: List overdue or unpaid housing fees per student under manager
+      operationId: listOverdueByStudentManaged
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Student unpaid or overdue fees
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingDetailListResponse'
+
+  /managers/{accountNumber}/housings/unpaid-overdue:
+    get:
+      tags: [Planned - Billing]
+      summary: List overdue or unpaid housing fees per housing under manager
+      operationId: listOverdueByHousingManaged
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Housing-level unpaid or overdue fees
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingDetailListResponse'
+
+  /managers/{accountNumber}/rooms/count:
+    get:
+      tags: [Planned - Occupancy]
+      summary: Count total rooms managed by a housing admin or manager
+      operationId: countRoomsManagedByManager
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Rooms count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+
+  /managers/{accountNumber}/tenants/count:
+    get:
+      tags: [Planned - Occupancy]
+      summary: Count total tenants managed by a manager
+      operationId: countTenantsManagedByManager
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Tenants count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+
+  /managers/{accountNumber}/occupancy-rate:
+    get:
+      tags: [Planned - Occupancy]
+      summary: Overall occupancy rate of managed dorms
+      operationId: getManagedOccupancyRate
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Occupancy ratio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OccupancyRateResponse'
+
+  /managers/{accountNumber}/dorms:
+    get:
+      tags: [Planned - Occupancy]
+      summary: List dorms managed by manager with occupants and available slots
+      operationId: listDormsManagedByManager
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Managed dorm summaries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagerDormSummaryListResponse'
+
+  /managers/{accountNumber}/tenants:
+    get:
+      tags: [Planned - Occupancy]
+      summary: List all tenants managed by manager (not grouped per room)
+      operationId: listTenantsManagedByManager
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Tenant records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantRecordListResponse'
+
+  /rooms/{roomId}/students:
+    get:
+      tags: [Planned - Occupancy]
+      summary: List students under a specific room
+      operationId: listStudentsByRoom
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+        - in: query
+          name: manager_account_number
+          schema:
+            type: integer
+          description: Optional manager account for permission scoping
+      responses:
+        '200':
+          description: Student list for room
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantRecordListResponse'
+
+  /housing/{housingId}/tenants/current:
+    get:
+      tags: [Planned - Occupancy]
+      summary: Students currently housed per housing
+      operationId: listCurrentTenantsByHousing
+      parameters:
+        - $ref: '#/components/parameters/HousingId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Current tenants by housing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantRecordListResponse'
+
+  /housing/{housingId}/occupancy-rate:
+    get:
+      tags: [Planned - Occupancy]
+      summary: Occupancy rate of a housing
+      operationId: getHousingOccupancyRate
+      parameters:
+        - $ref: '#/components/parameters/HousingId'
+      responses:
+        '200':
+          description: Occupancy rate result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OccupancyRateResponse'
+
+  /housing/{housingId}/activities/recent:
+    get:
+      tags: [Planned - Audit Logs]
+      summary: All recent activities of housing
+      operationId: listRecentHousingActivities
+      parameters:
+        - $ref: '#/components/parameters/HousingId'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Recent activities list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+
+  /housing/{housingId}/revenue/gross:
+    get:
+      tags: [Planned - Reports]
+      summary: Gross revenue of a housing
+      operationId: getHousingGrossRevenue
+      parameters:
+        - $ref: '#/components/parameters/HousingId'
+      responses:
+        '200':
+          description: Housing gross revenue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrossRevenueResponse'
+
+  /landlords/{accountNumber}/properties/count:
+    get:
+      tags: [Planned - Reports]
+      summary: Count total properties of a landlord
+      operationId: countLandlordProperties
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Property count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+
+  /landlords/{accountNumber}/rooms/count:
+    get:
+      tags: [Planned - Reports]
+      summary: Count total rooms of a landlord
+      operationId: countLandlordRooms
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Room count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+
+  /landlords/{accountNumber}/tenants/count:
+    get:
+      tags: [Planned - Reports]
+      summary: Count total tenants of a landlord
+      operationId: countLandlordTenants
+      parameters:
+        - $ref: '#/components/parameters/AccountNumber'
+      responses:
+        '200':
+          description: Tenant count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountResponse'
+
+  /landlords/{accountNumber}/revenue/gross:
+    get:
+      tags: [Planned - Reports]
+      summary: Gross revenue of a landlord
+      operationId: getLandlordGrossRevenue
+      x-clarification-needed: true
+      responses:
+        '200':
+          description: Landlord gross revenue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrossRevenueResponse'
+
+  /applications/{applicationId}/documents:
+    get:
+      tags: [Planned - Documents]
+      summary: List all documents submitted in an application
+      operationId: listApplicationDocuments
+      x-clarification-needed: true
+      parameters:
+        - $ref: '#/components/parameters/ApplicationId'
+      responses:
+        '200':
+          description: Application documents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+
+  /documents:
+    get:
+      tags: [Planned - Documents]
+      summary: List uploaded documents
+      operationId: listDocuments
+      parameters:
+        - in: query
+          name: application_id
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Document list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+    post:
+      tags: [Planned - Documents]
+      summary: Upload a document
+      operationId: createDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentCreateRequest'
+      responses:
+        '201':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+
+  /documents/{documentId}:
+    get:
+      tags: [Planned - Documents]
+      summary: Get a document by ID
+      operationId: getDocumentById
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Document details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Planned - Documents]
+      summary: Update document metadata
+      operationId: updateDocumentById
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUpdateRequest'
+      responses:
+        '200':
+          description: Document updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+    delete:
+      tags: [Planned - Documents]
+      summary: Delete document
+      operationId: deleteDocumentById
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+      responses:
+        '200':
+          description: Document deleted
+
+  /auth/login:
+    post:
+      tags: [Planned - Reports]
+      summary: Login endpoint (documented for SRS auth flow)
+      operationId: login
+      x-clarification-needed: true
+      responses:
+        '200':
+          description: Login success
+
+  /auth/logout:
+    post:
+      tags: [Planned - Reports]
+      summary: Logout endpoint (documented for SRS auth flow)
+      operationId: logout
+      responses:
+        '200':
+          description: Logout success
+
+  /auth/session:
+    get:
+      tags: [Planned - Reports]
+      summary: Get active session details
+      operationId: getSession
+      responses:
+        '200':
+          description: Session details
+components:
+  parameters:
+    HousingId:
+      in: path
+      name: housingId
+      required: true
+      schema: { type: integer }
+    RoomId:
+      in: path
+      name: roomId
+      required: true
+      schema: { type: integer }
+    UserId:
+      in: path
+      name: id
+      required: true
+      schema: { type: integer }
+    ApplicationId:
+      in: path
+      name: applicationId
+      required: true
+      schema: { type: integer }
+    AuditId:
+      in: path
+      name: auditId
+      required: true
+      schema: { type: integer }
+    TransactionId:
+      in: path
+      name: transactionId
+      required: true
+      schema: { type: integer }
+    AccountNumber:
+      in: path
+      name: accountNumber
+      required: true
+      schema: { type: integer }
+    ManagerAccountNumber:
+      in: path
+      name: managerAccountNumber
+      required: true
+      schema: { type: integer }
+    DocumentId:
+      in: path
+      name: documentId
+      required: true
+      schema: { type: integer }
+
+    Limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Offset:
+      in: query
+      name: offset
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    SortDir:
+      in: query
+      name: sort_dir
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+
+    CursorCreatedAt:
+      in: query
+      name: cursor_created_at
+      schema:
+        type: string
+        format: date-time
+    CursorApplicationId:
+      in: query
+      name: cursor_application_id
+      schema: { type: integer }
+
+    HousingSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [housing_name, rent_price, start_application_date, end_application_date, housing_id]
+        default: housing_name
+    RoomSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [room_id, housing_id, room_type, occupancy_status, payment_status]
+        default: room_id
+    UserSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [last_name, first_name, account_email, account_number, user_type]
+        default: account_number
+    ApplicationSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [application_id, expected_moveout_date, actual_moveout_date, application_status, housing_name, preferred_room_type]
+        default: application_id
+    BillSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [transaction_id, due_date, issue_date, amount, status, bill_type]
+        default: issue_date
+    AuditSortBy:
+      in: query
+      name: sort_by
+      schema:
+        type: string
+        enum: [timestamp, audit_id, action_type, user_name]
+        default: timestamp
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+
+    ListMeta:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        total:
+          type: integer
+          nullable: true
+
+    CursorMeta:
+      type: object
+      properties:
+        has_next_page:
+          type: boolean
+
+    HousingType:
+      type: string
+      enum: [Non-UP Housing, UP Housing]
+    RoomType:
+      type: string
+      enum: [Single, Double, Shared]
+    OccupancyStatus:
+      type: string
+      enum: [Fully Occupied, Empty, Partially Occupied]
+    PaymentStatus:
+      type: string
+      enum: [Pending, Paid, Overdue]
+    UserType:
+      type: string
+      enum: [Student, Manager, System Admin]
+    Sex:
+      type: string
+      enum: [Male, Female, Prefer not to say]
+    ApplicationStatus:
+      type: string
+      enum: [Pending, Rejected, Approved, Cancelled]
+    ActionType:
+      type: string
+      enum: [Application Status, Bill Status]
+    BillType:
+      type: string
+      enum: [Rent, Utility, WiFi]
+    ManagerType:
+      type: string
+      enum: [Housing Administrator, Landlord]
+
+    Housing:
+      type: object
+      properties:
+        housing_id: { type: integer }
+        housing_name: { type: string }
+        housing_address: { type: string }
+        housing_type:
+          $ref: '#/components/schemas/HousingType'
+        rent_price: { type: number }
+        manager_account_number:
+          type: integer
+          nullable: true
+        start_application_date:
+          type: string
+          format: date
+          nullable: true
+        end_application_date:
+          type: string
+          format: date
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    HousingWithRooms:
+      allOf:
+        - $ref: '#/components/schemas/Housing'
+        - type: object
+          properties:
+            room:
+              type: array
+              items:
+                $ref: '#/components/schemas/Room'
+
+    Room:
+      type: object
+      properties:
+        room_id: { type: integer }
+        housing_id: { type: integer }
+        room_type:
+          $ref: '#/components/schemas/RoomType'
+        maximum_occupants:
+          type: integer
+          nullable: true
+        occupancy_status:
+          allOf:
+            - $ref: '#/components/schemas/OccupancyStatus'
+          nullable: true
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatus'
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    User:
+      type: object
+      properties:
+        account_number: { type: integer }
+        account_email:
+          type: string
+          format: email
+        first_name: { type: string }
+        middle_name:
+          type: string
+          nullable: true
+        last_name: { type: string }
+        password: { type: string }
+        sex:
+          $ref: '#/components/schemas/Sex'
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        phone_number:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          format: date
+          nullable: true
+        home_address:
+          type: string
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    Application:
+      type: object
+      properties:
+        application_id: { type: integer }
+        housing_name:
+          type: string
+          nullable: true
+        preferred_room_type:
+          allOf:
+            - $ref: '#/components/schemas/RoomType'
+          nullable: true
+        application_status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        expected_moveout_date:
+          type: string
+          format: date
+        actual_moveout_date:
+          type: string
+          format: date
+          nullable: true
+        room_id:
+          type: integer
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    AuditLog:
+      type: object
+      properties:
+        audit_id: { type: integer }
+        timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        action_type:
+          allOf:
+            - $ref: '#/components/schemas/ActionType'
+          nullable: true
+        audit_description:
+          type: string
+          nullable: true
+        user_id:
+          type: integer
+          nullable: true
+        user_name:
+          type: string
+          nullable: true
+        account_number:
+          type: integer
+          nullable: true
+
+    Bill:
+      type: object
+      properties:
+        transaction_id: { type: integer }
+        amount: { type: number }
+        bill_type:
+          $ref: '#/components/schemas/BillType'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        due_date:
+          type: string
+          format: date-time
+        issue_date:
+          type: string
+          format: date-time
+        date_paid:
+          type: string
+          format: date-time
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    Manager:
+      type: object
+      properties:
+        account_number: { type: integer }
+        manager_type:
+          $ref: '#/components/schemas/ManagerType'
+        user:
+          $ref: '#/components/schemas/User'
+
+    ManagerBank:
+      type: object
+      properties:
+        bank_number: { type: integer }
+        account_number:
+          type: integer
+          nullable: true
+        bank_name: { type: string }
+        bank_type: { type: string }
+        is_deleted:
+          type: boolean
+          nullable: true
+
+    ManagerPayment:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        account_number:
+          type: integer
+          nullable: true
+        bank_number:
+          type: integer
+        bank_type: { type: string }
+        transaction_id:
+          type: integer
+          nullable: true
+        is_deleted:
+          type: boolean
+          nullable: true
+        manager:
+          $ref: '#/components/schemas/Manager'
+        bill:
+          $ref: '#/components/schemas/Bill'
+
+    HousingAdmin:
+      type: object
+      properties:
+        account_number: { type: integer }
+        manager:
+          type: object
+          properties:
+            manager_type:
+              $ref: '#/components/schemas/ManagerType'
+            user:
+              $ref: '#/components/schemas/User'
+
+    HousingCreateRequest:
+      type: object
+      required: [housing_name, housing_address, rent_price]
+      properties:
+        housing_name: { type: string }
+        housing_address: { type: string }
+        housing_type:
+          $ref: '#/components/schemas/HousingType'
+        rent_price: { type: number }
+        manager_account_number:
+          type: integer
+          nullable: true
+        start_application_date:
+          type: string
+          format: date
+        end_application_date:
+          type: string
+          format: date
+
+    HousingUpdateRequest:
+      type: object
+      properties:
+        housing_name: { type: string }
+        housing_address: { type: string }
+        housing_type:
+          $ref: '#/components/schemas/HousingType'
+        rent_price: { type: number }
+        manager_account_number:
+          type: integer
+          nullable: true
+        start_application_date:
+          type: string
+          format: date
+        end_application_date:
+          type: string
+          format: date
+        is_deleted: { type: boolean }
+
+    RoomCreateRequest:
+      type: object
+      required: [housing_id]
+      properties:
+        housing_id: { type: integer }
+        room_type:
+          $ref: '#/components/schemas/RoomType'
+        maximum_occupants: { type: integer }
+        occupancy_status:
+          $ref: '#/components/schemas/OccupancyStatus'
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatus'
+
+    UserCreateRequest:
+      type: object
+      required: [account_email, first_name, last_name, password]
+      properties:
+        account_email:
+          type: string
+          format: email
+        first_name: { type: string }
+        middle_name:
+          type: string
+          nullable: true
+        last_name: { type: string }
+        password: { type: string }
+        sex:
+          $ref: '#/components/schemas/Sex'
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        contact_email:
+          type: string
+          format: email
+        phone_number: { type: string }
+        birthday:
+          type: string
+          format: date
+        home_address: { type: string }
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        account_email:
+          type: string
+          format: email
+        first_name: { type: string }
+        middle_name:
+          type: string
+          nullable: true
+        last_name: { type: string }
+        password: { type: string }
+        sex:
+          $ref: '#/components/schemas/Sex'
+        user_type:
+          $ref: '#/components/schemas/UserType'
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        phone_number:
+          type: string
+          nullable: true
+        birthday:
+          type: string
+          format: date
+          nullable: true
+        home_address:
+          type: string
+          nullable: true
+        is_deleted: { type: boolean }
+
+    ApplicationCreateRequest:
+      type: object
+      required: [expected_moveout_date]
+      properties:
+        housing_name:
+          type: string
+          nullable: true
+        preferred_room_type:
+          $ref: '#/components/schemas/RoomType'
+        application_status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        expected_moveout_date:
+          type: string
+          format: date
+        actual_moveout_date:
+          type: string
+          format: date
+          nullable: true
+        room_id:
+          type: integer
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted: { type: boolean }
+
+    ApplicationUpdateRequest:
+      type: object
+      properties:
+        housing_name:
+          type: string
+          nullable: true
+        preferred_room_type:
+          $ref: '#/components/schemas/RoomType'
+        application_status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        expected_moveout_date:
+          type: string
+          format: date
+        actual_moveout_date:
+          type: string
+          format: date
+          nullable: true
+        room_id:
+          type: integer
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted: { type: boolean }
+
+    AuditLogCreateRequest:
+      type: object
+      required: [timestamp, action_type, audit_description, user_id, user_name, account_number]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        action_type:
+          $ref: '#/components/schemas/ActionType'
+        audit_description:
+          type: string
+        user_id:
+          type: integer
+        user_name:
+          type: string
+        account_number:
+          type: integer
+
+    AuditLogUpdateRequest:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        action_type:
+          $ref: '#/components/schemas/ActionType'
+        audit_description:
+          type: string
+        user_id:
+          type: integer
+        user_name:
+          type: string
+        account_number:
+          type: integer
+
+    BillCreateRequest:
+      type: object
+      required: [amount, due_date]
+      properties:
+        amount: { type: number }
+        bill_type:
+          $ref: '#/components/schemas/BillType'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        due_date:
+          type: string
+          format: date-time
+        issue_date:
+          type: string
+          format: date-time
+        date_paid:
+          type: string
+          format: date-time
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted: { type: boolean }
+
+    BillUpdateRequest:
+      type: object
+      properties:
+        amount: { type: number }
+        bill_type:
+          $ref: '#/components/schemas/BillType'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        due_date:
+          type: string
+          format: date-time
+        issue_date:
+          type: string
+          format: date-time
+        date_paid:
+          type: string
+          format: date-time
+          nullable: true
+        manager_account_number:
+          type: integer
+          nullable: true
+        student_account_number:
+          type: integer
+          nullable: true
+        is_deleted: { type: boolean }
+
+    ManagerUpdateRequest:
+      type: object
+      properties:
+        manager_type:
+          $ref: '#/components/schemas/ManagerType'
+        is_deleted:
+          type: boolean
+
+    ManagerBankCreateRequest:
+      type: object
+      required: [bank_number, bank_name, bank_type]
+      properties:
+        account_number:
+          type: integer
+          nullable: true
+        bank_number: { type: integer }
+        bank_name: { type: string }
+        bank_type: { type: string }
+
+    ManagerBankUpdateRequest:
+      type: object
+      properties:
+        account_number:
+          type: integer
+          nullable: true
+        bank_name: { type: string }
+        bank_type: { type: string }
+        is_deleted:
+          type: boolean
+
+    ManagerPaymentCreateRequest:
+      type: object
+      required: [bank_number, bank_type]
+      properties:
+        account_number:
+          type: integer
+          nullable: true
+        bank_number: { type: integer }
+        bank_type: { type: string }
+        transaction_id:
+          type: integer
+          nullable: true
+
+    ManagerPaymentUpdateRequest:
+      type: object
+      properties:
+        account_number:
+          type: integer
+          nullable: true
+        bank_number: { type: integer }
+        bank_type: { type: string }
+        transaction_id:
+          type: integer
+          nullable: true
+        is_deleted:
+          type: boolean
+
+    HousingListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Housing'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    RoomListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Room'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ApplicationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    AuditLogListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    BillListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bill'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ManagerListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Manager'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ManagerBankListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagerBank'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ManagerPaymentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagerPayment'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    HousingAdminListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HousingAdmin'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    CountResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+
+    GrossRevenueResponse:
+      type: object
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+          example: PHP
+
+    OccupancyRateResponse:
+      type: object
+      properties:
+        occupied:
+          type: integer
+        capacity:
+          type: integer
+        ratio:
+          type: number
+
+    StudentActiveHousingResponse:
+      type: object
+      properties:
+        student_account_number:
+          type: integer
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room:
+          $ref: '#/components/schemas/Room'
+        manager:
+          $ref: '#/components/schemas/Manager'
+        stay_start:
+          type: string
+          format: date
+        stay_end:
+          type: string
+          format: date
+          nullable: true
+
+    BillingSummaryResponse:
+      type: object
+      properties:
+        student_account_number:
+          type: integer
+        total_unpaid:
+          type: number
+        total_overdue:
+          type: number
+        total_paid:
+          type: number
+        by_bill_type:
+          type: array
+          items:
+            type: object
+            properties:
+              bill_type:
+                $ref: '#/components/schemas/BillType'
+              amount:
+                type: number
+
+    AccommodationHistoryEntry:
+      type: object
+      properties:
+        student_account_number:
+          type: integer
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room:
+          $ref: '#/components/schemas/Room'
+        move_in_date:
+          type: string
+          format: date
+        expected_move_out_date:
+          type: string
+          format: date
+          nullable: true
+        actual_move_out_date:
+          type: string
+          format: date
+          nullable: true
+
+    AccommodationHistoryListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccommodationHistoryEntry'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    HousingOption:
+      type: object
+      properties:
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room_type:
+          $ref: '#/components/schemas/RoomType'
+        available_slots:
+          type: integer
+
+    HousingOptionListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HousingOption'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    BillingDetail:
+      type: object
+      properties:
+        bill:
+          $ref: '#/components/schemas/Bill'
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room:
+          $ref: '#/components/schemas/Room'
+        student:
+          $ref: '#/components/schemas/User'
+        manager:
+          $ref: '#/components/schemas/Manager'
+
+    BillingDetailListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BillingDetail'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    StudentBalance:
+      type: object
+      properties:
+        student_account_number:
+          type: integer
+        student_name:
+          type: string
+        total_balance:
+          type: number
+
+    StudentBalanceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentBalance'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    TenantRecord:
+      type: object
+      properties:
+        student:
+          $ref: '#/components/schemas/User'
+        housing:
+          $ref: '#/components/schemas/Housing'
+        room:
+          $ref: '#/components/schemas/Room'
+        start_of_stay:
+          type: string
+          format: date
+        end_of_stay:
+          type: string
+          format: date
+          nullable: true
+
+    TenantRecordListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantRecord'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    ManagerDormSummary:
+      type: object
+      properties:
+        housing:
+          $ref: '#/components/schemas/Housing'
+        total_occupants:
+          type: integer
+        available_slots:
+          type: integer
+        room_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoomType'
+
+    ManagerDormSummaryListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagerDormSummary'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    Document:
+      type: object
+      properties:
+        document_id:
+          type: integer
+        application_id:
+          type: integer
+        file_name:
+          type: string
+        file_type:
+          type: string
+        file_url:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time
+        uploaded_by_account_number:
+          type: integer
+
+    DocumentCreateRequest:
+      type: object
+      required: [application_id, file_name, file_type, file_url]
+      properties:
+        application_id:
+          type: integer
+        file_name:
+          type: string
+        file_type:
+          type: string
+        file_url:
+          type: string
+
+    DocumentUpdateRequest:
+      type: object
+      properties:
+        file_name:
+          type: string
+        file_type:
+          type: string
+        file_url:
+          type: string
+
+    DocumentListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        meta:
+          $ref: '#/components/schemas/ListMeta'
+
+    PaginatedApplications:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Application'
+        has_next_page:
+          type: boolean
+        next_cursor:
+          type: object
+          nullable: true
+          properties:
+            created_at:
+              type: string
+              format: date-time
+            application_id:
+              type: integer
+
