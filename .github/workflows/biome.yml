@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: true
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.head_ref }}
 
@@ -21,7 +21,7 @@ jobs:
         uses: biomejs/setup-biome@v2
         with:
           version: latest
-          
+
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v44
