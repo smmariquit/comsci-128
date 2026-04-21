@@ -1,5 +1,6 @@
 import type { NewUser, UpdateUser, User } from "@/models/user";
 import { supabase } from "../supabase";
+import { count } from "console";
 
 async function create(userDetails: NewUser): Promise<User> {
 	// this is for returning the newly inserted user
@@ -18,14 +19,14 @@ async function create(userDetails: NewUser): Promise<User> {
 async function findAll(): Promise<User[]> {
 	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
-  const { data, error } = await supabase
-    .from("user")
-    .select()
-    .eq("is_deleted", false);
+	const { data, error } = await supabase
+	.from('user')
+	.select()
+	.eq('is_deleted', false);
 
   if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
-  return data ?? null;
+	return data ?? [];
 }
 
 async function findById(userId: number): Promise<User | null> {
@@ -85,6 +86,28 @@ async function deactivate(userId: number): Promise<UpdateUser | null> {
   return data && data.length > 0 ? data[0] : null;
 }
 
+async function countAllUser(): Promise<number | null> {
+	const { count, error } = await supabase
+		.from("user")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
+// Counts only active users (not marked as deleted)
+async function countActiveUsers():Promise<number | null> {
+	const { count, error } = await supabase
+      .from("user")
+      .select("*", { count: "exact", head: true })
+      .eq("is_deleted", false);
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
 export const userData = {
 	create,
 	findAll,
@@ -92,4 +115,6 @@ export const userData = {
 	findByEmail,
 	update,
 	deactivate,
+  countAllUser,
+	countActiveUsers,
 };

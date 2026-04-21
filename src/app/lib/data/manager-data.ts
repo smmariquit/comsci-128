@@ -157,6 +157,14 @@ const deletePaymentDetails = async (id: number) => {
 		.single();
 };
 
+const countAllManager = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("manager")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
 // List of approved applicants that have no room assigned yet
 // Involves: user, student, application, manager
 async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
@@ -481,6 +489,7 @@ export const managerData = {
 	update,
 	deactivate,
 	createBankDetails,
+  countAllManager,
 	getBanks,
 	updateBankDetails,
 	deleteBankDetails,

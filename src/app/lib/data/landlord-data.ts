@@ -34,9 +34,9 @@ async function create(userDetails: NewUser, managerDetails: NewManager) {
 async function getAll() {
 	const { data, error } = await supabase.from("landlord").select(`
       account_number,
-      manager:account_number (
+      manager:landlord_account_number_fkey (
         manager_type,
-        user:account_number (
+        user:manager_account_number_fkey (
           account_number,
           account_email,
           first_name,
@@ -58,7 +58,7 @@ async function getAll() {
 		return { data: null, error };
 	}
 
-	return { data, error: null };
+  return { data, error: null };
 }
 
 // Read single landlord with user details by account_number

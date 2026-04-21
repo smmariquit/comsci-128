@@ -1,3 +1,4 @@
+import { NewUser } from "@/models/user";
 import { landlordData } from "@/data/landlord-data";
 
 const fetchAllHousingAdmins = async () => {
