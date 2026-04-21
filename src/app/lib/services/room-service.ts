@@ -102,18 +102,10 @@ const getRoomStats = async () => {
 }
 
 export const roomService = {
-<<<<<<< HEAD
 	addRoom,
 	getRoom,
 	getAllRooms,
 	updateRoom,
 	deactivateRoom,
 	getRoomStats
-=======
-  addRoom,
-  getRoom,
-  getAllRooms,
-  updateRoom,
-  deactivateRoom,
->>>>>>> 7c7bbe325cc2ad1e86e35d3d43d7acfaa20c4023
 };
