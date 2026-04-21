@@ -1,5 +1,19 @@
 import { NewUser } from "@/models/user";
-import { landlordData } from "@/data/landlord-data";
+import { landlordData } from "@/app/lib/data/landlord-data";
+import { NewManager } from "@/models/manager";
+
+const addLandlord = async (userDetails: NewUser, managerDetails: NewManager) => {
+    try {
+        const result = await landlordData.create(userDetails, managerDetails);
+        if (result?.error) {
+            throw new Error(result.error.message || "Failed to add landlord.");
+        }
+        return result;
+    } catch (error) {
+        console.error("Error adding landlord:", error);
+        throw new Error("Failed to add landlord.");
+    }
+};
 
 const fetchAllHousingAdmins = async () => {
 	try {
@@ -140,7 +154,8 @@ const fetchGrossRevenueByLandlord = async (accountNumber: number) => {
 	}
 };
 
-export const _landlordService = {
+export const landlordService = {
+	addLandlord,
 	fetchAllHousingAdmins,
 	fetchGrossRevenueByLandlord,
 	fetchHousingAdminById,
