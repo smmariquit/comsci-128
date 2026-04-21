@@ -21,7 +21,7 @@ const getById = async (transactionId: number) => {
 		.single();
 };
 
-const update = async (transactionId: number, updates: any) => {
+const update = async (transactionId: number, updates: Bill) => {
 	return await supabase
 		.from("bill")
 		.update(updates)
