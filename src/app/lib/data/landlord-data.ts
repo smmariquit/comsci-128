@@ -1,30 +1,21 @@
-import { createManager } from "@/app/lib/data/manager-data";
 import { supabase } from "@/app/lib/supabase";
-import type { NewManager, } from "@/models/manager";
-import type { NewUser, } from "@/models/user";
+import { User, NewUser, UpdateUser } from "@/models/user";
+import { Manager, NewManager, UpdateManager } from "@/models/manager";
+import { managerData } from "@/app/lib/data/manager-data";
 
-// promote User from Student to Housing Admin (Manager rather)
-export async function createHousingAdmin(userDetails: NewUser, managerDetails: NewManager) {
-  // managerDetails.manager_type must already be set to "Housing Admin"
-
-  const newManagerData = await createManager(
+async function create(userDetails: NewUser, managerDetails: NewManager) {
+	// Call createManager with manager_type "Landlord"
+	// createManager internally calls createUser with user_type "Manager"
+	const newManagerData = await managerData.create(
 		userDetails,
-    managerDetails,
+		managerDetails,
 	);
 
-	// if (managerError || !newManagerData) {
-	// 	console.error(
-	// 		"Error creating manager in createHousingAdmin:",
-	// 		managerError?.message,
-	// 	);
-	// 	return { data: null, error: managerError };
-	// }
-
-  managerDetails.account_number = newManagerData.account_number
+	managerDetails.account_number = newManagerData.account_number;
 
 	// Insert into housing_admin
 	const { data, error: adminError } = await supabase
-		.from("housing_admin")
+		.from("landlord")
 		.insert([managerDetails])
 		.select();
 
@@ -39,13 +30,13 @@ export async function createHousingAdmin(userDetails: NewUser, managerDetails: N
 	return data[0];
 }
 
-// Read all housing admins with user details
-export async function getAllHousingAdmins() {
-	const { data, error } = await supabase.from("housing_admin").select(`
+// Read all landlords with user details
+async function getAll() {
+	const { data, error } = await supabase.from("landlord").select(`
       account_number,
-      manager:account_number (
+      manager:landlord_account_number_fkey (
         manager_type,
-        user:account_number (
+        user:manager_account_number_fkey (
           account_number,
           account_email,
           first_name,
@@ -63,17 +54,17 @@ export async function getAllHousingAdmins() {
     `);
 
 	if (error) {
-		console.error("Error fetching housing admins:", error.message);
+		console.error("Error fetching landlords:", error.message);
 		return { data: null, error };
 	}
 
-	return { data, error: null };
+  return { data, error: null };
 }
 
-// Read single housing admin with user details by account_number
-export async function getHousingAdminById(accountNumber: number) {
+// Read single landlord with user details by account_number
+async function getById(accountNumber: number) {
 	const { data, error } = await supabase
-		.from("housing_admin")
+		.from("landlord")
 		.select(
 			`
       account_number,
@@ -100,14 +91,43 @@ export async function getHousingAdminById(accountNumber: number) {
 		.single();
 
 	if (error) {
-		console.error("Error fetching housing admin:", error.message);
+		console.error("Error fetching landlord:", error.message);
 		return { data: null, error };
 	}
 
 	return { data, error: null };
 }
 
-export async function getTotalRoomsByLandlord(accountNumber: number) {
+async function getPendingAdminApplications(landlordAccountNumber: number) {
+	// get the list of applications with status = "Pending Admin Approval"
+	// get the count of applications with the same status
+
+	const {
+		data: listOfPending,
+		count: totalPending,
+		error,
+	} = await supabase
+		.from("application")
+		.select(
+			`
+        *,
+        user!inner(*)
+      `,
+			{ count: "exact" },
+		)
+		.eq("application.application_status", "Pending Admin Approval")
+		.eq("appplication.landlord_account_number", landlordAccountNumber)
+		.eq("is_deleted", false);
+
+	if (error)
+		throw new Error(
+			`getAccommodatio nHistoryOfStudent Error: ${error.message}`,
+		);
+
+	return { listOfPending, totalPending };
+}
+
+async function getTotalRoomsManaged(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("room")
 		.select(
@@ -122,7 +142,13 @@ export async function getTotalRoomsByLandlord(accountNumber: number) {
 
 	if (error) {
 		console.error("Error counting rooms by landlord:", error.message);
-export async function _getTotalPropertiesByLandlord(accountNumber: number) {
+		throw new Error();
+	}
+
+	return count;
+}
+
+async function getTotalProperties(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("housing")
 		.select("housing_id", { count: "exact", head: true })
@@ -138,7 +164,7 @@ export async function _getTotalPropertiesByLandlord(accountNumber: number) {
 }
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
-export async function _getTotalTenantsByLandlord(accountNumber: number) {
+async function getTotalTenantsManaged(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("student_accommodation_history")
 		.select(
@@ -160,7 +186,7 @@ export async function _getTotalTenantsByLandlord(accountNumber: number) {
 	return { data: count ?? 0, error: null };
 }
 
-export async function _getGrossRevenueByLandlord(accountNumber: number) {
+async function getGrossRevenue(accountNumber: number) {
 	const { data: tenants, error: tenantError } = await supabase
 		.from("student_accommodation_history")
 		.select(
@@ -200,25 +226,19 @@ export async function _getGrossRevenueByLandlord(accountNumber: number) {
 		return { data: null, error: billError };
 	}
 
-	const grossRevenue = bills?.reduce(
-		(sum, bill) => sum + Number(bill.amount),
-		0,
-	) ?? 0;
+	const grossRevenue =
+		bills?.reduce((sum, bill) => sum + Number(bill.amount), 0) ?? 0;
 
 	return { data: grossRevenue, error: null };
 }
 
-//Delete housing admin (uncomment if needed)
-// export async function deleteHousingAdmin(accountNumber: number) {
-//   const { error } = await supabase
-//     .from("housing_admin")
-//     .delete()
-//     .eq("account_number", accountNumber);
-
-//   if (error) {
-//     console.error("Error deleting from housing_admin:", error.message);
-//     return { success: false, error };
-//   }
-
-//   return { success: true, error: null };
-// }
+export const landlordData = {
+	create,
+	getAll,
+	getById,
+	getPendingAdminApplications,
+	getTotalRoomsManaged,
+	getTotalProperties,
+	getTotalTenantsManaged,
+	getGrossRevenue,
+};

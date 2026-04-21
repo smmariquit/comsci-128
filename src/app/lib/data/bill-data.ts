@@ -1,149 +1,121 @@
-import { BillRow, BillType } from "@/app/components/admin/billings/billingtable";
-import { PaymentStatus } from "@/app/components/admin/reports/reportsmock";
-import { supabase } from "@/app/lib/supabase";
+import { supabase } from "../supabase";
 
-export type ActionType = "Application Status" | "Bill Status";
+const create = async (billData: any) => {
+	return await supabase.from("bill").insert([billData]).select().single();
+};
 
-export interface AuditLog {
-  audit_id?: number;
-  timestamp: string;
-  action_type: ActionType;
-  audit_description: string;
-  user_id: number;
-  user_name: string;
-  account_number: number;
-}
-
-// CREATE AUDIT LOG
-export async function createAuditLog(audit_log: AuditLog) {
-  const { data, error } = await supabase
-    .from("audit_log")
-    .insert([audit_log])
-    .select();
-  if (error) throw error;
-  return data;
-}
-
-// READ ALL AUDIT LOGS
-export async function getAllAuditLogs() {
-  const { data, error } = await supabase.from("audit_log").select("*");
-  if (error) throw error;
-  return data;
-}
-
-// READ AUDIT LOGS BASED ON ACCOUNT NUMBER
-export async function getAuditLogByAccountNumber(account_number: number) {
-  const { data, error } = await supabase
-    .from("audit_log")
-    .select("*")
-    .eq("account_number", account_number);
-  if (error) throw error;
-  return data;
-}
-
-// UPDATE AUDIT LOGS
-export async function updateAuditLog(
-  audit_id: number,
-  updatedFields: Partial<AuditLog>,
-) {
-  const { data, error } = await supabase
-    .from("audit_log")
-    .update(updatedFields)
-    .eq("audit_id", audit_id)
-    .select();
-  if (error) throw error;
-  return data;
-}
-
-// FIND ALL BILLINGS
-async function findAllBillings(): Promise<BillRow[]> {
-	const { data, error } = await supabase
-	.from("bill")
-	.select(`
-		transaction_id,
-		amount,
-		status,
-		bill_type,
-		due_date,
-		issue_date,
-		date_paid,
-		student_account_number,
-		student(
-			user(
-				first_name,
-				last_name
-			)
-		)
-	`)
-	.eq("is_deleted", false);
-
-	if (error) throw new Error(error.message);
-
-	const now = new Date();
-
-	return (data || []).map((b: any) => {
-		const dueDate = new Date(b.due_date);
-		let currentStatus = (b.status || "Pending") as PaymentStatus;
-
-		// overdue logic
-		if (currentStatus === "Pending" && now > dueDate) {
-			currentStatus = "Overdue";
-		}
-		return {
-			transaction_id: b.transaction_id,
-			student_name: b.student?.user 
-				? `${b.student?.user?.first_name} ${b.student?.user?.last_name}` 
-				: "Unknown Student",
-			student_account_number: b.student_account_number,
-			housing_name: "Unassigned",
-			bill_type: (b.bill_type?.trim().charAt(0).toUpperCase() + b.bill_type?.trim().slice(1).toLowerCase() || "Miscellaneous") as BillType,
-			amount: Number(b.amount),
-			status: currentStatus,
-			due_date: b.due_date,
-			issue_date: b.issue_date,
-			date_paid: b.date_paid,
-		};
-	});
-}
-
-// UPDATE BILLING STATUS
-async function updateBilling(txnId: number, status: PaymentStatus, datePaid?: String) {
-	const payload: any = {status};
-	if (datePaid) payload.date_paid = datePaid;
-
-	const { data, error } = await supabase
+const getAll = async () => {
+	return await supabase
 		.from("bill")
-		.update(payload)
-		.eq("transaction_id", txnId)
+		.select("*, manager(*), student(*)")
+		.eq("is_deleted", false);
+};
+
+const getById = async (transaction_id: number) => {
+	return await supabase
+		.from("bill")
+		.select("*, manager(*), student(*)")
+		.eq("transaction_id", transaction_id)
+		.eq("is_deleted", false)
+		.single();
+};
+
+const update = async (transaction_id: number, updates: any) => {
+	return await supabase
+		.from("bill")
+		.update(updates)
+		.eq("transaction_id", transaction_id)
 		.select()
 		.single();
+};
 
-	if (error) throw new Error(error.message);
-}
+const markAsPaid = async (transaction_id: number) => {
+	return await supabase
+		.from("bill")
+		.update({
+			status: "Paid",
+			date_paid: new Date().toISOString(),
+		})
+		.eq("transaction_id", transaction_id)
+		.select()
+		.single();
+};
 
-// DELETE BILLING
-async function deleteBilling(txnId: number) {
-	const { error } = await supabase
+// delete bill
+const remove = async (transaction_id: number) => {
+	return await supabase
 		.from("bill")
 		.update({ is_deleted: true })
-		.eq("transaction_id", txnId);
+		.eq("transaction_id", transaction_id);
+};
 
-	if (error) throw new Error(error.message)
-} 
+// GET bills by manager
+const getBillsOfManager = async (account_number: number) => {
+	return await supabase
+		.from("bill")
+		.select("*, student(*)")
+		.eq("manager_account_number", account_number)
+		.eq("is_deleted", false);
+};
 
-async function createBilling(billDetails: any) {
+// GET bills per student
+const getBillsOfStudent = async (account_number: number) => {
+	return await supabase
+		.from("bill")
+		.select("*, manager(*)")
+		.eq("student_account_number", account_number)
+		.eq("is_deleted", false);
+};
+
+// GET bills based on their payment status
+const getBillsByStatus = async (status: string) => {
+	return await supabase
+		.from("bill")
+		.select("*, manager(*), student(*)")
+		.eq("status", status)
+		.eq("is_deleted", false);
+};
+
+// gets overdue bills
+const getOverdueBills = async () => {
+	const today = new Date().toISOString();
+
+	return await supabase
+		.from("bill")
+		.select("*, manager(*), student(*)")
+		.lt("due_date", today)
+		.eq("status", "Pending")
+		.eq("is_deleted", false);
+};
+
+// total balance per student
+const getTotalBalance = async (account_number: number) => {
 	const { data, error } = await supabase
 		.from("bill")
-		.insert([billDetails])
-		.select()
-		.single();
-	
-		if (error) throw new Error(error.message);
-}
+		.select("amount, status")
+		.eq("student_account_number", account_number)
+		.eq("is_deleted", false);
 
-export const billingData = {
-	findAllBillings,
-	updateBilling,
-	deleteBilling,
-	createBilling,
-}
+	const total = data?.reduce((sum: number, bill: any) => {
+		if (bill.status == "Pending") {
+			return sum + Number(bill.amount);
+		} else {
+			return sum;
+		}
+	}, 0);
+	return total ?? 0;
+};
+
+export const billData = {
+	create,
+	getAll,
+	getById,
+	update,
+	markAsPaid,
+	remove,
+	getBillsOfManager,
+	getBillsOfStudent,
+	getBillsByStatus,
+	getOverdueBills,
+	getTotalBalance
+};
