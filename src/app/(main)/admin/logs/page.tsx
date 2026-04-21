@@ -89,13 +89,9 @@ export default function Page() {
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
       <AuditLogFilters
         search={search}
-        actionType={actionType}
-        dateFrom={dateFrom}
-        dateTo={dateTo}
+        action={actionType as any}
         onSearch={setSearch}
-        onActionType={setActionType}
-        onDateFrom={setDateFrom}
-        onDateTo={setDateTo}
+        onAction={setActionType}
       />
 
       {/* ── Table ───────────────────────────────────────────────────────────── */}

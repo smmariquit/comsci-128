@@ -1,3 +1,4 @@
+/*
 // 1. Update the State Interface
 const [form, setForm] = useState<RoomForm>({
   housing_id:        initial?.housing_id        ?? "",     // Use ID, not Name
@@ -34,3 +35,4 @@ const [form, setForm] = useState<RoomForm>({
     placeholder="e.g. 101"
   />
 </Field>
+*/

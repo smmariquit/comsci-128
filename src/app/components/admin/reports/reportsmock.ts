@@ -44,11 +44,11 @@ export interface ApplicationReportRow {
 
 export const MOCK_APPLICATIONS: ApplicationReportRow[] = [
   { application_id:101, student_name:"Maria Santos",   student_number:"2021-00001", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Women Only",   application_status:"Approved",  expected_moveout_date:"2025-05-31" },
-  { application_id:102, student_name:"Juan dela Cruz", student_number:"2021-00002", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Men Only",   application_status:"Pending",   expected_moveout_date:"2025-05-31" },
+  { application_id:102, student_name:"Juan dela Cruz", student_number:"2021-00002", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Men Only",   application_status:"Pending Admin Approval",   expected_moveout_date:"2025-05-31" },
   { application_id:103, student_name:"Ana Reyes",      student_number:"2020-00045", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Women Only", application_status:"Rejected",  expected_moveout_date:"2025-05-31" },
   { application_id:104, student_name:"Ramon Bautista", student_number:"2022-00011", housing_name:"Ilagan Residence Hall",   preferred_room_type:"Co-ed",    application_status:"Approved",  expected_moveout_date:"2025-06-30" },
   { application_id:105, student_name:"Lorna Villanueva",student_number:"2019-00088",housing_name:"Ilagan Residence Hall",   preferred_room_type:"Co-ed",   application_status:"Cancelled", expected_moveout_date:"2025-06-30", actual_moveout_date:"2025-03-15" },
-  { application_id:106, student_name:"Carlos Mendoza", student_number:"2023-00033", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Men Only",   application_status:"Pending",   expected_moveout_date:"2025-07-31" },
+  { application_id:106, student_name:"Carlos Mendoza", student_number:"2023-00033", housing_name:"Kalayaan Residence Hall", preferred_room_type:"Men Only",   application_status:"Pending Admin Approval",   expected_moveout_date:"2025-07-31" },
 ];
 
 // ── Revenue Report ────────────────────────────────────────────────────────────
