@@ -1,5 +1,10 @@
 
+import type { Metadata } from "next";
 import { applicationService } from "@/app/lib/services/application-service";
+
+export const metadata: Metadata = {
+  title: "Manager Dashboard",
+};
 import { housingService } from "@/app/lib/services/housing-service";
 import { roomService } from "@/app/lib/services/room-service";
 import Link from "next/link";

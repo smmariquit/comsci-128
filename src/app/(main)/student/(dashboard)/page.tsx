@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "Student Dashboard",
+};
 import SearchBar from "./SearchBar";
 import { Suspense } from "react";
 import { userData } from "@/app/lib/data/user-data";

@@ -1,5 +1,10 @@
 
+import type { Metadata } from "next";
 import { applicationService } from "@/app/lib/services/application-service";
+
+export const metadata: Metadata = {
+  title: "Application Review",
+};
 
 import Link from "next/link";
 import ReviewWrapper from "./_components/ReviewWrapper";
