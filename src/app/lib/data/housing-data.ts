@@ -88,42 +88,12 @@ async function update(
 
 //deletes a housing
 async function deactivate(housingId: number): Promise<Housing | null> {
-	const { data, error } = await supabase
-		.from("housing")
-		.update({ is_deleted: true }) // Soft delete
-		.eq("housing_id", housingId)
-		.select()
-		.single();
-
-	if (error) {
-		if (error.code === "PGRST116") return null;
-		throw new Error(error.message);
-	}
-
-	return data;
-}
-
-const countAllHousing = async (): Promise<number | null> => {
-	const { count, error } = await supabase
-		.from("housing")
-		.select("*", { count: "exact", head: true });
-
-	if (error) throw new Error(error.message);
-
-	return count;
-}
-
-async function getHousingDetailsOfStudent(studentAccountNumber: number) {
-	// get the details of the housing and room of a student given a student's account number
-	
-	const { data: studentHousingDetails, error } = await supabase
-		.from("housing")
-		.select(`
-			*,
-			room!inner(*),
-			student_accommodation_history!inner(*)
-		`)
-		.eq("student_accommodation_history.account_number", studentAccountNumber);
+  const { data, error } = await supabase
+    .from("housing")
+    .update({ is_deleted: true }) // Soft delete
+    .eq("housing_id", housingId)
+    .select()
+    .single();
 
   if (error) {
     if (error.code === "PGRST116") return null;
@@ -133,9 +103,9 @@ async function getHousingDetailsOfStudent(studentAccountNumber: number) {
   return data;
 }
 
-async function getStudentsHoused(managerId: number, housingId: number) {
-  // get details of list of students housed per housing
+// List all rooms 
 
+async function findAllWithRooms(): Promise<HousingWithRooms[]> {
   const { data, error } = await supabase
     .from("housing")
     .select(`
@@ -267,28 +237,23 @@ const getOverallUnpaidFees = async (student_account_number: number) => {
     .eq('is_deleted', false);
 };
 
-// Get occupancy rate of 1 housing
-// Returns a ratio = total current tenants / total maximum occupants
-async function getOccupancyRate(housingId: number): Promise<number> {
-	const { data, error } = await supabase
-		.from("room")
-		.select(`
-      occupants_count,
-      maximum_occupants,
-      housing!inner(housing_id)
-		`)
-		.eq("housing.housing_id", housingId)
-		.eq("housing.is_deleted", false);
+  if (error) throw new Error(error.message)
 
-	if (error) throw new Error(`getOccupancyRateOfHousing Error: ${error.message}`);
-	if (!data || data.length === 0) return 0;
+  return (data ?? []).map((h) => ({
+    ...h,
+    room: h.room?.filter((r: any) => !r.is_deleted) ?? [],
+  }))
+}
 
-	const totalCurrent = data.reduce((sum, room) => sum + (room.occupants_count ?? 0), 0);
-	const totalMaximum = data.reduce((sum, room) => sum + (room.maximum_occupants ?? 0), 0);
+async function countAllHousing(): Promise<number | null> {
+  const { count, error } = await supabase
+    .from("housing")
+    .select("*", { count: "exact", head: true })
+    .eq("is_deleted", false);
 
-	if (totalMaximum == 0) return 0;
+  if (error) throw new Error(error.message);
 
-	return (totalCurrent / totalMaximum) * 100;
+  return count;
 }
 
 export const housingData = {

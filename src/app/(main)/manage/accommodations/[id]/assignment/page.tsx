@@ -1,19 +1,57 @@
-import Link from "next/link";
+import { housingService } from "@/app/lib/services/housing-service";
+import { applicationService } from "@/app/lib/services/application-service";
+import AssignmentClient from "./_components/AssignmentClient";
+import { accommodationHistoryService } from "@/app/lib/services/accommodation-history-service";
 
-export default function Page() {
+export default async function RoomAssignmentPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const housingId = Number(id)
+
+  if (isNaN(housingId)) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Invalid housing ID.</p>
+      </main>
+    )
+  }
+
+  const housing = await housingService.getHousingWithRooms(housingId)
+
+  if (!housing) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Housing not found.</p>
+      </main>
+    )
+  }
+
+  const [applicants, tenants] = await Promise.all([
+  applicationService.getApprovedUnassignedByHousingName(housing.housing_name),
+  accommodationHistoryService.getTenantsByHousingId(housingId),
+])
+
+const units = housing.room.map((room) => {
+  const currentOccupants = tenants.filter((t: any) => t.room?.room_id === room.room_id).length
+  const freeSlots = Math.max(0, (room.maximum_occupants ?? 0) - currentOccupants)
+
+  return {
+    id: room.room_id,
+    name: `Unit #${room.room_id}`,
+    occupants: currentOccupants,
+    freeSlots,
+    bedType: room.room_type,
+  }
+})
+
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">
-        Manage Accommodation Assignment Page
-      </h1>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link
-          href="/manage/accommodations/1"
-          className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200"
-        >
-          Back to Accommodation
-        </Link>
-      </div>
-    </main>
-  );
+    <AssignmentClient
+      units={units}
+      applicants={applicants}
+      housingId={housingId}
+    />
+  )
 }

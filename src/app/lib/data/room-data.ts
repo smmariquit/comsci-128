@@ -261,33 +261,22 @@ const getTenants = async (managerAccountNumber: number) => {
 
   if (managerError || !manager) throw new Error('Unauthorized');
 
+async function getRoomStats() {
   const { data, error } = await supabase
-    .from('room')
-    .select(`
-      room_id,
-      room_type,
+    .from("room")
+    .select("maximum_occupants, occupancy_status")
+    .eq("is_deleted", false)
 
-      housing (
-        housing_name
-      ),
+  if (error) {
+    throw new Error(error.message);
+  }
 
-      student_accommodation_history (
-        move_in_date,
-        expected_move_out_date,
+  const totalRooms = data?.length ?? 0
+  const totalOccupants = data?.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0) ?? 0
+  const totalFreeRooms = data?.filter(r => r.occupancy_status === "Empty").length ?? 0
 
-        student_academic (
-          account_number,
-          degree_program,
-          standing,
-          status
-        )
-      )
-    `);
-
-  if (error) throw error;
-
-  return data;
-};
+  return { totalRooms, totalOccupants, totalFreeRooms }
+}
 
 export const roomData = {
 	create,
@@ -304,4 +293,5 @@ export const roomData = {
   getTenants,
 	getAccountbyStudentNumber,
 	updateStudentHousingStatus,
+	getRoomStats
 };

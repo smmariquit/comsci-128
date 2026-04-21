@@ -392,6 +392,36 @@ export type Database = {
           },
         ]
       }
+      permissions: {
+        Row: {
+          action: string
+          housing_admin: boolean
+          landlord: boolean
+          permission_id: number
+          public: boolean | null
+          student: boolean
+          system_admin: boolean
+        }
+        Insert: {
+          action: string
+          housing_admin?: boolean
+          landlord?: boolean
+          permission_id: number
+          public?: boolean | null
+          student?: boolean
+          system_admin?: boolean
+        }
+        Update: {
+          action?: string
+          housing_admin?: boolean
+          landlord?: boolean
+          permission_id?: number
+          public?: boolean | null
+          student?: boolean
+          system_admin?: boolean
+        }
+        Relationships: []
+      }
       room: {
         Row: {
           housing_id: number
