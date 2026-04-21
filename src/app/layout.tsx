@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     template: "%s | UPLB CASA",
   },
   description:
-    "UPLB Community Accommodation & Student Affairs – find and manage student housing near UPLB.",
+    "UPLB Centralized Accommodation System Application – find and manage student housing near UPLB.",
 };
 
 export default function RootLayout({
