@@ -127,8 +127,6 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 		let derivedStatus: OccupancyStatus = "Empty";
 		if (occupantCount > 0 && occupantCount < max) {
 			derivedStatus = "Partially Occupied";
-		} else if (occupantCount > 0 && occupantCount >= max) {
-			derivedStatus = "Fully Occupied";
 		}
 
 		return {
