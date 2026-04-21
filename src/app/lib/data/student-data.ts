@@ -172,6 +172,32 @@ async function getActiveHousingDetails(studentAccountNumber: number) {
   return studentHousingDetails;
 }
 
+const getBillingHistory = async (accountNumber: number) => {
+    const { data, error } = await supabase
+      .from('bill')
+      .select(`
+        transaction_id,
+        amount,
+        bill_type,
+        status,
+        date_paid,
+        due_date,
+        manager (
+          user:account_number (
+            first_name,
+            last_name
+          )
+        )
+      `)
+      .eq('student_account_number', accountNumber)
+      .eq('is_deleted', false)
+      .order('due_date', { ascending: false });
+
+    if (error) throw error;
+
+    return data;
+};
+
 export const studentData = {
     create,
     createAcademic,
@@ -183,5 +209,6 @@ export const studentData = {
     getSubmittedApplications,
     getHousingOptions,
     getAccommodationHistoryOfStudent,
-    getActiveHousingDetails
+    getActiveHousingDetails,
+    getBillingHistory
 }
