@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter-dorm';
 import { Trash2, ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
 
-// User Data Types - showed in table
-export interface User {
+// Dorm Data Types - showed in table
+export interface Dorm {
   id: string;
   name: string;
   status: 'Accepting' | 'Disabled' | string;
@@ -21,10 +21,10 @@ export interface User {
 }
 
 // Sidebar + notifications
-export interface UserManagementProps {
-  user?: SidebarUser;
-  users?: User[];
-  totalUsers?: number;
+export interface DormManagementProps {
+  Dorm?: SidebarUser;
+  Dorms?: Dorm[];
+  totalDorms?: number;
   notifications?: Notification[];
   onLogout?: () => void;
 }
@@ -39,14 +39,14 @@ export interface Notification {
 }
 
 // Hardcoded stubs for development - to be replaced with real data fetching logic
-const stubUser: SidebarUser = {
+const stubDorm: SidebarUser = {
   name: 'Luthelle Fernandez',
   role: 'System Admin',
   initials: 'LF',
 };
 
-// Hardcoded list of users for the table - in a real app, this would come from an API
-const stubUsers: User[] = [
+// Hardcoded list of Dorms for the table - in a real app, this would come from an API
+const stubDorms: Dorm[] = [
   { id: '1', name: 'Sampaguita Dorm',     dormAddress: '123 Roxas St, Diliman, QC',  managerEmail: 'ldelarosa@up.edu.ph',   status: 'Accepting', dormitory: 'Luis Dela Rosa',    capacity: 32, rooms: 32, occupied: 30 },
   { id: '2', name: 'Ilang-Ilang Dorm',    dormAddress: '45 Kamuning Rd, QC',         managerEmail: 'jiantonio@up.edu.ph',   status: 'Accepting', dormitory: 'Justine Antonio',   capacity: 40, rooms: 40, occupied: 38 },
   { id: '3', name: 'Rosal Dorm',          dormAddress: '78 UP Campus, Diliman',      managerEmail: 'phfababeir@up.edu.ph',  status: 'Accepting', dormitory: 'Paul Fababeir',     capacity: 25, rooms: 25, occupied: 20 },
@@ -59,7 +59,7 @@ const stubUsers: User[] = [
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
   { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',       read: false, time: '1h ago'    },
-  { id: '2', title: 'New user registered', body: 'User Ivanne signed up for Dorm 1', read: false, time: '3h ago'    },
+  { id: '2', title: 'New Dorm registered', body: 'Dorm Ivanne signed up for Dorm 1', read: false, time: '3h ago'    },
   { id: '3', title: 'Occupancy alert',     body: 'Dorm 2 is at 95% capacity',        read: true,  time: 'Yesterday' },
 ];
 
@@ -105,27 +105,79 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-// Main User Management Page component
-export default function UserManagementPage({
-  user = stubUser,
-  users: initialUsers = stubUsers,
+// Main Dorm Management Page component
+export default function DormManagementPage({
+  Dorm = stubDorm,
+  Dorms: initialDorms = stubDorms,
   notifications = stubNotifications,
   onLogout,
-}: UserManagementProps) {
-  const [userList, setUserList] = useState<User[]>(initialUsers);
+}: DormManagementProps) {
+  const [DormList, setDormList] = useState<Dorm[]>(initialDorms);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [filters, setFilters] = useState<UserFiltersState>({
     search: '', status: 'All Status', occupancy: 'All',
   });
 
+  // Fetch dorms from API
+  useEffect(() => {
+      const fetchDorms = async () => {
+          try {
+              setLoading(true);
+              setError(null);
+
+              const response = await fetch('/api/housing');
+
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const data = await response.json();
+
+              console.log('Raw dorm data:', data);
+
+              const rawDorms = Array.isArray(data) ? data : data.data ?? [];
+
+              // Transform DB fields to match Dorm interface 
+              // note: fix undefined columns
+              const transformed: Dorm[] = rawDorms
+                  .filter((dorm: any) => !dorm.is_deleted) // Exclude deleted dorms
+                  .map((dorm: any) => ({
+                      id: String(dorm.housing_id || ''),
+                      name: dorm.housing_name || 'Unknown',
+                      status: dorm.is_deleted ? 'Disabled' : 'Accepting',
+                      dormitory: dorm.manager_account_number ? `Manager ${dorm.manager_account_number}` : 'Unassigned',
+                      dormAddress: dorm.housing_address || undefined,
+                      managerEmail: undefined, 
+                      capacity: dorm.rent_price || undefined, 
+                      rooms: undefined,
+                      occupied: undefined, 
+                  }));
+
+              console.log('Transformed dorms:', transformed);
+
+              setDormList(transformed);
+          } catch (error) {
+              console.error('Error fetching dorms:', error);
+              setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
+              setDormList([]);
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      fetchDorms();
+  }, []);
+
   const [page, setPage] = useState(1);
 
   const handleAddDorm = (newDorm: NewDorm) => {
-    setUserList((prev) => [newDorm, ...prev]);
+    setDormList((prev) => [newDorm, ...prev]);
     setPage(1);
   };
 
-  const filtered = userList.filter((u) => {
+  const filtered = DormList.filter((u) => {
     const matchSearch =
       u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
       u.managerEmail?.toLowerCase().includes(filters.search.toLowerCase());
@@ -157,7 +209,7 @@ export default function UserManagementPage({
       />
 
       {/* Sidebar */}
-      <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+      <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-auto">
@@ -166,7 +218,7 @@ export default function UserManagementPage({
         <div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-[#1a2332]/6">
           <div>
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Dorm Management</h1>
-            <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Assign and manage roles for users and dormitory managers</p>
+            <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Assign and manage roles for Dorms and dormitory managers</p>
           </div>
           <NotificationBell notifications={notifications} />
         </div>
