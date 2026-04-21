@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import ReportsWrapper from "@/app/components/admin/reports/reports_wrapper";
+
+export const metadata: Metadata = {
+  title: "Reports",
+};
 import { reportData } from "@/app/lib/data/report-data";
 import { report } from "process";
 
