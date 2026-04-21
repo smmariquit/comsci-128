@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { landlordService } from "@/services/landlord";
+import { NextResponse } from "next/server";
+import { _landlordService } from "@/services/landlord-service";
 
 export async function GET(
 	_req: NextRequest,
@@ -10,7 +10,10 @@ export async function GET(
 		const { accountNumber } = await params;
 		const parsedAccountNumber = Number(accountNumber);
 
-		if (!Number.isInteger(parsedAccountNumber) || parsedAccountNumber <= 0) {
+		if (
+			!Number.isInteger(parsedAccountNumber) ||
+			parsedAccountNumber <= 0
+		) {
 			return NextResponse.json(
 				{ error: "Invalid landlord account number." },
 				{ status: 400 },
@@ -18,13 +21,18 @@ export async function GET(
 		}
 
 		const totalTenants =
-			await landlordService.fetchTotalTenantsByLandlord(parsedAccountNumber);
+			await _landlordService.fetchTotalTenantsByLandlord(
+				parsedAccountNumber,
+			);
 
 		return NextResponse.json({ data: { totalTenants } }, { status: 200 });
 	} catch (error: unknown) {
 		if (error instanceof Error) {
 			if (error.message === "Invalid landlord account number.") {
-				return NextResponse.json({ error: error.message }, { status: 400 });
+				return NextResponse.json(
+					{ error: error.message },
+					{ status: 400 },
+				);
 			}
 		}
 
