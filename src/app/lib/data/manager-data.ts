@@ -388,6 +388,43 @@ const getManagedHousings = async (managerAccountNumber: number) => {
   return data;
 };
 
+const getAllTenants = async (managerAccountNumber: number) => {
+    const { data: manager, error: managerError } = await supabase
+      .from('manager')
+      .select('account_number, manager_type')
+      .eq('account_number', managerAccountNumber)
+      .eq('manager_type', 'landlord')
+
+  if (managerError || !manager) throw new Error('Unauthorized: Landlord access only');
+
+  const { data, error } = await supabase
+    .from('student_accommodation_history')
+    .select(`
+      move_in_date,
+      expected_move_out_date,
+
+      student_academic (
+        account_number,
+        degree_program,
+        standing,
+        status
+      ),
+
+      room (
+        room_id,
+        room_type,
+        housing (
+          housing_name
+        )
+      )
+    `)
+    .eq('is_deleted', false);
+
+  if (error) throw error;
+
+  return data;
+};
+
 export const managerData = {
 	create,
 	getAll,
@@ -407,5 +444,6 @@ export const managerData = {
 	getTotalTenantsManaged,
 	getOverallOccupancyRate,
   getOccupancyRateOfHousing,
-  getManagedHousings
+  getManagedHousings,
+  getAllTenants
 }
