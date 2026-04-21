@@ -172,11 +172,11 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
         const userHistories = histories?.filter(h => h.account_number === user.account_number) || [];
         const userApps = applications?.filter(a => a.student_account_number === user.account_number) || [];
 
-		// localize housing status instead of using user's global housing status
+        // localize housing status instead of using user's global housing status
         let localHousingStatus = "Not Assigned";
         let currentHousingId = null;
         let currentHousingName = undefined;
-        let is_inactive = true; 
+        let is_inactive = true;
 
         // student recent accommodation check
         if (userHistories.length > 0) {
@@ -184,8 +184,12 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
                 new Date(b.movein_date).getTime() - new Date(a.movein_date).getTime()
             )[0];
 
-            currentHousingId = latestHistory.room?.housing_id;
-            currentHousingName = latestHistory.room?.housing?.housing_name;
+            const latestRoom = Array.isArray(latestHistory.room)
+                ? latestHistory.room[0]
+                : latestHistory.room;
+
+            currentHousingId = latestRoom?.housing_id || null;
+            currentHousingName = latestRoom?.housing?.[0]?.housing_name;
 
             const isCurrentlyLivingThere = !latestHistory.moveout_date || new Date(latestHistory.moveout_date) > new Date();
 
@@ -201,10 +205,15 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
         // add users with pending applications
         if (localHousingStatus !== "Assigned" && userApps.length > 0) {
             localHousingStatus = "Pending";
-            is_inactive = false; 
+            is_inactive = false;
 
-			currentHousingId = appRoom?.housing_id;
-            currentHousingName = userApps[0].housing_name || appRoom?.housing?.housing_name;
+            // ✅ Fixed: appRoom was referenced but never defined
+            const appRoom = Array.isArray(userApps[0].room)
+                ? userApps[0].room[0]
+                : userApps[0].room;
+
+            currentHousingId = appRoom?.housing_id || null;
+            currentHousingName = userApps[0].housing_name || appRoom?.housing?.[0]?.housing_name || null;
         }
 
         return {
@@ -213,7 +222,7 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
             account_email: user.account_email,
             phone_number: user.phone_number,
             user_type: user.user_type,
-            is_deleted: is_inactive, 
+            is_deleted: is_inactive,
             sex: user.sex,
             housing_status: localHousingStatus,
             housing_name: currentHousingName,
@@ -221,7 +230,6 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
         };
     });
 }
-
 export const userData = {
 	findStudents,
 	getUsersForHousingAdmin,
