@@ -9,6 +9,7 @@ export default function SearchBar() {
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [isSortOpen, setIsSortOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     function updateURL(key: string, value: string | null) {
         const params = new URLSearchParams(searchParams);
@@ -65,7 +66,7 @@ export default function SearchBar() {
                     type="text" 
                     placeholder="Search for accommodations..." 
                     className="w-full h-[5vh] rounded-full border border-[#567375] bg-transparent py-2 pl-10 pr-4 text-sm text-[#1C2632] placeholder-[#567375]/70 focus:outline-none focus:ring-2 focus:ring-[#C9642A] focus:border-transparent transition-all"
-                    onChange={(e) => console.log(e.target.value)} // Logic for filtering goes here
+                    onChange={(e) => {updateURL('search', e.target.value); setIsSearchOpen(true)}} 
                 />
             </div>
 
