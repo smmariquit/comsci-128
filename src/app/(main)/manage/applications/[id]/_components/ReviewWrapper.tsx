@@ -29,7 +29,7 @@ export default function ReviewWrapper({
 
   const selectedDoc = documents.find((d) => d.type === selectedType)
 
-  const handleDecision = async (status: "Approved" | "Rejected") => {
+  const handleDecision = async (status: "Pending Admin Approval" | "Rejected") => {
     setLoading(true)
     setMessage(null)
     try {
@@ -40,7 +40,7 @@ export default function ReviewWrapper({
       })
       const result = await res.json()
       if (!res.ok) throw new Error(result.message)
-      setMessage(`Application ${status} successfully.`)
+      setMessage(`Application processed successfully.`)
     } catch (error: any) {
       setMessage(`Error: ${error.message}`)
     } finally {
@@ -101,7 +101,7 @@ export default function ReviewWrapper({
 
         <div className="flex flex-col gap-2">
           <button
-            onClick={() => handleDecision("Approved")}
+            onClick={() => handleDecision("Pending Admin Approval")}
             disabled={loading}
             className="px-4 py-2 bg-green-500 text-white rounded font-semibold hover:bg-green-600 disabled:opacity-50"
           >

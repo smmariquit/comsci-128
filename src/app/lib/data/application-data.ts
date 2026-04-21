@@ -220,6 +220,9 @@ async function getDocuments(applicationId: number) {
 	return data;
 }
 
+
+
+
 export const applicationData = {
 	create,
 	getAll,
