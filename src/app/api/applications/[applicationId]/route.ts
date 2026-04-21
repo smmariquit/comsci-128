@@ -29,7 +29,7 @@ export async function PATCH(
       return NextResponse.json({ message: "application_status is required." }, { status: 400 })
     }
 
-    const validStatuses = ["Approved", "Rejected", "Pending", "Cancelled"]
+    const validStatuses = ["Approved", "Rejected", "Pending", "Cancelled", "Pending Manager Approval", "Pending Admin Approval"]
     if (!validStatuses.includes(application_status)) {
       return NextResponse.json({ message: "Invalid status value." }, { status: 400 })
     }
@@ -39,7 +39,7 @@ export async function PATCH(
       return NextResponse.json({ message: "Application not found." }, { status: 404 })
     }
 
-    return NextResponse.json({ message: `Application ${application_status} successfully.` }, { status: 200 })
+    return NextResponse.json({ message: `Application processed successfully.` }, { status: 200 })
 
   } catch (error: any) {
     console.error("Error updating application status:", error)

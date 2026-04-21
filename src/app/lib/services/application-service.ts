@@ -115,6 +115,5 @@ export const applicationService = {
   getApplicationDetail,      
   getApplicationDocuments, 
   updateApplicationStatus,
-  assignApplicantToRoom,
-  getApprovedUnassignedByHousingName
+  assignApplicantToRoom
 }
