@@ -5,7 +5,7 @@ import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import AuditFilters, { type AuditFiltersState } from '@/app/(main)/sys/component/audit-filters';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { ActionType } from '@/app/lib/data/audit-log-data';
+import { ActionType } from '@/models/audit_log';
 
 // Types
 //export type ActionType = 'Login' | 'Logout' | 'Create' | 'Update' | 'Delete' | 'Export'; // temporary - hde ko anong pwedeng category ng actions to be logged
@@ -13,24 +13,24 @@ export type ModuleType = 'Auth' | 'Dorms' | 'Rooms' | 'Occupancy' | 'Users' | 'R
 export type StatusType = 'Success' | 'Failed'; // iniisip ko this can be helpful primarily sa auth part - mga successful log ins and nour ??
 
 export interface AuditLog {
-  id:           string;
-  timestamp:    string;
-  userName:     string;
-  userRole:     string;
+  id: string;
+  timestamp: string;
+  userName: string;
+  userRole: string;
   userInitials: string;
-  userColor?:   string;
-  action:       ActionType;
-  module:       ModuleType;
-  ipAddress:    string;
-  status:       StatusType;
+  userColor?: string;
+  action: ActionType;
+  module: ModuleType;
+  ipAddress: string;
+  status: StatusType;
   description?: string;
 }
 
 export interface AuditLogsPageProps {
-  user?:          SidebarUser;
-  logs?:          AuditLog[];
+  user?: SidebarUser;
+  logs?: AuditLog[];
   notifications?: { id: string; title: string; body: string; read: boolean; time: string }[];
-  onLogout?:      () => void;
+  onLogout?: () => void;
 }
 
 // Hardcoded datas -- 
@@ -42,14 +42,14 @@ const stubUser: SidebarUser = {
 
 
 const stubNotifications = [
-  { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',       read: false, time: '1h ago'    },
-  { id: '2', title: 'New user registered', body: 'User Ivanne signed up for Dorm 1', read: false, time: '3h ago'    },
-  { id: '3', title: 'Occupancy alert',     body: 'Dorm 2 is at 95% capacity',        read: true,  time: 'Yesterday' },
+  { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime', read: false, time: '1h ago' },
+  { id: '2', title: 'New user registered', body: 'User Ivanne signed up for Dorm 1', read: false, time: '3h ago' },
+  { id: '3', title: 'Occupancy alert', body: 'Dorm 2 is at 95% capacity', read: true, time: 'Yesterday' },
 ];
 
 // Constants
 const ITEMS_PER_PAGE = 10;
-const GRID_COLS      = 'grid-cols-[1.6fr_1.8fr_1.8fr_1.3fr_1.3fr_1fr_auto]';
+const GRID_COLS = 'grid-cols-[1.6fr_1.8fr_1.8fr_1.3fr_1.3fr_1fr_auto]';
 
 
 // Helper functions
@@ -68,41 +68,43 @@ function formatDate(iso: string) {
 }
 
 const ACTION_STYLES: Record<ActionType, string> = {
-  'Application Status':        'bg-blue-50      text-blue-700      ring-1 ring-blue-200',
-  'Bill Status':               'bg-amber-50     text-amber-700     ring-1 ring-amber-200',
-  'Auth Register':             'bg-emerald-50   text-emerald-700   ring-1 ring-emerald-200',
-  'Auth Logic':                'bg-orange-50    text-orange-600    ring-1 ring-orange-200',
-  'Change Auth Password':      'bg-yellow-50    text-yellow-700    ring-1 ring-yellow-200',
-  'Delete Account':            'bg-rose-50      text-rose-600      ring-1 ring-rose-200',
-  'Update User Role':          'bg-purple-50    text-purple-700    ring-1 ring-purple-200',
-  'Submit Application':        'bg-sky-50       text-sky-700       ring-1 ring-sky-200',
+  'Application Status': 'bg-blue-50      text-blue-700      ring-1 ring-blue-200',
+  'Bill Status': 'bg-amber-50     text-amber-700     ring-1 ring-amber-200',
+  'Auth Register': 'bg-emerald-50   text-emerald-700   ring-1 ring-emerald-200',
+  'Auth Login': 'bg-orange-50    text-orange-600    ring-1 ring-orange-200',
+  'Change Auth Password': 'bg-yellow-50    text-yellow-700    ring-1 ring-yellow-200',
+  'Delete Account': 'bg-rose-50      text-rose-600      ring-1 ring-rose-200',
+  'Update User Role': 'bg-purple-50    text-purple-700    ring-1 ring-purple-200',
+  'Submit Application': 'bg-sky-50       text-sky-700       ring-1 ring-sky-200',
   'Update Application Status': 'bg-indigo-50    text-indigo-700    ring-1 ring-indigo-200',
-  'Withdraw Application':      'bg-red-50       text-red-600       ring-1 ring-red-200',
-  'Create Housing':            'bg-teal-50      text-teal-700      ring-1 ring-teal-200',
-  'Update Housing':            'bg-cyan-50      text-cyan-700      ring-1 ring-cyan-200',
-  'Assign Student Housing':    'bg-lime-50      text-lime-700      ring-1 ring-lime-200',
-  'Assign Bill':               'bg-orange-50    text-orange-700    ring-1 ring-orange-200',
-  'Update Bill Status':        'bg-amber-50     text-amber-600     ring-1 ring-amber-200',
-  'Issue Bill Refund':         'bg-green-50     text-green-700     ring-1 ring-green-200',
+  'Withdraw Application': 'bg-red-50       text-red-600       ring-1 ring-red-200',
+  'Create Housing': 'bg-teal-50      text-teal-700      ring-1 ring-teal-200',
+  'Update Housing': 'bg-cyan-50      text-cyan-700      ring-1 ring-cyan-200',
+  'Assign Room': 'bg-lime-50      text-lime-700      ring-1 ring-lime-200',
+  'Assign Bill': 'bg-orange-50    text-orange-700    ring-1 ring-orange-200',
+  'Update Bill Status': 'bg-amber-50     text-amber-600     ring-1 ring-amber-200',
+  'Issue Bill Refund': 'bg-green-50     text-green-700     ring-1 ring-green-200',
+  'Update User Details': 'bg-purple-50    text-purple-700    ring-1 ring-purple-200',
 };
 
 const ACTION_DOT: Record<ActionType, string> = {
-  'Application Status':        'bg-blue-500',
-  'Bill Status':               'bg-amber-500',
-  'Auth Register':             'bg-emerald-500',
-  'Auth Logic':                'bg-orange-500',
-  'Change Auth Password':      'bg-yellow-500',
-  'Delete Account':            'bg-rose-500',
-  'Update User Role':          'bg-purple-500',
-  'Submit Application':        'bg-sky-500',
+  'Application Status': 'bg-blue-500',
+  'Bill Status': 'bg-amber-500',
+  'Auth Register': 'bg-emerald-500',
+  'Auth Login': 'bg-orange-500',
+  'Change Auth Password': 'bg-yellow-500',
+  'Delete Account': 'bg-rose-500',
+  'Update User Role': 'bg-purple-500',
+  'Submit Application': 'bg-sky-500',
   'Update Application Status': 'bg-indigo-500',
-  'Withdraw Application':      'bg-red-500',
-  'Create Housing':            'bg-teal-500',
-  'Update Housing':            'bg-cyan-500',
-  'Assign Student Housing':    'bg-lime-500',
-  'Assign Bill':               'bg-orange-600',
-  'Update Bill Status':        'bg-amber-600',
-  'Issue Bill Refund':         'bg-green-500',
+  'Withdraw Application': 'bg-red-500',
+  'Create Housing': 'bg-teal-500',
+  'Update Housing': 'bg-cyan-500',
+  'Assign Room': 'bg-lime-500',
+  'Assign Bill': 'bg-orange-600',
+  'Update Bill Status': 'bg-amber-600',
+  'Issue Bill Refund': 'bg-green-500',
+  'Update User Details': 'bg-purple-500'
 };
 
 // Format of Action baadge
@@ -145,11 +147,10 @@ function PageBtn({ children, onClick, active, disabled }: {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-8 h-8 rounded-lg text-sm font-medium flex items-center justify-center transition-colors ${
-        active     ? 'bg-[#1a2332] text-white'
+      className={`w-8 h-8 rounded-lg text-sm font-medium flex items-center justify-center transition-colors ${active ? 'bg-[#1a2332] text-white'
         : disabled ? 'text-[#1a2332]/20 cursor-not-allowed'
-        : 'text-[#1a2332]/50 hover:bg-[#eae8e1]'
-      }`}
+          : 'text-[#1a2332]/50 hover:bg-[#eae8e1]'
+        }`}
     >
       {children}
     </button>
@@ -158,8 +159,8 @@ function PageBtn({ children, onClick, active, disabled }: {
 
 // Main Component
 export default function AuditLogsPage({
-  user              = stubUser,
-  notifications     = stubNotifications,
+  user = stubUser,
+  notifications = stubNotifications,
   onLogout,
 }: AuditLogsPageProps) {
   const [filters, setFilters] = useState<AuditFiltersState>({
@@ -168,7 +169,7 @@ export default function AuditLogsPage({
   const [page, setPage] = useState(1);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch audit logs from API
   useEffect(() => {
@@ -191,18 +192,18 @@ export default function AuditLogsPage({
 
         // Transform DB fields to match AuditLog interface
         const transformed: AuditLog[] = rawLogs.map((log: any) => ({
-          id:           String(log.audit_id || ''),
-          timestamp:    log.timestamp || '',
-          userName:     log.user_name || 'Unknown',
-          userRole:     log.user_role || '—',
+          id: String(log.audit_id || ''),
+          timestamp: log.timestamp || '',
+          userName: log.user_name || 'Unknown',
+          userRole: log.user_role || '—',
           userInitials: log.user_name
-                          ? log.user_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-                          : '??',
-          action:       log.action_type || 'Login',
-          module:       log.module || 'Auth',
-          ipAddress:    log.partial_ip || '—',
-          status:       log.status || 'Success',
-          description:  log.audit_description || '',
+            ? log.user_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+            : '??',
+          action: log.action_type || 'Login',
+          module: log.module || 'Auth',
+          ipAddress: log.partial_ip || '—',
+          status: log.status || 'Success',
+          description: log.audit_description || '',
         }));
 
         console.log('Transformed logs:', transformed);
@@ -225,20 +226,20 @@ export default function AuditLogsPage({
   const filtered = auditLogs.filter((l) => {
     const q = filters.search.toLowerCase();
     const matchSearch =
-      l.userName.toLowerCase().includes(q)  ||
+      l.userName.toLowerCase().includes(q) ||
       l.ipAddress.toLowerCase().includes(q) ||
-      l.action.toLowerCase().includes(q)    ||
+      l.action.toLowerCase().includes(q) ||
       l.module.toLowerCase().includes(q);
     const matchAction = filters.action === 'All Actions' || l.action === filters.action;
     const matchModule = filters.module === 'All Modules' || l.module === filters.module;
-    const matchStatus = filters.status === 'All Status'  || l.status === filters.status;
+    const matchStatus = filters.status === 'All Status' || l.status === filters.status;
     return matchSearch && matchAction && matchModule && matchStatus;
   });
 
-  const totalPages  = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated   = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   const showingFrom = filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
-  const showingTo   = Math.min(page * ITEMS_PER_PAGE, filtered.length);
+  const showingTo = Math.min(page * ITEMS_PER_PAGE, filtered.length);
 
   // CSV export (only exports the currently filtered rows)
   const handleExport = () => {
@@ -246,10 +247,10 @@ export default function AuditLogsPage({
       ['Timestamp', 'User', 'Role', 'Action', 'Module', 'IP Address', 'Status'],
       ...filtered.map((l) => [l.timestamp, l.userName, l.userRole, l.action, l.module, l.ipAddress, l.status]),
     ];
-    const csv  = rows.map((r) => r.join(',')).join('\n');
+    const csv = rows.map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
     a.href = url; a.download = 'audit-logs.csv'; a.click();
     URL.revokeObjectURL(url);
   };

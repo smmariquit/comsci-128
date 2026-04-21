@@ -1,8 +1,9 @@
-import { AuditLog, auditLogData } from "../data/audit-log-data";
+import { auditLogData } from "../data/audit-log-data";
+import { AuditLog, Role } from "@/models/audit_log";
 
-const getAllAuditLogs = async (): Promise<AuditLog[]> => {
+const getAllAuditLogs = async (role?: Role, account_number?: number): Promise<AuditLog[]> => {
     try {
-        const auditLogs = await auditLogData.getAll();
+        const auditLogs = await auditLogData.getAll(role, account_number);
         return auditLogs ?? [];
     } catch (error) {
         console.error("Error:", error);
