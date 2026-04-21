@@ -104,23 +104,21 @@ async function deactivate(housingId: number): Promise<Housing | null> {
 }
 
 // List all rooms 
-
 async function findAllWithRooms(): Promise<HousingWithRooms[]> {
   const { data, error } = await supabase
     .from("housing")
     .select(`
       *,
-      room!inner(*),
-      student_accommodation_history!inner(*),
-      student!inner(*),
-      user!inner(*)
+      room:room(*)
     `)
-    .eq("housing.housing_id", housingId)
-    .eq("housing.manager_account_number", managerId);
+    .eq("is_deleted", false);
 
-  if (error)
-    throw new Error(`getStudentsHousedPerHousing Error: ${error.message}`);
-  return data;
+  if (error) throw new Error(`findAllWithRooms Error: ${error.message}`);
+  
+  return data.map((h: any) => ({
+    ...h,
+    room: h.room?.filter((r: any) => !r.is_deleted) ?? [],
+  }));
 }
 
 async function getHousingCardsData() {
@@ -237,13 +235,7 @@ const getOverallUnpaidFees = async (student_account_number: number) => {
     .eq('is_deleted', false);
 };
 
-  if (error) throw new Error(error.message)
 
-  return (data ?? []).map((h) => ({
-    ...h,
-    room: h.room?.filter((r: any) => !r.is_deleted) ?? [],
-  }))
-}
 
 async function countAllHousing(): Promise<number | null> {
   const { count, error } = await supabase
@@ -264,13 +256,9 @@ export const housingData = {
 	update,
 	deactivate,
 	getHousingCardsData,
-  getHousingDetailsOfStudent,
-  getStudentsHousedPerHousing,
   uploadHousingImage,
   countAllHousing,
-	getStudentsHoused,
-  getHousingDetailsOfStudent,
   getRoomDetails,
   getOverallUnpaidFees,
-  getOccupancyRate
+  findAllWithRooms,
 };

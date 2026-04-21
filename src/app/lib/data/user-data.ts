@@ -257,12 +257,12 @@ async function countActiveUsers():Promise<number | null> {
 export const userData = {
 	findStudents,
 	getUsersForHousingAdmin,
-  createUser,
-  findAllUsers,
-  findUserById,
-  findUserByEmail,
-  updateUser,
-  deactivateUserById,
+  create,
+  findAll,
+  findById,
+  findByEmail,
+  update,
+  deactivate,
   countAllUser,
 	countActiveUsers,
 };
