@@ -91,7 +91,7 @@ export default function Page() {
 
   const handleToggle = async (row: RoomRow) => {
     const nextStatus = row.occupancy_status === "Empty" ? "Fully Occupied" : "Empty";
-    const nextStatusUI: OccupancyStatus = nextStatus === "Fully Occupied" ? "Occupied" : "Empty";
+    const nextStatusUI: OccupancyStatus = nextStatus;
 
     try {
       await roomData.update(row.room_id, { occupancy_status: nextStatus as any });
@@ -109,7 +109,7 @@ export default function Page() {
       try {
         setIsLoading(true);
 
-        const dbStatus = form.occupancy_status === "Occupied" ? "Fully Occupied" : form.occupancy_status;
+        const dbStatus = form.occupancy_status;
         const housingId = (rooms.find((r) => r.housing_name === form.housing_name) as any)?.housing_id;
 
         if (housingId == null) {
@@ -141,7 +141,7 @@ export default function Page() {
     try {
       setIsLoading(true);
 
-      const dbStatus = form.occupancy_status === "Occupied" ? "Fully Occupied" : form.occupancy_status;
+      const dbStatus = form.occupancy_status;
 
       await roomData.update(selectedRoom.room_id, {
         room_type: form.room_type as any,

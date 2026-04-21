@@ -1,20 +1,20 @@
-import { create } from "domain";
-import { billingData } from "../data/bill-data";
+import { billData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
 
 const fetchAllBills = async (): Promise<BillRow[]> => {
     try {
-        return await billingData.findAllBillings();
+        const { data, error } = await billData.getAll();
+        if (error) throw error;
+        return (data || []) as unknown as BillRow[];
     } catch (error) {
-        console.error("Service Error (fetchAllBillings): ", error);
+        console.error("Service Error (fetchAllBills): ", error);
         return [];
     }
 };
 
 const markAsPaid = async (txnId: number) => {
     try {
-        const now = new Date().toISOString();
-        return await billingData.updateBilling(txnId, "Paid", now);
+        return await billData.markAsPaid(txnId);
     } catch (error) {
         console.error("Service Error (markAsPaid): ", error);
         throw new Error("Failed to update billing");
@@ -23,7 +23,7 @@ const markAsPaid = async (txnId: number) => {
 
 const removeBill = async (txnId: number) => {
     try {
-        await billingData.deleteBilling(txnId);
+        await billData.remove(txnId);
         return { success: true };
     } catch (error) {
         console.error("Service Error (removeBill): ", error);
@@ -33,7 +33,7 @@ const removeBill = async (txnId: number) => {
 
 const createBill = async (billDetails: any) => {
     try {
-        return await billingData.createBilling(billDetails);
+        return await billData.create(billDetails);
     } catch (error) {
         console.error("Service Error (createBill): ", error);
         throw new Error("Failed to create billing");

@@ -148,6 +148,15 @@ const getEligibleStudents = async () => {
 	}
 }
 
+const getRoomStats = async () => {
+	try {
+		return await roomData.getRoomStats();
+	} catch (error: any) {
+		console.error("Service Error (getRoomStats): ", error.message);
+		throw new Error(error.message || "Failed to fetch room stats.");
+	}
+};
+
 export const roomService = {
 	addRoom,
 	getRoom,
@@ -157,4 +166,5 @@ export const roomService = {
 	assignRoom,
 	unassignRoom,
 	getEligibleStudents,
+    getRoomStats,
 };

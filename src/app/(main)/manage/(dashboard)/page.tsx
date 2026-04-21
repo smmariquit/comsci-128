@@ -134,7 +134,7 @@ export default async function MgrDashboardPage() {
           <DormCard id={4} name="Dorm D" location="Grove" /> */}
 
           {dorms && dorms.length > 0 ? (
-            dorms.map((dorm) => (
+            dorms.map((dorm: any) => (
               <DormCard
                 key={dorm.housing_id}
                 id={dorm.housing_id}
