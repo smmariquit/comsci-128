@@ -242,6 +242,33 @@ const getBillingHistory = async (accountNumber: number) => {
     return data;
 };
 
+const getUnpaidBills = async (accountNumber: number) => {
+    const { data, error } = await supabase
+      .from('bill')
+      .select(`
+        transaction_id,
+        amount,
+        bill_type,
+        due_date,
+        status,
+        manager (
+          user:account_number (
+            first_name,
+            last_name,
+            email
+          )
+        )
+      `)
+      .eq('student_account_number', accountNumber)
+      .in('status', ['Pending', 'Overdue'])
+      .eq('is_deleted', false)
+      .order('due_date', { ascending: true });
+
+    if (error) throw error;
+
+    return data;
+};
+
 export const studentData = {
     create,
     createAcademic,
@@ -255,5 +282,6 @@ export const studentData = {
     getAccommodationHistoryOfStudent,
     getActiveHousingDetails,
     getBillingSummary,
-    getBillingHistory
+    getBillingHistory,
+    getUnpaidBills
 }
