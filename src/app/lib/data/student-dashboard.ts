@@ -84,3 +84,17 @@ export async function updateBillPaymentProof(transactionId: string, publicUrl: s
     if (error) throw error;
     return data;
 }
+
+export async function getHousingStatus(studentAccountNumber: number) {
+    const {data, error} = await supabase
+        .from("student")
+        .select(`
+            housing_status
+        `)
+        .eq("account_number", studentAccountNumber)
+        .limit(1)
+        .maybeSingle();
+    
+    if(error) throw error;
+    return data;
+}
