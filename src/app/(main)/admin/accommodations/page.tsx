@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: "Accommodations Management",
+};
 import DormCard from "@/app/components/admin/dorm_card";
 import DeleteHousingForm from '@/app/components/admin/delete_housing_form';
 import { housingData } from '@/lib/data/housing-data'

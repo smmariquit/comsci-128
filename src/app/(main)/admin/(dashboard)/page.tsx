@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import ActiveUsers from "@/app/components/admin/dashboard/activeusers";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+};
 import OccupancyChart from "@/app/components/admin/dashboard/occupancy_chart";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 import RecentAuditLog from "@/app/components/admin/dashboard/recent_audit";
