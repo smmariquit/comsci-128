@@ -13,6 +13,11 @@ export default function HousingImageUpload() {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
+    const getSafePreviewUrl = (url: string | null): string => {
+        if (!url) return "";
+        return url.startsWith("blob:") ? url : "";
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -109,7 +114,7 @@ export default function HousingImageUpload() {
                         {previewUrl ? (
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%" }}>
                                 <img
-                                    src={previewUrl}
+                                    src={getSafePreviewUrl(previewUrl)}
                                     alt="Preview"
                                     style={{
                                         width: "100%", height: 130, objectFit: "cover",
