@@ -3,7 +3,7 @@ import { C } from "@/lib/palette";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type OccupancyStatus = "Empty" | "Partially Occupied" | "Fully Occupied" ;
-export type RoomType = "Co-ed" | "Women" | "Men" 
+export type RoomType = "Co-ed" | "Women Only" | "Men Only" 
 
 export interface RoomRow {
   room_id: number;
@@ -49,8 +49,8 @@ function OccupancyBadge({ status }: { status: OccupancyStatus }) {
 
 const TYPE_STYLE: Record<RoomType, { bg: string; text: string }> = {
   "Co-ed":   { bg: "rgba(86,115,117,0.14)",  text: C.teal },
-  "Women":   { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
-  "Men":     { bg: "rgba(201,100,42,0.13)",  text: C.orange },
+  "Women Only":   { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
+  "Men Only":     { bg: "rgba(201,100,42,0.13)",  text: C.orange },
 };
 
 function RoomTypeTag({ type }: { type: RoomType }) {
@@ -232,11 +232,6 @@ export default function RoomTable({
                     <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                       <ActionBtn label="View" onClick={() => onView(row)} />
                       <ActionBtn label="Edit" onClick={() => onEdit(row)} />
-                      <ActionBtn
-                        label={isOccupied ? "Empty" : "Occupy"}
-                        onClick={() => onToggleOccupancy(row)}
-                        variant="warn"
-                      />
                       <ActionBtn
                         label="Assign"
                         onClick={() => onOverrideAssign(row)}
