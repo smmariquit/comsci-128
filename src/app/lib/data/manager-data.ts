@@ -323,30 +323,6 @@ async function getOverallOccupancyRate(managerAccountNumber: number) {
   };
 }
 
-// Get occupancy rate of 1 housing
-// Returns a ratio = total current tenants / total maximum occupants
-async function getOccupancyRateOfHousing(housingId: number): Promise<number> {
-	const { data, error } = await supabase
-		.from("room")
-		.select(`
-      occupants_count,
-      maximum_occupants,
-      housing!inner(housing_id)
-		`)
-		.eq("housing.housing_id", housingId)
-		.eq("housing.is_deleted", false);
-
-	if (error) throw new Error(`getOccupancyRateOfHousing Error: ${error.message}`);
-	if (!data || data.length === 0) return 0;
-
-	const totalCurrent = data.reduce((sum, room) => sum + (room.occupants_count ?? 0), 0);
-	const totalMaximum = data.reduce((sum, room) => sum + (room.maximum_occupants ?? 0), 0);
-
-	if (totalMaximum == 0) return 0;
-
-	return (totalCurrent / totalMaximum) * 100;
-}
-
 const getManagedHousings = async (managerAccountNumber: number) => {
   const { data: manager, error: managerError } = await supabase
     .from('manager')
@@ -516,7 +492,6 @@ export const managerData = {
 	getTotalRoomsManaged,
 	getTotalTenantsManaged,
 	getOverallOccupancyRate,
-  getOccupancyRateOfHousing,
   getManagedHousings,
   getAllTenants,
   getStudentBalance,
