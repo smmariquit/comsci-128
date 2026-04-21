@@ -10,6 +10,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   // const router = useRouter();
@@ -17,15 +19,24 @@ export default function LoginPage() {
   async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    setIsLoading(true);
+    setStatus("");
+    setIsError(false);
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    setIsLoading(false);
+    
     if (error) {
       setStatus(error.message);
+      setIsError(true);
       setCurrentUser(null);
     } else {
       setStatus("Signed in successfully");
+      setIsError(false);
       setCurrentUser(data.user);
       // router.push("/student");
     }
@@ -55,7 +66,7 @@ export default function LoginPage() {
 
         {/* Status pop-up */}
         {status && (
-          <div className="rounded bg-emerald-500/80 px-4 py-2 text-white shadow-md">
+          <div className={`rounded px-4 py-2 text-white shadow-md ${isError ? 'bg-red-500/80' : 'bg-emerald-500/80'}`}>
             {status}
           </div>
         )}
@@ -79,9 +90,10 @@ export default function LoginPage() {
             {/* <Link href="/student"> */}
             <button
               type="submit"
-              className="w-full rounded bg-black py-2 text-white"
+              disabled={isLoading}
+              className="w-full rounded bg-black py-2 text-white disabled:opacity-50"
             >
-              Log in
+              {isLoading ? "Logging in..." : "Log in"}
             </button>
 
             <button
