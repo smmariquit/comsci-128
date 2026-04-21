@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import type { Document, NewDocument, UpdateDocument } from "@/lib/models/document"
 
-async function create(documentContent: Document): Promise<NewDocument> {
+async function create(documentContent: NewDocument): Promise<Document> {
 	const { data, error } = await supabase
 		.from("document")
 		.insert(documentContent)
@@ -14,7 +14,7 @@ async function create(documentContent: Document): Promise<NewDocument> {
     return data[0];
 }
 
-async function findById(documentId: number) {
+async function findById(documentId: number): Promise<Document | null> {
 	const { data, error } = await supabase
 		.from("document")
 		.select()
