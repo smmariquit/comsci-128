@@ -25,3 +25,8 @@ async function findById(documentId: number) {
 
     return data && data.length > 0 ? data[0] : null;
 }
+
+export const documentData = {
+	create,
+	findById
+}
