@@ -152,24 +152,24 @@ async function getHousingOptions({ sortOrder = 'asc', housingType = null, roomTy
 async function getRoomOccupancyRate(){
   const housingDetails: Record<number, RoomPerHousing> = {};
   //gets all total rooms
-  const { count: totalRooms, error: totalError } = await supabase
+  const { data: totalRooms, error: totalError } = await supabase
     .from('room')
-    .select('*', { count: 'exact', head: true })
+    .select('housing_id')
     .eq('is_deleted', false)
   
   if (totalError) throw totalError;
 
   //gets all occupied rooms
-  const { count: occupiedRooms, error: occupiedError } = await supabase
+  const { data: occupiedRooms, error: occupiedError } = await supabase
     .from('room')
-    .select('*', { count: 'exact', head: true})
+    .select('housing_id')
     .eq('is_deleted', false)
     .gte('occupants_count', 1);
 
   if (occupiedError) throw occupiedError;
 
   //counts total rooms per housing
-  totalRooms.forEach((room: Room) => {
+  totalRooms?.forEach((room: Room) => {
     if (!housingDetails[room.housing_id]){
       housingDetails[room.housing_id] = { total: 0, occupied: 0};
     }
@@ -178,7 +178,7 @@ async function getRoomOccupancyRate(){
   });
 
   //counts occupied rooms per housing
-  occupiedRooms.forEach((room: Room) => {
+  occupiedRooms?.forEach((room: Room) => {
     if (!housingDetails[room.housing_id]){
       housingDetails[room.housing_id] = { total: 0, occupied: 0};
     }
@@ -187,9 +187,10 @@ async function getRoomOccupancyRate(){
   });
 
   //returns occupancy rate (in decimal form)
-  const occupancyRate = Object.entries(housingDetails).map(([housing_id, stats]) =>
-    stats.total > 0 ? stats.occupied / stats.total : 0
-  );
+  const occupancyRate = Object.entries(housingDetails).map(([housing_id, stats]) => ({
+    housing_id,
+    rate: stats.total > 0 ? stats.occupied / stats.total : 0
+  }));
 
 	return occupancyRate;
 }
