@@ -41,6 +41,17 @@ async function getAll(role: Role, account_number: number) {
 	return data;
 }
 
+
+async function getRecent() {
+	const { data, error } = await supabase
+		.from("audit_log")
+        .select("*")
+        .order("timestamp", { ascending: false })  // Most recent first
+        .limit(5);
+	if (error) throw error;
+	return data;
+}
+
 async function getByAccountNumber(account_number: number) {
 	const { data, error } = await supabase
 		.from("audit_log")
