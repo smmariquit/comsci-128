@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { userData } from "@/app/lib/data/user-data";
 import { getHousingStatus } from "@/app/lib/data/student-dashboard";
-import { getCompleteDashboardData } from "@/app/lib/data/student-dashboard";
+import { getCompleteDashboardData } from "@/app/lib/services/student-dashboard.service";
 import StudentNavBar from "./_components/StudentNavBar";
 import AssignedDashboard from "./_components/AssignedDashboard";
 import NotAssignedDashboard from "./_components/NotAssignedDashboard";
@@ -17,7 +17,7 @@ export default async function DashboardPage() {
         if(housing_status == "Assigned") { // user with assigned housing
             return AssignedDashboard(userName, userHousingDetails);
         }
-        return NotAssignedDashboard(userName, userHousingDetails.steps);
+        return NotAssignedDashboard(userName, userHousingDetails);
     }
 
     return (
