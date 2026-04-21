@@ -88,7 +88,7 @@ async function getDocuments(applicationId: number) {
 }
 
 // GET SELECTED STATS FOR MANAGER DASHBOARD
-export async function getApplicationStats() {
+async function getApplicationStats() {
 
 	const {data, error} = await supabase
 	.from("application")
@@ -109,7 +109,7 @@ export async function getApplicationStats() {
 }
 
 // APPLICATION DATA JOINED WITH STUDENT ACCOUNT NUMBER
-export async function getApplicationsWithStudentDetails() {
+async function getApplicationsWithStudentDetails() {
 
   const { data, error } = await supabase
     .from("application")
@@ -140,7 +140,7 @@ export async function getApplicationsWithStudentDetails() {
 }
 
 // SINGLE APPLICATION DETAIL BY ID 
-export async function getApplicationDetailById(applicationId: number) {
+async function getApplicationDetailById(applicationId: number) {
   const { data, error } = await supabase
     .from("application")
     .select(`
@@ -167,7 +167,7 @@ export async function getApplicationDetailById(applicationId: number) {
 }
 
 // RETRIEVE DOCUMENTS BY APPLICATION ID
-export async function getDocumentsByApplicationId(applicationId: number) {
+async function getDocumentsByApplicationId(applicationId: number) {
   const { data, error } = await supabase
     .from("document")
     .select("document_id, type, storage_link")
@@ -178,7 +178,7 @@ export async function getDocumentsByApplicationId(applicationId: number) {
 }
 
 // ASSIGN ROOM ID FOR AN APPLICATION ENTRY
-export async function assignRoomToApplication(
+async function assignRoomToApplication(
   applicationId: number,
   roomId: number
 ) {
@@ -195,7 +195,7 @@ export async function assignRoomToApplication(
 }
 
 //FETCH APPROVED APPLICATIONS WITH NULL ROOM ID
-export async function getApprovedUnassignedByHousingName(housingName: string) {
+async function getApprovedUnassignedByHousingName(housingName: string) {
   const { data, error } = await supabase
     .from("application")
     .select(`
@@ -220,3 +220,20 @@ export async function getApprovedUnassignedByHousingName(housingName: string) {
   if (error) throw new Error(error.message)
   return data ?? []
 }
+
+export const applicationData = {
+  create,
+  getAll,
+  getById,
+  getByManager,
+  getByHousing,
+  update,
+  remove,
+  getDocuments,
+  getApplicationStats,
+  getApplicationsWithStudentDetails,
+  getApplicationDetailById,
+  getDocumentsByApplicationId,
+  assignRoomToApplication,
+  getApprovedUnassignedByHousingName
+};

@@ -58,7 +58,7 @@ async function getAll() {
 		return { data: null, error };
 	}
 
-  return { data, error: null };
+	return { data, error: null };
 }
 
 // Read single landlord with user details by account_number
@@ -100,25 +100,25 @@ async function getById(accountNumber: number) {
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
 export async function getTotalTenantsByLandlord(accountNumber: number) {
-  const { count, error } = await supabase
-    .from("student_accommodation_history")
-    .select(
-      `
+	const { count, error } = await supabase
+		.from("student_accommodation_history")
+		.select(
+			`
         account_number,
         room:room_id!inner(
           housing:housing_id!inner(manager_account_number)
         )
       `,
-      { count: "exact", head: true },
-    )
-    .eq("room.housing.manager_account_number", accountNumber);
+			{ count: "exact", head: true },
+		)
+		.eq("room.housing.manager_account_number", accountNumber);
 
-  if (error) {
-    console.error("Error counting tenants by landlord:", error.message);
-    return { data: null, error };
-  }
+	if (error) {
+		console.error("Error counting tenants by landlord:", error.message);
+		return { data: null, error };
+	}
 
-  return { data: count ?? 0, error: null };
+	return { data: count ?? 0, error: null };
 }
 
 //Delete housing admin (uncomment if needed)
@@ -195,6 +195,35 @@ async function getGrossRevenue(accountNumber: number) {
 		bills?.reduce((sum, bill) => sum + Number(bill.amount), 0) ?? 0;
 
 	return { data: grossRevenue, error: null };
+}
+
+async function getTotalRoomsManaged(accountNumber: number) {
+	const { count, error } = await supabase
+		.from("room")
+		.select(`
+			housing!inner(
+				landlord_account_number
+			)
+		`, { count: "exact", head: true })
+		.eq("housing.landlord_account_number", accountNumber);
+	return { data: count ?? 0, error };
+}
+
+async function getTotalProperties(accountNumber: number) {
+	const { count, error } = await supabase
+		.from("housing")
+		.select("*", { count: "exact", head: true })
+		.eq("landlord_account_number", accountNumber);
+	return { data: count ?? 0, error };
+}
+
+async function getPendingAdminApplications(accountNumber: number) {
+	const { count, error } = await supabase
+		.from("application")
+		.select("*", { count: "exact", head: true })
+		.eq("landlord_account_number", accountNumber)
+		.eq("application_status", "Pending Admin Approval");
+	return { data: count ?? 0, error };
 }
 
 export const landlordData = {

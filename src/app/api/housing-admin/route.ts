@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addHousingAdmin } from "@/services/housing-admin";
+import { housingAdminService } from "@/app/lib/services/housing-admin";
 
 // POST /api/housing-admin
 export async function POST(request: NextRequest) {
@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Call housing admin service
-        const newHousingAdmin = await addHousingAdmin(body, body.password);
+        const newHousingAdmin = await housingAdminService.addHousingAdmin(body, body.managerDetails || body);
 
         // OK Response upon successful creation
         return NextResponse.json(

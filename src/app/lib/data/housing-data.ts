@@ -88,19 +88,19 @@ async function update(
 
 //deletes a housing
 async function deactivate(housingId: number): Promise<Housing | null> {
-	const { data, error } = await supabase
-		.from("housing")
-		.update({ is_deleted: true }) // Soft delete
-		.eq("housing_id", housingId)
-		.select()
-		.single();
+  const { data, error } = await supabase
+    .from("housing")
+    .update({ is_deleted: true }) // Soft delete
+    .eq("housing_id", housingId)
+    .select()
+    .single();
 
-	if (error) {
-		if (error.code === "PGRST116") return null;
-		throw new Error(error.message);
-	}
+  if (error) {
+    if (error.code === "PGRST116") return null;
+    throw new Error(error.message);
+  }
 
-	return data;
+  return data;
 }
 
 // List all rooms 
@@ -110,7 +110,7 @@ async function findAllWithRooms(): Promise<HousingWithRooms[]> {
     .from("housing")
     .select(`*, room:room(*)`)
     .eq("is_deleted", false)
-	// .eq("manager_account_number", managerAccountNumber) TODO: revisit when manager account numbers are clarified ?
+    // .eq("manager_account_number", managerAccountNumber) TODO: revisit when manager account numbers are clarified ?
     .order("housing_name", { ascending: true })
 
   if (error) throw new Error(error.message)
@@ -121,18 +121,24 @@ async function findAllWithRooms(): Promise<HousingWithRooms[]> {
   }))
 }
 
+async function countAllHousing(): Promise<number | null> {
+  const { count, error } = await supabase
+    .from("housing")
+    .select("*", { count: "exact", head: true })
+    .eq("is_deleted", false);
+
+  if (error) throw new Error(error.message);
+
+  return count;
+}
+
 export const housingData = {
-	create,
-	findAll,
-	findById,
-	findWithRooms,
-	findAllWithRooms,
-	update,
-	deactivate,
+  create,
+  findAll,
+  findById,
+  findWithRooms,
+  findAllWithRooms,
+  update,
+  deactivate,
   countAllHousing,
-	getStudentsHoused,
-  getHousingDetailsOfStudent.
-  getRoomDetails,
-  getOverallUnpaidFees,
-  getOccupancyRate
 };
