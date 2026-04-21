@@ -1,89 +1,89 @@
-import {
-	Housing,
-	HousingInsert,
-	HousingUpdate,
-	HousingWithRooms,
-} from "@/models/housing";
 import { supabase } from "@/lib/supabase";
+import type {
+  Housing,
+  HousingInsert,
+  HousingUpdate,
+  HousingWithRooms,
+} from "@/models/housing";
 
-// Define Housing record based on DB schema
+const TODAY = new Date().toISOString();
 
 // Inserts a new record and returns the created object with its new ID
 async function create(housingDetails: HousingInsert): Promise<Housing | null> {
-	const { data: newRecord, error } = await supabase
-		.from("housing")
-		.insert(housingDetails)
-		.select()
-		.single();
+  const { data: newRecord, error } = await supabase
+    .from("housing")
+    .insert(housingDetails)
+    .select()
+    .single();
 
-	if (error) throw new Error(error.message);
-	return newRecord;
+  if (error) throw new Error(error.message);
+  return newRecord;
 }
 
 // Fetches all active dorms, sorted alphabetically
 async function findAll(): Promise<Housing[] | []> {
-	const { data, error } = await supabase
-		.from("housing")
-		.select("*")
-		.eq("is_deleted", false)
-		.order("housing_name", { ascending: true });
+  const { data, error } = await supabase
+    .from("housing")
+    .select("*")
+    .eq("is_deleted", false)
+    .order("housing_name", { ascending: true });
 
-	if (error) throw new Error(error.message);
-	return data ?? [];
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
 async function findWithRooms(id: number): Promise<HousingWithRooms> {
-	const { data, error } = await supabase
-		.from("housing")
-		.select(
-			`
+  const { data, error } = await supabase
+    .from("housing")
+    .select(
+      `
 			*,
 			room:room(*)
 		`,
-		)
-		.eq("housing_id", id)
-		.eq("is_deleted", false)
-		.single();
+    )
+    .eq("housing_id", id)
+    .eq("is_deleted", false)
+    .single();
 
-	if (error) throw new Error(error.message);
-	//Filter deleted rooms
-	data.room = data.room?.filter((room: any) => !room.is_deleted) ?? [];
-	return data;
+  if (error) throw new Error(error.message);
+  //Filter deleted rooms
+  data.room = data.room?.filter((room: any) => !room.is_deleted) ?? [];
+  return data;
 }
 
 // Fetches a specific dorm by its unique ID
 async function findById(id: number): Promise<Housing | null> {
-	const { data, error } = await supabase
-		.from("housing")
-		.select("*")
-		.eq("housing_id", id)
-		.eq("is_deleted", false)
-		.single();
+  const { data, error } = await supabase
+    .from("housing")
+    .select("*")
+    .eq("housing_id", id)
+    .eq("is_deleted", false)
+    .single();
 
-	if (error) {
-		if (error.code === "PGRST116") return null;
-		throw new Error(error.message);
-	}
-	return data;
+  if (error) {
+    if (error.code === "PGRST116") return null;
+    throw new Error(error.message);
+  }
+  return data;
 }
 
 async function update(
-	housingId: number,
-	housingDetails: Partial<HousingUpdate>,
+  housingId: number,
+  housingDetails: Partial<HousingUpdate>,
 ): Promise<Housing | null> {
-	const { data, error } = await supabase
-		.from("housing")
-		.update(housingDetails)
-		.eq("housing_id", housingId)
-		.select()
-		.single();
+  const { data, error } = await supabase
+    .from("housing")
+    .update(housingDetails)
+    .eq("housing_id", housingId)
+    .select()
+    .single();
 
-	if (error) {
-		if (error.code === "PGRST116") return null;
-		throw new Error(error.message);
-	}
+  if (error) {
+    if (error.code === "PGRST116") return null;
+    throw new Error(error.message);
+  }
 
-	return data;
+  return data;
 }
 
 //deletes a housing
@@ -129,4 +129,10 @@ export const housingData = {
 	findAllWithRooms,
 	update,
 	deactivate,
+  countAllHousing,
+	getStudentsHoused,
+  getHousingDetailsOfStudent.
+  getRoomDetails,
+  getOverallUnpaidFees,
+  getOccupancyRate
 };
