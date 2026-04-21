@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Housing } from "@/models/housing";
+import { useEffect, useState } from "react";
+import type { Housing } from "@/models/housing";
 
 export default function Page() {
 	const [dorms, setDorms] = useState([]);
@@ -21,10 +21,6 @@ export default function Page() {
 
 	// Mock token to pass backend's authorization check
 	const authHeader = { Authorization: "Bearer local-dev-token" };
-
-	useEffect(() => {
-		fetchDorms();
-	}, []);
 
 	// --- Get All Housing ---
 	const fetchDorms = async () => {
@@ -47,6 +43,10 @@ export default function Page() {
 			console.error("Connection failed:", err);
 		}
 	};
+
+	useEffect(() => {
+		fetchDorms();
+	}, [fetchDorms]);
 
 	// --- Create Record (POST) ---
 	const handleCreate = async (e: React.FormEvent) => {
@@ -75,7 +75,7 @@ export default function Page() {
 				const errData = await res.json();
 				alert(`Error: ${errData.error}`);
 			}
-		} catch (err) {
+		} catch (_err) {
 			alert("System error. Check console.");
 		}
 	};
@@ -115,7 +115,7 @@ export default function Page() {
 				const errData = await res.json();
 				alert(`Error: ${errData.error}`);
 			}
-		} catch (err) {
+		} catch (_err) {
 			alert("System error. Check console.");
 		}
 	};
@@ -135,7 +135,7 @@ export default function Page() {
 				alert(result.error);
 				setSingleDorm(null);
 			}
-		} catch (err) {
+		} catch (_err) {
 			alert("An error occurred during the search.");
 		}
 	};
