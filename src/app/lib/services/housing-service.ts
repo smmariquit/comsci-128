@@ -90,10 +90,25 @@ const deactivateHousing = async (
   }
 };
 
+const getHousingCount = async(): Promise<number | null> => {
+	try {
+			const housingCount = await housingData.countAllHousing();
+			if (!housingCount) return null;
+			
+			return housingCount; 
+			
+		} catch (error) {
+			console.error("Error: ", error);
+			throw new Error("Error");
+	}
+}
+
+
 export const housingService = {
   addHousing,
   getHousing,
   getAllHousing,
   updateHousing,
   deactivateHousing,
+  getHousingCount
 };

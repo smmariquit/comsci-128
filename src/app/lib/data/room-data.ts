@@ -253,6 +253,42 @@ async function updateStudentHousingStatus(accountNumber: number, status: string)
 		if (error) throw new Error(error.message);
 }
 
+const getTenants = async (managerAccountNumber: number) => {
+    const { data: manager, error: managerError } = await supabase
+      .from('manager')
+      .select('account_number, manager_type')
+      .eq('account_number', managerAccountNumber)
+
+  if (managerError || !manager) throw new Error('Unauthorized');
+
+  const { data, error } = await supabase
+    .from('room')
+    .select(`
+      room_id,
+      room_type,
+
+      housing (
+        housing_name
+      ),
+
+      student_accommodation_history (
+        move_in_date,
+        expected_move_out_date,
+
+        student_academic (
+          account_number,
+          degree_program,
+          standing,
+          status
+        )
+      )
+    `);
+
+  if (error) throw error;
+
+  return data;
+};
+
 export const roomData = {
 	create,
 	findAll,
@@ -265,6 +301,7 @@ export const roomData = {
 	endAccommodation,
 	findUnassignedStudents,
 	getOccupantCount,
+  getTenants,
 	getAccountbyStudentNumber,
 	updateStudentHousingStatus,
 };
