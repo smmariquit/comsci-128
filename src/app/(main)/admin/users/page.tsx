@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import UsersFilterTableWrapper from "@/app/components/admin/user/userfilter_table_wrapper";
+
+export const metadata: Metadata = {
+  title: "User Management",
+};
 import { userData } from "@/lib/data/user-data";
 
 export default async function UsersPage() {
