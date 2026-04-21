@@ -126,9 +126,18 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
         .in("room.housing_id", managedHousingIds);
 
     if (histError) throw new Error("History Error: " + histError.message);
+    
+    const { data: managers, error:dormManagerError} = await supabase
+          .from("housing")
+          .select(`
+              manager_account_number
+          `)
+          .not('manager_account_number','is',null)
+          .in("housing_id", managedHousingIds);
 
     const userIds = new Set<number>();
     histories?.forEach(h => userIds.add(h.account_number));
+    managers?.forEach(m => userIds.add(m.manager_account_number));
 
     // short-circuit for empty housing
     if (userIds.size === 0) return [];
