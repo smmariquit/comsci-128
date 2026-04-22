@@ -225,7 +225,7 @@ export function EditUserModal({
                 }}
                 disabled={!dormRequired}
                 placeholder="Select a Dormitory ..."
-                className={`w-full px-4 py-3 rounded-xl border text-sm font-mono text-black
+                className={`w-full px-4 py-3 rounded-xl border text-sm text-black
                   ${dormRequired
                     ? "border-gray-200 bg-[#f3f4f5]"
                     : "border-gray-100 bg-[#f3f4f5]/50 cursor-not-allowed text-gray-400"
@@ -243,14 +243,14 @@ export function EditUserModal({
                           setQuery("");
                           setOpen(false);
                         }}
-                        className={`block w-full px-4 py-3 text-sm font-mono cursor-pointer hover:bg-gray-200
+                        className={`block w-full px-4 py-3 text-sm cursor-pointer hover:bg-gray-200
                           ${d === selectedDorm ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}
                       >
                         {d}
                       </option>
                     ))
                   ) : (
-                    <div className="px-4 py-3 text-sm text-gray-400 font-mono">
+                    <div className="px-4 py-3 text-sm text-gray-400">
                       No dorm found
                     </div>
                   )}
