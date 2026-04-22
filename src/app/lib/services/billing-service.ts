@@ -5,7 +5,24 @@ const fetchAllBills = async (): Promise<BillRow[]> => {
     try {
         const { data, error } = await billData.getAll();
         if (error) throw error;
-        return (data || []) as unknown as BillRow[];
+
+        return (data || []).map((bill: any) => {
+            const user = bill.student?.user;
+            const app = bill.student?.application?.[0];
+            const housingName = app?.room?.housing?.housing_name;
+
+            return {
+                transaction_id: bill.transaction_id,
+                student_account_number: bill.student_account_number,
+                student_name: user ? `${user.first_name} ${user.last_name}` : "Unknown Student",
+                housing_name: housingName || "Unassigned Property",
+                amount: Number(bill.amount),
+                bill_type: bill.bill_type,
+                status: bill.status,
+                due_date: bill.due_date,
+                issue_date: bill.issue_date,
+            };
+        });
     } catch (error) {
         console.error("Service Error (fetchAllBills): ", error);
         return [];
