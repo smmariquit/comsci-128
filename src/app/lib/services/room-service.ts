@@ -1,5 +1,8 @@
 import { roomData } from "@/app/lib/data/room-data";
 import type { Room, RoomInsert, RoomType, RoomUpdate } from "@/models/room";
+import { auditLogService, randomIpAddress } from "./audit-log-service";
+import { userService } from "./user-service";
+import { housingService } from "./housing-service";
 
 const addRoom = async (data: RoomInsert): Promise<Room | null> => {
   try {
@@ -99,6 +102,26 @@ const assignRoom = async (roomId: number, studentId: string) => {
 		await roomData.getOccupantCount(roomId, 1);
 
 		await roomData.updateStudentHousingStatus(account_number, 'Assigned');
+
+    // get info for audit
+    const user = await userService.getUser(account_number);
+    if (!user) {
+			return { error: "User not found" };
+		}
+    const housing = await housingService.getHousing(roomId)
+    const room = await getRoom(roomId)
+
+    // Insert audit log
+    const description = `${user.first_name} ${user.last_name} assigned to ${room?.room_code} ${housing?.housing_name}`;
+          await auditLogService.createAuditLog({
+          action_type: "Update User Details", 
+          audit_description: description,
+          user_name: `${user.first_name} ${user.last_name}`,
+          partial_ip: randomIpAddress(),
+          account_number: account_number,
+          assigned_manager: null,
+          timestamp: new Date().toISOString()
+    });
 
 		return { success: true };
 	} catch (error: any) {
