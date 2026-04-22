@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase"; 
-import type { OccupancyReportRow, ApplicationReportRow, AccommodationHistoryRow } from "@/app/components/admin/reports/reportsmock";
+import type { OccupancyReportRow, ApplicationReportRow, AccommodationHistoryRow, RevenueReportRow } from "@/app/components/admin/reports/reportsmock";
 
 async function getOccupancyReport(managedHousingIds: number[]): Promise<OccupancyReportRow[]> {
     const { data: rooms, error } = await supabase
@@ -128,8 +128,55 @@ async function getAccommodationHistoryReport(managedHousingIds: number[]): Promi
     });
 }
 
+async function getRevenueReport(managedHousingIds: number[]): Promise<RevenueReportRow[]> {
+    const { data: bills, error } = await supabase
+        .from("bill")
+        .select(`
+            transaction_id,
+            amount,
+            status,
+            due_date,
+            date_paid,
+            bill_type,
+            issue_date,
+            student!inner (
+                user!inner ( first_name, last_name ),
+                application!inner (
+                    room!inner (
+                        housing!inner ( housing_name, housing_id )
+                    )
+                )
+            )
+        `)
+        .in("student.application.room.housing_id", managedHousingIds)
+        .eq("is_deleted", false);
+    
+    if (error) throw new Error("Failed to fetch revenue report: " + error.message);
+    
+    return (bills || []).map((bill: any) => {
+        const studentObj = Array.isArray(bill.student) ? bill.student[0] : bill.student;
+        const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
+        const appObj = Array.isArray(studentObj?.application) ? studentObj.application[0] : studentObj?.application;
+        const roomObj = Array.isArray(appObj?.room) ? appObj.room[0] : appObj?.room;
+        const housingObj = Array.isArray(roomObj?.housing) ? roomObj.housing[0] : roomObj?.housing;
+
+        return {
+            transaction_id: bill.transaction_id,
+            student_name: `${userObj?.first_name || ""} ${userObj?.last_name || ""}`.trim() || "Unknown Student",
+            housing_name: housingObj?.housing_name || "Unknown Property",
+            amount: Number(bill.amount) || 0,
+            status: bill.status,
+            due_date: bill.due_date,
+            date_paid: bill.date_paid || undefined,
+            bill_type: bill.bill_type || "N/A",
+            issue_date: bill.issue_date,
+        };
+    });
+}
+
 export const reportData = {
     getOccupancyReport,
     getApplicationReport,
-    getAccommodationHistoryReport
+    getAccommodationHistoryReport,
+    getRevenueReport,
 };
