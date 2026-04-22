@@ -5,7 +5,7 @@ import {
 	UpdateApplication,
 } from "@/models/application";
 
-async function create(application: Application) {
+async function create(application: NewApplication) {
 	const { data, error } = await supabase
 		.from("application")
 		.insert([application])
