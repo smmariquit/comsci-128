@@ -1,5 +1,10 @@
 import Sidebar from "@/app/components/admin/sidebar";
 import PageHeader from "@/app/components/admin/pageheader";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+};
 
 export default function AdminLayout({
   children,
