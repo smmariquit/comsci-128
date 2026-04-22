@@ -14,3 +14,9 @@ const getAllAuditLogs = async (role?: Role, account_number?: number): Promise<Au
 export const auditLogService = {
     getAllAuditLogs
 }
+
+export const randomIpAddress = () => {
+    const first = Math.floor(Math.random() * 256);
+    const second = Math.floor(Math.random() * 256);
+    return `${first}.${second}.x.x`;
+};
