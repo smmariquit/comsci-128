@@ -1,7 +1,11 @@
 import { supabase } from "@/app/lib/supabase";
-import { Application, NewApplication, UpdateApplication } from "@/models/application"
+import {
+	Application,
+	NewApplication,
+	UpdateApplication,
+} from "@/models/application";
 
-async function create(application: Application) {
+async function create(application: NewApplication) {
 	const { data, error } = await supabase
 		.from("application")
 		.insert([application])
@@ -13,8 +17,9 @@ async function create(application: Application) {
 // READ ALL APPLICATIONS
 async function getAll() {
 	const { data, error } = await supabase
-	.from("application")
-	.select(`
+		.from("application")
+		.select(
+			`
 		application_id,
 		housing_name,
 		preferred_room_type,
@@ -27,8 +32,9 @@ async function getAll() {
 				last_name
 			)
 		)
-	`)
-	.eq("is_deleted", false);
+	`,
+		)
+		.eq("is_deleted", false);
 }
 
 async function getById(applicationId: number) {
@@ -40,19 +46,17 @@ async function getById(applicationId: number) {
 	return data;
 }
 
-async function getByManager(
-	managerAccountNumber: number,
-) {
-  const { data, error } = await supabase
-    .from("application")
-    .select(
-      `application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, student_account_number, is_deleted, manager:manager_account_number(account_number)`,
-    )
-    .eq("manager.account_number", managerAccountNumber)
-    .eq("is_deleted", false);
+async function getByManager(managerAccountNumber: number) {
+	const { data, error } = await supabase
+		.from("application")
+		.select(
+			`application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, student_account_number, is_deleted, manager:manager_account_number(account_number)`,
+		)
+		.eq("manager.account_number", managerAccountNumber)
+		.eq("is_deleted", false);
 
-  if (error) throw error;
-  return data;
+	if (error) throw error;
+	return data;
 }
 
 async function getByHousing(housingId: number) {
@@ -68,14 +72,14 @@ async function update(
 	applicationId: number,
 	updatedFields: Partial<Application>,
 ) {
-  const { data, error } = await supabase
-    .from("application")
-    .update(updatedFields)
-    .eq("application_id", applicationId)
-    .eq("is_deleted", false)
-    .select();
-  if (error) throw error;
-  return data;
+	const { data, error } = await supabase
+		.from("application")
+		.update(updatedFields)
+		.eq("application_id", applicationId)
+		.eq("is_deleted", false)
+		.select();
+	if (error) throw error;
+	return data;
 }
 
 async function remove(applicationId: number) {
@@ -97,38 +101,46 @@ async function getDocuments(applicationId: number) {
 		.select("*, document!inner(*)")
 		.eq("application.application_id", applicationId);
 
-	if(error) throw new Error(`Get Submitted Documents under Application Error: ${error.message}`);
+	if (error)
+		throw new Error(
+			`Get Submitted Documents under Application Error: ${error.message}`,
+		);
 
 	return data;
 }
 
 // GET SELECTED STATS FOR MANAGER DASHBOARD
 async function getApplicationStats() {
-
-	const {data, error} = await supabase
-	.from("application")
-	.select("application_status")
-	.eq("is_deleted", false)
+	const { data, error } = await supabase
+		.from("application")
+		.select("application_status")
+		.eq("is_deleted", false);
 
 	if (error) {
-    console.error("Error fetching applications stats: ", error)
-    throw new Error("Failed to fetch application stats")
-  }
+		console.error("Error fetching applications stats: ", error);
+		throw new Error("Failed to fetch application stats");
+	}
 
-	const total = data.length
-	const pending = data.filter(a => a.application_status === "Pending").length
-	const approved = data.filter(a => a.application_status === "Approved").length
-	const rejected = data.filter(a => a.application_status === "Rejected").length
+	const total = data.length;
+	const pending = data.filter(
+		(a) => a.application_status === "Pending",
+	).length;
+	const approved = data.filter(
+		(a) => a.application_status === "Approved",
+	).length;
+	const rejected = data.filter(
+		(a) => a.application_status === "Rejected",
+	).length;
 
-	return { total, pending, approved, rejected }
+	return { total, pending, approved, rejected };
 }
 
 // APPLICATION DATA JOINED WITH STUDENT ACCOUNT NUMBER
 async function getApplicationsWithStudentDetails() {
-
-  const { data, error } = await supabase
-    .from("application")
-    .select(`
+	const { data, error } = await supabase
+		.from("application")
+		.select(
+			`
       application_id,
       housing_name,
       application_status,
@@ -142,23 +154,25 @@ async function getApplicationsWithStudentDetails() {
           last_name
         )
       )
-    `)
-    .eq("is_deleted", false)
-    .order("application_id", { ascending: false })
+    `,
+		)
+		.eq("is_deleted", false)
+		.order("application_id", { ascending: false });
 
-  if (error) {
-    console.error("Error fetching applications with students: ", error)
-    throw new Error("Failed to fetch applications")
-  }
+	if (error) {
+		console.error("Error fetching applications with students: ", error);
+		throw new Error("Failed to fetch applications");
+	}
 
-  return data ?? []
+	return data ?? [];
 }
 
-// SINGLE APPLICATION DETAIL BY ID 
+// SINGLE APPLICATION DETAIL BY ID
 async function getApplicationDetailById(applicationId: number) {
-  const { data, error } = await supabase
-    .from("application")
-    .select(`
+	const { data, error } = await supabase
+		.from("application")
+		.select(
+			`
       application_id,
       housing_name,
       application_status,
@@ -172,48 +186,47 @@ async function getApplicationDetailById(applicationId: number) {
           last_name
         )
       )
-    `)
-    .eq("application_id", applicationId)
-    .eq("is_deleted", false)
-    .single()
+    `,
+		)
+		.eq("application_id", applicationId)
+		.eq("is_deleted", false)
+		.single();
 
-  if (error) throw error
-  return data
+	if (error) throw error;
+	return data;
 }
 
 // RETRIEVE DOCUMENTS BY APPLICATION ID
 async function getDocumentsByApplicationId(applicationId: number) {
-  const { data, error } = await supabase
-    .from("document")
-    .select("document_id, type, storage_link")
-    .eq("application_id", applicationId)
+	const { data, error } = await supabase
+		.from("document")
+		.select("document_id, type, storage_link")
+		.eq("application_id", applicationId);
 
-  if (error) throw error
-  return data
+	if (error) throw error;
+	return data;
 }
 
 // ASSIGN ROOM ID FOR AN APPLICATION ENTRY
-async function assignRoomToApplication(
-  applicationId: number,
-  roomId: number
-) {
-  const { data, error } = await supabase
-    .from("application")
-    .update({ room_id: roomId })
-    .eq("application_id", applicationId)
-    .eq("is_deleted", false)
-    .select()
-    .single()
+async function assignRoomToApplication(applicationId: number, roomId: number) {
+	const { data, error } = await supabase
+		.from("application")
+		.update({ room_id: roomId })
+		.eq("application_id", applicationId)
+		.eq("is_deleted", false)
+		.select()
+		.single();
 
-  if (error) throw new Error(error.message)
-  return data
+	if (error) throw new Error(error.message);
+	return data;
 }
 
 //FETCH APPROVED APPLICATIONS WITH NULL ROOM ID
 async function getApprovedUnassignedByHousingName(housingName: string) {
-  const { data, error } = await supabase
-    .from("application")
-    .select(`
+	const { data, error } = await supabase
+		.from("application")
+		.select(
+			`
       application_id,
       housing_name,
       expected_moveout_date,
@@ -226,29 +239,30 @@ async function getApprovedUnassignedByHousingName(housingName: string) {
           last_name
         )
       )
-    `)
-    .eq("application_status", "Approved")
-    .eq("housing_name", housingName)
-    .eq("is_deleted", false)
-    .is("room_id", null)
+    `,
+		)
+		.eq("application_status", "Approved")
+		.eq("housing_name", housingName)
+		.eq("is_deleted", false)
+		.is("room_id", null);
 
-  if (error) throw new Error(error.message)
-  return data ?? []
+	if (error) throw new Error(error.message);
+	return data ?? [];
 }
 
 export const applicationData = {
-  create,
-  getAll,
-  getById,
-  getByManager,
-  getByHousing,
-  update,
-  remove,
-  getDocuments,
-  getApplicationStats,
-  getApplicationsWithStudentDetails,
-  getApplicationDetailById,
-  getDocumentsByApplicationId,
-  assignRoomToApplication,
-  getApprovedUnassignedByHousingName
+	create,
+	getAll,
+	getById,
+	getByManager,
+	getByHousing,
+	update,
+	remove,
+	getDocuments,
+	getApplicationStats,
+	getApplicationsWithStudentDetails,
+	getApplicationDetailById,
+	getDocumentsByApplicationId,
+	assignRoomToApplication,
+	getApprovedUnassignedByHousingName,
 };
