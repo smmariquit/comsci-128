@@ -6,7 +6,7 @@ import UserFilters from "@/app/components/admin/user/userfilters";
 import type { UserRow } from "@/app/components/admin/user/usertable";
 import type { UserTypeFilter, HousingFilter, AccountStatusFilter } from "@/app/components/admin/user/userfilters";
 
-export default function UsersFilterTableWrapper({ liveUsers }: { liveUsers: UserRow[] }) {
+export default function UsersFilterTableWrapper({ liveUsers, liveApplications }: { liveUsers: UserRow[]; liveApplications: UserRow[] }) {
   // ── Filter state ──────────────────────────────────────────────────────────
   const [search, setSearch]               = useState("");
   const [userType, setUserType]           = useState<UserTypeFilter>("All");
@@ -56,7 +56,6 @@ export default function UsersFilterTableWrapper({ liveUsers }: { liveUsers: User
       display: "flex",
       flexDirection: "column",
       gap: 16,
-      padding: "24px",
       fontFamily: "'DM Sans', sans-serif",
     }}>
 
