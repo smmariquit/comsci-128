@@ -16,7 +16,6 @@ export interface User {
 	status: 'Active' | 'Disabled' | string;
 	dormitory: string;
 	room: string;
-	joined: string;
 }
 
 export interface UserManagementProps {
@@ -100,7 +99,6 @@ export default function UserManagementPage({
 					status: user.is_deleted ? 'Disabled' : 'Active',
 					dormitory: user.dormitory || user.dorm_name || '—',
 					room: user.room || user.room_number || '—',
-					joined: user.created_at ? new Date(user.created_at).toLocaleDateString() : '—',
 				}));
 				
 				console.log('Transformed users:', transformedUsers); 
@@ -194,44 +192,117 @@ export default function UserManagementPage({
 							</span>
 						</div>
 						
-						<div className="grid grid-cols-[2fr_1.9fr_0.8fr_1fr_1.5fr_1.2fr_1fr_1.2fr] gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6">
-							{['NAME', 'EMAIL', 'ROLE', 'STATUS', 'DORMITORY', 'ROOM', 'JOINED', 'ACTIONS'].map((col) => (
-								<span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">{col}</span>
+						<table className="w-full border-separate border-spacing-0">
+						{/* HEADER */}
+						<thead>
+							<tr className="bg-[#eae8e1]/50 border-b border-[#1a2332]/6">
+							{['NAME', 'EMAIL', 'ROLE', 'STATUS', 'DORMITORY', 'ROOM', 'ACTIONS'].map((col) => (
+								<th
+								key={col}
+								className="px-6 py-3 text-left text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase"
+								>
+								{col}
+								</th>
 							))}
-						</div>
+							</tr>
+						</thead>
 
-						<div className="divide-y divide-[#1a2332]/5">
+						{/* BODY */}
+						<tbody className="divide-y divide-[#1a2332]/5">
 							{paginated.length === 0 ? (
-								<p className="text-sm text-[#1a2332]/40 text-center py-12">No users found.</p>
-              				) : (
-								paginated.map((u) => (
-									<div key={u.id} className="grid grid-cols-[2fr_2fr_1fr_1fr_1.5fr_1fr_1fr_1.2fr] gap-4 px-6 py-4 items-center hover:bg-[#eae8e1]/30 transition-colors">
-										<div className="flex items-center gap-3 min-w-0">
-											<div className="w-9 h-9 rounded-full bg-[#1a2332] flex items-center justify-center text-white text-xs font-bold shrink-0">
-												{u.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '??'}
-                      						</div>
-											<div className="min-w-0">
-												<p className="text-sm font-semibold text-[#1a2332] truncate">{u.name || 'Unknown'}</p>
-												<p className="text-[11px] text-[#1a2332]/40">{u.gender || '—'}</p>
-											</div>
-										</div>
-										<span className="text-sm text-[#1a2332]/60 truncate">{u.email || '—'}</span>
-										<span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold w-fit ${{ Admin: 'bg-purple-100 text-purple-700', Manager: 'bg-blue-100 text-blue-700', Student: 'bg-[#eae8e1] text-[#1a2332]/60' }[u.role] ?? 'bg-gray-100 text-gray-600'}`}>{u.role || '—'}</span>
-										<span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border w-fit ${u.status === 'Active' ? 'border-emerald-300 text-emerald-600 bg-emerald-50' : 'border-red-200 text-red-500 bg-red-50'}`}>{u.status || '—'}</span>
-										<span className="text-sm text-[#1a2332]/60">{u.dormitory || '—'}</span>
-										<span className="text-sm text-[#1a2332]/60">{u.room || '—'}</span>
-										<span className="text-sm text-[#1a2332]/60">{u.joined || '—'}</span>
-										<div className="flex items-center gap-2">
-											<button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">Edit</button>
-											<button className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${u.status === 'Active' ? 'text-red-500 border border-red-200 hover:bg-red-50' : 'text-emerald-600 border border-emerald-200 hover:bg-emerald-50'}`}>
-												{u.status === 'Active' ? 'Disable' : 'Enable'}
-											</button>
-											<button className="text-[#1a2332]/25 hover:text-red-400 transition-colors"><Trash2 size={15} /></button>
-										</div>
+							<tr>
+								<td colSpan={7} className="text-sm text-[#1a2332]/40 text-center py-12">
+								No users found.
+								</td>
+							</tr>
+							) : (
+							paginated.map((u) => (
+								<tr
+								key={u.id}
+								className="hover:bg-[#eae8e1]/30 transition-colors"
+								>
+								{/* NAME */}
+								<td className="px-6 py-4">
+									<div className="flex items-center gap-3 min-w-0">
+									<div className="w-9 h-9 rounded-full bg-[#1a2332] flex items-center justify-center text-white text-xs font-bold shrink-0">
+										{u.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '??'}
 									</div>
-								))
+									<div className="min-w-0">
+										<p className="text-sm font-semibold text-[#1a2332] truncate">
+										{u.name || 'Unknown'}
+										</p>
+										<p className="text-[11px] text-[#1a2332]/40">
+										{u.gender || '—'}
+										</p>
+									</div>
+									</div>
+								</td>
+
+								{/* EMAIL */}
+								<td className="px-6 py-4 text-sm text-[#1a2332]/60 truncate">
+									{u.email || '—'}
+								</td>
+
+								{/* ROLE */}
+								<td className="px-6 py-4">
+									<span
+									className={`px-2.5 py-1 rounded-full text-[11px] font-semibold w-fit ${
+										{
+										Admin: 'bg-purple-100 text-purple-700',
+										Manager: 'bg-blue-100 text-blue-700',
+										Student: 'bg-[#eae8e1] text-[#1a2332]/60',
+										}[u.role] ?? 'bg-gray-100 text-gray-600'
+									}`}
+									>
+									{u.role || '—'}
+									</span>
+								</td>
+
+								{/* STATUS */}
+								<td className="px-6 py-4">
+									<span
+									className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border w-fit ${
+										u.status === 'Active'
+										? 'border-emerald-300 text-emerald-600 bg-emerald-50'
+										: 'border-red-200 text-red-500 bg-red-50'
+									}`}
+									>
+									{u.status || '—'}
+									</span>
+								</td>
+
+								{/* DORM */}
+								<td className="px-6 py-4 text-sm text-[#1a2332]/60">
+									{u.dormitory || '—'}
+								</td>
+
+								{/* ROOM */}
+								<td className="px-6 py-4 text-sm text-[#1a2332]/60">
+									{u.room || '—'}
+								</td>
+
+								{/* ACTIONS */}
+								<td className="px-6 py-4">
+									<div className="flex items-center gap-2">
+									<button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
+										Edit
+									</button>
+									<button
+										className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+										u.status === 'Active'
+											? 'text-red-500 border border-red-200 hover:bg-red-50'
+											: 'text-emerald-600 border border-emerald-200 hover:bg-emerald-50'
+										}`}
+									>
+										{u.status === 'Active' ? 'Disable' : 'Enable'}
+									</button>
+									</div>
+								</td>
+								</tr>
+							))
 							)}
-						</div>
+						</tbody>
+						</table>
 						
 						<div className="flex items-center justify-between px-6 py-4 border-t border-[#1a2332]/6">
 							<span className="text-xs text-[#1a2332]/40">
