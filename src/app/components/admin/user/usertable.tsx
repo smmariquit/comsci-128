@@ -6,6 +6,8 @@ export type UserType        = "Student" | "Landlord" | "Housing Admin" | "Guest"
 export type HousingStatus   = "Assigned" | "Not Assigned" | "Pending";
 export type Sex             = "Male" | "Female" | "Prefer not to say";
 
+
+
 export interface UserRow {
   account_number:  number;
   full_name:       string;
