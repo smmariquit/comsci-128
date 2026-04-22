@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { C } from "@/lib/palette";
 import type { BillRow, PaymentStatus, BillType } from "./billingtable";
+import { housingData } from "@/app/lib/data/housing-data";
 
 type ExtendedBillType = BillType | "Other";
 
@@ -173,22 +174,28 @@ function SelectField({ id, label, value, onChange, children, flex }: {
 
 interface IssueBillModalProps {
   open:           boolean;
-  housingOptions: string[];          // list of housing_name strings
+  managedIds: number[];          // list of housing_name strings
   onClose:        () => void;
   onSubmit:       (form: IssueBillForm) => void;
 }
 
 export default function IssueBillModal({
-  open, housingOptions, onClose, onSubmit,
+  open, onClose, onSubmit,
 }: IssueBillModalProps) {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // ── Form state ──────────────────────────────────────────────────────────────
-  const [housingName,  setHousingName]  = useState("");
-  const [studentName,  setStudentName]  = useState("");
-  const [roomCode,     setRoomCode]     = useState("");
-  const [dueDate,      setDueDate]      = useState("");
+  // ── Form state (IDs) ──────────────────────────────────────────────────────────
+  const [selectedHousingId, setSelectedHousingId] = useState<number | "">("");
+  const [selectedRoomId,    setSelectedRoomId]    = useState<number | "">("");
+  const [selectedStudentId, setSelectedStudentId] = useState<number | "">("");
+  const [dueDate,           setDueDate]           = useState("");
+
+  // ── Options state (Fetched data) ──────────────────────────────────────────────
+  const [housingOptions, setHousingOptions] = useState<any[]>([]);
+  const [roomOptions,    setRoomOptions]    = useState<any[]>([]);
+  const [studentOptions, setStudentOptions] = useState<any[]>([]);
+
   const [charges, setCharges] = useState<ChargeItem[]>([
     { id: "1", type: "Rent",    amount: "" },
     { id: "2", type: "Utility", amount: "" },
@@ -197,16 +204,32 @@ export default function IssueBillModal({
   // Reset when modal opens
   useEffect(() => {
     if (open) {
-      setHousingName("");
-      setStudentName("");
-      setRoomCode("");
-      setDueDate("");
-      setCharges([
-        { id: "1", type: "Rent",    amount: "" },
-        { id: "2", type: "Utility", amount: "" },
-      ]);
+      housingData.findAll().then(setHousingOptions); // Use managedIds to filter if needed
+      // Reset all
+      setSelectedHousingId(""); setSelectedRoomId(""); setSelectedStudentId("");
     }
   }, [open]);
+
+  useEffect(() => {
+    if (selectedHousingId) {
+      // We assume findWithRooms returns an object with a room array
+      housingData.findWithRooms(Number(selectedHousingId)).then(data => {
+        setRoomOptions(data.room || []);
+      });
+    } else {
+      setRoomOptions([]);
+    }
+    setSelectedRoomId(""); // Clear downstream
+  }, [selectedHousingId]);
+
+  useEffect(() => {
+    if (selectedRoomId) {
+      housingData.getStudentsByRoom(Number(selectedRoomId)).then(setStudentOptions);
+    } else {
+      setStudentOptions([]);
+    }
+    setSelectedStudentId(""); // Clear downstream
+  }, [selectedRoomId]);
 
   if (!open) return null;
 
@@ -225,20 +248,26 @@ export default function IssueBillModal({
 
   const validCharges = charges.filter((c) => parseFloat(c.amount) > 0);
   const totalAmount  = charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
-  const isValid      = !!housingName && !!studentName && !!dueDate && validCharges.length > 0;
+  const isValid      = !!selectedStudentId && !!dueDate && validCharges.length > 0;
 
   function handleSubmit() {
-    if (!isValid) return;
-    onSubmit({
-      student_name:           studentName.trim(),
-      housing_name:           housingName,
-      student_account_number: null,          // resolved server-side / Supabase
-      room_code:              roomCode.trim(),
-      due_date:               dueDate,
-      issue_date:             today,
-      charges,
-    });
-  }
+  if (!isValid) return;
+
+  // Resolve names for the form artifact
+  const student = studentOptions.find(s => s.account_number === Number(selectedStudentId));
+  const housing = housingOptions.find(h => h.housing_id === Number(selectedHousingId));
+  const room    = roomOptions.find(r => r.room_id === Number(selectedRoomId));
+
+  onSubmit({
+    student_account_number: Number(selectedStudentId),
+    student_name: student?.full_name || "",
+    housing_name: housing?.housing_name || "",
+    room_code:    room?.room_code || "",
+    due_date:     dueDate,
+    issue_date:   today,
+    charges,
+  });
+}
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -301,13 +330,12 @@ export default function IssueBillModal({
           {/* Row: Housing + Due Date */}
           <div style={{ display: "flex", gap: 14 }}>
             <SelectField
-              id="bill-housing" label="Property" flex={3}
-              value={housingName} onChange={setHousingName}
+              id="bill-housing" label="Property"
+              value={String(selectedHousingId)} 
+              onChange={(v) => setSelectedHousingId(Number(v))}
             >
-              <option value="">Select a property…</option>
-              {housingOptions.map((h) => (
-                <option key={h} value={h}>{h}</option>
-              ))}
+              <option value="">Select Property...</option>
+              {housingOptions.map(h => <option key={h.housing_id} value={h.housing_id}>{h.housing_name}</option>)}
             </SelectField>
 
             <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
@@ -323,31 +351,25 @@ export default function IssueBillModal({
             </div>
           </div>
 
-          {/* Row: Student name + Room code */}
-          <div style={{ display: "flex", gap: 14 }}>
-            <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
-              <label htmlFor="bill-student" style={labelStyle}>Student Name</label>
-              <input
-                id="bill-student"
-                type="text"
-                placeholder="e.g. Santos, Maria"
-                value={studentName}
-                onChange={(e) => setStudentName(e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-            <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
-              <label htmlFor="bill-room" style={labelStyle}>Room / Unit Code</label>
-              <input
-                id="bill-room"
-                type="text"
-                placeholder="e.g. RM-0041"
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-          </div>
+          {/* Row: Room Select */}
+          <SelectField
+            id="bill-room" label="Room / Unit"
+            value={String(selectedRoomId)} 
+            onChange={(v) => setSelectedRoomId(Number(v))}
+          >
+            <option value="">{selectedHousingId ? "Select Room..." : "Select Property first"}</option>
+            {roomOptions.map(r => <option key={r.room_id} value={r.room_id}>{r.room_code}</option>)}
+          </SelectField>
+
+          {/* Row: Student Select */}
+          <SelectField
+            id="bill-student" label="Student"
+            value={String(selectedStudentId)} 
+            onChange={(v) => setSelectedStudentId(Number(v))}
+          >
+            <option value="">{selectedRoomId ? "Select Student..." : "Select Room first"}</option>
+            {studentOptions.map(s => <option key={s.account_number} value={s.account_number}>{s.full_name}</option>)}
+          </SelectField>
 
           {/* Issue date — read-only */}
           <div style={{ display: "flex", gap: 14 }}>
@@ -544,8 +566,9 @@ export default function IssueBillModal({
                   <line x1="12" y1="8" x2="12" y2="12"/>
                   <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
-                {!housingName ? "Select a property to continue"
-                  : !studentName ? "Enter the student name"
+                {!selectedHousingId ? "Select a property to continue"
+                  : !selectedRoomId ? "Select a room"
+                  : !selectedStudentId ? "Select a student"
                   : !dueDate ? "Set a due date"
                   : "Add at least one charge with an amount"}
               </div>
