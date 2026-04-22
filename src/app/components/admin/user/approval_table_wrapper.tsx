@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { C } from "@/lib/palette";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -54,6 +54,19 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
   );
 }
 
+// ─── Loading Spinner ──────────────────────────────────────────────────────────
+
+function Spinner({ color = "currentColor" }: { color?: string }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={color} 
+         strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+         style={{ animation: "spin 1s linear infinite", display: "block" }}>
+      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+}
+
 // ─── Action Button ────────────────────────────────────────────────────────────
 
 type BtnVariant = "ghost" | "danger" | "approve";
@@ -64,19 +77,22 @@ const BTN_STYLE: Record<BtnVariant, React.CSSProperties> = {
   approve: { background: "rgba(86,115,117,0.12)", color: C.teal,   border: "1px solid rgba(86,115,117,0.25)" },
 };
 
-function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
-  label: string; onClick: () => void; variant?: BtnVariant; disabled?: boolean;
+function ActionBtn({ label, onClick, variant = "ghost", disabled, isLoading }: {
+  label: string; onClick: () => void; variant?: BtnVariant; disabled?: boolean; isLoading?: boolean;
 }) {
   return (
-    <button onClick={onClick} disabled={disabled} style={{
+    <button onClick={onClick} disabled={disabled || isLoading} style={{
       ...BTN_STYLE[variant],
       fontFamily: "'DM Sans', sans-serif",
-      fontSize: 11, fontWeight: 300,
+      fontSize: 11, fontWeight: 500,
       padding: "4px 10px", borderRadius: 6,
-      cursor: disabled ? "not-allowed" : "pointer",
-      opacity: disabled ? 0.4 : 1,
+      cursor: (disabled || isLoading) ? "not-allowed" : "pointer",
+      opacity: (disabled || isLoading) ? 0.6 : 1,
+      display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+      minWidth: 60,
+      transition: "all 0.15s ease",
     }}>
-      {label}
+      {isLoading ? <Spinner /> : label}
     </button>
   );
 }
@@ -164,24 +180,13 @@ function StatusFilter({
   );
 }
 
-// ─── Columns ──────────────────────────────────────────────────────────────────
-
-const COLUMNS = [
-  { key: "student",    label: "Student"     },
-  { key: "student_no", label: "Student No." },
-  { key: "housing",    label: "Housing"     },
-  { key: "room_type",  label: "Room Type"   },
-  { key: "status",     label: "Status"      },
-  { key: "actions",    label: "Actions"     },
-];
-
 // ─── Table ────────────────────────────────────────────────────────────────────
 
-function ApplicationTable({ data, onView, onApprove, onReject }: {
+function ApplicationTable({ data, onView, onApproveInit, onRejectInit }: {
   data: ApplicationReportRow[];
-  onView:    (row: ApplicationReportRow) => void;
-  onApprove: (row: ApplicationReportRow) => void;
-  onReject:  (row: ApplicationReportRow) => void;
+  onView:        (row: ApplicationReportRow) => void;
+  onApproveInit: (row: ApplicationReportRow) => void;
+  onRejectInit:  (row: ApplicationReportRow) => void;
 }) {
   const isPending = (row: ApplicationReportRow) =>
     row.application_status === "Pending Admin Approval" ||
@@ -218,7 +223,7 @@ function ApplicationTable({ data, onView, onApprove, onReject }: {
             </tr>
           ) : data.map((row, i) => (
             <tr key={row.application_id} style={{
-              borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
+              borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
             }}>
               <td style={{ padding: "8px 14px", color: C.navy, fontWeight: 600, whiteSpace: "nowrap" }}>
                 {row.student_name}
@@ -240,8 +245,8 @@ function ApplicationTable({ data, onView, onApprove, onReject }: {
                   <ActionBtn label="View" onClick={() => onView(row)} variant="ghost" />
                   {isPending(row) && (
                     <>
-                      <ActionBtn label="Approve" onClick={() => onApprove(row)} variant="approve" />
-                      <ActionBtn label="Reject"  onClick={() => onReject(row)}  variant="danger"  />
+                      <ActionBtn label="Approve" onClick={() => onApproveInit(row)} variant="approve" />
+                      <ActionBtn label="Reject"  onClick={() => onRejectInit(row)}  variant="danger"  />
                     </>
                   )}
                 </div>
@@ -250,6 +255,160 @@ function ApplicationTable({ data, onView, onApprove, onReject }: {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+// ─── Columns ──────────────────────────────────────────────────────────────────
+
+const COLUMNS = [
+  { key: "student",    label: "Student"     },
+  { key: "student_no", label: "Student No." },
+  { key: "housing",    label: "Housing"     },
+  { key: "room_type",  label: "Room Type"   },
+  { key: "status",     label: "Status"      },
+  { key: "actions",    label: "Actions"     },
+];
+
+// ─── Confirmation Modal ───────────────────────────────────────────────────────
+
+type ModalConfig = { action: "approve" | "reject"; row: ApplicationReportRow } | null;
+
+function ConfirmModal({
+  config,
+  onClose,
+  onConfirm,
+  isProcessing
+}: {
+  config: ModalConfig;
+  onClose: () => void;
+  onConfirm: () => void;
+  isProcessing: boolean;
+}) {
+  if (!config) return null;
+
+  const isApprove = config.action === "approve";
+  const actionText = isApprove ? "Approve" : "Reject";
+  const titleColor = isApprove ? C.teal : C.orange;
+
+  return (
+    <div style={{
+      position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+      background: "rgba(28,38,50,0.4)", backdropFilter: "blur(2px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 9999, padding: 20
+    }}>
+      <div style={{
+        background: "#fff", borderRadius: 12, width: "100%", maxWidth: 360,
+        padding: 24, fontFamily: "'DM Sans', sans-serif",
+        boxShadow: "0 10px 25px rgba(28,38,50,0.1)",
+        outline: `1px solid ${C.cream}`
+      }}>
+        <h3 style={{ margin: "0 0 8px 0", fontSize: 16, fontWeight: 600, color: titleColor }}>
+          Confirm {actionText}
+        </h3>
+        <p style={{ margin: "0 0 24px 0", fontSize: 13, color: C.navy, lineHeight: 1.5 }}>
+          Are you sure you want to <strong>{actionText.toLowerCase()}</strong> the housing application for <span style={{ color: C.teal, fontWeight: 500 }}>{config.row.student_name}</span>? 
+          {isApprove ? " This action will notify the student." : " This action cannot be undone."}
+        </p>
+        
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+          <ActionBtn 
+            label="Cancel" 
+            variant="ghost" 
+            onClick={onClose} 
+            disabled={isProcessing} 
+          />
+          <ActionBtn 
+            label={actionText} 
+            variant={isApprove ? "approve" : "danger"} 
+            onClick={onConfirm} 
+            isLoading={isProcessing} 
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── View Modal ──────────────────────────────────────────────────────────────
+
+function ViewModal({
+  row,
+  onClose,
+}: {
+  row: ApplicationReportRow | null;
+  onClose: () => void;
+}) {
+  if (!row) return null;
+
+  const detailRows: Array<{ label: string; value: React.ReactNode }> = [
+    { label: "Student", value: row.student_name },
+    { label: "Student Number", value: row.student_number },
+    { label: "Housing", value: row.housing_name },
+    { label: "Preferred Room Type", value: row.preferred_room_type ?? <span style={{ opacity: 0.45 }}>—</span> },
+    {
+      label: "Expected Move-Out",
+      value: row.expected_moveout_date ? new Date(row.expected_moveout_date).toLocaleDateString() : <span style={{ opacity: 0.45 }}>—</span>,
+    },
+    {
+      label: "Actual Move-Out",
+      value: row.actual_moveout_date ? new Date(row.actual_moveout_date).toLocaleDateString() : <span style={{ opacity: 0.45 }}>—</span>,
+    },
+  ];
+
+  return (
+    <div style={{
+      position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+      background: "rgba(28,38,50,0.4)", backdropFilter: "blur(2px)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 9999, padding: 20
+    }}>
+      <div style={{
+        background: "#fff", borderRadius: 12, width: "100%", maxWidth: 460,
+        padding: 24, fontFamily: "'DM Sans', sans-serif",
+        boxShadow: "0 10px 25px rgba(28,38,50,0.1)",
+        outline: `1px solid ${C.cream}`
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: C.navy }}>
+            Application Details
+          </h3>
+          <StatusBadge status={row.application_status} />
+        </div>
+
+        <div style={{
+          border: `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+          borderRadius: 10,
+          overflow: "hidden",
+          marginBottom: 20,
+        }}>
+          {detailRows.map((item, idx) => (
+            <div
+              key={item.label}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "150px 1fr",
+                gap: 10,
+                padding: "10px 12px",
+                borderTop: idx === 0 ? "none" : `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+                alignItems: "center",
+              }}
+            >
+              <span style={{ fontSize: 11, color: C.teal, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.2 }}>
+                {item.label}
+              </span>
+              <span style={{ fontSize: 13, color: C.navy, fontWeight: 500 }}>
+                {item.value}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <ActionBtn label="Close" variant="ghost" onClick={onClose} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -264,28 +423,86 @@ export default function ApplicationTable_Wrapper({
 }: {
   liveApplications: ApplicationReportRow[];
   onView?: (row: ApplicationReportRow) => void;
-  onApprove?: (row: ApplicationReportRow) => void;
-  onReject?: (row: ApplicationReportRow) => void;
+  onApprove?: (row: ApplicationReportRow) => void | Promise<void>;
+  onReject?: (row: ApplicationReportRow) => void | Promise<void>;
 }) {
+  const [applications, setApplications] = useState<ApplicationReportRow[]>(liveApplications);
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "All">("Pending Admin Approval");
   const [search, setSearch] = useState("");
+  
+  // Modal & Loading States
+  const [modalConfig, setModalConfig] = useState<ModalConfig>(null);
+  const [viewRow, setViewRow] = useState<ApplicationReportRow | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleView    = onView    ?? (() => undefined);
-  const handleApprove = onApprove ?? (() => undefined);
-  const handleReject  = onReject  ?? (() => undefined);
+  const handleView = (row: ApplicationReportRow) => {
+    setViewRow(row);
+    onView?.(row);
+  };
+
+  useEffect(() => {
+    setApplications(liveApplications);
+  }, [liveApplications]);
+
+  const patchApplicationStatus = async (
+    applicationId: number,
+    status: ApplicationStatus
+  ) => {
+    const response = await fetch(`/api/applications/${applicationId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ application_status: status }),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload?.message ?? "Failed to update application status.");
+    }
+  };
+
+  const handleConfirmAction = async () => {
+    if (!modalConfig) return;
+    setIsProcessing(true);
+    
+    try {
+      const nextStatus: ApplicationStatus =
+        modalConfig.action === "approve" ? "Approved" : "Rejected";
+
+      if (modalConfig.action === "approve" && onApprove) {
+        await onApprove(modalConfig.row);
+      } else if (modalConfig.action === "reject" && onReject) {
+        await onReject(modalConfig.row);
+      } else {
+        await patchApplicationStatus(modalConfig.row.application_id, nextStatus);
+      }
+
+      setApplications(prev =>
+        prev.map(app =>
+          app.application_id === modalConfig.row.application_id
+            ? { ...app, application_status: nextStatus }
+            : app
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update application status:", error);
+    } finally {
+      setIsProcessing(false);
+      setModalConfig(null);
+    }
+  };
 
   // counts per status (unaffected by search)
   const counts = useMemo(() => {
-    const c = { All: liveApplications.length } as Record<ApplicationStatus | "All", number>;
+    const c = { All: applications.length } as Record<ApplicationStatus | "All", number>;
     for (const s of ALL_STATUSES) {
-      c[s] = liveApplications.filter(r => r.application_status === s).length;
+      c[s] = applications.filter(r => r.application_status === s).length;
     }
     return c;
-  }, [liveApplications]);
+  }, [applications]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return liveApplications.filter(r => {
+    return applications.filter(r => {
       const matchStatus = statusFilter === "All" || r.application_status === statusFilter;
       const matchSearch = !q ||
         r.student_name.toLowerCase().includes(q) ||
@@ -294,46 +511,61 @@ export default function ApplicationTable_Wrapper({
         (r.preferred_room_type ?? "").toLowerCase().includes(q);
       return matchStatus && matchSearch;
     });
-  }, [liveApplications, statusFilter, search]);
+  }, [applications, statusFilter, search]);
 
   return (
-    <div style={{
-      background: "#fff", borderRadius: 12,
-      outline: `1px solid ${C.cream}`,
-      overflow: "hidden",
-      fontFamily: "'DM Sans', sans-serif",
-    }}>
-
-      {/* Header */}
+    <>
       <div style={{
-        display: "flex", alignItems: "center",
-        justifyContent: "space-between",
-        padding: "12px 18px",
-        borderBottom: `1px solid ${C.dividerLight}`,
-        flexWrap: "wrap", gap: 10,
+        background: "#fff", borderRadius: 12,
+        outline: `1px solid ${C.cream}`,
+        overflow: "hidden",
+        fontFamily: "'DM Sans', sans-serif",
       }}>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Applications</div>
-          <div style={{ fontSize: 11, color: C.teal }}>{filtered.length} shown</div>
+
+        {/* Header */}
+        <div style={{
+          display: "flex", alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 18px",
+          borderBottom: `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+          flexWrap: "wrap", gap: 10,
+        }}>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Applications</div>
+            <div style={{ fontSize: 11, color: C.teal }}>{filtered.length} shown</div>
+          </div>
+          <SearchInput value={search} onChange={setSearch} />
         </div>
-        <SearchInput value={search} onChange={setSearch} />
+
+        {/* Status Filter Pills */}
+        <div style={{
+          padding: "10px 18px",
+          borderBottom: `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+        }}>
+          <StatusFilter value={statusFilter} onChange={setStatusFilter} counts={counts} />
+        </div>
+
+        {/* Table */}
+        <ApplicationTable
+          data={filtered}
+          onView={handleView}
+          onApproveInit={(row) => setModalConfig({ action: "approve", row })}
+          onRejectInit={(row) => setModalConfig({ action: "reject", row })}
+        />
       </div>
 
-      {/* Status Filter Pills */}
-      <div style={{
-        padding: "10px 18px",
-        borderBottom: `1px solid ${C.dividerLight}`,
-      }}>
-        <StatusFilter value={statusFilter} onChange={setStatusFilter} counts={counts} />
-      </div>
-
-      {/* Table */}
-      <ApplicationTable
-        data={filtered}
-        onView={handleView}
-        onApprove={handleApprove}
-        onReject={handleReject}
+      {/* Confirmation Modal */}
+      <ConfirmModal 
+        config={modalConfig}
+        isProcessing={isProcessing}
+        onClose={() => !isProcessing && setModalConfig(null)}
+        onConfirm={handleConfirmAction}
       />
-    </div>
+
+      <ViewModal
+        row={viewRow}
+        onClose={() => setViewRow(null)}
+      />
+    </>
   );
 }
