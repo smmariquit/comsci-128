@@ -1,6 +1,6 @@
-import Sidebar from "@/app/components/admin/sidebar";
+import type { Metadata } from "next";
 import PageHeader from "@/app/components/admin/pageheader";
-import { Metadata } from "next";
+import Sidebar from "@/app/components/admin/sidebar";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -21,11 +21,7 @@ export default function AdminLayout({
         background: "#eef0f4",
       }}
     >
-      <Sidebar
-        userInitials="JD"
-        userName="John Doe"
-        userRole="House Admin"
-      />
+      <Sidebar userInitials="JD" userName="John Doe" userRole="House Admin" />
 
       <main
         style={{
