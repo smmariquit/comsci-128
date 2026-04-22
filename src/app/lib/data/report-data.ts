@@ -140,26 +140,30 @@ async function getRevenueReport(managedHousingIds: number[]): Promise<RevenueRep
             bill_type,
             issue_date,
             student!inner (
-                user!inner ( first_name, last_name )
-            ),
-            room!inner (
-                housing!inner ( housing_name, housing_id )
+                user!inner ( first_name, last_name ),
+                application!inner (
+                    room!inner (
+                        housing!inner ( housing_name, housing_id )
+                    )
+                )
             )
         `)
-        .in("room.housing_id", managedHousingIds);
+        .in("student.application.room.housing_id", managedHousingIds)
+        .eq("is_deleted", false);
     
     if (error) throw new Error("Failed to fetch revenue report: " + error.message);
     
     return (bills || []).map((bill: any) => {
         const studentObj = Array.isArray(bill.student) ? bill.student[0] : bill.student;
         const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
-        const roomObj = Array.isArray(bill.room) ? bill.room[0] : bill.room;
+        const appObj = Array.isArray(studentObj?.application) ? studentObj.application[0] : studentObj?.application;
+        const roomObj = Array.isArray(appObj?.room) ? appObj.room[0] : appObj?.room;
         const housingObj = Array.isArray(roomObj?.housing) ? roomObj.housing[0] : roomObj?.housing;
 
         return {
             transaction_id: bill.transaction_id,
             student_name: `${userObj?.first_name || ""} ${userObj?.last_name || ""}`.trim() || "Unknown Student",
-            housing_name: housingObj.housing_name || "Unknown Property",
+            housing_name: housingObj?.housing_name || "Unknown Property",
             amount: Number(bill.amount) || 0,
             status: bill.status,
             due_date: bill.due_date,
