@@ -1,14 +1,28 @@
-import Link from 'next/link';
+import type { Metadata } from "next";
+import ReportsWrapper from "@/app/components/admin/reports/reports_wrapper";
 
-export default function Page() {
+export const metadata: Metadata = {
+  title: "Reports",
+};
+import { reportData } from "@/app/lib/data/report-data";
+import { report } from "process";
+
+export default async function ReportsPage() {
+  // TODO: Replace with the actual logged-in admin's managed IDs 
+  const managedHousingIds = [3, 12, 13, 14, 16, 18];
+
+  // server-side fetch
+  const [liveOccupancy, liveApplications, liveAccommodationHistory] = await Promise.all([
+    reportData.getOccupancyReport(managedHousingIds),
+    reportData.getApplicationReport(managedHousingIds),
+    reportData.getAccommodationHistoryReport(managedHousingIds)
+  ]);
+
   return (
-    <main className="min-h-screen  text-white flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">Admin Reports Page</h1>
-      <div className="flex gap-4 flex-wrap justify-center">
-        <Link href="/admin" className="bg-white text-black px-6 py-2 rounded font-bold hover:bg-gray-200">
-          Back to Dashboard
-        </Link>
-      </div>
-    </main>
+    <ReportsWrapper
+      liveOccupancy={liveOccupancy}
+      liveApplications={liveApplications}
+      liveAccommodationHistory={liveAccommodationHistory}
+    />
   );
 }
