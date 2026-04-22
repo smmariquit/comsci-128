@@ -115,6 +115,9 @@ export default function BillingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
+  // fetch actual ids
+  const managedHousingIds = [3, 12, 13, 14, 16, 18];
+
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
   useEffect(() => {
@@ -210,8 +213,7 @@ export default function BillingPage() {
     try {
       setIsLoading(true);
 
-      const studentId = form.student_account_number ??
-        bills.find(b => b.student_name.toLowerCase() === form.student_name.toLowerCase())?.student_account_number;
+      const studentId = form.student_account_number
 
       if (!studentId) {
         alert('Student not found (handleIssue)!');
@@ -337,7 +339,7 @@ export default function BillingPage() {
       {/* ── Issue Bill Modal ───────────────────────────────────────────────── */}
       <IssueBillModal
         open={issueOpen}
-        housingOptions={HOUSING_OPTIONS}
+        managedIds={managedHousingIds}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
       />
