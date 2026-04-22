@@ -1,36 +1,31 @@
 import { supabase } from "../supabase";
-import { User } from "@/models/user";
+import { NewUser } from "@/models/user";
+import { Manager, NewManager } from "@/models/manager";
+import { Housing} from "@/models/housing";
 import { userData } from "./user-data";
 
-// Review create manager to match userData
-// export const createManager = async (
-// 	userDetails: User,
-// 	password: string,
-// 	manager_type: string,
-// ) => {
-// 	// const userAccountNumber = await userData.create(
-// 	// 	userDetails,
-// 	// 	"Manager",
-// 	// 	password,
-// 	// );
+const create = async (
+	userDetails: NewUser,
+	managerDetails: NewManager
+): Promise<Manager> => {
+  // CREATE row in "manager" table & RETURN the created manager object
 
-// 	const { data, error } = await supabase
-// 		.from("manager")
-// 		.insert([
-// 			{
-// 				account_number: userAccountNumber,
-// 				manager_type: manager_type,
-// 			},
-// 		])
-// 		.select()
-// 		.single();
+	const newUserData = await userData.create(userDetails);
 
-// 	if (error) throw error;
-// 	return data;
-// };
+  managerDetails.account_number = newUserData.account_number;
+
+  const { data, error } = await supabase
+    .from("manager")
+    .insert([managerDetails])
+    .select();
+
+  if (error) throw error;
+
+  return data[0];
+};
 
 // READ managers
-export const getManagers = async () => {
+const getAll = async () => {
 	return await supabase
 		.from("manager")
 		.select(`*, "user" (*)`)
@@ -38,7 +33,7 @@ export const getManagers = async () => {
 };
 
 // FIND manager by ID
-export const findManagerById = async (account_number: number) => {
+const findById = async (account_number: number) => {
 	const { data, error } = await supabase
 		.from("manager")
 		.select(`*, "user" (*)`)
@@ -51,7 +46,7 @@ export const findManagerById = async (account_number: number) => {
 };
 
 // UPDATE manager
-export const updateManager = async (account_number: number, updates: any) => {
+const update = async (account_number: number, updates: any) => {
 	return await supabase
 		.from("manager")
 		.update(updates)
@@ -61,7 +56,7 @@ export const updateManager = async (account_number: number, updates: any) => {
 };
 
 // DELETE manager (soft delete only)
-export const deleteManager = async (account_number: number) => {
+const deactivate = async (account_number: number) => {
 	return await supabase
 		.from("manager")
 		.update({ is_deleted: true })
@@ -73,7 +68,7 @@ export const deleteManager = async (account_number: number) => {
 // manager_bank
 
 // CREATE manager bank
-export const createManagerBank = async (bankData: any) => {
+const createBankDetails = async (bankData: any) => {
 	return await supabase
 		.from("manager_bank")
 		.insert([bankData])
@@ -82,7 +77,7 @@ export const createManagerBank = async (bankData: any) => {
 };
 
 // READ banks using manager
-export const getManagerBanks = async (account_number: number) => {
+const getBanks = async (account_number: number) => {
 	return await supabase
 		.from("manager_bank")
 		.select("*")
@@ -91,7 +86,7 @@ export const getManagerBanks = async (account_number: number) => {
 };
 
 // UPDATE banks
-export const updateManagerBank = async (bank_number: number, updates: any) => {
+const updateBankDetails = async (bank_number: number, updates: any) => {
 	return await supabase
 		.from("manager_bank")
 		.update(updates)
@@ -101,7 +96,7 @@ export const updateManagerBank = async (bank_number: number, updates: any) => {
 };
 
 // DELETE bank (soft Delete)
-export const deleteManagerBank = async (bank_number: number) => {
+const deleteBankDetails = async (bank_number: number) => {
 	return await supabase
 		.from("manager_bank")
 		.update({ is_deleted: true })
@@ -110,10 +105,8 @@ export const deleteManagerBank = async (bank_number: number) => {
 		.single();
 };
 
-// manager_payment_details
-
 // CREATE manager_payment
-export const createPayment = async (paymentData: any) => {
+const addPaymentDetails = async (paymentData: any) => {
 	const { transaction_id } = paymentData;
 
 	const { data: res, error } = await supabase
@@ -137,7 +130,7 @@ export const createPayment = async (paymentData: any) => {
 };
 
 // READ payments
-export const getPayments = async () => {
+const getPaymentDetails = async () => {
 	return await supabase
 		.from("manager_payment_details")
 		.select(`*, manager (*), bill (*)`)
@@ -145,7 +138,7 @@ export const getPayments = async () => {
 };
 
 // UPDATE payments
-export const updatePayment = async (id: number, updates: any) => {
+const updatePaymentDetails = async (id: number, updates: any) => {
 	return await supabase
 		.from("manager_payment_details")
 		.update(updates)
@@ -155,7 +148,7 @@ export const updatePayment = async (id: number, updates: any) => {
 };
 
 // DELETE payments
-export const deletePayment = async (id: number) => {
+const deletePaymentDetails = async (id: number) => {
 	return await supabase
 		.from("manager_payment_details")
 		.update({ is_deleted: true })
@@ -163,3 +156,355 @@ export const deletePayment = async (id: number) => {
 		.select()
 		.single();
 };
+
+const countAllManager = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("manager")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
+// List of approved applicants that have no room assigned yet
+// Involves: user, student, application, manager
+async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+      application_id,
+      application_status,
+      expected_moveout_date,
+      actual_moveout_date,
+      housing_name,
+      preferred_room_type,
+      room_id,
+      student:student_account_number (
+        account_number,
+        student_number,
+        user:account_number (
+          first_name,
+          middle_name,
+          last_name,
+          account_email
+        )
+      ),
+      manager:manager_account_number (
+        account_number
+      )
+    `)
+    .eq("application_status", "Approved")
+    .is("room_id", null)                          // unassigned — no room yet
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching unassigned approved applicants:", error.message);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
+}
+
+// Total rooms managed by a housing admin
+// Involves: manager, housing, room
+async function getTotalRoomsManaged(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      housing_id,
+      housing_name,
+      housing_address,
+      housing_type,
+      rent_price,
+      room:room (
+        room_id,
+        room_type,
+        occupancy_status,
+        payment_status,
+        maximum_occupants
+      )
+    `)
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching total rooms by manager:", error.message);
+    return { data: null, error, totalRooms: 0 };
+  }
+
+  // Count total rooms across all housings
+  const totalRooms = data?.reduce((acc, housing) => {
+    return acc + (housing.room?.length ?? 0);
+  }, 0) ?? 0;
+
+  return { data, totalRooms, error: null };
+}
+
+// Total tenants managed by a manager
+// Involves: manager, housing, room, student_accommodation_history
+async function getTotalTenantsManaged(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      housing_id,
+      housing_name,
+      room:room (
+        room_id,
+        room_type,
+        occupancy_status,
+        maximum_occupants,
+        student_accommodation_history:student_accommodation_history (
+          account_number,
+          movein_date,
+          moveout_date
+        )
+      )
+    `)
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching total tenants by manager:", error.message);
+    return { data: null, error, totalTenants: 0 };
+  }
+
+  // Count total tenants across all rooms
+  const totalTenants = data?.reduce((acc, housing) => {
+    const tenantsInHousing = housing.room?.reduce((roomAcc: number, room: any) => {
+      return roomAcc + (room.student_accommodation_history?.length ?? 0);
+    }, 0) ?? 0;
+    return acc + tenantsInHousing;
+  }, 0) ?? 0;
+
+  return { data, totalTenants, error: null };
+}
+
+// Overall occupancy rate of managed dorms
+// Involves: manager, housing, room, student_accommodation_history
+// Returns a ratio: total current tenants / total maximum occupants
+async function getOverallOccupancyRate(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      housing_id,
+      housing_name,
+      room:room (
+        room_id,
+        maximum_occupants,
+        occupancy_status,
+        student_accommodation_history:student_accommodation_history (
+          account_number,
+          movein_date,
+          moveout_date
+        )
+      )
+    `)
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) {
+    console.error("Error fetching occupancy rate:", error.message);
+    return { data: null, error, totalOccupants: 0, totalMaxOccupants: 0, occupancyRate: "0%" };
+  }
+
+  let totalOccupants = 0;
+  let totalMaxOccupants = 0;
+
+  data?.forEach((housing) => {
+    housing.room?.forEach((room: any) => {
+      totalMaxOccupants += room.maximum_occupants ?? 0;
+      totalOccupants += room.student_accommodation_history?.length ?? 0;
+    });
+  });
+
+  // Compute occupancy rate as a percentage
+  const occupancyRate = totalMaxOccupants > 0
+    ? `${((totalOccupants / totalMaxOccupants) * 100).toFixed(1)}%`
+    : "0%";
+
+  return {
+    data,
+    totalOccupants,
+    totalMaxOccupants,
+    occupancyRate,  // e.g. "75.0%"
+    error: null
+  };
+}
+
+const getManagedHousings = async (managerAccountNumber: number) => {
+  const { data: manager, error: managerError } = await supabase
+    .from('manager')
+    .select('account_number, manager_type')
+    .eq('account_number', managerAccountNumber)
+    .single();
+
+  if (managerError || !manager) throw new Error('Unauthorized');
+
+  const { data, error } = await supabase
+    .from('housing')
+    .select(`
+      housing_id,
+      housing_name,
+
+      room (
+        room_id,
+        room_type,
+        maximum_occupants,
+
+        student_accommodation_history (
+          movein_date,
+          moveout_date,
+
+          student_academic (
+            account_number,
+            degree_program,
+            standing,
+            status
+          )
+        )
+      )
+    `)
+    .eq('manager_account_number', managerAccountNumber)
+    .eq('is_deleted', false);
+
+  if (error) throw error;
+
+  return data;
+};
+
+const getAllTenants = async (managerAccountNumber: number) => {
+    const { data: manager, error: managerError } = await supabase
+      .from('manager')
+      .select('account_number, manager_type')
+      .eq('account_number', managerAccountNumber)
+      .eq('manager_type', 'landlord')
+
+  if (managerError || !manager) throw new Error('Unauthorized: Landlord access only');
+
+  const { data, error } = await supabase
+    .from('student_accommodation_history')
+    .select(`
+      move_in_date,
+      expected_move_out_date,
+
+      student_academic (
+        account_number,
+        degree_program,
+        standing,
+        status
+      ),
+
+      room (
+        room_id,
+        room_type,
+        housing (
+          housing_name
+        )
+      )
+    `)
+    .eq('is_deleted', false);
+
+  if (error) throw error;
+
+  return data;
+};
+
+const getStudentBalance = async (student_account_number: number) => {
+  const { data, error } = await supabase
+    .from('bill')
+    .select(`
+      transaction_id,
+      amount, 
+      status,
+      student:student_account_number (
+        user:account_number (first_name, last_name)
+      ),
+      manager:manager_account_number (
+        user:account_number (last_name)
+      )
+    `)
+    .eq('student_account_number', student_account_number)
+    .eq('is_deleted', false)
+    .in('status', ['Pending', 'Overdue']);
+
+  if (error) throw error;
+
+  const total = data?.reduce((sum, bill) => {
+    return sum + Number(bill.amount);
+  }, 0);
+
+  return {
+    student: data?.[0]?.student || null,
+    totalBalance: total ?? 0,
+    bills: data
+  };
+};
+
+const getAllBillings = async () => {
+  const { data, error } = await supabase
+    .from('bill')
+    .select(`
+      transaction_id,
+      amount,
+      status,
+      due_date,
+      is_deleted,
+      student:student_account_number (
+        account_number,
+        user:account_number (
+          first_name,
+          last_name,
+          account_email
+        ),
+        student_accommodation_history (
+          room:room_id (
+            room_id,
+            housing:housing_id (
+              housing_name,
+              manager:manager_account_number (
+                account_number,
+                user:account_number (
+                  first_name, 
+                  last_name
+                )
+              )
+            )
+          )
+        )
+      )
+    `)
+    .eq('is_deleted', false)
+    .order('due_date', { ascending: false });
+
+  if (error) throw error;
+  
+
+  return data;
+};
+
+export const managerData = {
+	create,
+	getAll,
+	findById,
+	update,
+	deactivate,
+	createBankDetails,
+  countAllManager,
+	getBanks,
+	updateBankDetails,
+	deleteBankDetails,
+	addPaymentDetails,
+	getPaymentDetails,
+	updatePaymentDetails,
+	deletePaymentDetails,
+	getUnassignedApprovedApplicants,
+	getTotalRoomsManaged,
+	getTotalTenantsManaged,
+	getOverallOccupancyRate,
+  getManagedHousings,
+  getAllTenants,
+  getStudentBalance,
+  getAllBillings
+}
