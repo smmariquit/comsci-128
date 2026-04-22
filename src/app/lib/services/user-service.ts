@@ -4,6 +4,7 @@ import { userData } from "@/app/lib/data/user-data";
 import type { NewStudent, Student } from "@/models/student";
 import type { NewUser, UpdateUser, User } from "@/models/user";
 import type { NewStudentAcademic } from "../models/student_academic";
+import { auditLogService, randomIpAddress } from "./audit-log-service";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 type Public<T> = Omit<T, "account_number" | "password">;
@@ -104,6 +105,13 @@ const updateUser = async (
 	try {
 		// To consider: separate update on password for stronger security
 		// e.g. email validation for changing password
+
+		const user = await getUser(userId);
+		if (!user) {
+			return { error: "User not found" };
+		}
+
+		// remove restricted fields
 		const { account_number, account_email, is_deleted, ...allowedUpdates } =
 			updates;
 
@@ -113,12 +121,27 @@ const updateUser = async (
 			return { error: "User not found" };
 		}
 
+		// Insert audit log
+		const description = `${user.user_type} ${user.first_name} ${user.last_name} updated their personal details.`;
+		await auditLogService.createAuditLog({
+			action_type: "Update User Details", 
+			audit_description: description,
+			user_name: `${user.first_name} ${user.last_name}`,
+			partial_ip: randomIpAddress(),
+			account_number: userId,
+			assigned_manager: null,
+			timestamp: new Date().toISOString()
+		});
+
+		// remove sensitive info
 		const {
 			account_number: _,
 			password: __,
 			...nonSensitiveInfo
 		} = updatedUser;
+
 		return { data: nonSensitiveInfo };
+
 	} catch (error: any) {
 		console.error("Error: ", error.message);
 		throw new Error("Error");
