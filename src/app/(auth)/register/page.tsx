@@ -8,13 +8,21 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // required fields
   const [first_name, setFirstName] = useState("");
-  const [middle_name, setMiddleName] = useState("");
   const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // temporrary student number placeholder
-  const student_number = 202306777;
+  const _student_number = 202306777;
+
+  // optional fields
+  const [middle_name, setMiddleName] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [home_address, setHomeAddress] = useState("");
+  const [phone_number, setPhoneNumber] = useState("");
+  const [contact_email, _setContactEmail] = useState("");
+  const [sex, setSex] = useState("");
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,26 +30,27 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/student", {
+      const response = await fetch("/api", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           account_email: email,
-          first_name: first_name,
+          first_name,
           middle_name: middle_name || null,
-          last_name: last_name,
+          last_name,
           password: password,
-          student_number: student_number,
+          birthday: birthday || null,
+          home_address: home_address || null,
+          phone_number: phone_number || null,
+          contact_email: contact_email || null,
+          sex: sex || "Prefer not to say",
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Registration failed.");
-        return;
+        throw new Error(data.message || "Registration failed.");
       }
 
       router.push("/student");
@@ -81,6 +90,37 @@ export default function RegisterPage() {
             className="w-full rounded border px-3 py-2"
             required
           />
+          <input
+            type="date"
+            placeholder="Birthday (optional)"
+            value={birthday}
+            onChange={(e) => setBirthday(e.target.value)}
+            className="w-full rounded border px-3 py-2"
+          />
+          <input
+            type="text"
+            placeholder="Home Address (optional)"
+            value={home_address}
+            onChange={(e) => setHomeAddress(e.target.value)}
+            className="w-full rounded border px-3 py-2"
+          />
+          <input
+            type="text"
+            placeholder="Phone Number (optional)"
+            value={phone_number}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="w-full rounded border px-3 py-2"
+          />
+          <select
+            value={sex}
+            onChange={(e) => setSex(e.target.value)}
+            className="w-full rounded border px-3 py-2"
+          >
+            <option value="">Select Sex (optional)</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
           <input
             type="email"
             placeholder="Email"
