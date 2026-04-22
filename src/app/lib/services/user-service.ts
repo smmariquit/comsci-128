@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import { supabaseAdmin } from "../supabase";
-import { userData } from "@/app/lib/data/user-data";
 import { studentData } from "@/app/lib/data/student-data";
-import { User, NewUser, UpdateUser } from "@/models/user";
-import { Student, NewStudent, UpdateStudent } from "@/models/student";
-import { NewStudentAcademic } from "../models/student_academic";
+import { userData } from "@/app/lib/data/user-data";
+import type { NewStudent, Student } from "@/models/student";
+import type { NewUser, UpdateUser, User } from "@/models/user";
+import type { NewStudentAcademic } from "../models/student_academic";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 type Public<T> = Omit<T, "account_number" | "password">;
@@ -22,11 +22,13 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 		if (!password) throw new Error("Password is required");
 
 		// validate sex
-		
+
 		if (userDetails.sex && !allowedSex.includes(userDetails.sex)) {
-			throw new Error(`Invalid sex value. Must be one of: ${allowedSex.join(", ")}`);
+			throw new Error(
+				`Invalid sex value. Must be one of: ${allowedSex.join(", ")}`,
+			);
 		}
-		
+
 		// Check if email already exists
 		const { data: existingUser } = await supabaseAdmin
 			.from("user")
@@ -41,21 +43,22 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 		userDetails.password = hashedPassword;
 		userDetails.user_type = "Student";
 		userDetails.sex = userDetails.sex || "Prefer not to say";
-		
+
 		// create supabase auth user
-		const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-			email: account_email,
-			password,
-			email_confirm: true,
-		});
+		const { data: authData, error: authError } =
+			await supabaseAdmin.auth.admin.createUser({
+				email: account_email,
+				password,
+				email_confirm: true,
+			});
 
 		if (authError) {
 			throw new Error(authError.message);
 		}
 
 		const user = authData.user;
-	
-		// Mock student record 
+
+		// Mock student record
 		const studentDetails: NewStudent = {
 			student_number: Math.floor(100000 + Math.random() * 900000),
 			housing_status: "Not Assigned",
@@ -63,18 +66,21 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 			emergency_contact_number: null,
 			emergency_contact_relationship: null,
 		};
-		
 
 		// mock... replace once there's input for StudentAcademic
 		const studentAcademicDetails: NewStudentAcademic = {
 			degree_program: "BS Computer Science",
 			standing: "Sophomore",
-			status: "Active"
-		}
+			status: "Active",
+		};
 
 		// Insert user
 		// const createdUser = await userData.createUser(userDetails);
-		const createdUserStudent = await studentData.createUserStudent(userDetails, studentDetails, studentAcademicDetails);
+		const createdUserStudent = await studentData.create(
+			userDetails,
+			studentDetails,
+			studentAcademicDetails,
+		);
 
 		return createdUserStudent;
 	} catch (error) {
@@ -86,7 +92,7 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 const getUser = async (userId: number): Promise<Public<User> | null> => {
 	try {
-		const userProfile = await userData.findUserById(userId);
+		const userProfile = await userData.findById(userId);
 
 		if (!userProfile) return null;
 
@@ -101,7 +107,7 @@ const getUser = async (userId: number): Promise<Public<User> | null> => {
 
 const getAllUser = async (): Promise<Public<User>[] | null> => {
 	try {
-		const userProfiles = await userData.findAllUsers();
+		const userProfiles = await userData.findAll();
 
 		if (!userProfiles) return [];
 
@@ -128,7 +134,7 @@ const updateUser = async (
 		const { account_number, account_email, is_deleted, ...allowedUpdates } =
 			updates;
 
-		const updatedUser = await userData.updateUser(userId, allowedUpdates);
+		const updatedUser = await userData.update(userId, allowedUpdates);
 
 		if (!updatedUser) {
 			return { error: "User not found" };
@@ -150,7 +156,7 @@ const deactivateUser = async (
 	userId: number,
 ): Promise<Public<UpdateUser> | null> => {
 	try {
-		const updatedUser = await userData.deactivateUserById(userId);
+		const updatedUser = await userData.deactivate(userId);
 		if (!updatedUser) return null;
 
 		// TODO: reevaluate returning data for disable or not
@@ -163,10 +169,36 @@ const deactivateUser = async (
 	}
 };
 
+const getUserCount = async (): Promise<number | null> => {
+	try {
+		const userCount = await userData.countAllUser();
+		if (!userCount) return null;
+
+		return userCount;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+const getActiveUserCount = async (): Promise<number | null> => {
+	try {
+		const userCount = await userData.countActiveUsers();
+		if (!userCount) return null;
+
+		return userCount;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
 export const userService = {
 	addUser,
 	getUser,
 	getAllUser,
 	updateUser,
 	deactivateUser,
+	getUserCount,
+	getActiveUserCount,
 };
