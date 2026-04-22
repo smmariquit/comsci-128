@@ -7,7 +7,17 @@ const create = async (billData: any) => {
 const getAll = async () => {
 	return await supabase
 		.from("bill")
-		.select("*, manager(*), student(*)")
+		.select(`
+            *,
+            student (
+                user ( first_name, last_name ),
+                application (
+                    room (
+                        housing ( housing_name )
+                    )
+                )
+            )
+        `)
 		.eq("is_deleted", false);
 };
 
