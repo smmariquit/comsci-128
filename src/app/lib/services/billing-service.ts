@@ -9,10 +9,18 @@ const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[
         return (data || []).map((bill: any) => {
             const user = bill.student?.user;
             const app = bill.student?.student_accommodation_history || [];
-            const relevantApp = app.find((a: any) =>
-                managedHousingIds.includes(a.room?.housing?.housing_id)
-            );
-            const housingName = relevantApp?.room?.housing?.housing_name;
+            console.log("managedHousingIds:", managedHousingIds);
+            console.log("raw app:", JSON.stringify(app));
+            const relevantApp = app.find((a: any) => {
+                const room = Array.isArray(a.room) ? a.room[0] : a.room;
+                const housing = Array.isArray(room?.housing) ? room.housing[0] : room?.housing;
+                return managedHousingIds.map(Number).includes(Number(housing?.housing_id));
+            });
+
+            const room = Array.isArray(relevantApp?.room) ? relevantApp.room[0] : relevantApp?.room;
+            const housing = Array.isArray(room?.housing) ? room.housing[0] : room?.housing;
+            const housingName = housing?.housing_name;
+            console.log(housingName)
 
             return {
                 transaction_id: bill.transaction_id,
@@ -25,7 +33,7 @@ const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[
                 due_date: bill.due_date,
                 issue_date: bill.issue_date,
             };
-        }).filter(bill => managedHousingIds.length === 0 || bill.housing_name !== "Unassigned Property");
+        });
     } catch (error) {
         console.error("Service Error (fetchAllBills): ", error);
         return [];

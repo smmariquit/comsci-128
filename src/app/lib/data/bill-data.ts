@@ -124,14 +124,15 @@ const getBillsOfLandlord = async (managedHousingIds: number[] = []) => {
             student (
                 user ( first_name, last_name ),
                 student_accommodation_history (
-					room (
-						housing ( housing_id, housing_name )
+					room!inner (
+						housing!inner ( 
+							housing_id, housing_name 
+						)
 					)
 				)
             )
         `)
 		.eq("is_deleted", false)
-		.in("student.student_accommodation_history.room.housing_id", managedHousingIds);
 };
 
 export const billData = {

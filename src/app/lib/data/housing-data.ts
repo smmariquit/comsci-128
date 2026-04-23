@@ -263,7 +263,7 @@ async function getStudentsByRoom(roomId: number) {
   if (error) throw new Error ("failed to fetch students: " + error.message);
 
   return (data || []).map((app: any) => ({
-    account_number: app.student_account_number,
+    account_number: app.account_number,
     full_name: `${app.student.user.first_name} ${app.student.user.last_name}`
   }));
 }
