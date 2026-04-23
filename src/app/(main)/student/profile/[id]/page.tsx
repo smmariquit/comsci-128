@@ -131,7 +131,7 @@ export default function StudentProfilePage() {
 
 	return (
 		<div className="flex flex-col min-h-screen bg-[#1C2632] font-[family-name:var(--font-geist-sans)]">
-			<StudentNavBar path="Student Profile" />
+			<StudentNavBar path="Student Profile" userId={Number(id)} />
 
 			{/* Main Content*/}
 			<div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-10 flex gap-12">
