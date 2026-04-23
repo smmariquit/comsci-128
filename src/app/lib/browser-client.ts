@@ -2,12 +2,11 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/app/types/database.types";
 
-type SupabaseSchema = Record<string, never>;
+let client: SupabaseClient<Database> | null = null;
 
-let client: SupabaseClient<SupabaseSchema> | null = null;
-
-export function getSupabaseBrowserClient(): SupabaseClient<SupabaseSchema> {
+export function getSupabaseBrowserClient(): SupabaseClient<Database> {
   if (client) {
     return client;
   }
@@ -21,6 +20,6 @@ export function getSupabaseBrowserClient(): SupabaseClient<SupabaseSchema> {
     );
   }
 
-  client = createBrowserClient<SupabaseSchema>(supabaseUrl, supabaseAnonKey);
+  client = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
   return client;
 }

@@ -56,12 +56,14 @@ export default function RegisterPage() {
       // Role-based redirection logic
       const profile = data.user;
       if (profile) {
+        const userType = profile.user_type?.toLowerCase();
         let target = "/";
-        if (profile.user_type === "Student") {
+
+        if (userType === "student") {
           target = "/student";
-        } else if (profile.user_type === "System Admin") {
+        } else if (userType === "system admin" || userType === "admin") {
           target = "/sys";
-        } else if (profile.user_type === "Manager") {
+        } else if (userType === "manager") {
           // Defaults to /manage for now; detailed manager redirection 
           // usually happens after login when manager_type is accessible.
           target = "/manage";

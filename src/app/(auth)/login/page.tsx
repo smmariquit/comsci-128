@@ -35,19 +35,22 @@ export default function LoginPage() {
         .single();
 
       if (profile) {
+        const userType = profile.user_type?.toLowerCase();
         let target = "/";
-        if (profile.user_type === "Student") {
+
+        if (userType === "student") {
           target = "/student";
-        } else if (profile.user_type === "System Admin") {
+        } else if (userType === "system admin" || userType === "admin") {
           target = "/sys";
-        } else if (profile.user_type === "Manager") {
+        } else if (userType === "manager") {
           const { data: manager } = await supabase
             .from("manager")
             .select("manager_type")
             .eq("account_number", profile.account_number)
             .single();
 
-          if (manager?.manager_type === "Housing Administrator") {
+          const managerType = manager?.manager_type?.toLowerCase();
+          if (managerType === "housing administrator" || managerType === "house admin") {
             target = "/admin";
           } else {
             target = "/manage";
