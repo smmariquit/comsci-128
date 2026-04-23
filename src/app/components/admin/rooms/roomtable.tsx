@@ -6,6 +6,7 @@ export type OccupancyStatus = "Empty" | "Partially Occupied" | "Fully Occupied" 
 export type RoomType = "Co-ed" | "Women Only" | "Men Only" 
 
 export interface RoomRow {
+  housing_id: number;
   room_id: number;
   room_code: string;
   housing_name: string;
