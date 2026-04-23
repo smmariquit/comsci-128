@@ -3,27 +3,39 @@ import { roomData } from "./room-data";
 import { applicationData } from "./application-data";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 
-export async function getHousingAdmingDashboardData() {
-    const [allStudents, allRooms, allApps] = await Promise.all([
-        userData.findStudents(),
+export async function getHousingAdmingDashboardData(managedHousingIds: number[]= [], landlordIds: number[] = []) {
+    const [allRooms, allApps] = await Promise.all([
         roomData.findAllRoomDetailed(),
         applicationData.getApplicationsWithStudentDetails(),
     ]);
 
-    const formattedApps = allApps.map((app: any) => ({
-        application_id: app.application_id,
-        student_name: app.student?.user
-            ? `${app.student.user.first_name} ${app.student.user.last_name}`
-            : "Unknown Student",
-        housing_name: app.housing_name,
-        preferred_room_type: app.preferred_room_type,
-        expected_moveout_date: app.expected_moveout_date,
-        application_status: app.application_status,
-    }));
+    const filteredRooms = allRooms.filter(r => managedHousingIds.includes(r.housing_id));
+
+    const filteredApps = allApps.filter(app => landlordIds.includes(app.landlord_account_number))
+
+    const managedStudentNumbers = new Set([
+        ...filteredApps.map(app => (Array.isArray(app.student) ? app.student[0] : app.student)?.account_number)
+    ].filter(Boolean));
+    
+    const formattedApps = allApps.map((app: any) => {
+        const studentObj = Array.isArray(app.student) ? app.student[0] : app.student;
+        const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
+
+        return {
+            application_id: app.application_id,
+            student_name: userObj
+                ? `${userObj.first_name} ${userObj.last_name}`
+                : "Unknown Student",
+            housing_name: app.housing_name,
+            preferred_room_type: app.preferred_room_type,
+            expected_moveout_date: app.expected_moveout_date,
+            application_status: app.application_status,
+        }
+    });
 
     const totalPendingApplication = allApps.filter(a => a.application_status === "Pending").length;
-    const totalCapacity = allRooms.reduce((sum, r) => sum + (r.maximum_occupants || 0), 0);
-    const totalOccupied = allRooms.filter(r => r.occupancy_status !== "Empty").length;
+    const totalCapacity = filteredRooms.reduce((sum, r) => sum + (r.maximum_occupants || 0), 0);
+    const totalOccupied = filteredRooms.filter(r => r.occupancy_status !== "Empty").length;
 
     const occupancyRate = totalCapacity > 0
         ? Math.round((totalOccupied / totalCapacity) * 100)
@@ -39,12 +51,11 @@ export async function getHousingAdmingDashboardData() {
         }
     });
 
-    const studentStatusList = allStudents.map(u => u.student?.housing_status).filter(Boolean);
-    const totalAssigned = studentStatusList.filter(s => s === "Assigned").length;
-    const totalUnassigned = studentStatusList.filter(s => s === "Not Assigned" || s === "Vacated").length;
+    const totalAssigned = totalOccupied;
+    const totalUnassigned = totalPendingApplication;
 
     return {
-        totalStudents: allStudents.length,
+        totalStudents: managedStudentNumbers.size,
         housingStatusCounts: {
             assigned: totalAssigned,
             unassigned: totalUnassigned,
