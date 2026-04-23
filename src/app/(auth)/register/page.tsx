@@ -53,7 +53,21 @@ export default function RegisterPage() {
         throw new Error(data.message || "Registration failed.");
       }
 
-      router.push("/student");
+      // Role-based redirection logic
+      const profile = data.user;
+      if (profile) {
+        let target = "/";
+        if (profile.user_type === "Student") {
+          target = "/student";
+        } else if (profile.user_type === "System Admin") {
+          target = "/sys";
+        } else if (profile.user_type === "Manager") {
+          // Defaults to /manage for now; detailed manager redirection 
+          // usually happens after login when manager_type is accessible.
+          target = "/manage";
+        }
+        router.push(target);
+      }
     } catch (_err) {
       setError("Something went wrong. Please try again.");
     } finally {

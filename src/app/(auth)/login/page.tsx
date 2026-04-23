@@ -3,8 +3,7 @@
 import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
-// import { useRouter } from "next/navigation";
-// import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -12,7 +11,7 @@ export default function LoginPage() {
   const [status, setStatus] = useState("");
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  // const router = useRouter();
+  const router = useRouter();
 
   async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -21,13 +20,41 @@ export default function LoginPage() {
       email,
       password,
     });
+
     if (error) {
       setStatus(error.message);
       setCurrentUser(null);
     } else {
       setStatus("Signed in successfully");
       setCurrentUser(data.user);
-      // router.push("/student");
+
+      const { data: profile } = await supabase
+        .from("user")
+        .select("user_type, account_number")
+        .eq("account_email", email)
+        .single();
+
+      if (profile) {
+        let target = "/";
+        if (profile.user_type === "Student") {
+          target = "/student";
+        } else if (profile.user_type === "System Admin") {
+          target = "/sys";
+        } else if (profile.user_type === "Manager") {
+          const { data: manager } = await supabase
+            .from("manager")
+            .select("manager_type")
+            .eq("account_number", profile.account_number)
+            .single();
+
+          if (manager?.manager_type === "Housing Administrator") {
+            target = "/admin";
+          } else {
+            target = "/manage";
+          }
+        }
+        router.push(target);
+      }
     }
     console.log({ data });
   }
