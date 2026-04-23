@@ -49,6 +49,7 @@ export default function LoginPage() {
 
         setCookie("account_number", String(profile.account_number), 1);
         setCookie("user_role", userType, 1);
+        setCookie("is_logged_in", "true", 1);
 
         let target = "/";
 
