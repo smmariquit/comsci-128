@@ -81,7 +81,6 @@ const createTenantRecord = async(
 }
 
 const getCurrentTenantsByHousingAdmin = async (housingIds: number[] = []) => {
-  const today = new Date().toISOString().split("T")[0];
 
   const { data, error } = await supabase
     .from("student_accommodation_history")
