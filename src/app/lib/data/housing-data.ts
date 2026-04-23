@@ -250,21 +250,20 @@ async function countAllHousing(): Promise<number | null> {
 
 async function getStudentsByRoom(roomId: number) {
   const { data, error } = await supabase
-    .from("application")
+    .from("student_accommodation_history")
     .select(`
-      student_account_number,
+      account_number,
       student!inner (
         user!inner ( first_name, last_name )
       )
     `)
     .eq("room_id", roomId)
     //.eq("application_status", "Approved")
-    .eq("is_deleted", false);
 
   if (error) throw new Error ("failed to fetch students: " + error.message);
 
   return (data || []).map((app: any) => ({
-    account_number: app.student_account_number,
+    account_number: app.account_number,
     full_name: `${app.student.user.first_name} ${app.student.user.last_name}`
   }));
 }
