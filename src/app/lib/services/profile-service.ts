@@ -45,7 +45,7 @@ async function updateStudentProfile(
 			...userUpdates
 		} = profileData;
 
-		const updatedUser = await userData.updateUser(userId, userUpdates);
+		const updatedUser = await userData.update(userId, userUpdates);
 		if (!updatedUser) return null;
 
 		console.log("Student data received:", student);
@@ -58,7 +58,7 @@ async function updateStudentProfile(
 				if (student_academic) {
 					const { account_number, ...studentAcademicDetails } =
 						student_academic;
-					await studentData.updateStudentAcademic(
+					await studentData.updateAcademicDetails(
 						userId,
 						studentAcademicDetails,
 					);
@@ -86,7 +86,7 @@ async function updateManagerProfile(
 			...userUpdates
 		} = profileData;
 
-		const updatedUser = await userData.updateUser(userId, userUpdates);
+		const updatedUser = await userData.update(userId, userUpdates);
 		if (!updatedUser) return null;
 
 		if (manager) {
@@ -96,13 +96,13 @@ async function updateManagerProfile(
 				...managerDetails
 			} = manager;
 
-			await managerData.updateManager(userId, managerDetails);
+			await managerData.update(userId, managerDetails);
 
 			if (manager_payment_details) {
 				const { account_number, ...paymentDetails } =
 					manager_payment_details;
 
-				await managerData.updatePayment(userId, paymentDetails);
+				await managerData.updatePaymentDetails(userId, paymentDetails);
 			}
 		}
 
