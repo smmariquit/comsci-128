@@ -3,8 +3,17 @@
 import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
-// import { useRouter } from "next/navigation";
-// import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+function setCookie(name: string, value: string, days: number): void {
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + value + expires + "; path=/";
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -12,7 +21,7 @@ export default function LoginPage() {
   const [status, setStatus] = useState("");
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  // const router = useRouter();
+  const router = useRouter();
 
   async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -21,13 +30,49 @@ export default function LoginPage() {
       email,
       password,
     });
+
     if (error) {
       setStatus(error.message);
       setCurrentUser(null);
     } else {
       setStatus("Signed in successfully");
       setCurrentUser(data.user);
-      // router.push("/student");
+
+      const { data: profile } = await supabase
+        .from("user")
+        .select("user_type, account_number")
+        .eq("account_email", email)
+        .single();
+
+      if (profile) {
+        const userType = profile.user_type?.toLowerCase();
+
+        setCookie("account_number", String(profile.account_number), 1);
+        setCookie("user_role", userType, 1);
+        setCookie("is_logged_in", "true", 1);
+
+        let target = "/";
+
+        if (userType === "student") {
+          target = "/student";
+        } else if (userType === "system admin" || userType === "admin") {
+          target = "/sys";
+        } else if (userType === "manager") {
+          const { data: manager } = await supabase
+            .from("manager")
+            .select("manager_type")
+            .eq("account_number", profile.account_number)
+            .single();
+
+          const managerType = manager?.manager_type?.toLowerCase();
+          if (managerType === "housing administrator" || managerType === "house admin") {
+            target = "/admin";
+          } else {
+            target = "/manage";
+          }
+        }
+        router.push(target);
+      }
     }
     console.log({ data });
   }
