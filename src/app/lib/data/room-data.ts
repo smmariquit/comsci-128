@@ -100,6 +100,10 @@ async function deactivate(roomId: number): Promise<Room | null> {
 
 // Find Room for Housing Admin View
 async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<RoomRow[]> {
+	if (managedHousingIds.length === 0) {
+		return [];
+	}
+	
 	let query = supabase
 		.from("room")
 		.select(`
