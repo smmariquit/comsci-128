@@ -47,13 +47,21 @@ async function getById(applicationId: number) {
 }
 
 async function getByManager(managerAccountNumber: number) {
-	const { data, error } = await supabase
-		.from("application")
-		.select(
-			`application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, student_account_number, is_deleted, manager:manager_account_number(account_number)`,
-		)
-		.eq("manager.account_number", managerAccountNumber)
-		.eq("is_deleted", false);
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+		application_id,
+		housing_name,
+		preferred_room_type, 
+		application_status,
+		expected_moveout_date,
+		actual_moveout_date, 
+		room_id, 
+		student_account_number,
+		manager:manager_account_number_fkey(account_number)
+	`)
+    .eq("manager.account_number", managerAccountNumber)
+    .eq("application.is_deleted", false);
 
 	if (error) throw error;
 	return data;
@@ -62,7 +70,7 @@ async function getByManager(managerAccountNumber: number) {
 async function getByHousing(housingId: number) {
 	const { data, error } = await supabase
 		.from("application")
-		.select(`*, room:room_id(housing_id)`)
+		.select(`*, room!inner(housing_id)`)
 		.eq("room.housing_id", housingId);
 	if (error) throw error;
 	return data;
