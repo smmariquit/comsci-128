@@ -1,10 +1,15 @@
 import { userData } from "@/data/user-data";
-import { roomData } from "./room-data";
 import { NewUser } from "@/models/user";
 import { Student, NewStudent } from "@/models/student";
 import { StudentAcademic, NewStudentAcademic } from "@/models/student_academic";
 import { StudentAccommodationHistory } from "@/models/student_accommodation";
 import { supabase } from "../supabase";
+import { Room } from "@/models/room";
+
+type RoomPerHousing = {
+  total: number;
+  occupied: number;
+};
 
 async function create(
     userDetails: NewUser,
@@ -120,16 +125,74 @@ async function getSubmittedApplications(accountNumber: number) {
 	return data;
 }
 
-// GET list of avaiable housing options
-async function getHousingOptions(){
-  const { data, error } = await supabase
+// GET list of available housing options based on rent_price (asc), housing_type, room_type
+async function getHousingOptions({ sortOrder = 'asc', housingType = null, roomType = null}){
+  let query = supabase
     .from('housing')
-    .select(`housing_id, housing_name, start_application_date, end_application_date, housing_address, housing_type, rent_price, manager_account_number, room!inner(occupancy_status)`)
+    .select(`housing_id, housing_name, start_application_date, end_application_date, housing_address, housing_type, rent_price, manager_account_number, room!inner(room_id, occupancy_status, room_type)`)
     .neq('room.occupancy_status', "Fully Occupied")
     .eq('is_deleted', false)
+    .order('rent_price', { ascending: sortOrder === 'asc'});
+
+  if (housingType) {
+    query = query.eq('housing_type', housingType);
+  }
+
+  if (roomType) {
+    query = query.eq('room.room_type', roomType);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
 	return data;
+}
+
+// GET ratio of occupied rooms to total rooms
+async function getRoomOccupancyRate(){
+  const housingDetails: Record<number, RoomPerHousing> = {};
+  //gets all total rooms
+  const { data: totalRooms, error: totalError } = await supabase
+    .from('room')
+    .select('housing_id')
+    .eq('is_deleted', false)
+  
+  if (totalError) throw totalError;
+
+  //gets all occupied rooms
+  const { data: occupiedRooms, error: occupiedError } = await supabase
+    .from('room')
+    .select('housing_id')
+    .eq('is_deleted', false)
+    .gte('occupants_count', 1);
+
+  if (occupiedError) throw occupiedError;
+
+  //counts total rooms per housing
+  totalRooms?.forEach((room) => {
+    if (!housingDetails[room.housing_id]){
+      housingDetails[room.housing_id] = { total: 0, occupied: 0};
+    }
+    housingDetails[room.housing_id].total += 1;
+    
+  });
+
+  //counts occupied rooms per housing
+  occupiedRooms?.forEach((room) => {
+    if (!housingDetails[room.housing_id]){
+      housingDetails[room.housing_id] = { total: 0, occupied: 0};
+    }
+    housingDetails[room.housing_id].occupied += 1;
+    
+  });
+
+  //returns occupancy rate (in decimal form)
+  const occupancyRate = Object.entries(housingDetails).map(([housing_id, stats]) => ({
+    housing_id,
+    rate: stats.total > 0 ? stats.occupied / stats.total : 0
+  }));
+
+	return occupancyRate;
 }
 
 async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
@@ -148,7 +211,7 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 
   if (error)
     throw new Error(
-      `getAccommodatio nHistoryOfStudent Error: ${error.message}`,
+      `getAccommodationHistoryOfStudent Error: ${error.message}`,
     );
   return data;
 }
@@ -279,6 +342,7 @@ export const studentData = {
     getRoomOccupantCount,
     getSubmittedApplications,
     getHousingOptions,
+    getRoomOccupancyRate,
     getAccommodationHistoryOfStudent,
     getActiveHousingDetails,
     getBillingSummary,

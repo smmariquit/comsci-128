@@ -1,6 +1,11 @@
 
 
+import type { Metadata } from "next";
 import { housingService } from "@/app/lib/services/housing-service";
+
+export const metadata: Metadata = {
+  title: "Unit Details",
+};
 import { accommodationHistoryService } from "@/app/lib/services/accommodation-history-service";
 import UnitClient from "./_components/UnitClient";
 

@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { housingService } from "@/app/lib/services/housing-service";
+
+export const metadata: Metadata = {
+  title: "Accommodations",
+};
 
 
 function DetailItem({
