@@ -83,7 +83,25 @@ const findManagerProfileById = async (
 		return null;
 	}
 
-	return data;
+	const manager = Array.isArray(data.manager)
+		? data.manager[0]
+		: data.manager;
+
+	if (!manager) return null;
+
+	return {
+		...data,
+		manager: {
+			...manager,
+			manager_payment_details: Array.isArray(
+				manager.manager_payment_details,
+			)
+				? manager.manager_payment_details
+				: manager.manager_payment_details
+					? [manager.manager_payment_details]
+					: [],
+		},
+	};
 };
 
 // UPDATE manager
