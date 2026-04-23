@@ -11,16 +11,16 @@ type ExtendedBillType = BillType | "Other";
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
 const T = {
-  navy:    C.navy,
-  teal:    C.teal,
-  orange:  C.orange,
-  cream:   C.cream,
+  navy: C.navy,
+  teal: C.teal,
+  orange: C.orange,
+  cream: C.cream,
   divider: C.dividerLight,
-  bg:      "#f5f3ef",
+  bg: "#f5f3ef",
   bgInput: "#fff",
   readonly: "#f7f6f3",
-  amber:   "#A07820",
-  green:   "#2a7d4f",
+  amber: "#A07820",
+  green: "#2a7d4f",
 };
 
 // ── Shared style constants ────────────────────────────────────────────────────
@@ -66,20 +66,20 @@ const readonlyStyle: React.CSSProperties = {
 // ── Exported types ────────────────────────────────────────────────────────────
 
 export interface ChargeItem {
-  id:     string;
-  type:   BillType | "Other";
+  id: string;
+  type: BillType | "Other";
   amount: string;
 }
 
 /** Matches the `bill` schema: one row per charge item */
 export interface IssueBillForm {
-  student_name:           string;
-  housing_name:           string;
+  student_name: string;
+  housing_name: string;
   student_account_number: number | null; // null until Supabase join available
-  room_code:              string;
-  due_date:               string;   // "YYYY-MM-DD"
-  issue_date:             string;   // auto-set to today
-  charges:                ChargeItem[];
+  room_code: string;
+  due_date: string;   // "YYYY-MM-DD"
+  issue_date: string;   // auto-set to today
+  charges: ChargeItem[];
 }
 
 // ── Shared UI helpers ─────────────────────────────────────────────────────────
@@ -155,12 +155,12 @@ function SelectField({ id, label, value, onChange, children, flex }: {
         <select id={id} value={value} onChange={(e) => onChange(e.target.value)} style={selectStyle}>
           {children}
         </select>
-        <ChevronDown 
+        <ChevronDown
           style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
-          size={10} 
-          strokeWidth={2.5} 
-          color={T.teal} 
-          aria-hidden="true" 
+          size={10}
+          strokeWidth={2.5}
+          color={T.teal}
+          aria-hidden="true"
         />
       </div>
     </div>
@@ -172,10 +172,10 @@ function SelectField({ id, label, value, onChange, children, flex }: {
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface IssueBillModalProps {
-  open:           boolean;
+  open: boolean;
   housingOptions: string[];          // list of housing_name strings
-  onClose:        () => void;
-  onSubmit:       (form: IssueBillForm) => void;
+  onClose: () => void;
+  onSubmit: (form: IssueBillForm) => void;
 }
 
 export default function IssueBillModal({
@@ -185,12 +185,12 @@ export default function IssueBillModal({
   const today = new Date().toISOString().split("T")[0];
 
   // ── Form state ──────────────────────────────────────────────────────────────
-  const [housingName,  setHousingName]  = useState("");
-  const [studentName,  setStudentName]  = useState("");
-  const [roomCode,     setRoomCode]     = useState("");
-  const [dueDate,      setDueDate]      = useState("");
+  const [housingName, setHousingName] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [roomCode, setRoomCode] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [charges, setCharges] = useState<ChargeItem[]>([
-    { id: "1", type: "Rent",    amount: "" },
+    { id: "1", type: "Rent", amount: "" },
     { id: "2", type: "Utility", amount: "" },
   ]);
 
@@ -202,7 +202,7 @@ export default function IssueBillModal({
       setRoomCode("");
       setDueDate("");
       setCharges([
-        { id: "1", type: "Rent",    amount: "" },
+        { id: "1", type: "Rent", amount: "" },
         { id: "2", type: "Utility", amount: "" },
       ]);
     }
@@ -224,18 +224,18 @@ export default function IssueBillModal({
   }
 
   const validCharges = charges.filter((c) => parseFloat(c.amount) > 0);
-  const totalAmount  = charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
-  const isValid      = !!housingName && !!studentName && !!dueDate && validCharges.length > 0;
+  const totalAmount = charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+  const isValid = !!housingName && !!studentName && !!dueDate && validCharges.length > 0;
 
   function handleSubmit() {
     if (!isValid) return;
     onSubmit({
-      student_name:           studentName.trim(),
-      housing_name:           housingName,
+      student_name: studentName.trim(),
+      housing_name: housingName,
       student_account_number: null,          // resolved server-side / Supabase
-      room_code:              roomCode.trim(),
-      due_date:               dueDate,
-      issue_date:             today,
+      room_code: roomCode.trim(),
+      due_date: dueDate,
+      issue_date: today,
       charges,
     });
   }
@@ -406,12 +406,12 @@ export default function IssueBillModal({
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
-                  <ChevronDown 
+                  <ChevronDown
                     style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
-                    size={9} 
-                    strokeWidth={2.5} 
-                    color={T.teal} 
-                    aria-hidden="true" 
+                    size={9}
+                    strokeWidth={2.5}
+                    color={T.teal}
+                    aria-hidden="true"
                   />
                 </div>
 
@@ -472,12 +472,12 @@ export default function IssueBillModal({
                 transition: "border-color 0.15s, background 0.15s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background    = T.bg;
-                e.currentTarget.style.borderColor   = T.teal;
+                e.currentTarget.style.background = T.bg;
+                e.currentTarget.style.borderColor = T.teal;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background    = "transparent";
-                e.currentTarget.style.borderColor   = "#d4cfc6";
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = "#d4cfc6";
               }}
             >
               + Add Charge
@@ -537,8 +537,8 @@ export default function IssueBillModal({
                 <AlertCircle size={12} strokeWidth={2.5} aria-hidden="true" />
                 {!housingName ? "Select a property to continue"
                   : !studentName ? "Enter the student name"
-                  : !dueDate ? "Set a due date"
-                  : "Add at least one charge with an amount"}
+                    : !dueDate ? "Set a due date"
+                      : "Add at least one charge with an amount"}
               </div>
             )}
           </div>
@@ -573,9 +573,9 @@ export default function IssueBillModal({
 // ─────────────────────────────────────────────────────────────────────────────
 
 const STATUS_COLOR: Record<PaymentStatus, { text: string; bg: string; dot: string }> = {
-  Paid:    { text: "#2a7d4f", bg: "rgba(42,125,79,0.10)",   dot: "#2a7d4f"  },
-  Pending: { text: "#A07820", bg: "rgba(227,175,100,0.18)", dot: "#c8960a"  },
-  Overdue: { text: C.orange,  bg: "rgba(201,100,42,0.13)",  dot: C.orange   },
+  Paid: { text: "#2a7d4f", bg: "rgba(42,125,79,0.10)", dot: "#2a7d4f" },
+  Pending: { text: "#A07820", bg: "rgba(227,175,100,0.18)", dot: "#c8960a" },
+  Overdue: { text: C.orange, bg: "rgba(201,100,42,0.13)", dot: C.orange },
 };
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -634,7 +634,14 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
             </div>
             <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>Bill Details</div>
           </div>
-          <CloseBtn onClose={onClose} light />
+          <button onClick={onClose} aria-label="Close modal" style={{
+            background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8,
+            width: 30, height: 30, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#f5f3ef",
+          }}>
+            <X size={14} strokeWidth={2.5} />
+          </button>
         </div>
 
         {/* Status strip */}
@@ -655,15 +662,15 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
 
         {/* Detail rows */}
         <div style={{ padding: "4px 24px 10px" }}>
-          <DetailRow label="Student"   value={bill.student_name} />
-          <DetailRow label="Property"  value={bill.housing_name} />
+          <DetailRow label="Student" value={bill.student_name} />
+          <DetailRow label="Property" value={bill.housing_name} />
           <DetailRow label="Bill Type" value={bill.bill_type} />
-          <DetailRow label="Amount"    value={
+          <DetailRow label="Amount" value={
             <strong style={{ fontSize: 15, color: T.navy }}>
               ₱{bill.amount.toLocaleString("en-PH")}
             </strong>
           } />
-          <DetailRow label="Due Date"  value={fmtDate(bill.due_date)} />
+          <DetailRow label="Due Date" value={fmtDate(bill.due_date)} />
           <DetailRow label="Date Paid" value={fmtDate(bill.date_paid)} />
         </div>
 
