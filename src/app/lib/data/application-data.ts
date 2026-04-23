@@ -5,13 +5,15 @@ import {
 	UpdateApplication,
 } from "@/models/application";
 
-async function create(application: NewApplication) {
+async function create(application: NewApplication): Promise<Application> {
 	const { data, error } = await supabase
 		.from("application")
 		.insert([application])
-		.select();
+		.select("*");
+
 	if (error) throw error;
-	return data;
+
+	return data[0];
 }
 
 // READ ALL APPLICATIONS
@@ -37,16 +39,17 @@ async function getAll() {
 		.eq("is_deleted", false);
 }
 
-async function getById(applicationId: number) {
+async function getById(applicationId: number): Promise<Application | null> {
 	const { data, error } = await supabase
 		.from("application")
 		.select("*")
 		.eq("application_id", applicationId);
 	if (error) throw error;
-	return data;
+
+	return data && data.length > 0 ? data[0] : null;
 }
 
-async function getByManager(managerAccountNumber: number) {
+async function getByManager(managerAccountNumber: number): Promise<Application[]>{
   const { data, error } = await supabase
     .from("application")
     .select(`
@@ -64,7 +67,7 @@ async function getByManager(managerAccountNumber: number) {
     .eq("application.is_deleted", false);
 
 	if (error) throw error;
-	return data;
+	return data ?? [];
 }
 
 async function getByHousing(housingId: number) {
