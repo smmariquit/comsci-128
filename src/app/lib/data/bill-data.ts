@@ -1,54 +1,121 @@
-import { supabase } from "@/app/lib/supabase";
+import { supabase } from "../supabase";
 
-export type ActionType = "Application Status" | "Bill Status";
+const create = async (billData: any) => {
+	return await supabase.from("bill").insert([billData]).select().single();
+};
 
-export interface AuditLog {
-  audit_id?: number;
-  timestamp: string;
-  action_type: ActionType;
-  audit_description: string;
-  user_id: number;
-  user_name: string;
-  account_number: number;
-}
+const getAll = async () => {
+	return await supabase
+		.from("bill")
+		.select("*, manager(*), student(*)")
+		.eq("is_deleted", false);
+};
 
-// CREATE AUDIT LOG
-export async function createAuditLog(audit_log: AuditLog) {
-  const { data, error } = await supabase
-    .from("audit_log")
-    .insert([audit_log])
-    .select();
-  if (error) throw error;
-  return data;
-}
+const getById = async (transaction_id: number) => {
+	return await supabase
+		.from("bill")
+		.select("*, manager(*), student(*)")
+		.eq("transaction_id", transaction_id)
+		.eq("is_deleted", false)
+		.single();
+};
 
-// READ ALL AUDIT LOGS
-export async function getAllAuditLogs() {
-  const { data, error } = await supabase.from("audit_log").select("*");
-  if (error) throw error;
-  return data;
-}
+const update = async (transaction_id: number, updates: any) => {
+	return await supabase
+		.from("bill")
+		.update(updates)
+		.eq("transaction_id", transaction_id)
+		.select()
+		.single();
+};
 
-// READ AUDIT LOGS BASED ON ACCOUNT NUMBER
-export async function getAuditLogByAccountNumber(account_number: number) {
-  const { data, error } = await supabase
-    .from("audit_log")
-    .select("*")
-    .eq("account_number", account_number);
-  if (error) throw error;
-  return data;
-}
+const markAsPaid = async (transaction_id: number) => {
+	return await supabase
+		.from("bill")
+		.update({
+			status: "Paid",
+			date_paid: new Date().toISOString(),
+		})
+		.eq("transaction_id", transaction_id)
+		.select()
+		.single();
+};
 
-// UPDATE AUDIT LOGS
-export async function updateAuditLog(
-  audit_id: number,
-  updatedFields: Partial<AuditLog>,
-) {
-  const { data, error } = await supabase
-    .from("audit_log")
-    .update(updatedFields)
-    .eq("audit_id", audit_id)
-    .select();
-  if (error) throw error;
-  return data;
-}
+// delete bill
+const remove = async (transaction_id: number) => {
+	return await supabase
+		.from("bill")
+		.update({ is_deleted: true })
+		.eq("transaction_id", transaction_id);
+};
+
+// GET bills by manager
+const getBillsOfManager = async (account_number: number) => {
+	return await supabase
+		.from("bill")
+		.select("*, student(*)")
+		.eq("manager_account_number", account_number)
+		.eq("is_deleted", false);
+};
+
+// GET bills per student
+const getBillsOfStudent = async (account_number: number) => {
+	return await supabase
+		.from("bill")
+		.select("*, manager(*)")
+		.eq("student_account_number", account_number)
+		.eq("is_deleted", false);
+};
+
+// GET bills based on their payment status
+const getBillsByStatus = async (status: string) => {
+	return await supabase
+		.from("bill")
+		.select("*, manager(*), student(*)")
+		.eq("status", status)
+		.eq("is_deleted", false);
+};
+
+// gets overdue bills
+const getOverdueBills = async () => {
+	const today = new Date().toISOString();
+
+	return await supabase
+		.from("bill")
+		.select("*, manager(*), student(*)")
+		.lt("due_date", today)
+		.eq("status", "Pending")
+		.eq("is_deleted", false);
+};
+
+// total balance per student
+const getTotalBalance = async (account_number: number) => {
+	const { data, error } = await supabase
+		.from("bill")
+		.select("amount, status")
+		.eq("student_account_number", account_number)
+		.eq("is_deleted", false);
+
+	const total = data?.reduce((sum: number, bill: any) => {
+		if (bill.status == "Pending") {
+			return sum + Number(bill.amount);
+		} else {
+			return sum;
+		}
+	}, 0);
+	return total ?? 0;
+};
+
+export const billData = {
+	create,
+	getAll,
+	getById,
+	update,
+	markAsPaid,
+	remove,
+	getBillsOfManager,
+	getBillsOfStudent,
+	getBillsByStatus,
+	getOverdueBills,
+	getTotalBalance
+};
