@@ -11,7 +11,7 @@ type Public<T> = Omit<T, "account_number" | "password">;
 
 const allowedSex = ["Female", "Male", "Prefer not to say"];
 
-const addUser = async (userDetails: NewUser): Promise<Student> => {
+const addUser = async (userDetails: NewUser): Promise<User> => {
 	try {
 		const { account_email, first_name, last_name, password } = userDetails;
 
@@ -75,14 +75,15 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 		};
 
 		// Insert user
-		// const createdUser = await userData.createUser(userDetails);
-		const createdUserStudent = await studentData.create(
-			userDetails,
+		const createdUser = await userData.create(userDetails);
+		
+		await studentData.create(
+			createdUser.account_number,
 			studentDetails,
 			studentAcademicDetails,
 		);
 
-		return createdUserStudent;
+		return createdUser;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw error;
