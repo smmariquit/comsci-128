@@ -1,23 +1,23 @@
 import Image from "next/image";
-import SearchBar from "./_components/SearchBar"; 
-import StudentNavBar from "../_components/StudentNavBar";
+import SearchBar from "./_components/SearchBar";
+import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";
 import HousingCards from "./_components/HousingCards";
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 
 export default async function DormBrowsePage({
-        searchParams,
-    }: {
-        searchParams: Promise<{ type?: string; sort?: string; search?: string }> | any;
-    }) {
-    const currUser = await userData.findById(30); 
+    searchParams,
+}: {
+    searchParams: Promise<{ type?: string; sort?: string; search?: string }> | any;
+}) {
+    const currUser = await userData.findById(30);
     const params = await searchParams;
-    
+
     // prepare filters
     const filters = {
-        housing_type: params?.type as any, 
-        sort_by_price: params?.sort as any, 
-        search: params?.search as any, 
+        housing_type: params?.type as any,
+        sort_by_price: params?.sort as any,
+        search: params?.search as any,
     };
 
     // fetch from db
@@ -29,8 +29,8 @@ export default async function DormBrowsePage({
         name: item.housing_name,
     }));
 
-	return (
-        
+    return (
+
         <div
             style={{
                 width: "100%",
@@ -42,10 +42,11 @@ export default async function DormBrowsePage({
                 alignItems: "stretch",
             }}
         >
-            <StudentNavBar 
-                path={"Housing Browser"
-                }/>
-            
+            <StudentNavBar
+                path={"Housing Browser"}
+                userId={currUser?.account_number}
+            />
+
             <SearchBar />
 
             {/* HOUSING CARDS CONTAINER */}
