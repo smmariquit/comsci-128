@@ -85,7 +85,7 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 
     // Insert Audit logs as register
     const IPaddress = randomIpAddress();
-    const description = `${userDetails.first_name} ${userDetails.last_name} registered via Web ${randomIpAddress()}`;
+    const description = `${userDetails.first_name} ${userDetails.last_name} registered via Web ${IPaddress}`;
 		await auditLogService.createAuditLog({
 			action_type: "Update User Details", 
 			audit_description: description,
