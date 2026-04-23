@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const supabase = getSupabaseBrowserClient();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -64,9 +66,22 @@ export default function RegisterPage() {
         } else if (userType === "system admin" || userType === "admin") {
           target = "/sys";
         } else if (userType === "manager") {
-          // Defaults to /manage for now; detailed manager redirection 
-          // usually happens after login when manager_type is accessible.
-          target = "/manage";
+          // Fetch manager details to determine if they are a Housing Admin or Landlord
+          const { data: manager } = await supabase
+            .from("manager")
+            .select("manager_type")
+            .eq("account_number", profile.account_number)
+            .single();
+
+          const managerType = manager?.manager_type?.toLowerCase();
+          if (
+            managerType === "housing administrator" ||
+            managerType === "house admin"
+          ) {
+            target = "/admin";
+          } else {
+            target = "/manage";
+          }
         }
         router.push(target);
       }
