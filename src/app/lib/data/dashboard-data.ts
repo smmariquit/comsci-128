@@ -1,7 +1,5 @@
-import { userData } from "./user-data";
 import { roomData } from "./room-data";
 import { applicationData } from "./application-data";
-import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 import { housingData } from "./housing-data";
 
 export async function getHousingAdmingDashboardData(landlordId: number) {
@@ -16,10 +14,6 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
 
     const filteredRooms = allRooms.filter(r => managedHousingIds.includes(r.housing_id));
     const filteredApps = allApps.filter(app => app.landlord_account_number === landlordId)
-
-    const managedStudentNumbers = new Set([
-        ...filteredApps.map(app => (Array.isArray(app.student) ? app.student[0] : app.student)?.account_number)
-    ].filter(Boolean));
     
     const formattedApps = filteredApps.map((app: any) => {
         const studentObj = Array.isArray(app.student) ? app.student[0] : app.student;
