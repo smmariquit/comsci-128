@@ -269,6 +269,18 @@ async function getStudentsByRoom(roomId: number) {
   }));
 }
 
+async function findbyLandlord(landlordId: number): Promise<Housing[] | []> {
+  const { data, error } = await supabase
+    .from("housing")
+    .select("*")
+    .eq("landlord_account_number", landlordId)
+    .eq("is_deleted", false);
+
+  if (error) throw new Error ("Failed to fetch housing by landlord: " + error.message);
+
+  return data ?? [];
+}
+
 export const housingData = {
 	create,
 	findAll,
@@ -283,4 +295,5 @@ export const housingData = {
   getOverallUnpaidFees,
   findAllWithRooms,
   getStudentsByRoom,
+  findbyLandlord,
 };

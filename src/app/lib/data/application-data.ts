@@ -139,22 +139,22 @@ async function getApplicationStats() {
 async function getApplicationsWithStudentDetails() {
 	const { data, error } = await supabase
 		.from("application")
-		.select(
-			`
-      application_id,
-      housing_name,
-      application_status,
-      expected_moveout_date,
-      preferred_room_type,
-      student:student_account_number (
-        account_number,
-        user:user!account_number (
-          first_name,
-          middle_name,
-          last_name
-        )
-      )
-    `,
+		.select(`
+			application_id,
+			housing_name,
+			application_status,
+			expected_moveout_date,
+			preferred_room_type,
+			landlord_account_number,
+			student:student_account_number (
+				account_number,
+				user:user!account_number (
+				first_name,
+				middle_name,
+				last_name
+				)
+			)
+			`,
 		)
 		.eq("is_deleted", false)
 		.order("application_id", { ascending: false });
