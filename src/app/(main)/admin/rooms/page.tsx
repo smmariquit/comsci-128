@@ -10,8 +10,12 @@ import RoomFilters, {
 import { roomData } from "@/app/lib/data/room-data";
 import { roomService } from "@/app/lib/services/room-service";
 import { C } from "@/lib/palette";
+import { housingData } from "@/app/lib/data/housing-data";
 
 export default function Page() {
+
+  const mockLandlordId = 179;
+
     const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
@@ -199,20 +203,22 @@ export default function Page() {
     }
   };
 
+  const refreshRooms = async () => {
+    try {
+      const managedHousings = await housingData.findbyLandlord(mockLandlordId);
+      const managedIds = managedHousings.map(h => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
+      setRooms(liveRooms);
+    } catch (err) {
+      console.error ("Refrash failed: ", err);
+    }
+  };
+
   // ── Fetch Data ────────────────────────────────────────
   useEffect(() => {
-    async function loadLiveData() {
-      try {
-        const liveRooms = await roomData.findAllRoomDetailed();
-        setRooms(liveRooms);
-      } catch (err) {
-        console.error("Failed to fetch rooms:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadLiveData();
-  }, []);
+    setIsLoading(true);
+    refreshRooms().finally(() => setIsLoading(false));
+  }, [mockLandlordId]);
 
   if (isLoading) return <div className="p-6">Syncing with the database...</div>;
 
