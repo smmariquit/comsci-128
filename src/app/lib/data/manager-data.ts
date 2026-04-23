@@ -1,27 +1,27 @@
 import { supabase } from "../supabase";
-import { NewUser } from "@/models/user";
-import { Manager, NewManager } from "@/models/manager";
-import { Housing} from "@/models/housing";
+import type { Manager, ManagerProfile, NewManager } from "@/models/manager";
+import type { NewUser } from "@/models/user";
+import { Housing } from "@/models/housing";
 import { userData } from "./user-data";
 
 const create = async (
 	userDetails: NewUser,
-	managerDetails: NewManager
+	managerDetails: NewManager,
 ): Promise<Manager> => {
-  // CREATE row in "manager" table & RETURN the created manager object
+	// CREATE row in "manager" table & RETURN the created manager object
 
 	const newUserData = await userData.create(userDetails);
 
-  managerDetails.account_number = newUserData.account_number;
+	managerDetails.account_number = newUserData.account_number;
 
-  const { data, error } = await supabase
-    .from("manager")
-    .insert([managerDetails])
-    .select();
+	const { data, error } = await supabase
+		.from("manager")
+		.insert([managerDetails])
+		.select();
 
-  if (error) throw error;
+	if (error) throw error;
 
-  return data[0];
+	return data[0];
 };
 
 // READ managers
@@ -43,6 +43,66 @@ const findById = async (account_number: number) => {
 
 	if (error) return null;
 	return data;
+};
+
+const findManagerProfileById = async (
+	account_number: number,
+): Promise<ManagerProfile | null> => {
+	const { data, error } = await supabase
+		.from("user")
+		.select(
+			`
+            account_number,
+            account_email,
+            first_name,
+            middle_name,
+            last_name,
+            sex,
+            birthday,
+            home_address,
+            phone_number,
+            contact_email,
+            profile_picture,
+            user_type,
+            manager:manager_account_number_fkey(
+                account_number,
+                manager_type,
+                manager_payment_details:manager_payment_details_account_number_fkey(
+                    account_number,
+                    bank_number,
+                    bank_type
+                )
+            )
+            `,
+		)
+		.eq("account_number", account_number)
+		.eq("is_deleted", false)
+		.single();
+
+	if (error) {
+		console.error("Error fetching student profile:", error);
+		return null;
+	}
+
+	const manager = Array.isArray(data.manager)
+		? data.manager[0]
+		: data.manager;
+
+	if (!manager) return null;
+
+	return {
+		...data,
+		manager: {
+			...manager,
+			manager_payment_details: Array.isArray(
+				manager.manager_payment_details,
+			)
+				? manager.manager_payment_details
+				: manager.manager_payment_details
+					? [manager.manager_payment_details]
+					: [],
+		},
+	};
 };
 
 // UPDATE manager
@@ -165,14 +225,15 @@ const countAllManager = async (): Promise<number | null> => {
 	if (error) throw new Error(error.message);
 
 	return count;
-}
+};
 
 // List of approved applicants that have no room assigned yet
 // Involves: user, student, application, manager
 async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
-  const { data, error } = await supabase
-    .from("application")
-    .select(`
+	const { data, error } = await supabase
+		.from("application")
+		.select(
+			`
       application_id,
       application_status,
       expected_moveout_date,
@@ -193,26 +254,31 @@ async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
       manager:manager_account_number (
         account_number
       )
-    `)
-    .eq("application_status", "Approved")
-    .is("room_id", null)                          // unassigned — no room yet
-    .eq("manager_account_number", managerAccountNumber)
-    .eq("is_deleted", false);
+    `,
+		)
+		.eq("application_status", "Approved")
+		.is("room_id", null) // unassigned — no room yet
+		.eq("manager_account_number", managerAccountNumber)
+		.eq("is_deleted", false);
 
-  if (error) {
-    console.error("Error fetching unassigned approved applicants:", error.message);
-    return { data: null, error };
-  }
+	if (error) {
+		console.error(
+			"Error fetching unassigned approved applicants:",
+			error.message,
+		);
+		return { data: null, error };
+	}
 
-  return { data, error: null };
+	return { data, error: null };
 }
 
 // Total rooms managed by a housing admin
 // Involves: manager, housing, room
 async function getTotalRoomsManaged(managerAccountNumber: number) {
-  const { data, error } = await supabase
-    .from("housing")
-    .select(`
+	const { data, error } = await supabase
+		.from("housing")
+		.select(
+			`
       housing_id,
       housing_name,
       housing_address,
@@ -225,29 +291,32 @@ async function getTotalRoomsManaged(managerAccountNumber: number) {
         payment_status,
         maximum_occupants
       )
-    `)
-    .eq("manager_account_number", managerAccountNumber)
-    .eq("is_deleted", false);
+    `,
+		)
+		.eq("manager_account_number", managerAccountNumber)
+		.eq("is_deleted", false);
 
-  if (error) {
-    console.error("Error fetching total rooms by manager:", error.message);
-    return { data: null, error, totalRooms: 0 };
-  }
+	if (error) {
+		console.error("Error fetching total rooms by manager:", error.message);
+		return { data: null, error, totalRooms: 0 };
+	}
 
-  // Count total rooms across all housings
-  const totalRooms = data?.reduce((acc, housing) => {
-    return acc + (housing.room?.length ?? 0);
-  }, 0) ?? 0;
+	// Count total rooms across all housings
+	const totalRooms =
+		data?.reduce((acc, housing) => {
+			return acc + (housing.room?.length ?? 0);
+		}, 0) ?? 0;
 
-  return { data, totalRooms, error: null };
+	return { data, totalRooms, error: null };
 }
 
 // Total tenants managed by a manager
 // Involves: manager, housing, room, student_accommodation_history
 async function getTotalTenantsManaged(managerAccountNumber: number) {
-  const { data, error } = await supabase
-    .from("housing")
-    .select(`
+	const { data, error } = await supabase
+		.from("housing")
+		.select(
+			`
       housing_id,
       housing_name,
       room:room (
@@ -261,33 +330,43 @@ async function getTotalTenantsManaged(managerAccountNumber: number) {
           moveout_date
         )
       )
-    `)
-    .eq("manager_account_number", managerAccountNumber)
-    .eq("is_deleted", false);
+    `,
+		)
+		.eq("manager_account_number", managerAccountNumber)
+		.eq("is_deleted", false);
 
-  if (error) {
-    console.error("Error fetching total tenants by manager:", error.message);
-    return { data: null, error, totalTenants: 0 };
-  }
+	if (error) {
+		console.error(
+			"Error fetching total tenants by manager:",
+			error.message,
+		);
+		return { data: null, error, totalTenants: 0 };
+	}
 
-  // Count total tenants across all rooms
-  const totalTenants = data?.reduce((acc, housing) => {
-    const tenantsInHousing = housing.room?.reduce((roomAcc: number, room: any) => {
-      return roomAcc + (room.student_accommodation_history?.length ?? 0);
-    }, 0) ?? 0;
-    return acc + tenantsInHousing;
-  }, 0) ?? 0;
+	// Count total tenants across all rooms
+	const totalTenants =
+		data?.reduce((acc, housing) => {
+			const tenantsInHousing =
+				housing.room?.reduce((roomAcc: number, room: any) => {
+					return (
+						roomAcc +
+						(room.student_accommodation_history?.length ?? 0)
+					);
+				}, 0) ?? 0;
+			return acc + tenantsInHousing;
+		}, 0) ?? 0;
 
-  return { data, totalTenants, error: null };
+	return { data, totalTenants, error: null };
 }
 
 // Overall occupancy rate of managed dorms
 // Involves: manager, housing, room, student_accommodation_history
 // Returns a ratio: total current tenants / total maximum occupants
 async function getOverallOccupancyRate(managerAccountNumber: number) {
-  const { data, error } = await supabase
-    .from("housing")
-    .select(`
+	const { data, error } = await supabase
+		.from("housing")
+		.select(
+			`
       housing_id,
       housing_name,
       room:room (
@@ -300,51 +379,60 @@ async function getOverallOccupancyRate(managerAccountNumber: number) {
           moveout_date
         )
       )
-    `)
-    .eq("manager_account_number", managerAccountNumber)
-    .eq("is_deleted", false);
+    `,
+		)
+		.eq("manager_account_number", managerAccountNumber)
+		.eq("is_deleted", false);
 
-  if (error) {
-    console.error("Error fetching occupancy rate:", error.message);
-    return { data: null, error, totalOccupants: 0, totalMaxOccupants: 0, occupancyRate: "0%" };
-  }
+	if (error) {
+		console.error("Error fetching occupancy rate:", error.message);
+		return {
+			data: null,
+			error,
+			totalOccupants: 0,
+			totalMaxOccupants: 0,
+			occupancyRate: "0%",
+		};
+	}
 
-  let totalOccupants = 0;
-  let totalMaxOccupants = 0;
+	let totalOccupants = 0;
+	let totalMaxOccupants = 0;
 
-  data?.forEach((housing) => {
-    housing.room?.forEach((room: any) => {
-      totalMaxOccupants += room.maximum_occupants ?? 0;
-      totalOccupants += room.student_accommodation_history?.length ?? 0;
-    });
-  });
+	data?.forEach((housing) => {
+		housing.room?.forEach((room: any) => {
+			totalMaxOccupants += room.maximum_occupants ?? 0;
+			totalOccupants += room.student_accommodation_history?.length ?? 0;
+		});
+	});
 
-  // Compute occupancy rate as a percentage
-  const occupancyRate = totalMaxOccupants > 0
-    ? `${((totalOccupants / totalMaxOccupants) * 100).toFixed(1)}%`
-    : "0%";
+	// Compute occupancy rate as a percentage
+	const occupancyRate =
+		totalMaxOccupants > 0
+			? `${((totalOccupants / totalMaxOccupants) * 100).toFixed(1)}%`
+			: "0%";
 
-  return {
-    data,
-    totalOccupants,
-    totalMaxOccupants,
-    occupancyRate,  // e.g. "75.0%"
-    error: null
-  };
+	return {
+		data,
+		totalOccupants,
+		totalMaxOccupants,
+		occupancyRate, // e.g. "75.0%"
+		error: null,
+	};
 }
 
 const getManagedHousings = async (managerAccountNumber: number) => {
-  const { data: manager, error: managerError } = await supabase
-    .from('manager')
-    .select('account_number, manager_type')
-    .eq('account_number', managerAccountNumber)
-    .single();
+	const { data: manager, error: managerError } = await supabase
+		.from("manager")
+		.select("account_number, manager_type")
+		.eq("account_number", managerAccountNumber)
+		.single();
 
-  if (managerError || !manager) throw new Error('Unauthorized');
+	if (managerError || !manager) throw new Error("Unauthorized");
 
-  const { data, error } = await supabase
-    .from('housing')
-    .select(`
+	const { data, error } = await supabase
+		.from("housing")
+		.select(
+			`
       housing_id,
       housing_name,
 
@@ -365,27 +453,30 @@ const getManagedHousings = async (managerAccountNumber: number) => {
           )
         )
       )
-    `)
-    .eq('manager_account_number', managerAccountNumber)
-    .eq('is_deleted', false);
+    `,
+		)
+		.eq("manager_account_number", managerAccountNumber)
+		.eq("is_deleted", false);
 
-  if (error) throw error;
+	if (error) throw error;
 
-  return data;
+	return data;
 };
 
 const getAllTenants = async (managerAccountNumber: number) => {
-    const { data: manager, error: managerError } = await supabase
-      .from('manager')
-      .select('account_number, manager_type')
-      .eq('account_number', managerAccountNumber)
-      .eq('manager_type', 'landlord')
+	const { data: manager, error: managerError } = await supabase
+		.from("manager")
+		.select("account_number, manager_type")
+		.eq("account_number", managerAccountNumber)
+		.eq("manager_type", "landlord");
 
-  if (managerError || !manager) throw new Error('Unauthorized: Landlord access only');
+	if (managerError || !manager)
+		throw new Error("Unauthorized: Landlord access only");
 
-  const { data, error } = await supabase
-    .from('student_accommodation_history')
-    .select(`
+	const { data, error } = await supabase
+		.from("student_accommodation_history")
+		.select(
+			`
       move_in_date,
       expected_move_out_date,
 
@@ -403,18 +494,20 @@ const getAllTenants = async (managerAccountNumber: number) => {
           housing_name
         )
       )
-    `)
-    .eq('is_deleted', false);
+    `,
+		)
+		.eq("is_deleted", false);
 
-  if (error) throw error;
+	if (error) throw error;
 
-  return data;
+	return data;
 };
 
 const getStudentBalance = async (student_account_number: number) => {
-  const { data, error } = await supabase
-    .from('bill')
-    .select(`
+	const { data, error } = await supabase
+		.from("bill")
+		.select(
+			`
       transaction_id,
       amount, 
       status,
@@ -424,28 +517,30 @@ const getStudentBalance = async (student_account_number: number) => {
       manager:manager_account_number (
         user:account_number (last_name)
       )
-    `)
-    .eq('student_account_number', student_account_number)
-    .eq('is_deleted', false)
-    .in('status', ['Pending', 'Overdue']);
+    `,
+		)
+		.eq("student_account_number", student_account_number)
+		.eq("is_deleted", false)
+		.in("status", ["Pending", "Overdue"]);
 
-  if (error) throw error;
+	if (error) throw error;
 
-  const total = data?.reduce((sum, bill) => {
-    return sum + Number(bill.amount);
-  }, 0);
+	const total = data?.reduce((sum, bill) => {
+		return sum + Number(bill.amount);
+	}, 0);
 
-  return {
-    student: data?.[0]?.student || null,
-    totalBalance: total ?? 0,
-    bills: data
-  };
+	return {
+		student: data?.[0]?.student || null,
+		totalBalance: total ?? 0,
+		bills: data,
+	};
 };
 
 const getAllBillings = async () => {
-  const { data, error } = await supabase
-    .from('bill')
-    .select(`
+	const { data, error } = await supabase
+		.from("bill")
+		.select(
+			`
       transaction_id,
       amount,
       status,
@@ -474,14 +569,14 @@ const getAllBillings = async () => {
           )
         )
       )
-    `)
-    .eq('is_deleted', false)
-    .order('due_date', { ascending: false });
+    `,
+		)
+		.eq("is_deleted", false)
+		.order("due_date", { ascending: false });
 
-  if (error) throw error;
-  
+	if (error) throw error;
 
-  return data;
+	return data;
 };
 
 export const managerData = {
@@ -489,9 +584,10 @@ export const managerData = {
 	getAll,
 	findById,
 	update,
+	findManagerProfileById,
 	deactivate,
 	createBankDetails,
-  countAllManager,
+	countAllManager,
 	getBanks,
 	updateBankDetails,
 	deleteBankDetails,
@@ -503,8 +599,8 @@ export const managerData = {
 	getTotalRoomsManaged,
 	getTotalTenantsManaged,
 	getOverallOccupancyRate,
-  getManagedHousings,
-  getAllTenants,
-  getStudentBalance,
-  getAllBillings
-}
+	getManagedHousings,
+	getAllTenants,
+	getStudentBalance,
+	getAllBillings,
+};
