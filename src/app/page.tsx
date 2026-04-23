@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { createSupabaseServerClient } from "./lib/server-client";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Home | UPLB CASA",
+  },
+};
 
 export default async function Home() {
   const supabase = await createSupabaseServerClient();

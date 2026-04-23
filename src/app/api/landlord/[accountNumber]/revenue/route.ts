@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { _landlordService } from "@/services/landlord-service";
+import { landlordService } from "@/app/lib/services/landlord-service";
 
 export async function GET(
 	_req: NextRequest,
@@ -21,7 +21,7 @@ export async function GET(
 		}
 
 		const grossRevenue =
-			await _landlordService.fetchGrossRevenueByLandlord(
+			await landlordService.fetchGrossRevenueByLandlord(
 				parsedAccountNumber,
 			);
 

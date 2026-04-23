@@ -1,113 +1,145 @@
-import { supabase } from "../supabase";
+import { supabase } from "@/app/lib/supabase";
+import { User, NewUser, UpdateUser } from "@/models/user";
+import { Manager, NewManager, UpdateManager } from "@/models/manager";
+import { managerData } from "@/app/lib/data/manager-data";
 
-// joins for FKs
-// CREATE bill
-export const createBill = async (billData: any) => {
-  return await supabase.from("bill").insert([billData]).select().single();
-};
+// promote User from Student to Housing Admin (Manager rather)
+async function create(userDetails: NewUser, managerDetails: NewManager) {
+  // managerDetails.manager_type must already be set to "Housing Admin"
 
-// READ all bills
-export const getAllBills = async () => {
-  return await supabase
-    .from("bill")
-    .select("*, manager(*), student(*)")
-    .eq("is_deleted", false);
-};
+  const newManagerData = await managerData.create(
+		userDetails,
+    managerDetails,
+	);
 
-// READ bill using id
-export const getBillById = async (transaction_id: number) => {
-  return await supabase
-    .from("bill")
-    .select("*, manager(*), student(*)")
-    .eq("transaction_id", transaction_id)
-    .eq("is_deleted", false)
-    .single();
-};
+  managerDetails.account_number = newManagerData.account_number
 
-// UPDATE bill
-export const updateBill = async (transaction_id: number, updates: any) => {
-  return await supabase
-    .from("bill")
-    .update(updates)
-    .eq("transaction_id", transaction_id)
-    .select()
-    .single();
-};
+	// Insert into housing_admin
+	const { data, error: adminError } = await supabase
+		.from("housing_admin")
+		.insert([managerDetails])
+		.select();
 
-// updates bill as paid
-export const markBillAsPaid = async (transaction_id: number) => {
-  return await supabase
-    .from("bill")
-    .update({
-      status: "Paid",
-      date_paid: new Date().toISOString(),
-    })
-    .eq("transaction_id", transaction_id)
-    .select()
-    .single();
-};
+	if (adminError) {
+		console.error(
+			"Error inserting into housing_admin:",
+			adminError.message,
+		);
+		return { data: null, error: adminError };
+	}
 
-// DELETE bill
-export const deleteBill = async (transaction_id: number) => {
-  return await supabase
-    .from("bill")
-    .update({ is_deleted: true })
-    .eq("transaction_id", transaction_id);
-};
+	return data[0];
+}
 
-// GET bills by manager
-export const getBillsByManager = async (account_number: number) => {
-  return await supabase
-    .from("bill")
-    .select("*, student(*)")
-    .eq("manager_account_number", account_number)
-    .eq("is_deleted", false);
-};
+// Read all housing admins with user details
+async function getAll() {
+	const { data, error } = await supabase.from("housing_admin").select(`
+      account_number,
+      manager:account_number (
+        manager_type,
+        user:account_number (
+          account_number,
+          account_email,
+          first_name,
+          middle_name,
+          last_name,
+          sex,
+          birthday,
+          home_address,
+          phone_number,
+          contact_email,
+          user_type,
+          is_deleted
+        )
+      )
+    `);
 
-// GET bills per student
-export const getBillsByStudent = async (account_number: number) => {
-  return await supabase
-    .from("bill")
-    .select("*, manager(*)")
-    .eq("student_account_number", account_number)
-    .eq("is_deleted", false);
-};
+	if (error) {
+		console.error("Error fetching housing admins:", error.message);
+		return { data: null, error };
+	}
 
-// GET bills based on their payment status
-export const getBillsByStatus = async (status: string) => {
-  return await supabase
-    .from("bill")
-    .select("*, manager(*), student(*)")
-    .eq("status", status)
-    .eq("is_deleted", false);
-};
+	return { data, error: null };
+}
 
-// gets overdue bills
-export const getOverdueBills = async () => {
-  const today = new Date().toISOString();
+// Read single housing admin with user details by account_number
+async function getById(accountNumber: number) {
+	const { data, error } = await supabase
+		.from("housing_admin")
+		.select(
+			`
+      account_number,
+      manager:account_number (
+        manager_type,
+        user:account_number (
+          account_number,
+          account_email,
+          first_name,
+          middle_name,
+          last_name,
+          sex,
+          birthday,
+          home_address,
+          phone_number,
+          contact_email,
+          user_type,
+          is_deleted
+        )
+      )
+    `,
+		)
+		.eq("account_number", accountNumber)
+		.single();
 
-  return await supabase
-    .from("bill")
-    .select("*, manager(*), student(*)")
-    .lt("due_date", today)
-    .eq("status", "Pending")
-    .eq("is_deleted", false);
-};
+	if (error) {
+		console.error("Error fetching housing admin:", error.message);
+		return { data: null, error };
+	}
 
-// total balance per student
-export const getTotalBalance = async (account_number: number) => {
+	return { data, error: null };
+}
+
+// List of pending applications based on managed housings of a manager
+// Involves: application, student, manager, housing (optional grouping)
+async function getPendingManagerApplications(managerAccountNumber: number) {
   const { data, error } = await supabase
-    .from("bill")
-    .select("amount, status")
-    .eq("student_account_number", account_number)
+    .from("application")
+    .select(`
+      application_id,
+      application_status,
+      housing_name,
+      preferred_room_type,
+      expected_moveout_date,
+      student:student_account_number (
+        account_number,
+        student_number,
+        housing_status,
+        user:account_number (
+          first_name,
+          middle_name,
+          last_name,
+          account_email
+        )
+      ),
+      manager:manager_account_number (
+        account_number
+      )
+    `)
+    .eq("application_status", "Pending Manager Approval")
+    .eq("manager_account_number", managerAccountNumber)
     .eq("is_deleted", false);
 
-  const total = data?.reduce((sum: number, bill: any) => {
-    if (bill.status === "Pending") {
-      return sum + Number(bill.amount);
-    } else {
-      return sum;
-    }
-  }, 0);
-  return total ?? 0;
+  if (error) {
+    console.error("Error fetching pending applications by manager:", error.message);
+    return { data: null, error };
+  }
+
+  return { data, error: null };
+}
+
+export const housingAdminData = {
+  create,
+  getAll,
+  getById,
+  getPendingManagerApplications
 };
