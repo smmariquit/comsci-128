@@ -6,7 +6,7 @@ import type {
   HousingWithRooms,
 } from "@/models/housing";
 
-// Define Housing record based on DB schema
+const TODAY = new Date().toISOString();
 
 // Inserts a new record and returns the created object with its new ID
 async function create(housingDetails: HousingInsert): Promise<Housing | null> {
@@ -103,42 +103,149 @@ async function deactivate(housingId: number): Promise<Housing | null> {
   return data;
 }
 
-async function getStudentsHoused(managerId: number, housingId: number) {
-  // get details of list of students housed per housing
-
+// List all rooms 
+async function findAllWithRooms(): Promise<HousingWithRooms[]> {
   const { data, error } = await supabase
     .from("housing")
     .select(`
       *,
-      room!inner(*),
-      student_accommodation_history!inner(*),
-      student!inner(*),
-      user!inner(*)
+      room:room(*)
     `)
-    .eq("housing.housing_id", housingId)
-    .eq("housing.manager_account_number", managerId);
+    .eq("is_deleted", false);
 
-  if (error)
-    throw new Error(`getStudentsHousedPerHousing Error: ${error.message}`);
-  return data;
-}
-
-// List all rooms 
-
-async function findAllWithRooms(): Promise<HousingWithRooms[]> {
-  const { data, error } = await supabase
-    .from("housing")
-    .select(`*, room:room(*)`)
-    .eq("is_deleted", false)
-	// .eq("manager_account_number", managerAccountNumber) TODO: revisit when manager account numbers are clarified ?
-    .order("housing_name", { ascending: true })
-
-  if (error) throw new Error(error.message)
-
-  return (data ?? []).map((h) => ({
+  if (error) throw new Error(`findAllWithRooms Error: ${error.message}`);
+  
+  return data.map((h: any) => ({
     ...h,
     room: h.room?.filter((r: any) => !r.is_deleted) ?? [],
-  }))
+  }));
+}
+
+async function getHousingCardsData() {
+    // fetch housing and associated rooms
+    const { data: housings, error } = await supabase
+        .from("housing")
+        .select(`
+            *,
+            room (*)
+        `)
+        .eq("is_deleted", false)
+        .order("housing_name", { ascending: true });
+
+    if (error) throw new Error(error.message);
+
+    // map and calculate the exact props needed for the DormCard
+    return housings.map((housing) => {
+        const activeRooms = housing.room?.filter((r: any) => !r.is_deleted) || [];
+        
+        const totalRooms = activeRooms.length;
+        const vacantRooms = activeRooms.filter((r: any) => r.occupancy_status === "Empty").length;
+        const occupiedRooms = totalRooms - vacantRooms;
+        
+        const occupancyRate = totalRooms > 0 
+            ? Math.round((occupiedRooms / totalRooms) * 100) 
+            : 0;
+
+        return {
+            housingId: housing.housing_id.toString(),
+            name: housing.housing_name,
+            address: housing.housing_address,
+            totalRooms,
+            occupiedRooms,
+            vacantRooms,
+            occupancyRate,
+            minRent: housing.rent_price,
+        };
+    });
+}
+
+async function uploadHousingImage(housingId: number, file: File): Promise<Housing | null> {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `housing-${housingId}-${Date.now()}.${fileExt}`;
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("dorm_images")
+        .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false 
+        });
+
+    if (uploadError) throw new Error("Storage Upload Error: " + uploadError.message);
+
+    const { data: publicUrlData } = supabase.storage
+        .from("dorm_images")
+        .getPublicUrl(uploadData.path);
+
+    const imageUrl = publicUrlData.publicUrl;
+
+    return await update(housingId, { housing_image: imageUrl } as Partial<HousingUpdate>);
+}
+const getRoomDetails = async (housingId: number, roomId: number) => {
+  const { data, error } = await supabase
+    .from('room')
+    .select(`
+      room_id,
+      room_type,
+      maximum_occupants,
+
+      student_accommodation_history (
+        movein_date,
+        moveout_date,
+
+        student_academic (
+          account_number,
+          standing,
+          status,
+          degree_program
+        )
+      )
+    `)
+    .eq('housing_id', housingId)
+    .eq('room_id', roomId)
+    .eq('is_deleted', false)
+    .single();
+
+  if (error) throw error;
+
+
+  return {
+    room_id: data.room_id,
+    room_type: data.room_type,
+    
+  };
+};
+
+// overdue or unpaid bills per student
+const getOverallUnpaidFees = async (student_account_number: number) => {
+  return await supabase
+    .from('bill')
+    .select(`
+      *,
+      student:student_account_number(
+        user:account_number(first_name, last_name),
+        student_accommodation_history (
+          room:room_id (room_id, housing:housing_id (housing_name))
+        )
+      ),
+      manager:manager_account_number(user:account_number (first_name, last_name))
+    `)
+    .eq('student_account_number', student_account_number)
+    .in('status', ['Pending', 'Overdue'])
+    .lt('due_date', TODAY)
+    .eq('is_deleted', false);
+};
+
+
+
+async function countAllHousing(): Promise<number | null> {
+  const { count, error } = await supabase
+    .from("housing")
+    .select("*", { count: "exact", head: true })
+    .eq("is_deleted", false);
+
+  if (error) throw new Error(error.message);
+
+  return count;
 }
 
 export const housingData = {
@@ -146,8 +253,12 @@ export const housingData = {
 	findAll,
 	findById,
 	findWithRooms,
-	findAllWithRooms,
 	update,
 	deactivate,
-	getStudentsHoused
+	getHousingCardsData,
+  uploadHousingImage,
+  countAllHousing,
+  getRoomDetails,
+  getOverallUnpaidFees,
+  findAllWithRooms,
 };

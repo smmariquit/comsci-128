@@ -1,8 +1,9 @@
 
 
-import { 
-  applicationData
-} from "@/app/lib/data/application-data";
+import { applicationData } from "@/app/lib/data/application-data";
+import { Database } from "@/app/types/database.types";
+
+type ApplicationStatus = Database["public"]["Enums"]["ApplicationStatus"];
 
 import { accommodationHistoryData } from "@/lib/data/accommodation-history-data";
 
@@ -51,7 +52,7 @@ const getApplicationDocuments = async (applicationId: number) => {
 
 const updateApplicationStatus = async (
   applicationId: number,
-  status: "Approved" | "Rejected" | "Pending Manager Approval" | "Pending Admin Approval" | "Cancelled"
+  status: ApplicationStatus
 ) => {
   try {
     const updated = await applicationData.update(applicationId, { application_status: status })
@@ -83,7 +84,15 @@ const assignApplicantToRoom = async (
   }
 }
 
-
+const getApprovedUnassignedByHousingName = async (housingName: string) => {
+  try {
+    const applications = await applicationData.getApprovedUnassignedByHousingName(housingName)
+    return applications
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch approved unassigned applications.")
+  }
+}
 
 export const applicationService = {
   getDashboardStats,

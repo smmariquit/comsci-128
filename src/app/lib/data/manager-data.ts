@@ -157,6 +157,16 @@ const deletePaymentDetails = async (id: number) => {
 		.single();
 };
 
+const countAllManager = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("manager")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
 // List of approved applicants that have no room assigned yet
 // Involves: user, student, application, manager
 async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
@@ -323,29 +333,156 @@ async function getOverallOccupancyRate(managerAccountNumber: number) {
   };
 }
 
-// Get occupancy rate of 1 housing
-// Returns a ratio = total current tenants / total maximum occupants
-async function getOccupancyRateOfHousing(housingId: number): Promise<number> {
-	const { data, error } = await supabase
-		.from("room")
-		.select(`
-      occupants_count,
-      maximum_occupants,
-      housing!inner(housing_id)
-		`)
-		.eq("housing.housing_id", housingId)
-		.eq("housing.is_deleted", false);
+const getManagedHousings = async (managerAccountNumber: number) => {
+  const { data: manager, error: managerError } = await supabase
+    .from('manager')
+    .select('account_number, manager_type')
+    .eq('account_number', managerAccountNumber)
+    .single();
 
-	if (error) throw new Error(`getOccupancyRateOfHousing Error: ${error.message}`);
-	if (!data || data.length === 0) return 0;
+  if (managerError || !manager) throw new Error('Unauthorized');
 
-	const totalCurrent = data.reduce((sum, room) => sum + (room.occupants_count ?? 0), 0);
-	const totalMaximum = data.reduce((sum, room) => sum + (room.maximum_occupants ?? 0), 0);
+  const { data, error } = await supabase
+    .from('housing')
+    .select(`
+      housing_id,
+      housing_name,
 
-	if (totalMaximum == 0) return 0;
+      room (
+        room_id,
+        room_type,
+        maximum_occupants,
 
-	return (totalCurrent / totalMaximum) * 100;
-}
+        student_accommodation_history (
+          movein_date,
+          moveout_date,
+
+          student_academic (
+            account_number,
+            degree_program,
+            standing,
+            status
+          )
+        )
+      )
+    `)
+    .eq('manager_account_number', managerAccountNumber)
+    .eq('is_deleted', false);
+
+  if (error) throw error;
+
+  return data;
+};
+
+const getAllTenants = async (managerAccountNumber: number) => {
+    const { data: manager, error: managerError } = await supabase
+      .from('manager')
+      .select('account_number, manager_type')
+      .eq('account_number', managerAccountNumber)
+      .eq('manager_type', 'landlord')
+
+  if (managerError || !manager) throw new Error('Unauthorized: Landlord access only');
+
+  const { data, error } = await supabase
+    .from('student_accommodation_history')
+    .select(`
+      move_in_date,
+      expected_move_out_date,
+
+      student_academic (
+        account_number,
+        degree_program,
+        standing,
+        status
+      ),
+
+      room (
+        room_id,
+        room_type,
+        housing (
+          housing_name
+        )
+      )
+    `)
+    .eq('is_deleted', false);
+
+  if (error) throw error;
+
+  return data;
+};
+
+const getStudentBalance = async (student_account_number: number) => {
+  const { data, error } = await supabase
+    .from('bill')
+    .select(`
+      transaction_id,
+      amount, 
+      status,
+      student:student_account_number (
+        user:account_number (first_name, last_name)
+      ),
+      manager:manager_account_number (
+        user:account_number (last_name)
+      )
+    `)
+    .eq('student_account_number', student_account_number)
+    .eq('is_deleted', false)
+    .in('status', ['Pending', 'Overdue']);
+
+  if (error) throw error;
+
+  const total = data?.reduce((sum, bill) => {
+    return sum + Number(bill.amount);
+  }, 0);
+
+  return {
+    student: data?.[0]?.student || null,
+    totalBalance: total ?? 0,
+    bills: data
+  };
+};
+
+const getAllBillings = async () => {
+  const { data, error } = await supabase
+    .from('bill')
+    .select(`
+      transaction_id,
+      amount,
+      status,
+      due_date,
+      is_deleted,
+      student:student_account_number (
+        account_number,
+        user:account_number (
+          first_name,
+          last_name,
+          account_email
+        ),
+        student_accommodation_history (
+          room:room_id (
+            room_id,
+            housing:housing_id (
+              housing_name,
+              manager:manager_account_number (
+                account_number,
+                user:account_number (
+                  first_name, 
+                  last_name
+                )
+              )
+            )
+          )
+        )
+      )
+    `)
+    .eq('is_deleted', false)
+    .order('due_date', { ascending: false });
+
+  if (error) throw error;
+  
+
+  return data;
+};
 
 export const managerData = {
 	create,
@@ -354,6 +491,7 @@ export const managerData = {
 	update,
 	deactivate,
 	createBankDetails,
+  countAllManager,
 	getBanks,
 	updateBankDetails,
 	deleteBankDetails,
@@ -365,5 +503,8 @@ export const managerData = {
 	getTotalRoomsManaged,
 	getTotalTenantsManaged,
 	getOverallOccupancyRate,
-  getOccupancyRateOfHousing
+  getManagedHousings,
+  getAllTenants,
+  getStudentBalance,
+  getAllBillings
 }

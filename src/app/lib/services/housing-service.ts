@@ -90,8 +90,22 @@ const deactivateHousing = async (
   }
 };
 
+const getHousingCount = async (): Promise<number | null> => {
+  try {
+    const housingCount = await housingData.countAllHousing();
+    if (!housingCount) return null;
+
+    return housingCount;
+
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Error");
+  }
+}
+
+
 // fetching all housing with all rooms linked to respective housing 
-const getAllHousingWithRooms = async (): Promise< HousingWithRooms[] | null> => {
+const getAllHousingWithRooms = async (): Promise<HousingWithRooms[] | null> => {
   try {
     const housings = await housingData.findAllWithRooms()
     if (!housings) return null
@@ -114,11 +128,12 @@ const getHousingWithRooms = async (housingId: number): Promise<HousingWithRooms 
 }
 
 export const housingService = {
-	addHousing,
-	getHousing,
-	getAllHousing,
-	getAllHousingWithRooms,
-	getHousingWithRooms,
-	updateHousing,
-	deactivateHousing,
+  addHousing,
+  getHousing,
+  getAllHousing,
+  getHousingCount,
+  getAllHousingWithRooms,
+  getHousingWithRooms,
+  updateHousing,
+  deactivateHousing,
 };
