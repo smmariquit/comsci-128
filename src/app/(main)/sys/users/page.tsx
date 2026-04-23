@@ -327,7 +327,7 @@ export default function UserManagementPage({
 			</div>
 			{editingUser && (
 				<EditUserModal
-					user={editingUser}   // paayos netooo
+					user={editingUser}  // paayos netoo
 					dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
 					onClose={() => setEditingUser(null)}
 					onSave={(id, role, dorm) => {

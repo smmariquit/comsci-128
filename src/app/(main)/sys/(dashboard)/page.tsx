@@ -93,13 +93,13 @@ function formatTimeAgo(timestamp: string): string {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     
-    return date.toLocaleDateString(); // ✅ Ensure fallback
+    return date.toLocaleDateString(); // Ensure fallback
 }
 // Quick Access Button Icons
 const quickAccess = [
 	{ label: 'Add Manager',     icon: UserPlus,     href: null },
 	{ label: 'Add Dormitory',   icon: PlusSquare,   href: null },
-	{ label: 'Edit User',       icon: Pencil,       href: '/sys/users'},
+	{ label: 'Edit User', icon: Pencil, href: '/sys/users?focus=search' }
 ];
 
 // Hardcoded stub data for now - to be replaced with real data from backend/API integration
@@ -137,7 +137,7 @@ export default function DashboardPage({
 			{ label: 'TOTAL MANAGERS',   value: 0, sub: '↑ 79 added this month', dark: false },
 			{ label: 'TOTAL PROPERTIES', value: 0, sub: 'Dormitories managed',    dark: false },
 		]);
-		const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]); // ✅ Correct type
+		const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 
 		// Fetch recent activities and counts from API
 		useEffect(() => {
@@ -220,7 +220,6 @@ export default function DashboardPage({
 						open={showAddManager}
 						onClose={() => setShowAddManager(false)}
 						onAdd={(newUser) => {
-							// no local table here, so just close — or call your API
 							setShowAddManager(false);
 						}}
 						dormOptions={['Dorm 1', 'Dorm 2', 'Dorm 3']}
