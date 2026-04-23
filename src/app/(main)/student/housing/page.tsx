@@ -8,6 +8,7 @@ export default function Page() {
 	const [dorms, setDorms] = useState([]);
 	const [searchId, setSearchId] = useState("");
 	const [singleDorm, setSingleDorm] = useState<any>(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const [formData, setFormData] = useState({
 		housing_name: "",
@@ -24,6 +25,7 @@ export default function Page() {
 
 	// --- Get All Housing ---
 	const fetchDorms = async () => {
+		setIsLoading(true);
 		try {
 			const res = await fetch("/api/housing", { headers: authHeader });
 
@@ -41,6 +43,8 @@ export default function Page() {
 			}
 		} catch (err) {
 			console.error("Connection failed:", err);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -365,31 +369,49 @@ export default function Page() {
 							</tr>
 						</thead>
 						<tbody>
-							{dorms.map((dorm: any) => (
-								<tr
-									key={dorm.housing_id}
-									style={{
-										borderBottom:
-											"1px solid rgba(255,255,255,0.1)",
-									}}
-								>
-									<td style={{ padding: "10px" }}>
-										{dorm.housing_id}
-									</td>
-									<td style={{ padding: "10px" }}>
-										{dorm.housing_name}
-									</td>
-									<td style={{ padding: "10px" }}>
-										{dorm.housing_address}
-									</td>
-									<td style={{ padding: "10px" }}>
-										{dorm.housing_type}
-									</td>
-									<td style={{ padding: "10px" }}>
-										₱{dorm.rent_price}
+							{isLoading ? (
+								[1, 2, 3].map((i) => (
+									<tr key={`skeleton-${i}`} style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", animation: "pulse 1.5s infinite" }}>
+										<td style={{ padding: "10px" }}><div style={{ height: "20px", background: "rgba(255,255,255,0.1)", borderRadius: "4px" }}></div></td>
+										<td style={{ padding: "10px" }}><div style={{ height: "20px", background: "rgba(255,255,255,0.1)", borderRadius: "4px" }}></div></td>
+										<td style={{ padding: "10px" }}><div style={{ height: "20px", background: "rgba(255,255,255,0.1)", borderRadius: "4px" }}></div></td>
+										<td style={{ padding: "10px" }}><div style={{ height: "20px", background: "rgba(255,255,255,0.1)", borderRadius: "4px" }}></div></td>
+										<td style={{ padding: "10px" }}><div style={{ height: "20px", background: "rgba(255,255,255,0.1)", borderRadius: "4px" }}></div></td>
+									</tr>
+								))
+							) : dorms.length === 0 ? (
+								<tr>
+									<td colSpan={5} style={{ padding: "20px", textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+										No dorms found.
 									</td>
 								</tr>
-							))}
+							) : (
+								dorms.map((dorm: any) => (
+									<tr
+										key={dorm.housing_id}
+										style={{
+											borderBottom:
+												"1px solid rgba(255,255,255,0.1)",
+										}}
+									>
+										<td style={{ padding: "10px" }}>
+											{dorm.housing_id}
+										</td>
+										<td style={{ padding: "10px" }}>
+											{dorm.housing_name}
+										</td>
+										<td style={{ padding: "10px" }}>
+											{dorm.housing_address}
+										</td>
+										<td style={{ padding: "10px" }}>
+											{dorm.housing_type}
+										</td>
+										<td style={{ padding: "10px" }}>
+											₱{dorm.rent_price}
+										</td>
+									</tr>
+								))
+							)}
 						</tbody>
 					</table>
 				</section>
