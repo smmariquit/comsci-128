@@ -14,7 +14,7 @@ import { housingData } from "@/app/lib/data/housing-data";
 
 export default function Page() {
 
-  const mockLandlordId = 174;
+  const mockLandlordId = 179;
 
     const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
