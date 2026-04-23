@@ -147,15 +147,16 @@ async function getHousingCardsData() {
             : 0;
 
         return {
-            housingId: housing.housing_id.toString(),
-            name: housing.housing_name,
-            address: housing.housing_address,
-            totalRooms,
-            occupiedRooms,
-            vacantRooms,
-            occupancyRate,
-            minRent: housing.rent_price,
-        };
+    housingId: housing.housing_id.toString(),
+    name: housing.housing_name,
+    address: housing.housing_address,
+    totalRooms,
+    occupiedRooms,
+    vacantRooms,
+    occupancyRate,
+    minRent: housing.rent_price,
+    imageUrl: housing.housing_image ?? undefined,  // ← add this
+};
     });
 }
 
