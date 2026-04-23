@@ -33,7 +33,7 @@ export async function getHousingAdmingDashboardData(managedHousingIds: number[]=
         }
     });
 
-    const totalPendingApplication = allApps.filter(a => a.application_status === "Pending").length;
+    const totalPendingApplication = allApps.filter(a => a.application_status === "Pending Manager Approval" || a.application_status === "Pending Admin Approval").length;
     const totalCapacity = filteredRooms.reduce((sum, r) => sum + (r.maximum_occupants || 0), 0);
     const totalOccupied = filteredRooms.filter(r => r.occupancy_status !== "Empty").length;
 
