@@ -129,7 +129,7 @@ export default function BillingPage() {
     if (!isLoading) setIsLoading(true);
 
     try {
-      const data = await billingService.fetchAllBills();
+      const data = await billingService.fetchAllBills(managedHousingIds);
       setBills(data);
     } catch (error) {
       console.error("Refresh Load Error: ", error);

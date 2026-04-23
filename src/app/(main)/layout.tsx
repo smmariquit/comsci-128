@@ -1,4 +1,8 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Main",
+};
 
 export default function MainLayout({
   children,
