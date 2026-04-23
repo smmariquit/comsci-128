@@ -634,16 +634,7 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
             </div>
             <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>Bill Details</div>
           </div>
-          <button onClick={onClose} aria-label="Close modal" style={{
-            background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8,
-            width: 30, height: 30, cursor: "pointer",
-            display: "flex", alignItems: "cent}
-}
-
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6"  y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
+          <CloseBtn onClose={onClose} light />
         </div>
 
         {/* Status strip */}
