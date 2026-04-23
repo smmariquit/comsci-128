@@ -14,9 +14,9 @@ export type ManagerPaymentDetails = Tables<"manager_payment_details">;
 export type NewManagerPaymentDetails = TablesUpdate<"manager_payment_details">;
 
 export type ManagerProfile = Omit<User, "password" | "is_deleted"> & {
-	manager: (Manager & {
+	manager: Manager & {
 		manager_payment_details: ManagerPaymentDetails[];
-	})[];
+	};
 };
 
 export type NewManagerProfile = Omit<NewUser, "password" | "is_deleted"> & {
