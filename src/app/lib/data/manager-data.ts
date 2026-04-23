@@ -584,6 +584,7 @@ export const managerData = {
 	getAll,
 	findById,
 	update,
+	findManagerProfileById,
 	deactivate,
 	createBankDetails,
 	countAllManager,

@@ -447,6 +447,8 @@ const getUnpaidBills = async (accountNumber: number) => {
 export const studentData = {
 	create,
 	createAcademic,
+	findStudentProfileById,
+	updateStudent,
 	getStudentAcademicById,
 	updateAcademicDetails,
 	createAccommodationHistory,
