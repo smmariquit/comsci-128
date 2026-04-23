@@ -1,20 +1,22 @@
 import { roomData } from "./room-data";
 import { applicationData } from "./application-data";
 import { housingData } from "./housing-data";
+import { accommodationHistoryData } from "./accommodation-history-data";
 
 export async function getHousingAdmingDashboardData(landlordId: number) {
     const managedHousings = await housingData.findbyLandlord(landlordId);
 
     const managedHousingIds = managedHousings.map(h => h.housing_id);
     
-    const [allRooms, allApps] = await Promise.all([
+    const [allRooms, allApps, allTenants] = await Promise.all([
         roomData.findAllRoomDetailed(),
         applicationData.getApplicationsWithStudentDetails(),
+        accommodationHistoryData.getCurrentTenantsByHousingAdmin(managedHousingIds),
     ]);
 
     const filteredRooms = allRooms.filter(r => managedHousingIds.includes(r.housing_id));
     const filteredApps = allApps.filter(app => app.landlord_account_number === landlordId)
-    
+
     const formattedApps = filteredApps.map((app: any) => {
         const studentObj = Array.isArray(app.student) ? app.student[0] : app.student;
         const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
@@ -63,8 +65,10 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
     const totalAssigned = totalAcceptedApplication;
     const totalUnassigned = totalPendingApplication;
 
+    const totalCurrentTenants = allTenants.length;
+
     return {
-        totalStudents: totalAssigned + totalUnassigned,
+        totalStudents: totalCurrentTenants,
         housingStatusCounts: {
             assigned: totalAssigned,
             unassigned: totalUnassigned,
