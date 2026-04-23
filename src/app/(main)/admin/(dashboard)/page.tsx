@@ -53,10 +53,10 @@ const activeUserData = [
 const totalActiveUsers = activeUserData.reduce((sum, row) => sum + row.count, 0);
 
 export default async function Page() {
-  const managedHousingIds = [3, 12, 13, 14, 16, 18];
-  const landlordIds = [179]
+  // sample landlord id for testing
+  const landlordIds = 179
 
-  const liveData = await getHousingAdmingDashboardData(managedHousingIds, landlordIds);
+  const liveData = await getHousingAdmingDashboardData(landlordIds);
   // <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
   console.log(liveData.occupancyData);
   const housingStatusData = [
