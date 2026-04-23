@@ -116,6 +116,24 @@ const getTotalBalance = async (account_number: number) => {
 	return total ?? 0;
 };
 
+const getBillsOfLandlord = async (managedHousingIds: number[] = []) => {
+	return await supabase
+		.from("bill")
+		.select(`
+            *,
+            student (
+                user ( first_name, last_name ),
+                student_accommodation_history (
+					room (
+						housing ( housing_id, housing_name )
+					)
+				)
+            )
+        `)
+		.eq("is_deleted", false)
+		.in("student.student_accommodation_history.room.housing_id", managedHousingIds);
+};
+
 export const billData = {
 	create,
 	getAll,
@@ -127,5 +145,6 @@ export const billData = {
 	getBillsOfStudent,
 	getBillsByStatus,
 	getOverdueBills,
-	getTotalBalance
+	getTotalBalance,
+	getBillsOfLandlord,
 };
