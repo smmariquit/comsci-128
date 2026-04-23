@@ -1,11 +1,24 @@
 import { housingData } from "@/app/lib/data/housing-data";
 import { Housing, HousingWithRooms } from "@/models/housing";
+import { auditLogService, randomIpAddress } from "./audit-log-service";
 
 const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
   try {
     const housingDetail = await housingData.create(HousingDetail);
 
     if (!housingDetail) return null;
+
+    // Insert audit log
+    const description = `New Entity House ${HousingDetail.housing_name} created`;
+          await auditLogService.createAuditLog({
+          action_type: "Create Housing", 
+          audit_description: description,
+          user_name: null,
+          partial_ip: randomIpAddress(),
+          account_number: null,
+          assigned_manager: null,
+          timestamp: new Date().toISOString()
+    });
 
     return housingDetail;
   } catch (error) {

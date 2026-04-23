@@ -114,7 +114,7 @@ const assignRoom = async (roomId: number, studentId: string) => {
     // Insert audit log
     const description = `${user.first_name} ${user.last_name} assigned to ${room?.room_code} ${housing?.housing_name}`;
           await auditLogService.createAuditLog({
-          action_type: "Update User Details", 
+          action_type: "Assign Room", 
           audit_description: description,
           user_name: `${user.first_name} ${user.last_name}`,
           partial_ip: randomIpAddress(),
