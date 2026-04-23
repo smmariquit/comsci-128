@@ -26,7 +26,7 @@ async function findAll(): Promise<User[]> {
 
   if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
-	return data ?? [];
+  return data ?? [];
 }
 
 async function findById(userId: number): Promise<User | null> {
@@ -64,7 +64,7 @@ async function update(
     .from("user")
     .update(userDetails)
     .eq("account_number", Number(userId))
-    .select();
+    .select("*");
 
   if (error) throw new Error(`Update User Error: ${error.message}`);
 
