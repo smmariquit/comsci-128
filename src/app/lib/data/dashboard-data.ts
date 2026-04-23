@@ -29,7 +29,7 @@ export async function getHousingAdmingDashboardData() {
         ? Math.round((totalOccupied / totalCapacity) * 100)
         : 0;
 
-    const occupancyData = ["Single", "Double", "Shared"].map(type => {
+    const occupancyData = ["Co-ed", "Women Only", "Men Only"].map(type => {
         const roomsType = allRooms.filter(r => r.room_type === type);
 
         return {
