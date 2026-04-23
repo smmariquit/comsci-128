@@ -14,7 +14,7 @@ import { housingData } from "@/app/lib/data/housing-data";
 
 export default function Page() {
 
-  const mockLandlordId = 179;
+  const mockLandlordId = 174;
 
     const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -108,9 +108,9 @@ export default function Page() {
   };
 
   const handleFormSubmit = async (form: RoomForm) => {
-    if (showAddModal) {
-      // ── Add mode ──
-      try {
+    try {
+      if (showAddModal) {
+        // ── Add mode ──
         setIsLoading(true);
 
         const dbStatus = form.occupancy_status;
@@ -126,40 +126,26 @@ export default function Page() {
           maximum_occupants: Number(form.maximum_occupants),
           occupancy_status: dbStatus as any,
         });
+      } else if (selectedRoom) {
+        // ── Edit mode ──
+        setIsLoading(true);
 
-        const updatedRooms = await roomData.findAllRoomDetailed();
-        setRooms(updatedRooms);
+        const dbStatus = form.occupancy_status;
 
-        setShowAddModal(false);
-      } catch (err) {
-        console.error("Failed to add room: ", err);
-      } finally {
-        setIsLoading(false);
+        await roomData.update(selectedRoom.room_id, {
+          room_type: form.room_type as any,
+          maximum_occupants: Number(form.maximum_occupants),
+          occupancy_status: dbStatus as any,
+        });
       }
-      return;
-    }
 
-    // ── Edit mode ──
-    if (!selectedRoom) return;
+      await refreshRooms();
 
-    try {
-      setIsLoading(true);
-
-      const dbStatus = form.occupancy_status;
-
-      await roomData.update(selectedRoom.room_id, {
-        room_type: form.room_type as any,
-        maximum_occupants: Number(form.maximum_occupants),
-        occupancy_status: dbStatus as any,
-      });
-
-      const updatedRooms = await roomData.findAllRoomDetailed();
-      setRooms(updatedRooms);
-
+      setShowAddModal(false);
       setShowFormModal(false);
       setSelectedRoom(null);
     } catch (err) {
-      console.error("Failed to update room: ", err);
+      console.error("Form error: ", err);
     } finally {
       setIsLoading(false);
     }
@@ -172,8 +158,7 @@ export default function Page() {
       setIsLoading(true);
       await roomService.assignRoom(selectedRoom.room_id, studentId);
 
-      const liveRooms = await roomData.findAllRoomDetailed();
-      setRooms(liveRooms);
+      await refreshRooms();
 
       setShowAssignModal(false);
       setSelectedRoom(null);
@@ -191,11 +176,13 @@ export default function Page() {
       setIsLoading(true);
       await roomService.unassignRoom(selectedRoom.room_id, studentId);
 
-      const liveRooms = await roomData.findAllRoomDetailed();
-      setRooms(liveRooms);
+      await refreshRooms();
 
-      const updateSelected = liveRooms.find(r => r.room_id === selectedRoom.room_id);
-      setSelectedRoom(updateSelected || null);
+      setRooms((prev) => {
+        const updated = prev.find(r => r.room_id === selectedRoom.room_id);
+        if (updated) setSelectedRoom(updated);
+        return prev;
+      });
     } catch (err) {
       console.error("Failed to unassign: ", err);
     } finally {
