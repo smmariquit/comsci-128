@@ -99,8 +99,12 @@ async function deactivate(roomId: number): Promise<Room | null> {
 }
 
 // Find Room for Housing Admin View
-async function findAllRoomDetailed (): Promise<RoomRow[]>{
-	const { data, error } = await supabase
+async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<RoomRow[]> {
+	if (managedHousingIds.length === 0) {
+		return [];
+	}
+	
+	let query = supabase
 		.from("room")
 		.select(`
 			*,
@@ -118,6 +122,11 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 		`)
 		.eq("is_deleted", false);
 	
+	if (managedHousingIds && managedHousingIds.length > 0) {
+		query = query.in("housing_id", managedHousingIds);
+	}
+
+	const { data, error } = await query
 	if (error) throw new Error(error.message);
 
 	return (data || []).map((room) => {
@@ -125,9 +134,11 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 		const max = room.maximum_occupants;
 
 		let derivedStatus: OccupancyStatus = "Empty";
-		if (occupantCount > 0 && occupantCount < max) {
-			derivedStatus = "Partially Occupied";
-		}
+		if (occupantCount >= max) {
+            derivedStatus = "Fully Occupied";
+        } else if (occupantCount > 0) {
+            derivedStatus = "Partially Occupied";
+        }
 
 		return {
 			room_id: room.room_id,
@@ -136,7 +147,7 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 			housing_id: room.housing_id,
 			room_type: room.room_type,
 			maximum_occupants: room.maximum_occupants,
-			current_occupants: room.occupants_count,
+			current_occupants: occupantCount,
 			occupancy_status: derivedStatus,
 			assigned_tenants: (room.tenants || []).map((t: any) => {
 				const s = t.student;
