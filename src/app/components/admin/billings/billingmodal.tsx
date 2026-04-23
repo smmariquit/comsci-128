@@ -184,6 +184,7 @@ export default function IssueBillModal({
 }: IssueBillModalProps) {
 
   const today = new Date().toISOString().split("T")[0];
+  const mockLandlordId = 179;
 
   // ── Form state (IDs) ──────────────────────────────────────────────────────────
   const [selectedHousingId, setSelectedHousingId] = useState<number | "">("");
@@ -204,31 +205,37 @@ export default function IssueBillModal({
   // Reset when modal opens
   useEffect(() => {
     if (open) {
-      housingData.findAll().then(setHousingOptions); // Use managedIds to filter if needed
+      housingData.findbyLandlord(mockLandlordId).then(setHousingOptions); // Use managedIds to filter if needed
       // Reset all
       setSelectedHousingId(""); setSelectedRoomId(""); setSelectedStudentId("");
     }
   }, [open]);
 
+  // Fetch rooms
   useEffect(() => {
     if (selectedHousingId) {
-      // We assume findWithRooms returns an object with a room array
       housingData.findWithRooms(Number(selectedHousingId)).then(data => {
         setRoomOptions(data.room || []);
       });
     } else {
       setRoomOptions([]);
     }
-    setSelectedRoomId(""); // Clear downstream
+
+    setSelectedRoomId("");
+    setSelectedStudentId("");
+    setStudentOptions([]);
   }, [selectedHousingId]);
 
+  // Fetch students
   useEffect(() => {
     if (selectedRoomId) {
-      housingData.getStudentsByRoom(Number(selectedRoomId)).then(setStudentOptions);
+      housingData.getStudentsByRoom(Number(selectedRoomId))
+        .then(t => {
+          setStudentOptions(t);
+        });
     } else {
       setStudentOptions([]);
     }
-    setSelectedStudentId(""); // Clear downstream
   }, [selectedRoomId]);
 
   if (!open) return null;
