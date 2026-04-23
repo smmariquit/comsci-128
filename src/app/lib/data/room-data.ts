@@ -133,6 +133,7 @@ async function findAllRoomDetailed (): Promise<RoomRow[]>{
 			room_id: room.room_id,
 			room_code: room.room_code,
 			housing_name: room.housing?.housing_name || "Unassigned",
+			housing_id: room.housing_id,
 			room_type: room.room_type,
 			maximum_occupants: room.maximum_occupants,
 			current_occupants: room.occupants_count,
