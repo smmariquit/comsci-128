@@ -1,7 +1,9 @@
+
 "use client";
 
 import { C } from "@/lib/palette";
 import type { PaymentStatus, BillType } from "./billingtable";
+import { Search } from "lucide-react";
 
 export type StatusFilter   = "All" | PaymentStatus;
 export type BillTypeFilter = "All" | BillType;
@@ -68,13 +70,11 @@ export default function BillFilters({
 
         {/* Search */}
         <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
-          <svg
+          <Search
             style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
-            width="14" height="14" viewBox="0 0 24 24" fill="none"
-            stroke={C.teal} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+            size={14}
+            color={C.teal}
+          />
           <input
             type="text"
             placeholder="Search student name..."

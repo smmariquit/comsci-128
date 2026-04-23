@@ -1,7 +1,9 @@
+
 "use client";
 
 import { C } from "@/lib/palette";
 import type { ReportType } from "@/app/components/admin/reports/reports_wrapper";
+import { Search } from "lucide-react";
 
 interface Props {
   reportType:     ReportType;
@@ -104,11 +106,11 @@ export default function ReportFilters({
       <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
         {/* Search */}
         <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
-          <svg style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }}
-            width="14" height="14" viewBox="0 0 24 24" fill="none"
-            stroke={C.teal} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+          <Search 
+            style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }}
+            size={14}
+            color={C.teal}
+          />
           <input
             type="text"
             placeholder={SEARCH_PLACEHOLDER[reportType]}
@@ -169,6 +171,3 @@ export default function ReportFilters({
           )}
         </div>
       )}
-    </div>
-  );
-}

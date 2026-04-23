@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { C } from "@/lib/palette";
 import type { RoomRow, RoomType, OccupancyStatus } from "./roomtable";
+import { X } from "lucide-react";
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
 
@@ -68,10 +69,7 @@ function ModalShell({
           }}
         >
           {/* ✅ aria-hidden hides decorative SVG from screen readers */}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          <X size={14} color={C.teal} strokeWidth={2.5} aria-hidden="true" />
         </button>
       </div>
       <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
@@ -166,10 +164,7 @@ export function ViewRoomModal({ room, onClose }: { room: RoomRow; onClose: () =>
               display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.cream} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <X size={14} color={C.cream} strokeWidth={2.5} aria-hidden="true" />
           </button>
         </div>
 
