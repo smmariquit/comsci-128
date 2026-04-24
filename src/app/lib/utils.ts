@@ -7,3 +7,7 @@ export function setCookie (name: string, value: string, days: number): void {
     }
     document.cookie = name + "=" + value + expires + "; path=/";
 }
+
+export function deleteCookie (name: string): void {
+    setCookie(name, "", -1);
+}
