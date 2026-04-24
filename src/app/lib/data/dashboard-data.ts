@@ -9,7 +9,7 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
     const managedHousingIds = managedHousings.map(h => h.housing_id);
     
     const [allRooms, allApps, allTenants] = await Promise.all([
-        roomData.findAllRoomDetailed(),
+        roomData.findAllRoomDetailed(managedHousingIds),
         applicationData.getApplicationsWithStudentDetails(),
         accommodationHistoryData.getCurrentTenantsByHousingAdmin(managedHousingIds),
     ]);
@@ -54,10 +54,7 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
 
         return {
             room_type: type,
-            occupied: roomsType.filter(r => 
-                r.occupancy_status === "Partially Occupied" || 
-                r.occupancy_status === "Fully Occupied"
-            ).length,
+            occupied: roomsType.filter(r => r.occupancy_status !== "Empty").length,
             empty: roomsType.filter(r => r.occupancy_status === "Empty").length,
         }
     });
@@ -65,10 +62,10 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
     const totalAssigned = totalAcceptedApplication;
     const totalUnassigned = totalPendingApplication;
 
-    const totalCurrentTenants = allTenants.length;
+    const totalLiveStudents = filteredRooms.reduce((sum, room) => sum + room.current_occupants, 0);
 
     return {
-        totalStudents: totalCurrentTenants,
+        totalStudents: totalLiveStudents,
         housingStatusCounts: {
             assigned: totalAssigned,
             unassigned: totalUnassigned,
