@@ -165,12 +165,12 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 	});
 }
 
-async function insertAccommodation(roomId: number, studentId: string) {
+async function insertAccommodation(roomId: number, studentId: number) {
 	const { data, error } = await supabase
 		.from("student_accommodation_history")
 		.insert({
 			room_id: roomId,
-			account_number: parseInt(studentId),
+			account_number: studentId,
 			movein_date: new Date().toISOString().split('T')[0],
 			moveout_date: null,
 		})
@@ -192,27 +192,40 @@ async function endAccommodation(roomId: number, studentId: number) {
 	if (error) throw new Error(error.message);
 }
 
-async function findUnassignedStudents() {
+async function findUnassignedStudents(roomType: string) {
+	let targetSex: string | null = null;
+
+	if (roomType === "Men Only") targetSex = "Male";
+	if (roomType === "Women Only") targetSex = "Female";
+
 	const { data, error } = await supabase
 		.from("student")
 		.select(`
             account_number,
-            user:account_number (first_name, last_name),
-            history:student_accommodation_history (moveout_date)
+            user:user!account_number (first_name, last_name, sex), 
+            history:student_accommodation_history!account_number (moveout_date), 
+            applications:application!account_number (application_status)
         `);
 
 	if (error) throw new Error(error.message);
 
-	return (data || [])
-        .filter(item => {
-            const hasActiveRoom = item.history?.some((h: any) => h.moveout_date === null);
-            return !hasActiveRoom;
-        })
-        .map(item => {
+	return (data || []).filter(item => {
+            const userObj = Array.isArray(item.user) ? item.user[0] : item.user;
+
+            const isApproved = item.applications?.some(
+				(app: any) => app.application_status === "Approved"
+			);
+
+            const isCurrentlyUnassigned = !item.history?.some(h => h.moveout_date === null);
+
+            const matchesSex = !targetSex || userObj?.sex === targetSex;
+
+            return isApproved && isCurrentlyUnassigned && matchesSex;
+        }).map(item => {
             const u = Array.isArray(item.user) ? item.user[0] : item.user;
             return {
                 id: item.account_number,
-                name: u ? `${u.first_name} ${u.last_name}`.trim() : `ID: ${item.account_number}`
+                name: u ? `${u.first_name} ${u.last_name} (${u.sex})` : `ID: ${item.account_number}`
             };
         });
 }
