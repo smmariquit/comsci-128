@@ -5,17 +5,18 @@ const create = async (billData: Bill) => {
 	return await supabase.from("bill").insert([billData]).select().single();
 };
 
+// TODO: TO FIX ALL INNER JOINS
 const getAll = async () => {
 	return await supabase
 		.from("bill")
-		.select("*, manager(*), student(*)")
+		.select("*, manager!inner(*), student!inner(*)")
 		.eq("is_deleted", false);
 };
 
 const getById = async (transactionId: number) => {
 	return await supabase
 		.from("bill")
-		.select("*, manager(*), student(*)")
+		.select("*, manager!inner(*), student!inner(*)")
 		.eq("transaction_id", transactionId)
 		.eq("is_deleted", false)
 		.single();
@@ -54,7 +55,7 @@ const remove = async (transactionId: number) => {
 const getBillsOfManager = async (accountNumber: number) => {
 	return await supabase
 		.from("bill")
-		.select("*, student(*)")
+		.select("*, student!inner(*)")
 		.eq("manager_account_number", accountNumber)
 		.eq("is_deleted", false);
 };
@@ -63,7 +64,7 @@ const getBillsOfManager = async (accountNumber: number) => {
 const getBillsOfStudent = async (accountNumber: number) => {
 	return await supabase
 		.from("bill")
-		.select("*, manager(*)")
+		.select("*, manager!inner(*)")
 		.eq("student_account_number", accountNumber)
 		.eq("is_deleted", false);
 };
@@ -72,7 +73,7 @@ const getBillsOfStudent = async (accountNumber: number) => {
 const getBillsByStatus = async (status: string) => {
 	return await supabase
 		.from("bill")
-		.select("*, manager(*), student(*)")
+		.select("*, manager!inner(*), student!inner(*)")
 		.eq("status", status)
 		.eq("is_deleted", false);
 };
@@ -83,7 +84,7 @@ const getOverdueBills = async () => {
 
 	return await supabase
 		.from("bill")
-		.select("*, manager(*), student(*)")
+		.select("*, manager!inner(*), student!inner(*)")
 		.lt("due_date", today)
 		.eq("status", "Pending")
 		.eq("is_deleted", false);
