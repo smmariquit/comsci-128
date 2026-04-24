@@ -47,8 +47,21 @@ export default function LoginPage() {
       if (profile) {
         const userType = profile.user_type?.toLowerCase();
 
+        const { data: manager } = await supabase
+        .from("manager")
+        .select("manager_type")
+        .eq("account_number", profile.account_number)
+        .single();
+      
+        const managerType = manager?.manager_type?.toLowerCase();
+
+        if (userType === "manager") {
+          setCookie("user_role", managerType || "manager", 1);
+        } else {
+          setCookie("user_role", userType, 1);
+        }
+
         setCookie("account_number", String(profile.account_number), 1);
-        setCookie("user_role", userType, 1);
         setCookie("is_logged_in", "true", 1);
 
         let target = "/";

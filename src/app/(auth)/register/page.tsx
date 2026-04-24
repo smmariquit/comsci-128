@@ -4,6 +4,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 
+function setCookie(name: string, value: string, days: number): void {
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + value + expires + "; path=/";
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
@@ -59,6 +69,11 @@ export default function RegisterPage() {
       const profile = data.user;
       if (profile) {
         const userType = profile.user_type?.toLowerCase();
+
+        setCookie("account_number", String(profile.account_number), 1);
+        setCookie("user_role", userType, 1);
+        setCookie("is_logged_in", "true", 1);
+
         let target = "/";
 
         if (userType === "student") {
