@@ -65,29 +65,27 @@ async function getAll() {
 async function getById(accountNumber: number) {
 	const { data, error } = await supabase
 		.from("landlord")
-		.select(
-			`
-      account_number,
-      manager:account_number (
-        manager_type,
-        user:account_number (
-          account_number,
-          account_email,
-          first_name,
-          middle_name,
-          last_name,
-          sex,
-          birthday,
-          home_address,
-          phone_number,
-          contact_email,
-          user_type,
-          is_deleted
-        )
-      )
-    `,
-		)
+		.select(`
+			account_number,
+			manager!inner (
+				manager_type,
+				user!inner (
+					account_number,
+					account_email,
+					first_name,
+					middle_name,
+					last_name,
+					sex,
+					birthday,
+					home_address,
+					phone_number,
+					contact_email,
+					user_type,
+				)
+			)
+		`)
 		.eq("account_number", accountNumber)
+		.eq("is_deleted", false)
 		.single();
 
 	if (error) {
@@ -102,15 +100,12 @@ async function getById(accountNumber: number) {
 export async function getTotalTenantsByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("student_accommodation_history")
-		.select(
-			`
-        account_number,
-        room:room_id!inner(
-          housing:housing_id!inner(manager_account_number)
-        )
-      `,
-			{ count: "exact", head: true },
-		)
+		.select(`
+			account_number,
+			room!inner(
+				housing!inner(manager_account_number)
+			)
+		`, { count: "exact", head: true })
 		.eq("room.housing.manager_account_number", accountNumber);
 
 	if (error) {
@@ -132,14 +127,12 @@ export async function getTotalTenantsByLandlord(accountNumber: number) {
 async function getTotalTenantsManaged(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("student_accommodation_history")
-		.select(
-			`
-        account_number,
-        room:room_id!inner(
-          housing:housing_id!inner(landlord_account_number)
-        )
-      `,
-			{ count: "exact", head: true },
+		.select(`
+			account_number,
+			room!inner(
+				housing!inner(landlord_account_number)
+			)
+      		`, { count: "exact", head: true }
 		)
 		.eq("room.housing.landlord_account_number", accountNumber);
 
@@ -154,14 +147,12 @@ async function getTotalTenantsManaged(accountNumber: number) {
 async function getGrossRevenue(accountNumber: number) {
 	const { data: tenants, error: tenantError } = await supabase
 		.from("student_accommodation_history")
-		.select(
-			`
-        account_number,
-        room:room_id!inner(
-          housing:housing_id!inner(landlord_account_number)
-        )
-      `,
-		)
+		.select(`
+			account_number,
+			room!inner(
+			housing!inner(landlord_account_number)
+			)
+      	`)
 		.eq("room.housing.landlord_account_number", accountNumber);
 
 	if (tenantError) {
