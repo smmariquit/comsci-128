@@ -34,7 +34,7 @@ export function proxy(request: NextRequest) {
 
     // manage
     if (pathname.startsWith('/manage')) {
-        if (!isLoggedIn || (userRole !== "manager")) {
+        if (!isLoggedIn || (userRole !== "landlord")) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
     }
@@ -55,6 +55,7 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/manage/:path*',
     '/student/:path*',
     '/sys/:path*',
     '/login',

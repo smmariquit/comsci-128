@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import { setCookie } from "@/app/lib/utils";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -59,6 +60,17 @@ export default function RegisterPage() {
       const profile = data.user;
       if (profile) {
         const userType = profile.user_type?.toLowerCase();
+
+        setCookie("account_number", String(profile.account_number), 1);
+        setCookie("is_logged_in", "true", 1);
+
+        if (userType === "manager") {
+          const managerType = data.manager_type?.toLowerCase();
+          setCookie("user_role", managerType || "manager", 1);
+        } else {
+          setCookie("user_role", userType, 1);
+        }
+
         let target = "/";
 
         if (userType === "student") {

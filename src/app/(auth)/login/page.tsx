@@ -4,16 +4,7 @@ import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { useRouter } from "next/navigation";
-
-function setCookie(name: string, value: string, days: number): void {
-  let expires = "";
-  if (days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    expires = "; expires=" + date.toUTCString();
-  }
-  document.cookie = name + "=" + value + expires + "; path=/";
-}
+import { setCookie } from "@/app/lib/utils";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -47,8 +38,21 @@ export default function LoginPage() {
       if (profile) {
         const userType = profile.user_type?.toLowerCase();
 
+        const { data: manager } = await supabase
+        .from("manager")
+        .select("manager_type")
+        .eq("account_number", profile.account_number)
+        .single();
+      
+        const managerType = manager?.manager_type?.toLowerCase();
+
+        if (userType === "manager") {
+          setCookie("user_role", managerType || "manager", 1);
+        } else {
+          setCookie("user_role", userType, 1);
+        }
+
         setCookie("account_number", String(profile.account_number), 1);
-        setCookie("user_role", userType, 1);
         setCookie("is_logged_in", "true", 1);
 
         let target = "/";
