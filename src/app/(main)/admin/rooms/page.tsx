@@ -11,6 +11,7 @@ import { roomData } from "@/app/lib/data/room-data";
 import { roomService } from "@/app/lib/services/room-service";
 import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
+import { supabase } from "@/app/lib/supabase";
 
 export default function Page() {
 
@@ -156,6 +157,7 @@ export default function Page() {
 
     try {
       setIsLoading(true);
+
       await roomService.assignRoom(selectedRoom.room_id, studentId);
 
       await refreshRooms();
@@ -323,6 +325,7 @@ export default function Page() {
       {showAssignModal && selectedRoom && (
         <OverrideAssignModal
           room={selectedRoom}
+          onFetchEligibleStudents={() => roomData.findUnassignedStudents(selectedRoom.room_type)}
           onClose={() => {
             setShowAssignModal(false);
             setSelectedRoom(null);

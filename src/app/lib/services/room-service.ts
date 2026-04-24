@@ -92,12 +92,10 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 
 const assignRoom = async (roomId: number, studentId: string) => {
 	try {
-		const account_number = await roomData.getAccountbyStudentNumber(studentId);
+    const account_number = parseInt(studentId);
 
 		await roomData.insertAccommodation(roomId, account_number);
-
 		await roomData.getOccupantCount(roomId, 1);
-
 		await roomData.updateStudentHousingStatus(account_number, 'Assigned');
 
 		return { success: true };
@@ -131,9 +129,9 @@ const unassignRoom = async (roomId: number, studentIdOrAccount: string | number)
 	}
 };
 
-const getEligibleStudents = async () => {
+const getEligibleStudents = async (roomType: string) => {
 	try {
-		const allStudents = await roomData.findUnassignedStudents();
+		const allStudents = await roomData.findUnassignedStudents(roomType);
 
 		const rooms = await roomData.findAllRoomDetailed();
 		const assignedIds = new Set(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { C } from "@/lib/palette";
 import type { RoomRow, RoomType, OccupancyStatus } from "./roomtable";
 
@@ -307,23 +307,33 @@ export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode
 // ── 3. Override Assignment Modal ──────────────────────────────────────────────
 
 export function OverrideAssignModal({
-  room, onClose, onAssign, onUnassign,
+  room, onClose, onAssign, onUnassign, onFetchEligibleStudents,
 }: {
   room:       RoomRow;
   onClose:    () => void;
   onAssign:   (studentId: string) => void;
+  onFetchEligibleStudents: () => Promise<{ id: any; name: string }[]>
   onUnassign: (studentId: string) => void;
 }) {
-  const [name,   setName]   = useState("");
-  const [number, setNumber] = useState("");
-  const isOccupied = room.occupancy_status === "Fully Occupied";
+  const [selectedId, setSelectedId] = useState(""); // Track dropdown selection
+  const [students, setStudents] = useState<{ id: any; name: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  // const [name,   setName]   = useState("");
+  // const [number, setNumber] = useState("");
+  // const isOccupied = room.occupancy_status === "Fully Occupied";
   const isFull = room.current_occupants >= room.maximum_occupants;
   const hasTenants = room.assigned_tenants.length > 0;
+
+  useEffect(() => {
+    onFetchEligibleStudents()
+      .then(setStudents)
+      .finally(() => setLoading(false));
+  }, [onFetchEligibleStudents]);
 
   return (
     <Backdrop onClose={onClose}>
       <ModalShell
-        title="Override Assignment"
+        title="Assign Tenant"
         sub={`${room.room_code} · ${room.housing_name}`}
         onClose={onClose}
         footer={
@@ -331,8 +341,8 @@ export function OverrideAssignModal({
             <CancelBtn onClose={onClose} />
             {!isFull && (
               <PrimaryBtn
-                label="Assign Tenant"
-                onClick={() => { if (number) onAssign(number); }}
+                label={loading ? "Loading..." : "Assign Tenant"}
+                onClick={() => { if (selectedId) onAssign(selectedId); }}
               />
             )}
           </>
@@ -340,73 +350,57 @@ export function OverrideAssignModal({
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           
-          {/* FIX: Use && instead of ?? */}
+          {/* Section: Currently Assigned Tenants (Keep as is) */}
           {hasTenants && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ background: C.cream, borderRadius: 8, padding: "12px 14px" }}>
-                <div style={{
-                  fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace",
-                  marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.8,
-                }}>
-                  Currently Assigned
-                </div>
-                
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {room.assigned_tenants.map((tenant) => (
-                    <div key={tenant.id} style={{ 
-                      display: "flex", justifyContent: "space-between", alignItems: "center",
-                      background: "#fff", padding: "8px 12px", borderRadius: 6, border: `1px solid ${C.dividerLight}`
-                    }}>
-                      <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>
-                        {tenant.name}
-                      </span>
-                      <button 
-                        onClick={() => onUnassign(tenant.id)}
-                        style={{ border: "none", background: "none", color: C.orange, fontSize: 11, cursor: "pointer", fontWeight: 600 }}
-                      >
-                        Remove
-                      </button>
+             <div style={{ background: C.cream, borderRadius: 8, padding: "12px 14px" }}>
+               <div style={{ fontSize: 10.5, color: C.teal, fontFamily: "'DM Mono', monospace", marginBottom: 8, textTransform: "uppercase" }}>
+                 Currently Assigned
+               </div>
+               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                 {room.assigned_tenants.map((t) => (
+                    <div key={t.id} style={{ display: "flex", justifyContent: "space-between", background: "#fff", padding: "8px 12px", borderRadius: 6, border: `1px solid ${C.dividerLight}` }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>{t.name}</span>
+                      <button onClick={() => onUnassign(t.id)} style={{ border: "none", background: "none", color: C.orange, fontSize: 11, cursor: "pointer", fontWeight: 600 }}>Remove</button>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+                 ))}
+               </div>
+             </div>
           )}
 
+          {/* Section: NEW Smart Dropdown */}
           {!isFull ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
-                <label htmlFor="assign-name" style={labelStyle}>Student Name</label>
-                <input
-                  id="assign-name"
-                  style={inputStyle}
-                  placeholder="e.g. Santos, Maria"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
+                <label htmlFor="student-select" style={labelStyle}>Eligible Students</label>
+                <select
+                  id="student-select"
+                  style={selectStyle}
+                  value={selectedId}
+                  onChange={(e) => setSelectedId(e.target.value)}
+                  disabled={loading}
+                >
+                  <option value="">
+                    {loading ? "Fetching eligible students..." : "Select a student..."}
+                  </option>
+                  {students.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+                {students.length === 0 && !loading && (
+                   <p style={{ fontSize: 11, color: C.orange, marginTop: 4 }}>
+                     No unassigned {room.room_type === "Co-ed" ? "" : room.room_type.replace(" Only", "")} students found with approved applications.
+                   </p>
+                )}
               </div>
-              <div>
-                <label htmlFor="assign-number" style={labelStyle}>Student Number</label>
-                <input
-                  id="assign-number"
-                  style={inputStyle}
-                  placeholder="e.g. 2021-00123"
-                  value={number}
-                  onChange={(e) => setNumber(e.target.value)}
-                />
-              </div>
-              <div style={{
-                background: C.cream, borderRadius: 8, padding: "10px 14px",
-                fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace",
-              }}>
-                This will update the student's <strong style={{ color: C.navy }}>housing_status</strong>.
+
+              <div style={{ background: C.cream, borderRadius: 8, padding: "10px 14px", fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace" }}>
+                Only students with <strong style={{ color: C.navy }}>Approved</strong> applications matching the room type are shown.
               </div>
             </div>
           ) : (
-            <div style={{
-              background: "rgba(201,100,42,0.08)", borderRadius: 8, padding: "12px 14px",
-              fontSize: 11, color: C.orange, fontFamily: "'DM Mono', monospace", textAlign: "center"
-            }}>
+            <div style={{ background: "rgba(201,100,42,0.08)", borderRadius: 8, padding: "12px 14px", fontSize: 11, color: C.orange, textAlign: "center" }}>
               Room is full! ({room.current_occupants}/{room.maximum_occupants}) 
             </div>
           )}
@@ -414,6 +408,5 @@ export function OverrideAssignModal({
       </ModalShell>
     </Backdrop>
   );
-  
 }
 
