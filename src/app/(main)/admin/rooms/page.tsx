@@ -11,6 +11,7 @@ import { roomData } from "@/app/lib/data/room-data";
 import { roomService } from "@/app/lib/services/room-service";
 import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
+import { supabase } from "@/app/lib/supabase";
 
 export default function Page() {
 
@@ -156,6 +157,31 @@ export default function Page() {
 
     try {
       setIsLoading(true);
+
+      const accountNumber = await roomData.getAccountbyStudentNumber(studentId);
+    
+      if (!accountNumber) {
+          throw new Error("No student found with that ID number.");
+      }
+
+      const { data: studentUser, error: sexError } = await supabase
+        .from("user")
+        .select("sex")
+        .eq("account_number", accountNumber)
+        .maybeSingle(); 
+
+      if (sexError || !studentUser) throw new Error("Could not verify student sex profile.");
+
+      const studentSex = studentUser.sex;
+      const roomType = selectedRoom.room_type;
+
+      if (roomType === "Men Only" && studentSex !== "Male") {
+        throw new Error(`Validation Error: Student is ${studentSex}, but this room is Men Only.`);
+      }
+      if (roomType === "Women Only" && studentSex !== "Female") {
+        throw new Error(`Validation Error: Student is ${studentSex}, but this room is Women Only.`);
+      }
+
       await roomService.assignRoom(selectedRoom.room_id, studentId);
 
       await refreshRooms();
