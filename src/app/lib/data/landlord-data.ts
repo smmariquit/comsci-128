@@ -97,7 +97,7 @@ async function getById(accountNumber: number) {
 }
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
-export async function getTotalTenantsByLandlord(accountNumber: number) {
+async function getTotalTenantsByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("student_accommodation_history")
 		.select(`
@@ -222,6 +222,7 @@ export const landlordData = {
 	getAll,
 	getById,
 	getPendingAdminApplications,
+	getTotalTenantsByLandlord,
 	getTotalRoomsManaged,
 	getTotalProperties,
 	getTotalTenantsManaged,
