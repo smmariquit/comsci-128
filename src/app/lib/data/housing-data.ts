@@ -38,7 +38,7 @@ async function findWithRooms(id: number): Promise<HousingWithRooms> {
     .select(
       `
 			*,
-			room:room(*)
+			room!inner(*)
 		`,
     )
     .eq("housing_id", id)
@@ -109,7 +109,7 @@ async function findAllWithRooms(): Promise<HousingWithRooms[]> {
     .from("housing")
     .select(`
       *,
-      room:room(*)
+      room!inner(*)
     `)
     .eq("is_deleted", false);
 
@@ -127,7 +127,7 @@ async function getHousingCardsData() {
         .from("housing")
         .select(`
             *,
-            room (*)
+            room!inner(*)
         `)
         .eq("is_deleted", false)
         .order("housing_name", { ascending: true });
@@ -180,6 +180,7 @@ async function uploadHousingImage(housingId: number, file: File): Promise<Housin
 
     return await update(housingId, { housing_image: imageUrl } as Partial<HousingUpdate>);
 }
+
 const getRoomDetails = async (housingId: number, roomId: number) => {
   const { data, error } = await supabase
     .from('room')
@@ -188,11 +189,11 @@ const getRoomDetails = async (housingId: number, roomId: number) => {
       room_type,
       maximum_occupants,
 
-      student_accommodation_history (
+      student_accommodation_history!inner(
         movein_date,
         moveout_date,
 
-        student_academic (
+        student_academic!inner(
           account_number,
           standing,
           status,
@@ -221,13 +222,21 @@ const getOverallUnpaidFees = async (student_account_number: number) => {
     .from('bill')
     .select(`
       *,
-      student:student_account_number(
-        user:account_number(first_name, last_name),
-        student_accommodation_history (
-          room:room_id (room_id, housing:housing_id (housing_name))
+      manager!inner(
+        user!inner(
+          first_name,
+          last_name,
+          student!inner(
+            *,
+            student_accommodation_history!inner(
+              room!inner(
+                room_id,
+                housing!inner(housing_name
+              )
+            )
+          )
         )
-      ),
-      manager:manager_account_number(user:account_number (first_name, last_name))
+      )
     `)
     .eq('student_account_number', student_account_number)
     .in('status', ['Pending', 'Overdue'])
