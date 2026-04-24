@@ -132,7 +132,7 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 	return (data || []).map((room) => {
 		const activeTenants = (room.tenants || []).filter((t: any) => t.moveout_date === null);
 
-		const occupantCount = room.tenants?.length || 0;
+		const occupantCount = activeTenants.length;
 		const max = room.maximum_occupants;
 
 		let derivedStatus: OccupancyStatus = "Empty";
