@@ -19,7 +19,7 @@ export function proxy(request: NextRequest) {
     }
 
     // student
-    if (pathname.startsWith('student')) {
+    if (pathname.startsWith('/student')) {
         if (!isLoggedIn || userRole !== "student") {
             return NextResponse.redirect(new URL('/login', request.url));
         }
@@ -44,7 +44,7 @@ export function proxy(request: NextRequest) {
         if (userRole === "student") target = "/student";
         else if (userRole === "housing administrator" || userRole === "house admin") target = "/admin";
         else if (userRole === "system admin") target = "/sys";
-        else if (userRole === "manager") target = "/manage";
+        else if (userRole === "landlord") target = "/manage";
 
         return NextResponse.redirect(new URL(target, request.url));
     }
