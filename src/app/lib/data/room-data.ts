@@ -130,6 +130,8 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 	if (error) throw new Error(error.message);
 
 	return (data || []).map((room) => {
+		const activeTenants = (room.tenants || []).filter((t: any) => t.moveout_date === null);
+
 		const occupantCount = room.tenants?.length || 0;
 		const max = room.maximum_occupants;
 
@@ -149,7 +151,7 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 			maximum_occupants: room.maximum_occupants,
 			current_occupants: occupantCount,
 			occupancy_status: derivedStatus,
-			assigned_tenants: (room.tenants || []).map((t: any) => {
+			assigned_tenants: activeTenants.map((t: any) => {
 				const s = t.student;
 				const firstName = s?.user?.first_name || "Unknown";
 				const lastName = s?.user?.last_name || `(ID: ${t.account_number})`;
@@ -170,7 +172,7 @@ async function insertAccommodation(roomId: number, studentId: string) {
 			room_id: roomId,
 			account_number: parseInt(studentId),
 			movein_date: new Date().toISOString().split('T')[0],
-			moveout_date: new Date().toISOString().split('T')[0],
+			moveout_date: null,
 		})
 		.select()
 		.single();
@@ -182,9 +184,10 @@ async function insertAccommodation(roomId: number, studentId: string) {
 async function endAccommodation(roomId: number, studentId: number) {
 	const { error } = await supabase
 		.from("student_accommodation_history")
-		.delete()
+		.update({ moveout_date: new Date().toISOString().split('T')[0]})
 		.eq("room_id", roomId)
 		.eq("account_number", studentId)
+		.is("moveout_date", null)
 	
 	if (error) throw new Error(error.message);
 }
@@ -193,23 +196,25 @@ async function findUnassignedStudents() {
 	const { data, error } = await supabase
 		.from("student")
 		.select(`
-			account_number,
-			user:account_number (
-				first_name,
-				last_name
-			)	
-		`);
+            account_number,
+            user:account_number (first_name, last_name),
+            history:student_accommodation_history (moveout_date)
+        `);
 
 	if (error) throw new Error(error.message);
 
-	return (data || []).map(item => {
-		const u = Array.isArray(item.user) ? item.user[0] : item.user;
-
-		return {
-			id: item.account_number,
-			name: u ? `${u.first_name || ""} ${u.last_name || ""}`.trim() : ""
-		};
-	});
+	return (data || [])
+        .filter(item => {
+            const hasActiveRoom = item.history?.some((h: any) => h.moveout_date === null);
+            return !hasActiveRoom;
+        })
+        .map(item => {
+            const u = Array.isArray(item.user) ? item.user[0] : item.user;
+            return {
+                id: item.account_number,
+                name: u ? `${u.first_name} ${u.last_name}`.trim() : `ID: ${item.account_number}`
+            };
+        });
 }
 
 async function getOccupantCount(roomId: number, increment: number) {
