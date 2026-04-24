@@ -4,16 +4,7 @@ import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { useRouter } from "next/navigation";
-
-function setCookie(name: string, value: string, days: number): void {
-  let expires = "";
-  if (days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    expires = "; expires=" + date.toUTCString();
-  }
-  document.cookie = name + "=" + value + expires + "; path=/";
-}
+import { setCookie } from "@/app/lib/utils";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
