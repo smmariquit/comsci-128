@@ -62,10 +62,10 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
     const totalAssigned = totalAcceptedApplication;
     const totalUnassigned = totalPendingApplication;
 
-    const totalCurrentTenants = allTenants.length;
+    const totalLiveStudents = filteredRooms.reduce((sum, room) => sum + room.current_occupants, 0);
 
     return {
-        totalStudents: totalCurrentTenants,
+        totalStudents: totalLiveStudents,
         housingStatusCounts: {
             assigned: totalAssigned,
             unassigned: totalUnassigned,
