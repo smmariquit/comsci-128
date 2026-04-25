@@ -38,6 +38,10 @@ export default function LoginPage() {
       if (profile) {
         const userType = profile.user_type?.toLowerCase();
 
+        await supabase.auth.updateUser({
+          data: { account_number: profile.account_number }
+        });
+
         const { data: manager } = await supabase
         .from("manager")
         .select("manager_type")
