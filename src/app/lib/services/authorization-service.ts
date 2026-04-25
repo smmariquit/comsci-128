@@ -40,6 +40,22 @@ export async function validateAction(action: AppAction) {
     return { role, userId: (await supabase.auth.getUser()).data.user?.id };
 }
 
+export async function validateOwnership(landlordId: number | string) {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) throw new Error ("Authentication Required!");
+
+    const { data: user } = await supabase
+        .from("user")
+        .select("account_number")
+        .eq("id", session.user.id)
+        .single();
+    
+    if (Number(user?.account_number) !== Number(landlordId)) {
+        throw new Error("Access Denied: You do not own this!");
+    }
+}
+
 async function getCurrentUserRole(): Promise<UserRole> {
     const { data: { session } } = await supabase.auth.getSession();
 
