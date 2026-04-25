@@ -16,6 +16,21 @@ async function getPermissions(): Promise<Permission[]> {
     }
 
     permissionsCache = data;
-    return data;
-        
+    return data; 
+}
+
+export async function checkPermission (
+    action: AppAction,
+    role: UserRole,
+): Promise<boolean> {
+    const allPermissions = await getPermissions();
+
+    const permissionRow = allPermissions.find((p) => p.action === action);
+
+    if (!permissionRow) {
+        console.warn(`Authorization: Permission Row Not Found "${action}"`);
+        return false;
+    }
+
+    return !!permissionRow[role];
 }
