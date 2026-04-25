@@ -61,6 +61,10 @@ export default function RegisterPage() {
       if (profile) {
         const userType = profile.user_type?.toLowerCase();
 
+        await supabase.auth.updateUser({
+          data: { account_number: profile.account_number }
+        });
+
         setCookie("account_number", String(profile.account_number), 1);
         setCookie("is_logged_in", "true", 1);
 
