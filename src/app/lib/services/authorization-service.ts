@@ -1,6 +1,7 @@
 import { supabase } from "@/app/lib/supabase";
 import { AppAction, Permission, UserRole } from "@/models/permissions";
 
+// memory caching to prevent multiple db calls
 let permissionsCache: Permission[] | null = null;
 
 async function getPermissions(): Promise<Permission[]> {
@@ -19,6 +20,7 @@ async function getPermissions(): Promise<Permission[]> {
     return data; 
 }
 
+// checks if role is allowed to perform the action
 export async function checkPermission (
     action: AppAction,
     role: UserRole,
@@ -35,6 +37,7 @@ export async function checkPermission (
     return !!permissionRow[role];
 }
 
+// error throwing for unauthorized actions
 export async function validateAction(action: AppAction, role: UserRole) {
     const allowed = await checkPermission(action, role);
 
