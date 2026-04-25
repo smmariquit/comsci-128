@@ -20,30 +20,24 @@ async function getPermissions(): Promise<Permission[]> {
     return data; 
 }
 
-// checks if role is allowed to perform the action
-export async function checkPermission (
-    action: AppAction,
-    role: UserRole,
-): Promise<boolean> {
-    const allPermissions = await getPermissions();
+// error throwing for unauthorized actions
+export async function validateAction(action: AppAction) {
+    const role = await getCurrentUserRole();
 
+    const allPermissions = await getPermissions();
     const permissionRow = allPermissions.find((p) => p.action === action);
 
     if (!permissionRow) {
-        console.warn(`Authorization: Permission Row Not Found "${action}"`);
-        return false;
+        throw new Error (`Authorization: Permission Row Not Found "${action}"`);
     }
 
-    return !!permissionRow[role];
-}
-
-// error throwing for unauthorized actions
-export async function validateAction(action: AppAction, role: UserRole) {
-    const allowed = await checkPermission(action, role);
+    const allowed = !!permissionRow[role];
 
     if (!allowed) {
         throw new Error (`Unauthorized: Role "${role} does not have permission to perform "${action}}".`);
     }
+
+    return { role, userId: (await supabase.auth.getUser()).data.user?.id };
 }
 
 async function getCurrentUserRole(): Promise<UserRole> {
