@@ -106,7 +106,7 @@ function ActionBtn({ label, onClick, variant = "ghost", disabled, isLoading }: {
 
 function SearchInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <div style={{ position: "relative", maxWidth: 260 }}>
+    <div style={{ position: "relative", flex: "1 1 220px", minWidth: 180, maxWidth: 360 }}>
       <Search
         size={14}
         color={C.teal}
@@ -120,7 +120,8 @@ function SearchInput({ value, onChange }: { value: string; onChange: (v: string)
         onChange={e => onChange(e.target.value)}
         style={{
           width: "100%",
-          padding: "6px 12px 6px 32px",
+          height: 36,
+          padding: "8px 12px 8px 32px",
           border: `1px solid ${C.cream}`,
           borderRadius: 8, fontSize: 12,
           color: C.navy, outline: "none",
@@ -521,42 +522,53 @@ export default function ApplicationTable_Wrapper({
   return (
     <>
       <div style={{
-        background: "#fff", borderRadius: 12,
-        outline: `1px solid ${C.cream}`,
-        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
         fontFamily: "'DM Sans', sans-serif",
       }}>
 
-        {/* Header */}
-        <div style={{
-          display: "flex", alignItems: "center",
-          justifyContent: "space-between",
-          padding: "12px 18px",
-          borderBottom: `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
-          flexWrap: "wrap", gap: 10,
-        }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Applications</div>
-            <div style={{ fontSize: 11, color: C.teal }}>{filtered.length} shown</div>
-          </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
           <SearchInput value={search} onChange={setSearch} />
         </div>
 
-        {/* Status Filter Pills */}
         <div style={{
-          padding: "10px 18px",
-          borderBottom: `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+          background: "#fff", borderRadius: 12,
+          outline: `1px solid ${C.cream}`,
+          overflow: "hidden",
+          fontFamily: "'DM Sans', sans-serif",
         }}>
-          <StatusFilter value={statusFilter} onChange={setStatusFilter} counts={counts} />
-        </div>
 
-        {/* Table */}
-        <ApplicationTable
-          data={filtered}
-          onView={handleView}
-          onApproveInit={(row) => setModalConfig({ action: "approve", row })}
-          onRejectInit={(row) => setModalConfig({ action: "reject", row })}
-        />
+          {/* Header */}
+          <div style={{
+            display: "flex", alignItems: "center",
+            justifyContent: "space-between",
+            padding: "12px 18px",
+            borderBottom: `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+            flexWrap: "wrap", gap: 10,
+          }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Applications</div>
+              <div style={{ fontSize: 11, color: C.teal }}>{filtered.length} shown</div>
+            </div>
+          </div>
+
+          {/* Status Filter Pills */}
+          <div style={{
+            padding: "10px 18px",
+            borderBottom: `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+          }}>
+            <StatusFilter value={statusFilter} onChange={setStatusFilter} counts={counts} />
+          </div>
+
+          {/* Table */}
+          <ApplicationTable
+            data={filtered}
+            onView={handleView}
+            onApproveInit={(row) => setModalConfig({ action: "approve", row })}
+            onRejectInit={(row) => setModalConfig({ action: "reject", row })}
+          />
+        </div>
       </div>
 
       {/* Confirmation Modal */}
