@@ -272,6 +272,26 @@ async function getOccupancyRate(housingId: number): Promise<number> {
 	return (totalCurrent / totalMaximum) * 100;
 }
 
+async function getStudentsHoused(managerId: number, housingId: number) {
+  // get details of list of students housed per housing
+
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      *,
+      room!inner(*),
+      student_accommodation_history!inner(*),
+      student!inner(*),
+      user!inner(*)
+    `)
+    .eq("housing.housing_id", housingId)
+    .eq("housing.manager_account_number", managerId);
+
+  if (error)
+    throw new Error(`getStudentsHousedPerHousing Error: ${error.message}`);
+  return data;
+}
+
 export const housingData = {
 	create,
 	findAll,
@@ -285,5 +305,6 @@ export const housingData = {
   getRoomDetails,
   getOverallUnpaidFees,
   findAllWithRooms,
-  getOccupancyRate
+  getOccupancyRate,
+  getStudentsHoused
 };
