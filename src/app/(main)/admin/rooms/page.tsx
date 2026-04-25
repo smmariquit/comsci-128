@@ -22,8 +22,10 @@ export default function Page() {
     const [showViewModal, setShowViewModal] = useState(false);
     const [showFormModal, setShowFormModal] = useState(false);
     const [showAssignModal, setShowAssignModal] = useState(false);
-  // ── Raw Data ──────────────────────────────────────────
+
+    // ── Raw Data ──────────────────────────────────────────
     const [rooms, setRooms] = useState<RoomRow[]>([]);
+    const [managedHousings, setManagedHousings] = useState<{housing_id: number, housing_name: string}[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // ── Filter State ──────────────────────────────────────
@@ -36,6 +38,8 @@ export default function Page() {
     const housingOptions = Array.from(
       new Set(rooms.map((r) => r.housing_name))
     );
+
+    const allHousingOptions = managedHousings.map(h => h.housing_name);
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
@@ -114,8 +118,8 @@ export default function Page() {
         // ── Add mode ──
         setIsLoading(true);
 
-        const dbStatus = form.occupancy_status;
-        const housingId = (rooms.find((r) => r.housing_name === form.housing_name) as any)?.housing_id;
+        const selectedHousing = managedHousings.find((h) => h.housing_name === form.housing_name);
+        const housingId = selectedHousing?.housing_id;
 
         if (housingId == null) {
           throw new Error("Unable to resolve housing_id for the selected housing.");
@@ -125,7 +129,7 @@ export default function Page() {
           housing_id: housingId,
           room_type: form.room_type as any,
           maximum_occupants: Number(form.maximum_occupants),
-          occupancy_status: dbStatus as any,
+          occupancy_status: form.occupancy_status as any,
         });
       } else if (selectedRoom) {
         // ── Edit mode ──
@@ -194,8 +198,10 @@ export default function Page() {
 
   const refreshRooms = async () => {
     try {
-      const managedHousings = await housingData.findbyLandlord(mockLandlordId);
-      const managedIds = managedHousings.map(h => h.housing_id);
+      const housings = await housingData.findbyLandlord(mockLandlordId);
+      setManagedHousings(housings);
+
+      const managedIds = housings.map(h => h.housing_id);
       const liveRooms = await roomData.findAllRoomDetailed(managedIds);
       setRooms(liveRooms);
     } catch (err) {
@@ -315,7 +321,7 @@ export default function Page() {
             maximum_occupants: "",
             occupancy_status: undefined,
           }}
-          housingOptions={housingOptions}
+          housingOptions={allHousingOptions}
           onClose={() => setShowAddModal(false)}
           onSubmit={handleFormSubmit}
         />
