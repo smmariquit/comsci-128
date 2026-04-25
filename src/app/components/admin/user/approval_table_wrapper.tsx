@@ -195,8 +195,7 @@ function ApplicationTable({ data, onView, onApproveInit, onRejectInit }: {
   onRejectInit:  (row: ApplicationReportRow) => void;
 }) {
   const isPending = (row: ApplicationReportRow) =>
-    row.application_status === "Pending Admin Approval" ||
-    row.application_status === "Pending Manager Approval";
+    row.application_status === "Pending Admin Approval" 
 
   return (
     <div style={{ overflowX: "auto" }}>
