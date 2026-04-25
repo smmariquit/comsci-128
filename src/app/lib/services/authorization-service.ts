@@ -34,3 +34,11 @@ export async function checkPermission (
 
     return !!permissionRow[role];
 }
+
+export async function validateAction(action: AppAction, role: UserRole) {
+    const allowed = await checkPermission(action, role);
+
+    if (!allowed) {
+        throw new Error (`Unauthorized: Role "${role} does not have permission to perform "${action}}".`);
+    }
+}
