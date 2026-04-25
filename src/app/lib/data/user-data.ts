@@ -110,7 +110,6 @@ async function findStudents(): Promise<any[]> {
 
 
 // get users for housing admin by tracing student accommodation history for students
-// Added pending applications
 // TODO: Also query non-student users under housing admin
 async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any[]> {
     // get student accommodation history of managed housings
@@ -128,27 +127,18 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
         .in("room.housing_id", managedHousingIds);
 
     if (histError) throw new Error("History Error: " + histError.message);
-
-    // get pending applications of managed housing ids
-    const { data: applications, error: appliError } = await supabase
-        .from("application")
-        .select(`
-            student_account_number,
-            application_status,
-            housing_name,
-            room!inner ( 
-                housing_id,
-                housing ( housing_name )
-            )
-        `)
-        .in("room.housing_id", managedHousingIds)
-        .in("application_status", ["Pending Manager Approval", "Pending Admin Approval"]);
-
-    if (appliError && appliError.code !== 'PGRST116') throw new Error("App Error: " + appliError.message);
+    
+    const { data: managers, error:dormManagerError} = await supabase
+          .from("housing")
+          .select(`
+              manager_account_number
+          `)
+          .not('manager_account_number','is',null)
+          .in("housing_id", managedHousingIds);
 
     const userIds = new Set<number>();
     histories?.forEach(h => userIds.add(h.account_number));
-    applications?.forEach(a => a.student_account_number && userIds.add(a.student_account_number));
+    managers?.forEach(m => userIds.add(m.manager_account_number));
 
     // short-circuit for empty housing
     if (userIds.size === 0) return [];
@@ -171,7 +161,6 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
 
     return users.map(user => {
         const userHistories = histories?.filter(h => h.account_number === user.account_number) || [];
-        const userApps = applications?.filter(a => a.student_account_number === user.account_number) || [];
 
         // localize housing status instead of using user's global housing status
         let localHousingStatus = "Not Assigned";
@@ -201,20 +190,6 @@ async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any
                 localHousingStatus = "Not Assigned";
                 is_inactive = true; // Past Tenant (mark as removed)
             }
-        }
-
-        // add users with pending applications
-        if (localHousingStatus !== "Assigned" && userApps.length > 0) {
-            localHousingStatus = "Pending";
-            is_inactive = false;
-
-            // ✅ Fixed: appRoom was referenced but never defined
-            const appRoom = Array.isArray(userApps[0].room)
-                ? userApps[0].room[0]
-                : userApps[0].room;
-
-            currentHousingId = appRoom?.housing_id || null;
-            currentHousingName = userApps[0].housing_name || appRoom?.housing?.[0]?.housing_name || null;
         }
 
         return {
