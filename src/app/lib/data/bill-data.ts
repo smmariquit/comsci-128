@@ -5,7 +5,6 @@ const create = async (billData: Bill) => {
 	return await supabase.from("bill").insert([billData]).select().single();
 };
 
-// TODO: TO FIX ALL INNER JOINS
 const getAll = async () => {
 	return await supabase
 		.from("bill")
@@ -39,8 +38,7 @@ const markAsPaid = async (transactionId: number) => {
 			date_paid: new Date().toISOString(),
 		})
 		.eq("transaction_id", transactionId)
-		.select()
-		.single();
+		.select();
 };
 
 // delete bill
