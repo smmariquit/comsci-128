@@ -101,13 +101,13 @@ export default function LandingPage() {
 
             {/* Front Circle */}
             <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 right-auto w-92 h-92 border rounded-full floatSlow"
+              className="float-slow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 right-auto w-92 h-92 border rounded-full"
               style={{ borderColor: colors.light_blue }}
             />
 
             {/* Back Circle */}
             <div
-              className="absolute top-[60%] left-[25%] -translate-x-1/2 -translate-y-1/2 right-auto w-72 h-72 rounded-full opacity-60 blur-[2px] floatSlowAlt"
+              className="float-slow-alt absolute top-[60%] left-[25%] -translate-x-1/2 -translate-y-1/2 right-auto w-72 h-72 rounded-full opacity-60 blur-[2px] floatSlowAlt"
               style={{ backgroundColor: colors.gold }}
             />
           </div>
