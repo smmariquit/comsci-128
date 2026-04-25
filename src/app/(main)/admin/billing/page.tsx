@@ -22,6 +22,8 @@ function SummaryCard({
   accent: string;
   icon:   React.ReactNode;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div style={{
       background: "#fff",
@@ -32,7 +34,11 @@ function SummaryCard({
       flexDirection: "column",
       gap: 10,
       flex: "1 1 150px",
-    }}>
+      transform: hovered ? "translateY(-2px)" : "translateY(0)",
+      boxShadow: hovered ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
+      transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+      borderColor: hovered ? accent : "#e8e4db",
+    }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       {/* icon + label row */}
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <div style={{
@@ -67,9 +73,13 @@ function SummaryCard({
 // ── Issue Bill button ─────────────────────────────────────────────────────────
 
 function IssueBillButton({ onClick }: { onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -87,6 +97,9 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
         whiteSpace: "nowrap",
         flexShrink: 0,
         width: "fit-content",
+        transform: hovered ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
         
       }}
     >

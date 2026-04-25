@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
@@ -7,11 +8,13 @@ import {
   Building2,
   ChevronRight,
   LayoutDashboard,
+  LogOut,
   ReceiptText,
   ScrollText,
   Users,
 } from "lucide-react";
 import NavItem from "@/app/components/admin/navitem";
+import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 
 // Home icon for logo
 function HomeIcon() {
@@ -40,6 +43,23 @@ export default function Sidebar({
   userRole = "System Admin",
 }: SidebarProps) {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoggingOut(false);
+      window.location.href = "/login";
+    }
+  };
 
   return (
     <aside
@@ -166,6 +186,7 @@ export default function Sidebar({
         }}
       >
         <div
+          onClick={() => setMenuOpen((prev) => !prev)}
           style={{
             width: 286,
             height: 51,
@@ -176,6 +197,8 @@ export default function Sidebar({
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
+            background: menuOpen ? "rgba(237,233,222,0.07)" : "transparent",
+            transition: "background 0.15s ease",
           }}
         >
           {/* Avatar */}
@@ -226,10 +249,133 @@ export default function Sidebar({
 
           {/* Chevron */}
           <div style={{ marginRight: 10 }}>
-            <ChevronRight size={14} color="rgba(237,233,222,0.30)" strokeWidth={1.8} />
+            <ChevronRight
+              size={14}
+              color="rgba(237,233,222,0.30)"
+              strokeWidth={1.8}
+              style={{
+                transform: menuOpen ? "rotate(90deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease",
+              }}
+            />
           </div>
         </div>
+
+        {menuOpen && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "100%",
+              left: 20,
+              right: 10,
+              marginBottom: 8,
+              background: "#243447",
+              borderRadius: 10,
+              overflow: "hidden",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setLogoutModalOpen(true);
+              }}
+              style={{
+                width: "100%",
+                border: "none",
+                background: "transparent",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 14px",
+                color: "#f87171",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
+        )}
       </div>
+
+      {logoutModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(17, 24, 39, 0.45)",
+            backdropFilter: "blur(2px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            padding: 20,
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 360,
+              background: "#ffffff",
+              borderRadius: 12,
+              border: "1px solid rgba(28,38,50,0.10)",
+              boxShadow: "0 16px 40px rgba(17,24,39,0.25)",
+              padding: 20,
+              color: "#1C2632",
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>Confirm Logout</div>
+            <div style={{ fontSize: 13, color: "#567375", lineHeight: 1.5, marginBottom: 16 }}>
+              Are you sure you want to log out of your Housing Admin session?
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <button
+                disabled={isLoggingOut}
+                onClick={() => setLogoutModalOpen(false)}
+                style={{
+                  border: "1px solid rgba(28,38,50,0.15)",
+                  background: "#fff",
+                  color: "#1C2632",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: isLoggingOut ? "not-allowed" : "pointer",
+                  opacity: isLoggingOut ? 0.6 : 1,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                disabled={isLoggingOut}
+                onClick={handleLogout}
+                style={{
+                  border: "none",
+                  background: "#C9642A",
+                  color: "#fff",
+                  borderRadius: 8,
+                  padding: "8px 14px",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: isLoggingOut ? "not-allowed" : "pointer",
+                  opacity: isLoggingOut ? 0.7 : 1,
+                }}
+              >
+                {isLoggingOut ? "Logging out..." : "Logout"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

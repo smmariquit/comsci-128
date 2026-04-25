@@ -17,6 +17,7 @@ import { PlusSquare } from "lucide-react";
 export default function Page() {
 
   const mockLandlordId = 179;
+  const [hoveredAddRoom, setHoveredAddRoom] = useState(false);
 
     const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -249,6 +250,8 @@ export default function Page() {
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <button
           onClick={() => setShowAddModal(true)} 
+          onMouseEnter={() => setHoveredAddRoom(true)}
+          onMouseLeave={() => setHoveredAddRoom(false)}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -266,6 +269,9 @@ export default function Page() {
             whiteSpace: "nowrap",
             flexShrink: 0,
             width: "fit-content",
+            transform: hoveredAddRoom ? "translateY(-1px)" : "translateY(0)",
+            boxShadow: hoveredAddRoom ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
+            transition: "transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease",
           }}
         >
           <PlusSquare size={14} color="#fff" strokeWidth={2.2} aria-hidden="true" />

@@ -1,4 +1,7 @@
+"use client";
+
 import { C } from "@/lib/palette";
+import { useState } from "react";
 
 interface StatCardProps {
   label: string;
@@ -8,6 +11,7 @@ interface StatCardProps {
 }
 
 export default function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
+  const [hovered, setHovered] = useState(false);
   const isPositive = delta === undefined || delta >= 0;
   // Up = amber, down = orange (both from palette)
   const deltaColor = isPositive ? C.amber : C.orange;
@@ -15,6 +19,8 @@ export default function StatCard({ label, value, delta, deltaSub }: StatCardProp
 
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         flex: 1,
         minWidth: 0,
@@ -24,6 +30,10 @@ export default function StatCard({ label, value, delta, deltaSub }: StatCardProp
         outline: `1px solid ${C.cream}`,
         outlineOffset: -1,
         height: 100,
+        transform: hovered ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hovered ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
+        transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+        outlineColor: hovered ? C.amber : C.cream,
       }}
     >
       {/* Label */}
