@@ -1,16 +1,23 @@
 import { NewUser } from "@/models/user";
-import {
-	getAllHousingAdmins,
-	_getGrossRevenueByLandlord,
-	getHousingAdminById,
-	_getTotalPropertiesByLandlord,
-	getTotalRoomsByLandlord,
-	_getTotalTenantsByLandlord,
-} from "@/data/landlord-data";
+import { landlordData } from "@/app/lib/data/landlord-data";
+import { NewManager } from "@/models/manager";
+
+const addLandlord = async (userDetails: NewUser, managerDetails: NewManager) => {
+    try {
+        const result = await landlordData.create(userDetails, managerDetails);
+        if (result?.error) {
+            throw new Error(result.error.message || "Failed to add landlord.");
+        }
+        return result;
+    } catch (error) {
+        console.error("Error adding landlord:", error);
+        throw new Error("Failed to add landlord.");
+    }
+};
 
 const fetchAllHousingAdmins = async () => {
 	try {
-		const result = await getAllHousingAdmins();
+		const result = await landlordData.getAll();
 		if (result.error) {
 			throw new Error(
 				result.error.message || "Failed to fetch housing admins.",
@@ -26,7 +33,7 @@ const fetchAllHousingAdmins = async () => {
 
 const fetchHousingAdminById = async (accountNumber: number) => {
 	try {
-		const result = await getHousingAdminById(accountNumber);
+		const result = await landlordData.getById(accountNumber);
 		if (result.error) {
 			if (result.error.code === "PGRST116") {
 				return null;
@@ -49,15 +56,13 @@ const _fetchTotalRoomsByLandlord = async (accountNumber: number) => {
 		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
 			throw new Error("Invalid landlord account number.");
 		}
-		const result = await getTotalRoomsByLandlord(accountNumber);
+		const result = await landlordData.getTotalRoomsManaged(accountNumber);
 
-		if (result.error) {
-			throw new Error(
-				result.error.message || "Failed to count properties.",
-			);
+		if (!result) {
+			throw new Error("Failed to count properties.");
 		}
 
-		return result.data ?? 0;
+		return result ?? 0;
 	} catch (error: unknown) {
 		if (
 			error instanceof Error &&
@@ -76,7 +81,7 @@ const fetchTotalPropertiesByLandlord = async (accountNumber: number) => {
 		if (!Number.isInteger(accountNumber) || accountNumber <= 0) {
 			throw new Error("Invalid landlord account number.");
 		}
-		const result = await _getTotalPropertiesByLandlord(accountNumber);
+		const result = await landlordData.getTotalProperties(accountNumber);
 		if (result.error) {
 			throw new Error(
 				result.error.message || "Failed to count properties.",
@@ -103,7 +108,7 @@ const fetchTotalTenantsByLandlord = async (accountNumber: number) => {
 			throw new Error("Invalid landlord account number.");
 		}
 
-		const result = await _getTotalTenantsByLandlord(accountNumber);
+		const result = await landlordData.getTotalTenantsManaged(accountNumber);
 		if (result.error) {
 			throw new Error(result.error.message || "Failed to count tenants.");
 		}
@@ -128,7 +133,7 @@ const fetchGrossRevenueByLandlord = async (accountNumber: number) => {
 			throw new Error("Invalid landlord account number.");
 		}
 
-		const result = await _getGrossRevenueByLandlord(accountNumber);
+		const result = await landlordData.getGrossRevenue(accountNumber);
 		if (result.error) {
 			throw new Error(
 				result.error.message || "Failed to calculate gross revenue.",
@@ -149,7 +154,8 @@ const fetchGrossRevenueByLandlord = async (accountNumber: number) => {
 	}
 };
 
-export const _landlordService = {
+export const landlordService = {
+	addLandlord,
 	fetchAllHousingAdmins,
 	fetchGrossRevenueByLandlord,
 	fetchHousingAdminById,

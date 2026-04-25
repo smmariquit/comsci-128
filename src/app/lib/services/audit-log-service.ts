@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { auditLogData, Role } from "../data/audit-log-data";
 import { AuditLog } from "../models/audit_log";
 
@@ -17,6 +18,15 @@ async function getAuditLogs(userId: string, role: Role, account_number: number):
         if (!auditLogs) return [];
 
         return auditLogs;
+=======
+import { auditLogData } from "../data/audit-log-data";
+import { AuditLog, Role } from "@/models/audit_log";
+
+const getAllAuditLogs = async (role?: Role, account_number?: number): Promise<AuditLog[]> => {
+    try {
+        const auditLogs = await auditLogData.getAll(role, account_number);
+        return auditLogs ?? [];
+>>>>>>> 28abcf0e34af61c37f9cb8e87d05188697d701ea
     } catch (error) {
         console.error("Error: ", error);
         throw new Error("Failed to fetch audit logs.");
