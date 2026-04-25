@@ -117,11 +117,11 @@ async function getPendingManagerApplications(managerAccountNumber: number) {
           first_name,
           middle_name,
           last_name,
-          account_email
+          account_email,
+          manager!inner (
+            account_number
+          )
         )
-      ),
-      manager!inner (
-        account_number
       )
     `)
     .eq("application_status", "Pending Manager Approval")
