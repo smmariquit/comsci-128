@@ -1,4 +1,63 @@
 export const floatingAnimations = `
+  /* ── SERVICES SCROLL ANIMATIONS ──────────────── */
+  @keyframes cardSlideUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes iconPop {
+    from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  @keyframes headerFadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .services-header-reveal {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  .services-header-reveal.visible {
+    animation: headerFadeUp .55s ease forwards;
+  }
+
+  .service-card {
+    /* keep all existing rules — add: */
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  .service-card.card-visible {
+    animation: cardSlideUp .55s ease forwards;
+  }
+  .service-card.card-visible .service-icon {
+    animation: iconPop .4s cubic-bezier(.34,1.56,.64,1) forwards;
+    animation-delay: inherit; /* picks up from card's delay */
+  }
+
+  /* shimmer line that sweeps across card on reveal */
+  .service-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(194,211,208,.08) 50%,
+      transparent 60%
+    );
+    background-size: 200% 100%;
+    background-position: 200% 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .service-card.card-visible::before {
+    animation: shimmer .8s ease forwards;
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(8px); }
