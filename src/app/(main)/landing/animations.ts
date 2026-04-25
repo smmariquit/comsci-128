@@ -1,4 +1,23 @@
 export const floatingAnimations = `
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  @keyframes scrollDot {
+    0% { opacity: 0; transform: translateY(0); }
+    50% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(10px); }
+  }
+
+  .animate-float {
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .animate-scroll-dot {
+    animation: scrollDot 1.5s infinite;
+  }
+
   @keyframes floatSlow {
     0%   { transform: translate(0px, 0px); }
     25%  { transform: translate(10px, -15px); }
@@ -25,16 +44,18 @@ export const floatingAnimations = `
     0% { opacity: 0; transform: translateY(10px); }
     100% { opacity: 1; transform: translateY(0); }
   }
-
-  .floatSlow {
-    animation: floatSlow 12s ease-in-out infinite;
+  
+  @keyframes fadeUp {
+    0%   { opacity: 0; transform: translateY(18px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
-
-  .floatSlowAlt {
-    animation: floatSlowAlt 14s ease-in-out infinite;
+  @keyframes pulseRing {
+    0%   { transform: translate(-50%, -50%) scale(1);   opacity: 0.5; }
+    100% { transform: translate(-50%, -50%) scale(1.18); opacity: 0; }
   }
-
-  .animate-fade {
-    animation: fade 0.5s ease;
-  }
+  .float-slow     { animation: floatSlow    12s ease-in-out infinite; }
+  .float-slow-alt { animation: floatSlowAlt 14s ease-in-out infinite; }
+  .fade-up        { animation: fadeUp       0.7s ease both; }
+  .fade-up-delay  { animation: fadeUp       0.7s 0.15s ease both; }
+  .pulse-ring     { animation: pulseRing    3s ease-out infinite; }
 `;
