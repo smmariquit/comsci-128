@@ -22,6 +22,7 @@ const TABS: { key: Tab; label: string }[] = [
 
 export default function PageTabs({ usersContent, applicationsContent }: PageTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("applications");
+  const [hoveredTab, setHoveredTab] = useState<Tab | null>(null);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -35,6 +36,8 @@ export default function PageTabs({ usersContent, applicationsContent }: PageTabs
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
+            onMouseEnter={() => setHoveredTab(tab.key)}
+            onMouseLeave={() => setHoveredTab(null)}
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 12, fontWeight: 600,
@@ -45,6 +48,13 @@ export default function PageTabs({ usersContent, applicationsContent }: PageTabs
               boxShadow: activeTab === tab.key ? "0 1px 4px rgba(28,38,50,0.10)" : "none",
               transition: "all 0.15s",
               whiteSpace: "nowrap",
+              transform: hoveredTab === tab.key && activeTab !== tab.key ? "translateY(-1px)" : "translateY(0)",
+              backgroundColor:
+                activeTab === tab.key
+                  ? "#fff"
+                  : hoveredTab === tab.key
+                    ? "rgba(255,255,255,0.75)"
+                    : "transparent",
             }}
           >
             {tab.label}

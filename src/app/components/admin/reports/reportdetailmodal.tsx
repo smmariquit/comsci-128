@@ -1,6 +1,7 @@
 "use client";
 
 import { C } from "@/lib/palette";
+import { useState } from "react";
 import {
   OccupancyBadge, RoomTypeTag, ApplicationStatusBadge,
   PaymentStatusBadge, BillTypeTag,
@@ -153,6 +154,8 @@ interface Props {
 
 export default function ReportDetailModal({ row, onClose }: Props) {
   if (!row) return null;
+  const [closeHovered, setCloseHovered] = useState(false);
+  const [footerHovered, setFooterHovered] = useState(false);
 
   return (
     <>
@@ -185,9 +188,11 @@ export default function ReportDetailModal({ row, onClose }: Props) {
             </div>
             <div style={{ fontSize: 11, color: C.teal, marginTop: 2 }}>View-only details</div>
           </div>
-          <button onClick={onClose} style={{
+          <button onClick={onClose} onMouseEnter={() => setCloseHovered(true)} onMouseLeave={() => setCloseHovered(false)} style={{
             background: "none", border: "none", cursor: "pointer",
             color: C.teal, fontSize: 18, lineHeight: 1, padding: 4,
+            transform: closeHovered ? "translateY(-1px)" : "translateY(0)",
+            transition: "transform 0.15s ease",
           }}>✕</button>
         </div>
 
@@ -205,10 +210,13 @@ export default function ReportDetailModal({ row, onClose }: Props) {
           borderTop: `1px solid ${C.dividerLight}`,
           display: "flex", justifyContent: "flex-end",
         }}>
-          <button onClick={onClose} style={{
+          <button onClick={onClose} onMouseEnter={() => setFooterHovered(true)} onMouseLeave={() => setFooterHovered(false)} style={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
             background: "#fff", color: C.navy, border: `1px solid ${C.cream}`,
             borderRadius: 8, padding: "8px 20px", cursor: "pointer",
+            transform: footerHovered ? "translateY(-1px)" : "translateY(0)",
+            boxShadow: footerHovered ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+            transition: "transform 0.15s ease, box-shadow 0.15s ease",
           }}>
             Close
           </button>

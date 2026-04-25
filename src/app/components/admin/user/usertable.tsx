@@ -1,4 +1,7 @@
+"use client";
+
 import { C } from "@/lib/palette";
+import { useState } from "react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -184,9 +187,13 @@ function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
   variant?: BtnVariant;
   disabled?: boolean;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       disabled={disabled}
       style={{
         ...BTN_STYLE[variant],
@@ -196,6 +203,9 @@ function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
         borderRadius: 6,
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.4 : 1,
+        transform: hovered && !disabled ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered && !disabled ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+        transition: "all 0.15s ease",
       }}
     >
       {label}
@@ -227,6 +237,8 @@ interface Props {
 // ── Table ─────────────────────────────────────────────────────────────────────
 
 export default function UserTable({ data, onView, onRemove }: Props) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
   return (
     <div style={{
       background: "#fff",
@@ -291,10 +303,16 @@ export default function UserTable({ data, onView, onRemove }: Props) {
                 </td>
               </tr>
             ) : data.map((row, i) => (
-              <tr key={row.account_number} style={{
-                borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
-                opacity: row.is_deleted ? 0.55 : 1,
-              }}>
+              <tr
+                key={row.account_number}
+                onMouseEnter={() => setHoveredRow(i)}
+                onMouseLeave={() => setHoveredRow(null)}
+                style={{
+                  borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
+                  opacity: row.is_deleted ? 0.55 : 1,
+                  background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent",
+                  transition: "background 0.15s ease",
+                }}>
                 {/* Name */}
                 <td style={{ padding: "8px 14px", color: C.navy, fontWeight: 600, whiteSpace: "nowrap" }}>
                   {row.full_name}

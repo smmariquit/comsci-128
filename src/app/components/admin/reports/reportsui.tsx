@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import React from "react";
 import { Download } from "lucide-react";
 import { C } from "@/lib/palette";
@@ -18,6 +21,7 @@ export function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
   const isPositive  = delta === undefined || delta >= 0;
   const deltaColor  = isPositive ? C.amber : C.orange;
   const deltaArrow  = isPositive ? "↑" : "↓";
+  const [hovered, setHovered] = useState(false);
 
   return (
     <div style={{
@@ -29,7 +33,11 @@ export function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
       outline: `1px solid ${C.cream}`,
       outlineOffset: -1,
       height: 100,
-    }}>
+      transform: hovered ? "translateY(-2px)" : "translateY(0)",
+      boxShadow: hovered ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
+      transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+      outlineColor: hovered ? C.amber : C.cream,
+    }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <div style={{
         position: "absolute", left: 19, top: 17,
         color: C.teal, fontSize: 10.5,
@@ -77,8 +85,10 @@ const BTN_STYLE: Record<BtnVariant, React.CSSProperties> = {
 export function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
   label: string; onClick: () => void; variant?: BtnVariant; disabled?: boolean;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
-    <button onClick={onClick} disabled={disabled} style={{
+    <button onClick={onClick} disabled={disabled} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{
       ...BTN_STYLE[variant],
       fontFamily: "'DM Sans', sans-serif",
       fontSize: 11,
@@ -86,6 +96,9 @@ export function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
       borderRadius: 6,
       cursor: disabled ? "not-allowed" : "pointer",
       opacity: disabled ? 0.4 : 1,
+      transform: hovered && !disabled ? "translateY(-1px)" : "translateY(0)",
+      boxShadow: hovered && !disabled ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+      transition: "transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease",
     }}>
       {label}
     </button>
@@ -244,20 +257,29 @@ export function ExportButton({ onExportCSV, onExportPDF }: {
   onExportCSV: () => void;
   onExportPDF: () => void;
 }) {
+  const [csvHovered, setCsvHovered] = useState(false);
+  const [pdfHovered, setPdfHovered] = useState(false);
+
   return (
     <div style={{ display:"flex", gap:6 }}>
-      <button onClick={onExportCSV} style={{
+      <button onClick={onExportCSV} onMouseEnter={() => setCsvHovered(true)} onMouseLeave={() => setCsvHovered(false)} style={{
         fontFamily:"'DM Sans', sans-serif", fontSize:12, fontWeight:600,
         background:"#fff", color:C.navy, border:`1px solid ${C.cream}`,
         borderRadius:8, padding:"8px 14px", cursor:"pointer",
         display:"flex", alignItems:"center", gap:6,
+        transform: csvHovered ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: csvHovered ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
       }}>
         <Download size={13} color={C.teal} strokeWidth={2} />
         CSV
       </button>
-      <button onClick={onExportPDF} style={{
+      <button onClick={onExportPDF} onMouseEnter={() => setPdfHovered(true)} onMouseLeave={() => setPdfHovered(false)} style={{
         fontFamily:"'DM Sans', sans-serif", fontSize:12, fontWeight:600,
         background:C.orange, color:"#fff", border:"none",
+        transform: pdfHovered ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: pdfHovered ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
         borderRadius:8, padding:"8px 14px", cursor:"pointer",
         display:"flex", alignItems:"center", gap:6,
       }}>

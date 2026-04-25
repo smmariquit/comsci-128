@@ -84,19 +84,29 @@ const BTN_STYLE: Record<BtnVariant, React.CSSProperties> = {
 function ActionBtn({ label, onClick, variant = "ghost", disabled, isLoading }: {
   label: string; onClick: () => void; variant?: BtnVariant; disabled?: boolean; isLoading?: boolean;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
-    <button onClick={onClick} disabled={disabled || isLoading} style={{
-      ...BTN_STYLE[variant],
-      fontFamily: "'DM Sans', sans-serif",
-      fontSize: 11,
-      padding: "4px 10px",
-      borderRadius: 6,
-      cursor: (disabled || isLoading) ? "not-allowed" : "pointer",
-      opacity: (disabled || isLoading) ? 0.6 : 1,
-      display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
-      minWidth: 60,
-      transition: "all 0.15s ease",
-    }}>
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      disabled={disabled || isLoading}
+      style={{
+        ...BTN_STYLE[variant],
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 11,
+        padding: "4px 10px",
+        borderRadius: 6,
+        cursor: (disabled || isLoading) ? "not-allowed" : "pointer",
+        opacity: (disabled || isLoading) ? 0.6 : 1,
+        display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+        minWidth: 60,
+        transform: hovered && !(disabled || isLoading) ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered && !(disabled || isLoading) ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+        transition: "all 0.15s ease",
+      }}
+    >
       {isLoading ? <Spinner /> : label}
     </button>
   );
@@ -195,6 +205,7 @@ function ApplicationTable({ data, onView, onApproveInit, onRejectInit }: {
   onApproveInit: (row: ApplicationReportRow) => void;
   onRejectInit:  (row: ApplicationReportRow) => void;
 }) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
   const isPending = (row: ApplicationReportRow) =>
     row.application_status === "Pending Admin Approval" 
 
@@ -228,9 +239,16 @@ function ApplicationTable({ data, onView, onApproveInit, onRejectInit }: {
               </td>
             </tr>
           ) : data.map((row, i) => (
-            <tr key={row.application_id} style={{
-              borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
-            }}>
+            <tr
+              key={row.application_id}
+              onMouseEnter={() => setHoveredRow(i)}
+              onMouseLeave={() => setHoveredRow(null)}
+              style={{
+                borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+                background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent",
+                transition: "background 0.15s ease",
+              }}
+            >
               <td style={{ padding: "8px 14px", color: C.navy, fontWeight: 600, whiteSpace: "nowrap" }}>
                 {row.student_name}
               </td>
@@ -537,6 +555,8 @@ export default function ApplicationTable_Wrapper({
           outline: `1px solid ${C.cream}`,
           overflow: "hidden",
           fontFamily: "'DM Sans', sans-serif",
+          transition: "transform 0.18s ease, box-shadow 0.18s ease",
+          boxShadow: "0 0 0 rgba(0,0,0,0)",
         }}>
 
           {/* Header */}

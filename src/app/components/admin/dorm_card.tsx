@@ -54,6 +54,7 @@ export default function DormCard({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [imgHover, setImgHover] = useState(false);
+  const [cardHover, setCardHover] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewObjectUrlRef = useRef<string | null>(null);
@@ -227,6 +228,8 @@ export default function DormCard({
       {/* ─── CARD ─── */}
       <div
         data-housing-id={housingId}
+        onMouseEnter={() => setCardHover(true)}
+        onMouseLeave={() => setCardHover(false)}
         style={{
           width: "100%",
           background: "#fff",
@@ -237,6 +240,10 @@ export default function DormCard({
           display: "flex",
           flexDirection: "column",
           fontFamily: "'Geist', 'DM Sans', sans-serif",
+          transform: cardHover ? "translateY(-3px)" : "translateY(0)",
+          boxShadow: cardHover ? "0 18px 36px rgba(28,38,50,0.12)" : "none",
+          transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+          outlineColor: cardHover ? "#E6A817" : "#CEC7B0",
         }}
       >
         <div

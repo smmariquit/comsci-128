@@ -41,6 +41,8 @@ function ModalShell({
   title: string; sub?: string; onClose: () => void;
   children: React.ReactNode; footer: React.ReactNode;
 }) {
+  const [closeHovered, setCloseHovered] = useState(false);
+
   return (
     <div style={{
       background: "#fff", borderRadius: 16, width: 500, maxWidth: "92vw",
@@ -62,10 +64,15 @@ function ModalShell({
         <button
           onClick={onClose}
           aria-label="Close modal"
+          onMouseEnter={() => setCloseHovered(true)}
+          onMouseLeave={() => setCloseHovered(false)}
           style={{
             background: C.cream, border: "none", borderRadius: 8,
             width: 30, height: 30, cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
+            transform: closeHovered ? "translateY(-1px)" : "translateY(0)",
+            boxShadow: closeHovered ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+            transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease",
           }}
         >
           <X size={14} color={C.teal} strokeWidth={2.5} aria-hidden="true" />
@@ -85,13 +92,20 @@ function ModalShell({
 }
 
 function CancelBtn({ onClose }: { onClose: () => void }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClose}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500,
         padding: "9px 20px", borderRadius: 9, border: `1px solid ${C.cream}`,
         background: "#fff", color: C.navy, cursor: "pointer",
+        transform: hovered ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
       }}
     >
       Cancel
@@ -100,13 +114,20 @@ function CancelBtn({ onClose }: { onClose: () => void }) {
 }
 
 function PrimaryBtn({ label, onClick }: { label: string; onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
         padding: "9px 20px", borderRadius: 9, border: "none",
         background: C.orange, color: "#fff", cursor: "pointer",
+        transform: hovered ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease",
       }}
     >
       {label}
@@ -136,6 +157,8 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 // ── 1. View Room Modal ────────────────────────────────────────────────────────
 
 export function ViewRoomModal({ room, onClose }: { room: RoomRow; onClose: () => void }) {
+  const [closeHovered, setCloseHovered] = useState(false);
+
   return (
     <Backdrop onClose={onClose}>
       <div style={{
@@ -157,10 +180,15 @@ export function ViewRoomModal({ room, onClose }: { room: RoomRow; onClose: () =>
           <button
             onClick={onClose}
             aria-label="Close modal"
+            onMouseEnter={() => setCloseHovered(true)}
+            onMouseLeave={() => setCloseHovered(false)}
             style={{
               background: "rgba(237,233,222,0.12)", border: "none", borderRadius: 8,
               width: 30, height: 30, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
+              transform: closeHovered ? "translateY(-1px)" : "translateY(0)",
+              boxShadow: closeHovered ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+              transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease",
             }}
           >
             <X size={14} color={C.cream} strokeWidth={2.5} aria-hidden="true" />
@@ -317,6 +345,7 @@ export function OverrideAssignModal({
   // const isOccupied = room.occupancy_status === "Fully Occupied";
   const isFull = room.current_occupants >= room.maximum_occupants;
   const hasTenants = room.assigned_tenants.length > 0;
+  const [removeHover, setRemoveHover] = useState<string | null>(null);
 
   useEffect(() => {
     onFetchEligibleStudents()
@@ -354,7 +383,24 @@ export function OverrideAssignModal({
                  {room.assigned_tenants.map((t) => (
                     <div key={t.id} style={{ display: "flex", justifyContent: "space-between", background: "#fff", padding: "8px 12px", borderRadius: 6, border: `1px solid ${C.dividerLight}` }}>
                       <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>{t.name}</span>
-                      <button onClick={() => onUnassign(t.id)} style={{ border: "none", background: "none", color: C.orange, fontSize: 11, cursor: "pointer", fontWeight: 600 }}>Remove</button>
+                      <button
+                        onClick={() => onUnassign(t.id)}
+                        onMouseEnter={() => setRemoveHover(t.id)}
+                        onMouseLeave={() => setRemoveHover((current) => (current === t.id ? null : current))}
+                        style={{
+                          border: "none",
+                          background: "none",
+                          color: C.orange,
+                          fontSize: 11,
+                          cursor: "pointer",
+                          fontWeight: 600,
+                          transform: removeHover === t.id ? "translateY(-1px)" : "translateY(0)",
+                          textDecoration: removeHover === t.id ? "underline" : "none",
+                          transition: "transform 0.15s ease, text-decoration 0.15s ease",
+                        }}
+                      >
+                        Remove
+                      </button>
                     </div>
                  ))}
                </div>
