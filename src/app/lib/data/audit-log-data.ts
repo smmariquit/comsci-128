@@ -38,16 +38,8 @@ async function getByAccountNumber(account_number: number) {
 	return data;
 }
 
-// UPDATE AUDIT LOGS
-async function update(audit_id: number, updatedFields: Partial<AuditLog>) {
-	const { data, error } = await supabase.from('audit_log').update(updatedFields).eq('audit_id', audit_id).select();
-	if (error) throw error
-	return data
-}
-
 export const auditLogData = {
 	create,
 	getAll,
-	getByAccountNumber,
-	update
+	getByAccountNumber
 }
