@@ -5,7 +5,7 @@ import { useState } from "react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type UserType        = "Student" | "Landlord" | "Housing Admin" | "Guest";
+export type UserType        = "Student" | "Landlord" | "Housing Admin" | "Guest" | "Manager";
 export type HousingStatus   = "Assigned" | "Not Assigned" | "Pending";
 export type Sex             = "Male" | "Female" | "Prefer not to say";
 
@@ -98,6 +98,7 @@ const USER_TYPE_STYLE: Record<UserType, { bg: string; text: string }> = {
   Student:       { bg: "rgba(86,115,117,0.13)",  text: C.teal },
   Landlord:      { bg: "rgba(201,100,42,0.13)",  text: C.orange },
   "Housing Admin": { bg: "rgba(28,38,50,0.09)",  text: C.navy },
+  Manager:       { bg: "rgba(28,38,50,0.09)",  text: C.navy },
   Guest:         { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
 };
 
