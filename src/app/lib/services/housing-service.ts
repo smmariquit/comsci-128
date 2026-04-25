@@ -1,114 +1,164 @@
 import { housingData } from "@/app/lib/data/housing-data";
-import type { Housing } from "@/models/housing";
+import { Housing, HousingWithRooms } from "@/models/housing";
 
 const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
-  try {
-    const housingDetail = await housingData.create(HousingDetail);
+	try {
+		const housingDetail = await housingData.create(HousingDetail);
 
-    if (!housingDetail) return null;
+		if (!housingDetail) return null;
 
-    return housingDetail;
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new Error("Error");
-  }
+		return housingDetail;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
 };
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 const getHousing = async (housingId: number): Promise<Housing | null> => {
-  try {
-    const housingDetail = await housingData.findById(housingId);
+	try {
+		const housingDetail = await housingData.findById(housingId);
 
-    if (!housingDetail) return null;
+		if (!housingDetail) return null;
 
-    return housingDetail;
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new Error("Error");
-  }
+		return housingDetail;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
 };
 
 const getAllHousing = async (): Promise<Housing[] | null> => {
+<<<<<<< HEAD
   try {
     const housingDetail = await housingData.findAll();
+=======
+	try {
+		const housingDetail = await housingData.findAll();
+>>>>>>> 28abcf0e34af61c37f9cb8e87d05188697d701ea
 
-    if (!housingDetail) return null;
+		if (!housingDetail) return null;
 
-    return housingDetail;
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new Error("Error");
-  }
+		return housingDetail;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
 };
 
 const updateHousing = async (
-  housingId: number,
-  housingDetail: Partial<Housing>,
+	housingId: number,
+	housingDetail: Partial<Housing>,
 ): Promise<Housing | null> => {
-  try {
-    const { housing_id, ...allowedUpdates } = housingDetail;
-    allowedUpdates;
+	try {
+		const { housing_id, ...allowedUpdates } = housingDetail;
+		allowedUpdates;
 
-    console.log(allowedUpdates);
-    const updatedHousing = await housingData.update(housingId, allowedUpdates);
+		console.log(allowedUpdates);
+		const updatedHousing = await housingData.update(
+			housingId,
+			allowedUpdates,
+		);
 
-    if (!updatedHousing) return null;
+		if (!updatedHousing) return null;
 
-    return updatedHousing;
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new Error("Failed to update housing");
-  }
+		return updatedHousing;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to update housing");
+	}
 };
 
 const deactivateHousing = async (
-  housingId: number,
+	housingId: number,
 ): Promise<Housing | null> => {
-  try {
-    const housing = await housingData.findById(housingId);
-    if (!housing) {
-      throw new Error("Housing record not found or already deactivated.");
-    }
+	try {
+		const housing = await housingData.findById(housingId);
+		if (!housing) {
+			throw new Error("Housing record not found or already deactivated.");
+		}
 
-    /**
-     * TODO: Integration Task
-     * Once 'room-delete' PR is merged,
-     * add cascading soft delete for rooms of housing
-     */
+		/**
+		 * TODO: Integration Task
+		 * Once 'room-delete' PR is merged,
+		 * add cascading soft delete for rooms of housing
+		 */
 
-    const deactivatedHousing = await housingData.deactivate(housingId);
-    return deactivatedHousing ?? null;
-  } catch (error: any) {
-    if (error.message.includes("not found")) {
-      throw error;
-    }
+		const deactivatedHousing = await housingData.deactivate(housingId);
+		return deactivatedHousing ?? null;
+	} catch (error: any) {
+		if (error.message.includes("not found")) {
+			throw error;
+		}
 
-    console.error("Service Error (removeHousing): ", error.message);
-    throw new Error(
-      "Failed to deactivate housing record due to a system error.",
-    );
-  }
+		console.error("Service Error (removeHousing): ", error.message);
+		throw new Error(
+			"Failed to deactivate housing record due to a system error.",
+		);
+	}
 };
 
-const getHousingCount = async(): Promise<number | null> => {
+const getHousingCount = async (): Promise<number | null> => {
 	try {
-			const housingCount = await housingData.countAllHousing();
-			if (!housingCount) return null;
-			
-			return housingCount; 
-			
-		} catch (error) {
-			console.error("Error: ", error);
-			throw new Error("Error");
-	}
-}
+		const housingCount = await housingData.countAllHousing();
+		if (!housingCount) return null;
 
+		return housingCount;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+// fetching all housing with all rooms linked to respective housing
+const getAllHousingWithRooms = async (): Promise<HousingWithRooms[] | null> => {
+	try {
+		const housings = await housingData.findAllWithRooms();
+		if (!housings) return null;
+		return housings;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to fetch housing with rooms");
+	}
+};
+// fetching all rooms linked to specific housing
+const getHousingWithRooms = async (
+	housingId: number,
+): Promise<HousingWithRooms | null> => {
+	try {
+		const housing = await housingData.findWithRooms(housingId);
+		if (!housing) return null;
+		return housing;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to fetch housing with rooms");
+	}
+};
+
+const uploadHousingImage = async (
+	housingId: number,
+	file: File,
+): Promise<Housing | null> => {
+	try {
+		return await housingData.uploadHousingImage(housingId, file);
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to upload housing image");
+	}
+};
 
 export const housingService = {
 	addHousing,
 	getHousing,
 	getAllHousing,
+	getHousingCount,
+	getAllHousingWithRooms,
+	getHousingWithRooms,
+	uploadHousingImage,
 	updateHousing,
 	deactivateHousing,
+<<<<<<< HEAD
 	getHousingCount
+=======
+>>>>>>> 28abcf0e34af61c37f9cb8e87d05188697d701ea
 };
