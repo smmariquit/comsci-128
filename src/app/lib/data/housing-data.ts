@@ -254,12 +254,14 @@ async function getStudentsByRoom(roomId: number) {
     .from("student_accommodation_history")
     .select(`
       account_number,
+      moveout_date,
       student!inner (
         user!inner ( first_name, last_name )
       )
     `)
     .eq("room_id", roomId)
     //.eq("application_status", "Approved")
+    .is("moveout_date", null);
 
   if (error) throw new Error ("failed to fetch students: " + error.message);
 
