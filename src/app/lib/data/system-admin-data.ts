@@ -25,10 +25,7 @@ async function getById(accountNumber: number): Promise<User | null> {
     .from('system_admin')
     .select(`
       account_number,
-      manager:account_number (
-        manager_type,
-        user:account_number (*)
-      )
+      user!inner(*)
     `)
     .eq('account_number', accountNumber);
 
