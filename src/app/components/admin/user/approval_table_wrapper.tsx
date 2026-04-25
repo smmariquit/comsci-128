@@ -17,9 +17,13 @@ export type RoomType = "Women Only" | "Men Only" | "Co-ed";
 
 export interface ApplicationReportRow {
   application_id: number;
+  account_number: number;
   student_name: string;
   student_number: string;
   housing_name: string;
+  housing_id: number;
+  room_id?: number;
+  room_code?: string;
   preferred_room_type: RoomType | null;
   application_status: ApplicationStatus;
   expected_moveout_date: string;
@@ -306,7 +310,7 @@ function ConfirmModal({
 }: {
   config: ModalConfig;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (selectedRoomId?: number) => void;
   isProcessing: boolean;
 }) {
   if (!config) return null;
@@ -323,31 +327,33 @@ function ConfirmModal({
       zIndex: 9999, padding: 20
     }}>
       <div style={{
-        background: "#fff", borderRadius: 12, width: "100%", maxWidth: 360,
+        background: "#fff", borderRadius: 12, width: "100%", maxWidth: 380,
         padding: 24, fontFamily: "'DM Sans', sans-serif",
         boxShadow: "0 10px 25px rgba(28,38,50,0.1)",
         outline: `1px solid ${C.cream}`
       }}>
         <h3 style={{ margin: "0 0 8px 0", fontSize: 16, fontWeight: 600, color: titleColor }}>
-          Confirm {actionText}
+          Confirm {isApprove ? "Approval" : "Rejection"}
         </h3>
-        <p style={{ margin: "0 0 24px 0", fontSize: 13, color: C.navy, lineHeight: 1.5 }}>
-          Are you sure you want to <strong>{actionText.toLowerCase()}</strong> the housing application for <span style={{ color: C.teal, fontWeight: 500 }}>{config.row.student_name}</span>? 
-          {isApprove ? " This action will notify the student." : " This action cannot be undone."}
+        <p style={{ margin: "0 0 16px 0", fontSize: 13, color: C.navy, lineHeight: 1.5 }}>
+          Are you sure you want to <strong>{isApprove ? "approve" : "reject"}</strong> the housing application for <span style={{ color: C.teal, fontWeight: 500 }}>{config.row.student_name}</span>? 
         </p>
+
+        {/* ── Read-Only Tentative Room Display ── */}
+        {isApprove && (
+          <div style={{ marginBottom: 24, fontSize: 13, color: C.navy, fontWeight: 500 }}>
+            Manager assigned room: <span style={{ color: C.teal }}>{config.row.room_code || config.row.room_id || "None"}</span>
+          </div>
+        )}
         
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-          <ActionBtn 
-            label="Cancel" 
-            variant="ghost" 
-            onClick={onClose} 
-            disabled={isProcessing} 
-          />
+          <ActionBtn label="Cancel" variant="ghost" onClick={onClose} disabled={isProcessing} />
           <ActionBtn 
             label={actionText} 
             variant={isApprove ? "approve" : "danger"} 
             onClick={onConfirm} 
             isLoading={isProcessing} 
+            disabled={isApprove && !config.row.room_id} // Prevent approval if manager forgot to assign a room
           />
         </div>
       </div>
@@ -489,26 +495,45 @@ export default function ApplicationTable_Wrapper({
     setIsProcessing(true);
     
     try {
-      const nextStatus: ApplicationStatus =
-        modalConfig.action === "approve" ? "Approved" : "Rejected";
+      if (modalConfig.action === "approve") {
+        if (!modalConfig.row.room_id) throw new Error("Cannot approve: No tentative room was assigned by the manager.");
 
-      if (modalConfig.action === "approve" && onApprove) {
-        await onApprove(modalConfig.row);
-      } else if (modalConfig.action === "reject" && onReject) {
-        await onReject(modalConfig.row);
-      } else {
-        await patchApplicationStatus(modalConfig.row.application_id, nextStatus);
-      }
+        // 🚀 Hit the /assign API to actually move them into the room!
+        const response = await fetch(`/api/applications/${modalConfig.row.application_id}/assign`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roomId: modalConfig.row.room_id,
+            studentAccountNumber: modalConfig.row.account_number,
+            moveoutDate: modalConfig.row.expected_moveout_date
+          }),
+        });
 
-      setApplications(prev =>
-        prev.map(app =>
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload?.message ?? "Failed to assign room.");
+        }
+
+        // Update local UI
+        setApplications(prev => prev.map(app =>
           app.application_id === modalConfig.row.application_id
-            ? { ...app, application_status: nextStatus }
+            ? { ...app, application_status: "Approved" } 
             : app
-        )
-      );
+        ));
+
+      } else {
+        // Reject workflow uses the original basic PATCH
+        await patchApplicationStatus(modalConfig.row.application_id, "Rejected");
+        
+        setApplications(prev => prev.map(app =>
+          app.application_id === modalConfig.row.application_id
+            ? { ...app, application_status: "Rejected" }
+            : app
+        ));
+      }
     } catch (error) {
-      console.error("Failed to update application status:", error);
+      console.error("Failed action:", error);
+      alert(error instanceof Error ? error.message : "Failed to process application");
     } finally {
       setIsProcessing(false);
       setModalConfig(null);
