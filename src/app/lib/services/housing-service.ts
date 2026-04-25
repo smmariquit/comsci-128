@@ -1,8 +1,12 @@
 import { housingData } from "@/app/lib/data/housing-data";
 import { Housing, HousingWithRooms } from "@/models/housing";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
 
 const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 	try {
+		await validateAction(AppAction.CREATE_HOUSING);
+
 		const housingDetail = await housingData.create(HousingDetail);
 
 		if (!housingDetail) return null;
@@ -46,6 +50,15 @@ const updateHousing = async (
 	housingDetail: Partial<Housing>,
 ): Promise<Housing | null> => {
 	try {
+		// rbac
+		await validateAction(AppAction.UPDATE_HOUSING);
+
+		// obac
+		const currentHousing = await housingData.findById(housingId);
+		if (currentHousing) {
+			await validateOwnership(currentHousing.landlord_account_number);
+		}
+
 		const { housing_id, ...allowedUpdates } = housingDetail;
 		allowedUpdates;
 
