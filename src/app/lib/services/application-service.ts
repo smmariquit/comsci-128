@@ -6,6 +6,9 @@ import { Database } from "@/app/types/database.types";
 type ApplicationStatus = Database["public"]["Enums"]["ApplicationStatus"];
 
 import { accommodationHistoryData } from "@/lib/data/accommodation-history-data";
+import { validateAction, validateOwnership } from "./authorization-service";
+import App from "next/app";
+import { AppAction } from "../models/permissions";
 
 const getDashboardStats = async () => {
   try {
@@ -55,6 +58,15 @@ const updateApplicationStatus = async (
   status: ApplicationStatus
 ) => {
   try {
+    // rbac
+    await validateAction(AppAction.UPDATE_APPLICATION_STATUS);
+
+    // obac
+    const appDetail = await applicationData.getApplicationDetailById(applicationId);
+    if (appDetail?.landlord_account_number) {
+      await validateOwnership(appDetail.landlord_account_number);
+    }
+
     const updated = await applicationData.update(applicationId, { application_status: status })
     if (!updated) return null
     return updated
