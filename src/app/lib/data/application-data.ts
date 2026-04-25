@@ -49,7 +49,7 @@ async function getById(applicationId: number): Promise<Application | null> {
 	return data && data.length > 0 ? data[0] : null;
 }
 
-async function getByManager(managerAccountNumber: number): Promise<Application[]>{
+async function getByManager(managerAccountNumber: number) {
   const { data, error } = await supabase
     .from("application")
     .select(`
