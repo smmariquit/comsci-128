@@ -45,3 +45,19 @@ export async function validateAction(action: AppAction, role: UserRole) {
         throw new Error (`Unauthorized: Role "${role} does not have permission to perform "${action}}".`);
     }
 }
+
+async function getCurrentUserRole(): Promise<UserRole> {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) return "public";
+
+    const { data: user, error } = await supabase
+        .from("user")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+    
+    if (error || !user) return "public"
+
+    return user.role as UserRole;
+}
