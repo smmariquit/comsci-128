@@ -1,35 +1,31 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, ChevronRight as ChevronRightIcon, LayoutGrid } from "lucide-react";
-
-// Grid icon — matches Figma's 4-dot grid (5.95×5.95 squares)
-function GridIcon({ active }: { active?: boolean }) {
-  const color = active ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)";
-  return (
-    <LayoutGrid size={17} color={color} strokeWidth={2} />
-  );
-}
+import {
+  BarChart3,
+  BedDouble,
+  Building2,
+  ChevronRight,
+  LayoutDashboard,
+  ReceiptText,
+  ScrollText,
+  Users,
+} from "lucide-react";
+import NavItem from "@/app/components/admin/navitem";
 
 // Home icon for logo
 function HomeIcon() {
   return <Building2 size={20} color="white" strokeWidth={2.2} />;
 }
 
-// Chevron right
-function ChevronRight() {
-  return <ChevronRightIcon size={14} color="rgba(237,233,222,0.30)" strokeWidth={1.8} />;
-}
-
 const navItems = [
-  { label: "Dashboard",            href: "/admin" },
-  { label: "Properties and Dorms", href: "/admin/accommodations" },
-  { label: "Rooms",                href: "/admin/rooms" },
-  { label: "Users",                href: "/admin/users" },
-  { label: "Billings",             href: "/admin/billing" },
-  { label: "Reports",              href: "/admin/reports" },
-  { label: "Audit Logs",           href: "/admin/logs" },
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Properties and Dorms", href: "/admin/accommodations", icon: Building2 },
+  { label: "Rooms", href: "/admin/rooms", icon: BedDouble },
+  { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Billings", href: "/admin/billing", icon: ReceiptText },
+  { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+  { label: "Audit Logs", href: "/admin/logs", icon: ScrollText },
 ];
 
 interface SidebarProps {
@@ -148,45 +144,13 @@ export default function Sidebar({
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link
+            <NavItem
               key={item.href}
               href={item.href}
-              style={{
-                width: 274,
-                height: 47,
-                borderRadius: 9,
-                display: "flex",
-                alignItems: "center",
-                textDecoration: "none",
-                background: isActive ? "#A03A00" : "transparent",
-                transition: "background 0.15s",
-              }}
-            >
-              {/* Icon */}
-              <span
-                style={{
-                  position: "relative",
-                  left: 20,
-                  opacity: isActive ? 1 : 0.5,
-                  display: "flex",
-                }}
-              >
-                <GridIcon active={isActive} />
-              </span>
-
-              {/* Label */}
-              <span
-                style={{
-                  position: "relative",
-                  left: 28,
-                  color: isActive ? "#EDE9DE" : "rgba(237,233,222,0.55)",
-                  fontSize: 13,
-                  fontWeight: isActive ? 500 : 400,
-                }}
-              >
-                {item.label}
-              </span>
-            </Link>
+              label={item.label}
+              isActive={isActive}
+              icon={item.icon}
+            />
           );
         })}
       </nav>
@@ -262,7 +226,7 @@ export default function Sidebar({
 
           {/* Chevron */}
           <div style={{ marginRight: 10 }}>
-            <ChevronRight />
+            <ChevronRight size={14} color="rgba(237,233,222,0.30)" strokeWidth={1.8} />
           </div>
         </div>
       </div>
