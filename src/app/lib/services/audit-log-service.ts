@@ -1,5 +1,5 @@
-import { auditLogData, Role } from "../data/audit-log-data";
-import { AuditLog } from "../models/audit_log";
+import { auditLogData} from "../data/audit-log-data";
+import { AuditLog, Role } from "../models/audit_log";
 
 async function getAuditLogs(userId: string, role: Role, account_number: number): Promise<AuditLog[]> {
     try {
