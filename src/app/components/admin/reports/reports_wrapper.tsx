@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Download } from "lucide-react";
 import { C } from "@/lib/palette";
-import { StatCard, ExportButton } from "@/app/components/admin/reports/reportsui";
+import { StatCard } from "@/app/components/admin/reports/reportsui";
 import ReportFilters from "@/app/components/admin/reports/reports_filters";
 import {
   OccupancyReportTable, ApplicationReportTable,
@@ -35,6 +36,32 @@ interface ReportsWrapperProps {
   liveApplications: ApplicationReportRow[];
   liveAccommodationHistory: AccommodationHistoryRow[];
   liveRevenue: RevenueReportRow[];
+}
+
+function escapeCsvValue(value: unknown) {
+  const text = value == null ? "" : String(value);
+  if (/[",\n]/.test(text)) {
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+  return text;
+}
+
+function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
+  if (rows.length === 0) return;
+
+  const headers = Object.keys(rows[0]);
+  const csv = [
+    headers.join(","),
+    ...rows.map((row) => headers.map((header) => escapeCsvValue(row[header])).join(",")),
+  ].join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -111,6 +138,72 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
       (!dateTo   || date <= new Date(dateTo))
     );
   }), [liveAccommodationHistory, search, housing, status, dateFrom, dateTo]);
+
+  function handleExportCsv() {
+    if (activeTab === "occupancy") {
+      downloadCsv(
+        "occupancy-report.csv",
+        filteredOccupancy.map((row) => ({
+          room_code: row.room_code,
+          housing_name: row.housing_name,
+          room_type: row.room_type,
+          current_occupants: row.current_occupants,
+          maximum_occupants: row.maximum_occupants,
+          occupancy_status: row.occupancy_status,
+        }))
+      );
+      return;
+    }
+
+    if (activeTab === "application") {
+      downloadCsv(
+        "applications-report.csv",
+        filteredApplications.map((row) => ({
+          application_id: row.application_id,
+          student_name: row.student_name,
+          student_number: row.student_number,
+          housing_name: row.housing_name,
+          preferred_room_type: row.preferred_room_type ?? "",
+          application_status: row.application_status,
+          expected_moveout_date: row.expected_moveout_date,
+          actual_moveout_date: row.actual_moveout_date ?? "",
+        }))
+      );
+      return;
+    }
+
+    if (activeTab === "revenue") {
+      downloadCsv(
+        "revenue-report.csv",
+        filteredRevenue.map((row) => ({
+          transaction_id: row.transaction_id,
+          student_name: row.student_name,
+          housing_name: row.housing_name,
+          bill_type: row.bill_type,
+          amount: row.amount,
+          status: row.status,
+          issue_date: row.issue_date,
+          due_date: row.due_date,
+          date_paid: row.date_paid ?? "",
+        }))
+      );
+      return;
+    }
+
+    downloadCsv(
+      "accommodation-history-report.csv",
+      filteredAccommodation.map((row) => ({
+        account_number: row.account_number,
+        student_name: row.student_name,
+        student_number: row.student_number,
+        room_code: row.room_code,
+        housing_name: row.housing_name,
+        room_type: row.room_type,
+        movein_date: row.movein_date,
+        moveout_date: row.moveout_date,
+      }))
+    );
+  }
 
   // ── Stat cards per tab ──────────────────────────────────────────────────────
 
@@ -191,30 +284,67 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
     
 
       {/* Tab bar */}
-      <div style={{
-        display: "flex", gap: 2,
-        background: C.cream, borderRadius: 10,
-        padding: 4, width: "fit-content",
-      }}>
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => switchTab(tab.key)}
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12, fontWeight: 600,
-              padding: "7px 16px", borderRadius: 7,
-              border: "none", cursor: "pointer",
-              background: activeTab === tab.key ? "#fff" : "transparent",
-              color: activeTab === tab.key ? C.navy : C.teal,
-              boxShadow: activeTab === tab.key ? "0 1px 4px rgba(28,38,50,0.10)" : "none",
-              transition: "all 0.15s",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <div style={{
+          display: "flex", gap: 2,
+          background: C.cream, borderRadius: 10,
+          padding: 4, width: "fit-content",
+        }}>
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => switchTab(tab.key)}
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 12, fontWeight: 600,
+                padding: "7px 16px", borderRadius: 7,
+                border: "none", cursor: "pointer",
+                background: activeTab === tab.key ? "#fff" : "transparent",
+                color: activeTab === tab.key ? C.navy : C.teal,
+                boxShadow: activeTab === tab.key ? "0 1px 4px rgba(28,38,50,0.10)" : "none",
+                transition: "all 0.15s",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={handleExportCsv}
+          disabled={
+            (activeTab === "occupancy" && filteredOccupancy.length === 0) ||
+            (activeTab === "application" && filteredApplications.length === 0) ||
+            (activeTab === "revenue" && filteredRevenue.length === 0) ||
+            (activeTab === "accommodation" && filteredAccommodation.length === 0)
+          }
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            fontWeight: 600,
+            background: C.orange,
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            padding: "8px 14px",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+            opacity:
+              (activeTab === "occupancy" && filteredOccupancy.length === 0) ||
+              (activeTab === "application" && filteredApplications.length === 0) ||
+              (activeTab === "revenue" && filteredRevenue.length === 0) ||
+              (activeTab === "accommodation" && filteredAccommodation.length === 0)
+                ? 0.5
+                : 1,
+          }}
+        >
+          <Download size={13} color="#fff" strokeWidth={2.2} aria-hidden="true" />
+          Export CSV
+        </button>
       </div>
 
       {/* Stat cards */}
