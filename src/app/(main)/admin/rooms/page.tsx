@@ -12,6 +12,7 @@ import { roomService } from "@/app/lib/services/room-service";
 import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
 import { supabase } from "@/app/lib/supabase";
+import { PlusSquare } from "lucide-react";
 
 export default function Page() {
 
@@ -267,16 +268,7 @@ export default function Page() {
             width: "fit-content",
           }}
         >
-          <svg
-            width="14" height="14" viewBox="0 0 24 24"
-            fill="none" stroke="#fff" strokeWidth="2.2"
-            strokeLinecap="round" strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M14 2H6a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2z"/>
-            <line x1="9" y1="9"  x2="15" y2="9"/>
-            <line x1="9" y1="13" x2="15" y2="13"/>
-          </svg>
+          <PlusSquare size={14} color="#fff" strokeWidth={2.2} aria-hidden="true" />
           Add Room
         </button>
       </div>

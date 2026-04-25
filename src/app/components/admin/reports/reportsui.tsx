@@ -1,4 +1,5 @@
 import React from "react";
+import { Download } from "lucide-react";
 import { C } from "@/lib/palette";
 import type {
   OccupancyStatus, RoomType, ApplicationStatus, PaymentStatus, BillType,
@@ -80,7 +81,9 @@ export function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
     <button onClick={onClick} disabled={disabled} style={{
       ...BTN_STYLE[variant],
       fontFamily: "'DM Sans', sans-serif",
-      fontSize: 11, padding: "4px 10px", borderRadius: 6,
+      fontSize: 11,
+      padding: "4px 10px",
+      borderRadius: 6,
       cursor: disabled ? "not-allowed" : "pointer",
       opacity: disabled ? 0.4 : 1,
     }}>
@@ -249,9 +252,7 @@ export function ExportButton({ onExportCSV, onExportPDF }: {
         borderRadius:8, padding:"8px 14px", cursor:"pointer",
         display:"flex", alignItems:"center", gap:6,
       }}>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.teal} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
+        <Download size={13} color={C.teal} strokeWidth={2} />
         CSV
       </button>
       <button onClick={onExportPDF} style={{
@@ -260,9 +261,7 @@ export function ExportButton({ onExportCSV, onExportPDF }: {
         borderRadius:8, padding:"8px 14px", cursor:"pointer",
         display:"flex", alignItems:"center", gap:6,
       }}>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
+        <Download size={13} color="#fff" strokeWidth={2} />
         PDF
       </button>
     </div>

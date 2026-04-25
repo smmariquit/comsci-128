@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AlertCircle, ChevronDown, Trash2, X } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { BillRow, PaymentStatus, BillType } from "./billingtable";
 import { housingData } from "@/app/lib/data/housing-data";
@@ -95,11 +96,7 @@ function CloseBtn({ onClose, light = false }: { onClose: () => void; light?: boo
         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
       }}
     >
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-        stroke={light ? "#f5f3ef" : T.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6"  y1="6" x2="18" y2="18"/>
-      </svg>
+      <X size={13} color={light ? "#f5f3ef" : T.teal} strokeWidth={2.5} aria-hidden="true" />
     </button>
   );
 }
@@ -158,11 +155,13 @@ function SelectField({ id, label, value, onChange, children, flex }: {
         <select id={id} value={value} onChange={(e) => onChange(e.target.value)} style={selectStyle}>
           {children}
         </select>
-        <svg style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
-          width="10" height="10" viewBox="0 0 24 24" fill="none"
-          stroke={T.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
+        <ChevronDown
+          size={10}
+          color={T.teal}
+          strokeWidth={2.5}
+          aria-hidden="true"
+          style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+        />
       </div>
     </div>
   );
@@ -435,11 +434,13 @@ export default function IssueBillModal({
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
-                  <svg style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
-                    width="9" height="9" viewBox="0 0 24 24" fill="none"
-                    stroke={T.teal} strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-                    <polyline points="6 9 12 15 18 9"/>
-                  </svg>
+                  <ChevronDown
+                    size={9}
+                    color={T.teal}
+                    strokeWidth={2.5}
+                    aria-hidden="true"
+                    style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+                  />
                 </div>
 
                 {/* Vertical divider */}
@@ -482,13 +483,7 @@ export default function IssueBillModal({
                   onMouseEnter={(e) => (e.currentTarget.style.color = T.orange)}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "#bbb")}
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14H6L5 6"/>
-                    <path d="M10 11v6M14 11v6"/>
-                    <path d="M9 6V4h6v2"/>
-                  </svg>
+                  <Trash2 size={13} color="currentColor" strokeWidth={2.5} aria-hidden="true" />
                 </button>
               </div>
             ))}
@@ -567,12 +562,7 @@ export default function IssueBillModal({
                 fontSize: 11, color: T.orange,
                 display: "flex", alignItems: "center", gap: 5, marginTop: 2,
               }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="12" y1="8" x2="12" y2="12"/>
-                  <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
+                <AlertCircle size={12} color="currentColor" strokeWidth={2.5} aria-hidden="true" />
                 {!selectedHousingId ? "Select a property to continue"
                   : !selectedRoomId ? "Select a room"
                   : !selectedStudentId ? "Select a student"
@@ -678,11 +668,7 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
             width: 30, height: 30, cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-              stroke="#f5f3ef" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6"  y1="6" x2="18" y2="18"/>
-            </svg>
+            <X size={13} color="#f5f3ef" strokeWidth={2.5} aria-hidden="true" />
           </button>
         </div>
 

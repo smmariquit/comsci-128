@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown, ChevronLeft, FileText } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
@@ -79,19 +80,7 @@ export function ApplyFormContent() {
 				onClick={() => router.back()}
 				className="mb-6 flex items-center text-[#1C2632] hover:opacity-70 transition-opacity"
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="3"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-				>
-					<path d="m15 18-6-6 6-6" />
-				</svg>
+				<ChevronLeft width="24" height="24" strokeWidth={3} />
 			</button>
 
 			<form
@@ -140,19 +129,7 @@ export function ApplyFormContent() {
 
 								{/* Optional: Custom Arrow Icon */}
 								<div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[#73716D]">
-									<svg
-										className="h-4 w-4"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth="2"
-											d="M19 9l-7 7-7-7"
-										/>
-									</svg>
+									<ChevronDown className="h-4 w-4" />
 								</div>
 							</div>
 						</div>
@@ -179,20 +156,7 @@ export function ApplyFormContent() {
 							{fileName ? (
 								<div className="flex flex-col items-center gap-2">
 									{/* File Icon */}
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										className="h-10 w-10 text-[#C9642A]"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-										/>
-									</svg>
+									<FileText className="h-10 w-10 text-[#C9642A]" strokeWidth={2} />
 									<span className="text-sm font-medium text-[#1C2632] truncate max-w-[200px]">
 										{fileName}
 									</span>

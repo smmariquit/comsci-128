@@ -1,5 +1,6 @@
 "use client";
 
+import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { OccupancyStatus,  RoomType } from "./roomtable.tsx";
 
@@ -34,11 +35,8 @@ const inputBase: React.CSSProperties = {
 const selectBase: React.CSSProperties = {
   ...inputBase,
   cursor: "pointer",
-  appearance: "none" as const,
-  paddingRight: 28,
-  backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23567375' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "right 10px center",
+  appearance: "auto" as const,
+  paddingRight: 12,
 };
 
 export default function RoomFilters({ search, occupancy, roomType, housing, housingOptions, onSearch, onOccupancy, onRoomType, onHousing }: Props) {
@@ -46,9 +44,12 @@ export default function RoomFilters({ search, occupancy, roomType, housing, hous
     <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
       {/* Search */}
       <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
-        <svg style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.teal} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
+        <Search
+          size={14}
+          color={C.teal}
+          strokeWidth={2}
+          style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+        />
         <input type="text" placeholder="Search room, tenant..." value={search} onChange={(e) => onSearch(e.target.value)} style={{ ...inputBase, width: "100%", paddingLeft: 32 }} />
       </div>
 
