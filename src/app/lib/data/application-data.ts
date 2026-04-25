@@ -60,6 +60,17 @@ async function getByManager(managerAccountNumber: number): Promise<Application[]
 	return data ?? [];
 }
 
+async function getByLandlord(landlordAccountNumber: number): Promise<Application[]> {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`*`)
+    .eq("landlord_account_number", landlordAccountNumber)
+    .eq("is_deleted", false);
+
+	if (error) throw error;
+	return data ?? [];
+}
+
 async function getByHousing(housingId: number) {
 	const { data, error } = await supabase
 		.from("application")
