@@ -53,8 +53,8 @@ async function getByManager(managerAccountNumber: number): Promise<Application[]
   const { data, error } = await supabase
     .from("application")
     .select(`*`)
-    .eq("manager.account_number", managerAccountNumber)
-    .eq("application.is_deleted", false);
+    .eq("manager_account_number", managerAccountNumber)
+    .eq("is_deleted", false);
 
 	if (error) throw error;
 	return data ?? [];
@@ -267,6 +267,7 @@ export const applicationData = {
 	getAll,
 	getById,
 	getByManager,
+	getByLandlord,
 	getByHousing,
 	update,
 	remove,
