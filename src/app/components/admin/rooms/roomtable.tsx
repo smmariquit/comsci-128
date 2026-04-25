@@ -94,6 +94,7 @@ function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
       disabled={disabled}
       style={{
         ...BTN_STYLE[variant],
+        fontFamily: "'DM Sans', sans-serif",
         fontSize: 11,
         padding: "4px 10px",
         borderRadius: 6,

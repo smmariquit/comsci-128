@@ -2,6 +2,7 @@
 import Link from "next/link";
 
 import { useState, useMemo, useEffect } from "react";
+import { AlertTriangle, Check, Clock3, DollarSign, ReceiptText } from "lucide-react";
 import { C } from "@/lib/palette";
 import BillTable, { MOCK_BILLS } from "@/app/components/admin/billings/billingtable";
 import BillFilters from "@/app/components/admin/billings/billingfilters";
@@ -89,17 +90,7 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
         
       }}
     >
-      {/* Receipt icon */}
-      <svg
-        width="14" height="14" viewBox="0 0 24 24"
-        fill="none" stroke="#fff" strokeWidth="2.2"
-        strokeLinecap="round" strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M14 2H6a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2z"/>
-        <line x1="9" y1="9"  x2="15" y2="9"/>
-        <line x1="9" y1="13" x2="15" y2="13"/>
-      </svg>
+      <ReceiptText size={14} color="#fff" strokeWidth={2.2} aria-hidden="true" />
       Issue New Bill
     </button>
   );
@@ -267,42 +258,25 @@ export default function BillingPage() {
           label="Total (filtered)"
           value={`₱${totalAmount.toLocaleString("en-PH")}`}
           accent={C.navy}
-          icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-          }
+          icon={<DollarSign size={14} strokeWidth={2.2} />}
         />
         <SummaryCard
           label="Paid"
           value={paidCount}
           accent="#2a7d4f"
-          icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          }
+          icon={<Check size={14} strokeWidth={2.2} />}
         />
         <SummaryCard
           label="Pending"
           value={pendingCount}
           accent="#A07820"
-          icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-          }
+          icon={<Clock3 size={14} strokeWidth={2.2} />}
         />
         <SummaryCard
           label="Overdue"
           value={overdueCount}
           accent={C.orange}
-          icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-          }
+          icon={<AlertTriangle size={14} strokeWidth={2.2} />}
         />
       </div>
 
