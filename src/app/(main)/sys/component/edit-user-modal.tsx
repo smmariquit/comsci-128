@@ -2,15 +2,16 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import { X, AlertTriangle } from "lucide-react";
+import { Role } from "@/app/lib/models/audit_log";
 
-// Roles of Users
-type Role = "Student" | "Landlord" | "Dorm Manager" | "Housing Manager";
+// Roles of Users (For UI only) different from enums Role
+type userType = "Student" | "Landlord" | "Dorm Manager" | "Housing Manager";
 
 interface User {
   id: string | number;
   name: string;
   email: string;
-  role: Role;
+  userType: userType;
   dormitory?: string;
   status: "Active" | "Disabled";
 }
@@ -19,20 +20,20 @@ interface EditUserModalProps {
   user: User;
   dormitories?: string[];
   onClose: () => void;
-  onSave: (userId: User["id"], newRole: Role, newDormitory?: string) => void;
+  onSave: (userId: User["id"], newuserType: userType, newDormitory?: string) => void;
 }
 
-// Role options description for display in the modal - Role, label, and description for each role type 
-const ROLES: { value: Role; label: string; description: string }[] = [
+// userType options description for display in the modal - userType, label, and description for each userType type 
+const userTypeS: { value: userType; label: string; description: string }[] = [
   { value: "Student",         label: "Student",         description: "Tenant access only"        },
   { value: "Landlord",        label: "Landlord",        description: "Owner-level access"        },
   { value: "Dorm Manager",    label: "Dorm Manager",    description: "Manage dorm and tenants"   },
   { value: "Housing Manager", label: "Housing Manager", description: "Owner-level property access"},
 ];
 
-// If role is one of these, dorm assignment is required before saving changes. 
-// Otherwise, dorm assignment is optional and will be cleared on role change.
-const DORM_REQUIRED_ROLES: Role[] = ["Dorm Manager", "Landlord", "Housing Manager"];
+// If userType is one of these, dorm assignment is required before saving changes. 
+// Otherwise, dorm assignment is optional and will be cleared on userType change.
+const DORM_REQUIRED_userTypeS: userType[] = ["Dorm Manager", "Landlord", "Housing Manager"];
 
 // Avatar helper - Logo
 function getInitials(name: string) {
@@ -51,13 +52,13 @@ export function EditUserModal({
   onClose,
   onSave,
 }: EditUserModalProps) {
-  const [selectedRole, setSelectedRole] = useState<Role>(user.role);
+  const [selecteduserType, setSelecteduserType] = useState<userType>(user.userType);
   const [selectedDorm, setSelectedDorm] = useState<string>(user.dormitory ?? "");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const dormRequired = DORM_REQUIRED_ROLES.includes(selectedRole);
+  const dormRequired = DORM_REQUIRED_userTypeS.includes(selecteduserType);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -91,7 +92,7 @@ export function EditUserModal({
   const displayValue = query !== "" ? query : selectedDorm;
 
   function handleSave() {
-    onSave(user.id, selectedRole, selectedDorm || undefined);
+    onSave(user.id, selecteduserType, selectedDorm || undefined);
     onClose();
   }
 
@@ -115,7 +116,7 @@ export function EditUserModal({
                   Edit User
                 </h2>
                 <p className="text-sm text-[#1a2332]/50 font-mono mt-0.5">
-                  Update the assigned role and dormitory for this user
+                  Update the assigned userType and dormitory for this user
                 </p>
               </div>
               <button
@@ -143,7 +144,7 @@ export function EditUserModal({
                 <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">{user.email}</p>
               </div>
               <span className="shrink-0 px-3.5 py-1.5 text-xs font-semibold rounded-full bg-[#2e4a50] text-white">
-                {user.role}
+                {user.userType}
               </span>
             </div>
 
@@ -151,10 +152,10 @@ export function EditUserModal({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-[#1a2332]/60 mb-1.5">
-                  Current Role
+                  Current userType
                 </label>
                 <div className="px-3.5 py-2.5 bg-[#f3f4f5] rounded-xl text-sm text-[#1a2332]/70 font-mono">
-                  {user.role}
+                  {user.userType}
                 </div>
               </div>
               <div>
@@ -169,19 +170,19 @@ export function EditUserModal({
 
             <div className="border-t border-gray-100" />
 
-            {/* Assign role */}
+            {/* Assign userType */}
             <div>
-              <p className="text-sm font-bold text-[#1a2332] mb-3">Assign New Role</p>
+              <p className="text-sm font-bold text-[#1a2332] mb-3">Assign New userType</p>
               <div className="grid grid-cols-2 gap-3">
-                {ROLES.map((role) => {
-                  const isSelected = selectedRole === role.value;
+                {userTypeS.map((userType) => {
+                  const isSelected = selecteduserType === userType.value;
                   return (
                     <button
-                      key={role.value}
+                      key={userType.value}
                       type="button"
                       onClick={() => {
-                        setSelectedRole(role.value);
-                        if (!DORM_REQUIRED_ROLES.includes(role.value)) setSelectedDorm("");
+                        setSelecteduserType(userType.value);
+                        if (!DORM_REQUIRED_userTypeS.includes(userType.value)) setSelectedDorm("");
                       }}
                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all
                         ${isSelected
@@ -195,9 +196,9 @@ export function EditUserModal({
                       </div>
                       <div>
                         <p className={`text-sm font-bold ${isSelected ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
-                          {role.label}
+                          {userType.label}
                         </p>
-                        <p className="text-xs text-[#1a2332]/45 font-mono">{role.description}</p>
+                        <p className="text-xs text-[#1a2332]/45 font-mono">{userType.description}</p>
                       </div>
                     </button>
                   );
@@ -262,7 +263,7 @@ export function EditUserModal({
             <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
               <AlertTriangle size={15} className="text-[#b85c28]" />
               <p className="text-xs text-[#b85c28] font-mono">
-                Changing a role will immediately update the user&apos;s access permissions.
+                Changing a userType will immediately update the user&apos;s access permissions.
               </p>
             </div>
           </div>
