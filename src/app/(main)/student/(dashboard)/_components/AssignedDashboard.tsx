@@ -13,15 +13,17 @@ export default function AssignedDashboard(userName: String, dashboardData: Objec
     }
 
     return (
-        <div className="w-[864px] flex-1 flex flex-col justify-start items-start gap-4">
-            <div className="w-[864px] h-9 px-9 py-2 bg-gray-800 rounded-full shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] inline-flex justify-start items-center gap-2.5 overflow-hidden">
+        <div className="flex w-full flex-col items-start justify-start gap-4 lg:max-w-[864px]">
+            <div className="inline-flex min-h-[36px] w-full items-center justify-start gap-2.5 overflow-hidden rounded-full bg-gray-800 px-6 md:px-9 py-2 shadow-md">
                 <div className={hStyle}>Hello, {userName}!</div>
             </div>
-            <div className="w-[864px] flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
-                <div className="self-stretch h-9 px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+            
+            <div className="flex w-full flex-col items-start justify-start overflow-hidden rounded-2xl bg-stone-200 shadow-md">
+                <div className="inline-flex min-h-[36px] w-full items-center justify-start gap-2.5 bg-gray-800 px-6 md:px-9 py-2">
                     <div className={hStyle}>Housing Information</div>
                 </div>
-                <div className="self-stretch flex-1 px-9 py-4">
+
+                <div className="w-full flex-1 px-6 py-5 md:px-9 md:py-6">
                     <span className={`${tStyle} font-semibold`}>Housing Details</span>
                     <ul className={`${tStyle} pb-4 px-4`}>
                         <li><span className="font-bold">Name:</span>{getHousing()?.housing_name}</li>
@@ -35,11 +37,12 @@ export default function AssignedDashboard(userName: String, dashboardData: Objec
                     <span className={tStyle}><span className={`${tStyle} font-semibold`}>Expected Move Out Date:</span> {getApplication()?.expected_moveout_date}</span>
                 </div>
             </div>
-            <div className="w-[864px] flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
-                <div className="self-stretch h-9 px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+
+            <div className="flex w-full flex-col items-start justify-start overflow-hidden rounded-2xl bg-stone-200 shadow-md">
+                <div className="inline-flex min-h-[36px] w-full items-center justify-start gap-2.5 bg-gray-800 px-6 md:px-9 py-2">
                     <div className={hStyle}>Billing Status</div>
                 </div>
-                <div className="self-stretch flex-1 px-9 py-4" />
+                <div className="w-full flex-1 px-6 py-10 md:px-9"/>
             </div>
         </div>
     );
