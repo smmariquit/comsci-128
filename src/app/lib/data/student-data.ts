@@ -15,14 +15,11 @@ import type { NewUser } from "@/models/user";
 
 import { supabase } from "../supabase";
 
-<<<<<<< HEAD
-=======
 type RoomPerHousing = {
 	total: number;
 	occupied: number;
 };
 
->>>>>>> 00ed3308e8ef423b0a87bed02f4c5e9e85757c0e
 async function create(
 	userDetails: NewUser,
 	studentDetails: NewStudent,
@@ -438,19 +435,6 @@ const getUnpaidBills = async (accountNumber: number) => {
 };
 
 export const studentData = {
-<<<<<<< HEAD
-    create,
-    createAcademic,
-    getStudentAcademicById,
-    updateAcademicDetails,
-    createAccommodationHistory,
-    recordMoveOut,
-    getRoomOccupantCount,
-    getSubmittedApplications,
-    getHousingOptions,
-    getAccommodationHistoryOfStudent
-}
-=======
 	create,
 	createAcademic,
 	findStudentProfileById,
@@ -469,4 +453,3 @@ export const studentData = {
 	getBillingHistory,
 	getUnpaidBills,
 };
->>>>>>> 00ed3308e8ef423b0a87bed02f4c5e9e85757c0e
