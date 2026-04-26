@@ -1,5 +1,8 @@
 import { roomData } from "@/app/lib/data/room-data";
 import type { Room, RoomInsert, RoomType, RoomUpdate } from "@/models/room";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
+import { housingData } from "../data/housing-data";
 
 const addRoom = async (data: RoomInsert): Promise<Room | null> => {
   try {
@@ -92,18 +95,32 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 
 const assignRoom = async (roomId: number, studentId: string) => {
 	try {
+
+    // rbac
+    await validateAction(AppAction.ASSIGN_ROOM);
+
+    // room check
+    const room = await roomData.findByRoomId(roomId);
+    if (!room) throw new Error ("Room Not Found!");
+
+    // housing check
+    const housing = await housingData.findById(room.housing_id);
+    if (!housing) throw new Error ("Housing Not Found!");
+
+    // obac
+    await validateOwnership(housing.landlord_account_number);
+
+    // room assignment 
 		const account_number = await roomData.getAccountbyStudentNumber(studentId);
 
 		await roomData.insertAccommodation(roomId, account_number);
-
 		await roomData.getOccupantCount(roomId, 1);
-
 		await roomData.updateStudentHousingStatus(account_number, 'Assigned');
 
 		return { success: true };
 	} catch (error: any) {
 		console.error("Service Error (assignStudent): ", error.message);
-		throw new Error(error.message || "Failed to assign student.");
+		throw error;
 	}
 };
 
@@ -166,5 +183,5 @@ export const roomService = {
 	assignRoom,
 	unassignRoom,
 	getEligibleStudents,
-    getRoomStats,
+  getRoomStats,
 };
