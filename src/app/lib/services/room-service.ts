@@ -42,13 +42,13 @@ const updateRoom = async (
       return { error: "Room Not Found." };
     }
 
-    const validRoomTypes: RoomType[] = ["Co-ed", "Men Only", "Women Only"];
-    if (
-      updates.room_type &&
-      !validRoomTypes.includes(updates.room_type as RoomType)
-    ) {
-      return { error: "Invalid Room Type." };
-    }
+		const validRoomTypes: RoomType[] = ["Women Only", "Men Only", "Co-ed"];
+		if (
+			updates.room_type &&
+			!validRoomTypes.includes(updates.room_type as RoomType)
+		) {
+			return { error: "Invalid Room Type." };
+		}
 
     const incomingMax =
       updates.maximum_occupants ?? existingRoom.maximum_occupants;
@@ -90,10 +90,81 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
   }
 };
 
+const assignRoom = async (roomId: number, studentId: string) => {
+	try {
+		const account_number = await roomData.getAccountbyStudentNumber(studentId);
+
+		await roomData.insertAccommodation(roomId, account_number);
+
+		await roomData.getOccupantCount(roomId, 1);
+
+		await roomData.updateStudentHousingStatus(account_number, 'Assigned');
+
+		return { success: true };
+	} catch (error: any) {
+		console.error("Service Error (assignStudent): ", error.message);
+		throw new Error(error.message || "Failed to assign student.");
+	}
+};
+
+const unassignRoom = async (roomId: number, studentIdOrAccount: string | number) => {
+	try {
+		let account_number: number;
+
+		if (typeof studentIdOrAccount === "string" && studentIdOrAccount.length > 5) {
+             account_number = await roomData.getAccountbyStudentNumber(studentIdOrAccount);
+        } else {
+             // If it's the internal ID from the 'Remove' button, just use it
+             account_number = Number(studentIdOrAccount);
+        }
+
+		if (isNaN(account_number)) throw new Error("Invalid account number");
+
+		await roomData.endAccommodation(roomId, account_number);
+		await roomData.getOccupantCount(roomId, -1)
+		await roomData.updateStudentHousingStatus(account_number, 'Not Assigned');
+
+		return { success: true }
+	} catch (error: any) {
+		console.error("Service Error (unassignStudent): ", error.message);
+		throw new Error(error.message || "Failed to unassign student.");
+	}
+};
+
+const getEligibleStudents = async () => {
+	try {
+		const allStudents = await roomData.findUnassignedStudents();
+
+		const rooms = await roomData.findAllRoomDetailed();
+		const assignedIds = new Set(
+			rooms.flatMap(r => r.assigned_tenants?.map((t: any) => t.id))	
+		);
+
+		return allStudents.filter(s => !assignedIds.has(s.id));
+	} catch (error: any) {
+		console.error("Service Error (getElligibleStudents): ", error.message);
+		//throw new Error(error.message || "Failed to fetch unassigned students.");
+		return [];
+	}
+}
+
+const getRoomStats = async () => {
+	try {
+		return await roomData.getRoomStats();
+	} catch (error: any) {
+		console.error("Service Error (getRoomStats): ", error.message);
+		throw new Error(error.message || "Failed to fetch room stats.");
+	}
+};
+
 export const roomService = {
-  addRoom,
-  getRoom,
-  getAllRooms,
-  updateRoom,
-  deactivateRoom,
+	addRoom,
+	getRoom,
+	getAllRooms,
+	updateRoom,
+	deactivateRoom,
+	assignRoom,
+	unassignRoom,
+	getEligibleStudents,
+    getRoomStats,
 };

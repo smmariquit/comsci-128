@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import Sidebar from '@/app/(main)/sys/component/sidebar';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: "System Configuration",
+};
 
 const stubUser = {
   name: 'Luthelle Fernandez',

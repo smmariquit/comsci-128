@@ -93,7 +93,7 @@ function formatTimeAgo(timestamp: string): string {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     
-    return date.toLocaleDateString(); // ✅ Ensure fallback
+    return date.toLocaleDateString(); 
 }
 // Quick Access Button Icons
 const quickAccess = [
@@ -112,11 +112,6 @@ const stubUser: SidebarUser = {
 export default function DashboardPage({
 	// Dummy data for now - to be replaced with real data from backend/API integration
 	user = stubUser,
-	  occupancy = [
-		{ name: 'Dorm 1', pct: 45 },
-		{ name: 'Dorm 2', pct: 95 },
-		{ name: 'Dorm 3', pct: 95 },
-	  ],
 	  notifications = [
 		{ id: '1', title: 'Maintenance tonight',       body: '02:00 UTC — brief downtime',          read: false, time: '1h ago' },
 		{ id: '2', title: 'New user registered',        body: 'User Ivanne signed up for Dorm 1',   read: false, time: '3h ago' },
@@ -137,74 +132,82 @@ export default function DashboardPage({
 			{ label: 'TOTAL MANAGERS',   value: 0, sub: '↑ 79 added this month', dark: false },
 			{ label: 'TOTAL PROPERTIES', value: 0, sub: 'Dormitories managed',    dark: false },
 		]);
-		const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]); // ✅ Correct type
+		const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]); 
+		const [occupancy, setOccupancy] = useState<OccupancyItem[]>([]);
 
 		// Fetch recent activities and counts from API
 		useEffect(() => {
-			const fetchData = async () => {
-				try {
-					setLoading(true);
-					setError(null);
+		const fetchData = async () => {
+			try {
+			setLoading(true);
+			setError(null);
 
-					const [userResponse, managerResponse, propertyResponse, auditResponse] = await Promise.all([
-						fetch('/api/users/count'),
-						fetch('/api/manager/count'),
-						fetch('/api/housing/count'),
-						fetch('/api/audit-log/recent')
-					]);
+			const [userResponse, managerResponse, propertyResponse, auditResponse, occupancyResponse] = await Promise.all([
+				fetch('/api/users/count'),
+				fetch('/api/manager/count'),
+				fetch('/api/housing/count'),
+				fetch('/api/audit-log/recent'),
+				fetch('/api/housing/occupancy')
+			]);
 
-					// Process user count
-					if (!userResponse.ok) throw new Error(`User count HTTP error! status: ${userResponse.status}`);
-					const userData = await userResponse.json();
-					setUserCount(userData.totalCount);       
-					setActiveCount(userData.activeCount);
+			// Process user count
+			if (!userResponse.ok) throw new Error(`User count HTTP error! status: ${userResponse.status}`);
+			const userData = await userResponse.json();
+			setUserCount(userData.totalCount);       
+			setActiveCount(userData.activeCount);
 
-					// Process manager count
-					if (!managerResponse.ok) throw new Error(`Manager count HTTP error! status: ${managerResponse.status}`);
-					const managerData = await managerResponse.json();
-					setManagerCount(managerData.count);
-					
-					// Process property count
-					if (!propertyResponse.ok) throw new Error(`Property count HTTP error! status: ${propertyResponse.status}`);
-					const propertyData = await propertyResponse.json();
-					setPropertyCount(propertyData.count);
+			// Process manager count
+			if (!managerResponse.ok) throw new Error(`Manager count HTTP error! status: ${managerResponse.status}`);
+			const managerData = await managerResponse.json();
+			setManagerCount(managerData.count);
+			
+			// Process property count
+			if (!propertyResponse.ok) throw new Error(`Property count HTTP error! status: ${propertyResponse.status}`);
+			const propertyData = await propertyResponse.json();
+			setPropertyCount(propertyData.count);
 
-					// Process recent audit logs
-					if (!auditResponse.ok) throw new Error(`Audit log HTTP error! status: ${auditResponse.status}`);
-					const auditData: AuditLog[] = await auditResponse.json();
-					
-					// Transform AuditLog to ActivityItem
-					const formattedActivity = auditData.map(log => ({
-						type: (log.action_type || 'System') as string,
-						text: (log.audit_description || '') as string,
-						meta: `${log.action_type || 'System'} · ${log.user_name || 'Unknown'}` as string,
-						time: log.timestamp ? formatTimeAgo(log.timestamp) : 'Unknown'
-					})) as ActivityItem[];
-									
-					setRecentActivity(formattedActivity);
+			// Process recent audit logs
+			if (!auditResponse.ok) throw new Error(`Audit log HTTP error! status: ${auditResponse.status}`);
+			const auditData: AuditLog[] = await auditResponse.json();
+			
+			// Transform AuditLog to ActivityItem
+			const formattedActivity = auditData.map(log => ({
+				type: (log.action_type || 'System') as string,
+				text: (log.audit_description || '') as string,
+				meta: `${log.action_type || 'System'} · ${log.user_name || 'Unknown'}` as string,
+				time: log.timestamp ? formatTimeAgo(log.timestamp) : 'Unknown'
+			})) as ActivityItem[];
+			
+			setRecentActivity(formattedActivity);
 
-					// Update stats
-					setStats(prev => prev.map(stat => {
-						if (stat.label === 'TOTAL USERS') return { ...stat, value: userData.totalCount };
-						if (stat.label === 'ACTIVE USERS') return { ...stat, value: userData.activeCount };
-						if (stat.label === 'TOTAL MANAGERS') return { ...stat, value: managerData.count };
-						if (stat.label === 'TOTAL PROPERTIES') return { ...stat, value: propertyData.count };
-						return stat;
-					}));
+			// Process occupancy data
+			if (!occupancyResponse.ok) throw new Error(`Occupancy HTTP error! status: ${occupancyResponse.status}`);
+			const occupancyData: OccupancyItem[] = await occupancyResponse.json();
+			console.log('Occupancy data:', occupancyData);
+			setOccupancy(occupancyData);
 
-				} catch (error) {
-					console.error('Error fetching data:', error);
-					setError(error instanceof Error ? error.message : 'Failed to fetch data');
-					setUserCount(0);
-					setManagerCount(0);
-					setPropertyCount(0);
-					setRecentActivity([]);
-				} finally {
-					setLoading(false);
-				}
-			};
+			// Update stats
+			setStats(prev => prev.map(stat => {
+				if (stat.label === 'TOTAL USERS') return { ...stat, value: userData.totalCount };
+				if (stat.label === 'ACTIVE USERS') return { ...stat, value: userData.activeCount };
+				if (stat.label === 'TOTAL MANAGERS') return { ...stat, value: managerData.count };
+				if (stat.label === 'TOTAL PROPERTIES') return { ...stat, value: propertyData.count };
+				return stat;
+			}));
 
-			fetchData();
+			} catch (error) {
+			console.error('Error fetching data:', error);
+			setError(error instanceof Error ? error.message : 'Failed to fetch data');
+			setUserCount(0);
+			setManagerCount(0);
+			setPropertyCount(0);
+			setRecentActivity([]);
+			} finally {
+			setLoading(false);
+			}
+		};
+
+		fetchData();
 		}, []);
 
 		const [showAddManager, setShowAddManager] = useState(false);
