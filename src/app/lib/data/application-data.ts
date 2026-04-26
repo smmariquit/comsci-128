@@ -251,7 +251,6 @@ async function getApprovedUnassignedByHousingName(housingName: string) {
 	return data ?? [];
 }
 
-// ─── NEW: TAILORED FOR THE APPROVAL TABLE ─────────────────────────────────────
 async function getApplicationsForApproval(managedHousingIds: number[]): Promise<ApplicationReportRow[]> {
     const { data: applications, error } = await supabase
         .from("application")
@@ -271,7 +270,7 @@ async function getApplicationsForApproval(managedHousingIds: number[]): Promise<
                     last_name
                 )
             ),
-            room!inner ( housing_id )
+            room!inner ( housing_id, room_code )
         `)
         .in("room.housing_id", managedHousingIds)
         .eq("is_deleted", false);
@@ -290,7 +289,8 @@ async function getApplicationsForApproval(managedHousingIds: number[]): Promise<
             application_id: app.application_id,
             account_number: app.student_account_number, 
             housing_id: roomObj?.housing_id,            
-            room_id: app.room_id,                       
+            room_id: app.room_id,
+			room_code: roomObj?.room_code,                       
             student_name: `${firstName} ${lastName}`.trim() || "Unknown Student",
             student_number: studentObj?.student_number?.toString() || "N/A",
             housing_name: app.housing_name || "Unknown Property",
