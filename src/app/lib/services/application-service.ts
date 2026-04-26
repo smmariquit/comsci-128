@@ -3,6 +3,7 @@
 import { applicationData } from "@/app/lib/data/application-data";
 import { Database } from "@/app/types/database.types";
 
+
 type ApplicationStatus = Database["public"]["Enums"]["ApplicationStatus"];
 
 import { accommodationHistoryData } from "@/lib/data/accommodation-history-data";
@@ -83,7 +84,9 @@ const assignApplicantToRoom = async (
   moveoutDate: string
 ) => {
   try {
-
+    // rbac
+    await validateAction(AppAction.ASSIGN_ROOM);
+    
     const updated = await applicationData.assignRoomToApplication(applicationId, roomId)
     if (!updated) throw new Error("Failed to assign room to application.")
 
