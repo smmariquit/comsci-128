@@ -71,9 +71,12 @@ const assignApplicantToRoom = async (
   moveoutDate: string
 ) => {
   try {
-
-    const updated = await applicationData.assignRoomToApplication(applicationId, roomId)
-    if (!updated) throw new Error("Failed to assign room to application.")
+    const updated = await applicationData.update(applicationId, {
+        room_id: roomId,
+        application_status: "Approved"
+    });
+    
+    if (!updated) throw new Error("Failed to assign room and approve application.")
 
     await accommodationHistoryData.createTenantRecord(studentAccountNumber, roomId, moveoutDate)
 

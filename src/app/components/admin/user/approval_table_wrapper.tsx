@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { LoaderCircle, Search } from "lucide-react";
 import { C } from "@/lib/palette";
 
@@ -17,9 +18,13 @@ export type RoomType = "Women Only" | "Men Only" | "Co-ed";
 
 export interface ApplicationReportRow {
   application_id: number;
+  account_number: number;
   student_name: string;
   student_number: string;
   housing_name: string;
+  housing_id: number;
+  room_id?: number;
+  room_code?: string;
   preferred_room_type: RoomType | null;
   application_status: ApplicationStatus;
   expected_moveout_date: string;
@@ -298,6 +303,8 @@ const COLUMNS = [
 
 type ModalConfig = { action: "approve" | "reject"; row: ApplicationReportRow } | null;
 
+type AvailableRoom = { room_id: number; room_code: string; available_beds: number };
+
 function ConfirmModal({
   config,
   onClose,
@@ -306,14 +313,45 @@ function ConfirmModal({
 }: {
   config: ModalConfig;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (finalRoomId?: number) => void; 
   isProcessing: boolean;
 }) {
+  const [availableRooms, setAvailableRooms] = useState<AvailableRoom[]>([]);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
+  const [overrideRoomId, setOverrideRoomId] = useState<string>(""); 
+
+  const isApprove = config?.action === "approve";
+
+  useEffect(() => {
+    if (isApprove && config.row) {
+      const fetchRooms = async () => {
+        setIsLoadingRooms(true);
+        try {
+          const res = await fetch(`/api/rooms/available?housingId=${config.row.housing_id}&roomType=${config.row.preferred_room_type}`);
+          const data = await res.json();
+          setAvailableRooms(data.availableRooms || []);
+        } catch (e) {
+          console.error("Failed to fetch available rooms", e);
+        } finally {
+          setIsLoadingRooms(false);
+        }
+      };
+      fetchRooms();
+    } else {
+      setAvailableRooms([]);
+      setOverrideRoomId(""); 
+    }
+  }, [isApprove, config]);
+
   if (!config) return null;
 
-  const isApprove = config.action === "approve";
-  const actionText = isApprove ? "Approve" : "Reject";
+  const actionText = isApprove ? "Approve & Assign" : "Reject";
   const titleColor = isApprove ? C.teal : C.orange;
+  const finalRoomToSubmit = overrideRoomId ? Number(overrideRoomId) : config.row.room_id;
+
+  const tentativeRoomDisplay = config.row.room_code 
+    ? `Room ${config.row.room_code}` 
+    : (config.row.room_id ? `Room ID: ${config.row.room_id}` : "None Assigned");
 
   return (
     <div style={{
@@ -323,31 +361,76 @@ function ConfirmModal({
       zIndex: 9999, padding: 20
     }}>
       <div style={{
-        background: "#fff", borderRadius: 12, width: "100%", maxWidth: 360,
+        background: "#fff", borderRadius: 12, width: "100%", maxWidth: 400,
         padding: 24, fontFamily: "'DM Sans', sans-serif",
         boxShadow: "0 10px 25px rgba(28,38,50,0.1)",
         outline: `1px solid ${C.cream}`
       }}>
         <h3 style={{ margin: "0 0 8px 0", fontSize: 16, fontWeight: 600, color: titleColor }}>
-          Confirm {actionText}
+          Confirm {isApprove ? "Approval" : "Rejection"}
         </h3>
-        <p style={{ margin: "0 0 24px 0", fontSize: 13, color: C.navy, lineHeight: 1.5 }}>
-          Are you sure you want to <strong>{actionText.toLowerCase()}</strong> the housing application for <span style={{ color: C.teal, fontWeight: 500 }}>{config.row.student_name}</span>? 
-          {isApprove ? " This action will notify the student." : " This action cannot be undone."}
+        <p style={{ margin: "0 0 20px 0", fontSize: 13, color: C.navy, lineHeight: 1.5 }}>
+          Are you sure you want to <strong>{isApprove ? "approve" : "reject"}</strong> the housing application for <span style={{ color: C.teal, fontWeight: 500 }}>{config.row.student_name}</span>? 
         </p>
+
+        {isApprove && (
+          <div style={{ marginBottom: 24, padding: "16px", background: "rgba(86,115,117,0.03)", borderRadius: 8, border: `1px solid ${C.cream}` }}>
+            
+            {/* Manager's Tentative Assignment */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: C.teal, textTransform: "uppercase", marginBottom: 4 }}>
+                Tentative Assignment
+              </label>
+              <div style={{ fontSize: 14, color: C.navy, fontWeight: 500 }}>
+                {tentativeRoomDisplay} {/* 👈 Using the centralized variable */}
+                <span style={{ fontSize: 12, color: C.teal, marginLeft: 8, fontWeight: 400 }}>({config.row.preferred_room_type})</span>
+              </div>
+            </div>
+
+            {/* Override Dropdown */}
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: C.navy, marginBottom: 8 }}>
+                Re-assign to another room?
+              </label>
+              
+              {isLoadingRooms ? (
+                <div style={{ fontSize: 12, color: C.teal, display: "flex", alignItems: "center", gap: 6 }}>
+                  <Spinner color={C.teal} /> Fetching available rooms...
+                </div>
+              ) : (
+                <select
+                  value={overrideRoomId}
+                  onChange={(e) => setOverrideRoomId(e.target.value)}
+                  style={{
+                    width: "100%", padding: "10px 12px", borderRadius: 8,
+                    border: `1px solid ${C.cream}`, outline: "none",
+                    fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: C.navy,
+                    background: "#fff"
+                  }}
+                >
+                  <option value="">No (Keep {tentativeRoomDisplay})</option>
+                  
+                  {availableRooms
+                    .filter(room => room.room_id !== config.row.room_id)
+                    .map(room => (
+                      <option key={room.room_id} value={room.room_id}>
+                        Room {room.room_code} ({room.available_beds} beds left)
+                      </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          </div>
+        )}
         
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-          <ActionBtn 
-            label="Cancel" 
-            variant="ghost" 
-            onClick={onClose} 
-            disabled={isProcessing} 
-          />
+          <ActionBtn label="Cancel" variant="ghost" onClick={onClose} disabled={isProcessing} />
           <ActionBtn 
             label={actionText} 
             variant={isApprove ? "approve" : "danger"} 
-            onClick={onConfirm} 
+            onClick={() => onConfirm(finalRoomToSubmit)} 
             isLoading={isProcessing} 
+            disabled={isApprove && !finalRoomToSubmit} 
           />
         </div>
       </div>
@@ -450,6 +533,7 @@ export default function ApplicationTable_Wrapper({
   onApprove?: (row: ApplicationReportRow) => void | Promise<void>;
   onReject?: (row: ApplicationReportRow) => void | Promise<void>;
 }) {
+  const router = useRouter();
   const [applications, setApplications] = useState<ApplicationReportRow[]>(liveApplications);
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "All">("Pending Admin Approval");
   const [search, setSearch] = useState("");
@@ -484,31 +568,52 @@ export default function ApplicationTable_Wrapper({
     }
   };
 
-  const handleConfirmAction = async () => {
+  const handleConfirmAction = async (finalRoomId?: number) => {
     if (!modalConfig) return;
     setIsProcessing(true);
     
     try {
-      const nextStatus: ApplicationStatus =
-        modalConfig.action === "approve" ? "Approved" : "Rejected";
+      if (modalConfig.action === "approve") {
+        if (!finalRoomId) throw new Error("Cannot approve: No room has been assigned.");
 
-      if (modalConfig.action === "approve" && onApprove) {
-        await onApprove(modalConfig.row);
-      } else if (modalConfig.action === "reject" && onReject) {
-        await onReject(modalConfig.row);
-      } else {
-        await patchApplicationStatus(modalConfig.row.application_id, nextStatus);
-      }
+        const response = await fetch(`/api/applications/${modalConfig.row.application_id}/assign`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roomId: finalRoomId, 
+            studentAccountNumber: modalConfig.row.account_number,
+            moveoutDate: modalConfig.row.expected_moveout_date
+          }),
+        });
 
-      setApplications(prev =>
-        prev.map(app =>
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload?.message ?? "Failed to assign room.");
+        }
+
+        setApplications(prev => prev.map(app =>
           app.application_id === modalConfig.row.application_id
-            ? { ...app, application_status: nextStatus }
+            ? { ...app, application_status: "Approved", room_id: finalRoomId } 
             : app
-        )
-      );
+        ));
+
+        router.refresh();
+
+      } else {
+        // Reject workflow uses the original basic PATCH
+        await patchApplicationStatus(modalConfig.row.application_id, "Rejected");
+        
+        setApplications(prev => prev.map(app =>
+          app.application_id === modalConfig.row.application_id
+            ? { ...app, application_status: "Rejected" }
+            : app
+        ));
+
+        router.refresh();
+      }
     } catch (error) {
-      console.error("Failed to update application status:", error);
+      console.error("Failed action:", error);
+      alert(error instanceof Error ? error.message : "Failed to process application");
     } finally {
       setIsProcessing(false);
       setModalConfig(null);
