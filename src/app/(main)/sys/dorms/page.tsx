@@ -47,17 +47,6 @@ const stubDorm: SidebarUser = {
   initials: 'LF',
 };
 
-// Hardcoded list of Dorms for the table - in a real app, this would come from an API
-const stubDorms: Dorm[] = [
-  { id: '1', name: 'Sampaguita Dorm',     dormAddress: '123 Roxas St, Diliman, QC',  managerEmail: 'ldelarosa@up.edu.ph',   status: 'Accepting', dormitory: 'Luis Dela Rosa',    capacity: 32, rooms: 32, occupied: 30 },
-  { id: '2', name: 'Ilang-Ilang Dorm',    dormAddress: '45 Kamuning Rd, QC',         managerEmail: 'jiantonio@up.edu.ph',   status: 'Accepting', dormitory: 'Justine Antonio',   capacity: 40, rooms: 40, occupied: 38 },
-  { id: '3', name: 'Rosal Dorm',          dormAddress: '78 UP Campus, Diliman',      managerEmail: 'phfababeir@up.edu.ph',  status: 'Accepting', dormitory: 'Paul Fababeir',     capacity: 25, rooms: 25, occupied: 20 },
-  { id: '4', name: 'Kamia Dorm',          dormAddress: '12 Maginhawa St, QC',        managerEmail: 'jpomamos@up.edu.ph',    status: 'Disabled',  dormitory: 'Jun Paul Omamos',   capacity: 20, rooms: 20, occupied: 0  },
-  { id: '5', name: 'Cadena de Amor Dorm', dormAddress: '9 Lakandula St, QC',         managerEmail: 'jguevarra@up.edu.ph',   status: 'Accepting', dormitory: 'Joy Guevarra',      capacity: 30, rooms: 30, occupied: 27 },
-  { id: '6', name: 'Adelfa Dorm',         dormAddress: '3 Tandang Sora Ave, QC',     managerEmail: 'hespinocilla@up.edu.ph',status: 'Disabled',  dormitory: 'Haira Espinocilla', capacity: 18, rooms: 18, occupied: 0  },
-  { id: '7', name: 'Molave Dorm',         dormAddress: '55 Esteban Abada, QC',       managerEmail: 'alfernandez@up.edu.ph', status: 'Accepting', dormitory: 'Althea Fernandez',  capacity: 22, rooms: 22, occupied: 19 },
-];
-
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
   { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',       read: false, time: '1h ago'    },
@@ -110,11 +99,10 @@ function StatusBadge({ status }: { status: string }) {
 // Main Dorm Management Page component
 export default function DormManagementPage({
   Dorm = stubDorm,
-  Dorms: initialDorms = stubDorms,
   notifications = stubNotifications,
   onLogout,
 }: DormManagementProps) {
-  const [DormList, setDormList] = useState<Dorm[]>(initialDorms);
+  const [DormList, setDormList] = useState<Dorm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -123,10 +111,8 @@ export default function DormManagementPage({
   const [filters, setFilters] = useState<UserFiltersState>({
     search: '', status: 'All Status', occupancy: 'All',
   });
-  const managersList = stubDorms
-  .filter((d) => d.dormitory && d.managerEmail)
-  .map((d) => ({ id: d.id, name: d.dormitory, email: d.managerEmail! })); // edit dorm manager list - for search dropdown
-
+  const [managersList, setManagersList] = useState<{ id: string; name: string; email: string }[]>([]);
+  
   // Fetch dorms from API
   useEffect(() => {
       const fetchDorms = async () => {
@@ -134,7 +120,7 @@ export default function DormManagementPage({
               setLoading(true);
               setError(null);
 
-              const response = await fetch('/api/housing');
+              const response = await fetch('/api/housing/occupancy');
 
               if (!response.ok) {
                   throw new Error(`HTTP error! status: ${response.status}`);
@@ -144,22 +130,22 @@ export default function DormManagementPage({
 
               console.log('Raw dorm data:', data);
 
-              const rawDorms = Array.isArray(data) ? data : data.data ?? [];
+              // Handle different response formats
+              const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
 
               // Transform DB fields to match Dorm interface 
-              // note: fix undefined columns
               const transformed: Dorm[] = rawDorms
-                  .filter((dorm: any) => !dorm.is_deleted) // Exclude deleted dorms
                   .map((dorm: any) => ({
-                      id: String(dorm.housing_id || ''),
-                      name: dorm.housing_name || 'Unknown',
-                      status: dorm.is_deleted ? 'Disabled' : 'Accepting',
-                      dormitory: dorm.manager_account_number ? `Manager ${dorm.manager_account_number}` : 'Unassigned',
-                      dormAddress: dorm.housing_address || undefined,
-                      managerEmail: undefined, 
-                      capacity: dorm.rent_price || undefined, 
-                      rooms: undefined,
-                      occupied: undefined, 
+                      id: String(dorm.housingId || ''), 
+                      name: dorm.name || 'Unknown', 
+                      status: 'Accepting', 
+                      dormitory: 'Unassigned', // Fix later in the query
+                      dormAddress: dorm.address || undefined, 
+                      managerEmail: undefined, // FIx later in the query
+                      capacity: dorm.occupancyRate|| undefined, 
+                      rooms: dorm.totalRooms || undefined,
+                      occupied: dorm.occupiedRooms || undefined,
+                      type: dorm.housingType
                   }));
 
               console.log('Transformed dorms:', transformed);
@@ -169,6 +155,7 @@ export default function DormManagementPage({
               console.error('Error fetching dorms:', error);
               setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
               setDormList([]);
+              setManagersList([]);
           } finally {
               setLoading(false);
           }
