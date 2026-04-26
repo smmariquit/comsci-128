@@ -47,7 +47,7 @@ export async function validateAction(action: AppAction) {
     return { role, userId: (await supabase.auth.getUser()).data.user?.id };
 }
 
-export async function validateOwnership(landlordId: number | string) {
+export async function validateOwnership(ownerAccountNumber: number | string) {
   const supabase = await createSupabaseServerClient();
   
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -68,11 +68,11 @@ export async function validateOwnership(landlordId: number | string) {
     throw new Error("Access Denied: Account information missing from session.");
   }
 
-  if (Number(accountNumber) !== Number(landlordId)) {
-    throw new Error("Access Denied: You do not own this property.");
+  if (Number(accountNumber) !== Number(ownerAccountNumber)) {
+    throw new Error("Access Denied: You do not own this resource.");
   }
   
-  console.log(`Ownership Verified: Account ${accountNumber} owns resource ${landlordId}`);
+  console.log(`Ownership Verified: Account ${accountNumber} owns resource ${ownerAccountNumber}`);
 }
 
 async function getCurrentUserRole(): Promise<UserRole> {
