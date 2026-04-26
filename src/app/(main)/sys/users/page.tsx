@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter';
-import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { EditUserModal } from '@/app/(main)/sys/component/edit-user-modal';
+import { DisableAccountModal } from "@/app/(main)/sys//component/disable-account-modal";
 
 // User Data Types
 export interface User {
@@ -57,7 +59,10 @@ export default function UserManagementPage({
 	const [filters, setFilters] = useState<UserFiltersState>({
 		search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
 	});
+  // State for pagination and modals
 	const [page, setPage] = useState(1);
+	const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [disableUser, setDisableUser] = useState<User | null>(null);
 
 	// Fetch all users from API
 	useEffect(() => {
@@ -127,7 +132,7 @@ export default function UserManagementPage({
 	}) : [];
 	
 	const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  	const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
 	// Loading state
 	if (loading) {
@@ -284,18 +289,23 @@ export default function UserManagementPage({
 								{/* ACTIONS */}
 								<td className="px-6 py-4">
 									<div className="flex items-center gap-2">
-									<button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
+									<button
+										onClick={() => setEditingUser(u)}
+										className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+										>
 										Edit
 									</button>
-									<button
-										className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-										u.status === 'Active'
-											? 'text-red-500 border border-red-200 hover:bg-red-50'
-											: 'text-emerald-600 border border-emerald-200 hover:bg-emerald-50'
-										}`}
-									>
-										{u.status === 'Active' ? 'Disable' : 'Enable'}
-									</button>
+																			
+                  <button
+                    onClick={() => setDisableUser(u)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                      u.status === 'Active'
+                        ? 'text-red-500 border border-red-200 hover:bg-red-50'
+                        : 'text-emerald-600 border border-emerald-200 hover:bg-emerald-50'
+                    }`}
+                  >
+                    {u.status === 'Active' ? 'Disable' : 'Enable'}
+                  </button>
 									</div>
 								</td>
 								</tr>
@@ -319,6 +329,27 @@ export default function UserManagementPage({
 					</div>
 				</div>
 			</div>
+			{editingUser && (
+				<EditUserModal
+					user={editingUser}  // paayos netoo
+					dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
+					onClose={() => setEditingUser(null)}
+					onSave={(id, role, dorm) => {
+					
+					console.log("Updated:", id, role, dorm);
+					setEditingUser(null);
+					}}
+				/>
+			)}
+      {disableUser && (
+        <DisableAccountModal
+          user={disableUser} // paayos nalangs
+          onClose={() => setDisableUser(null)}
+          onConfirm={(id) => {
+            console.log("Toggle status for user:", id);
+          }}
+        />
+      )}
 		</div>
 	);
 }
