@@ -22,7 +22,7 @@ export default function DormModal({ dorm, onClose }: DormModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       {/* Main Card Container */}
-      <div className="relative w-full max-w-[500px] overflow-hidden rounded-[20px] bg-white shadow-2xl">
+      <div className="relative w-full max-w-[500px]  rounded-[20px] bg-white shadow-2xl max-h-[70vh] overflow-y-auto">
         
         {/* TOP SECTION: Image and Overlay */}
         <div className="relative h-[240px] w-full">

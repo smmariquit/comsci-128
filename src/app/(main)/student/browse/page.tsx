@@ -31,17 +31,7 @@ export default async function DormBrowsePage({
 
     return (
 
-        <div
-            style={{
-                width: "100%",
-                minHeight: "100%",
-                background: "#1C2632",
-                display: "inline-flex",
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                alignItems: "stretch",
-            }}
-        >
+        <div className="flex min-h-screen w-full flex-col items-stretch justify-start bg-[#1C2632]">
             <StudentNavBar
                 path={"Housing Browser"}
                 userId={currUser?.account_number}
@@ -50,7 +40,7 @@ export default async function DormBrowsePage({
             <SearchBar />
 
             {/* HOUSING CARDS CONTAINER */}
-            <div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-6">
+            <div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-4 sm:p-6 rounded-xl">
                 <HousingCards cards={cards} />
             </div>
         </div>
