@@ -1,3 +1,5 @@
+"use server"
+
 import { roomData } from "@/app/lib/data/room-data";
 import type { Room, RoomInsert, RoomType, RoomUpdate } from "@/models/room";
 import { validateAction, validateOwnership } from "./authorization-service";
@@ -41,10 +43,23 @@ const updateRoom = async (
   updates: RoomUpdate,
 ): Promise<{ data?: Room; error?: string }> => {
   try {
+
+    // rbac
+    await validateAction(AppAction.UPDATE_HOUSING);
+
     const existingRoom = await roomData.findByRoomId(roomId);
     if (!existingRoom) {
       return { error: "Room Not Found." };
     }
+
+    // housing check
+    const housing = await housingData.findById(existingRoom.housing_id);
+    if (!housing) {
+      return { error: "Housing Not Found."};
+    }
+
+    // obac
+    await validateOwnership(housing.landlord_account_number);
 
 		const validRoomTypes: RoomType[] = ["Women Only", "Men Only", "Co-ed"];
 		if (
