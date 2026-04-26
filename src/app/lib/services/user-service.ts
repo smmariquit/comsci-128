@@ -75,8 +75,13 @@ const getAllUser = async (): Promise<Public<User>[] | null> => {
 
 		if (!userProfiles) return [];
 
-		
-		return userProfiles;
+		const publicInfos: Public<User>[] = [];
+		userProfiles.forEach((userDetails) => {
+			const { account_number, password, ...nonSensitiveInfo } =
+				userDetails;
+			publicInfos.push(nonSensitiveInfo);
+		});
+		return publicInfos;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
@@ -112,10 +117,10 @@ const updateUser = async (
 };
 
 const deactivateUser = async (
-	userId: number,
+	email: string
 ): Promise<Public<UpdateUser> | null> => {
 	try {
-		const updatedUser = await userData.deactivate(userId);
+		const updatedUser = await userData.deactivate(email);
 		if (!updatedUser) return null;
 
 		// TODO: reevaluate returning data for disable or not
