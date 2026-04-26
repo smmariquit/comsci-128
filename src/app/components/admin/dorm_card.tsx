@@ -112,39 +112,55 @@ export default function DormCard({
     setModalState("loading");
 
     try {
-      // 1. Handle File Upload if a new file was selected
-      if (selectedFile) {
-        const numericId = parseInt(housingId, 10);
-        if (isNaN(numericId)) {
-          throw new Error("Invalid Housing ID.");
-        }
+      const numericId = parseInt(housingId, 10);
+      if (isNaN(numericId)) {
+        throw new Error("Invalid Housing ID.");
+      }
 
+      // Send the text data updates to your backend
+      const updateResponse = await fetch(`/api/housing/${numericId}`, {
+        method: "PATCH", 
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          housing_name: draftName, 
+          housing_address: draftAddress,
+          rent_price: draftRent, 
+        }),
+      });
+
+      if (!updateResponse.ok) {
+        const payload = await updateResponse.json().catch(() => null);
+        throw new Error(payload?.message ?? payload?.error ?? "Failed to update housing details.");
+      }
+
+      // Handle File Upload ONLY if a new file was selected
+      if (selectedFile) {
         const formData = new FormData();
         formData.append("image", selectedFile);
 
-        const response = await fetch(`/api/housing/${numericId}/image`, {
+        const imageResponse = await fetch(`/api/housing/${numericId}/image`, {
           method: "POST",
           body: formData,
         });
 
-        if (!response.ok) {
-          const payload = await response.json().catch(() => null);
-          throw new Error(payload?.error ?? "Upload request failed.");
+        if (!imageResponse.ok) {
+          const payload = await imageResponse.json().catch(() => null);
+          throw new Error(payload?.error ?? "Text updated, but image upload failed.");
         }
-      } else {
-        // Simulate async save delay for UX if only text was changed
-        await new Promise((res) => setTimeout(res, 1200));
       }
 
-      // 2. Commit changes to local component state
+      // Commit changes to local component state so the UI reflects the backend
       setCardName(draftName);
       setCardAddress(draftAddress);
       setCardRent(draftRent);
-      setCardImageUrl(draftImageUrl);
-        clearPreviewObjectUrl();
+      if (selectedFile) setCardImageUrl(draftImageUrl); 
+      
+      clearPreviewObjectUrl();
       setSelectedFile(null); // Clear selected file after successful save
 
-      // 3. Propagate changes to parent
+      // 4. Propagate changes to parent (if the parent needs to update its own state)
       onSave({ 
         name: draftName, 
         address: draftAddress, 
@@ -154,9 +170,9 @@ export default function DormCard({
 
       setModalState("success");
     } catch (error) {
-      console.error("Upload failed:", error);
+      console.error("Save failed:", error);
       alert(error instanceof Error ? error.message : "Failed to save changes. Please try again.");
-      setModalState("manage"); // Revert to manage state so user doesn't lose input
+      setModalState("manage"); // Revert to manage state so user doesn't lose their typed input
     }
   }, [clearPreviewObjectUrl, draftAddress, draftImageUrl, draftName, draftRent, housingId, onSave, selectedFile]);
 
