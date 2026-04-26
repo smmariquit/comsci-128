@@ -7,6 +7,7 @@ import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/s
 import { ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
 import { EditDormModal } from '@/app/(main)/sys/component/edit-dorm';
+import { ViewDormModal } from '@/app/(main)/sys/component/view-dorm';
 
 // Dorm Data Types - showed in table
 export interface Dorm {
@@ -118,6 +119,7 @@ export default function DormManagementPage({
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingDorm, setEditingDorm] = useState<Dorm | null>(null); //edit dorm
+  const [viewingDorm, setViewingDorm] = useState<Dorm | null>(null); // view dorm
   const [filters, setFilters] = useState<UserFiltersState>({
     search: '', status: 'All Status', occupancy: 'All',
   });
@@ -304,7 +306,10 @@ export default function DormManagementPage({
 
                     {/* ACTIONS */}
                     <div className="flex items-center gap-2">
-                      <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
+                      <button
+                        onClick={() => setViewingDorm(u)}
+                        className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+                      >
                         View
                       </button>
                       <button
@@ -339,6 +344,13 @@ export default function DormManagementPage({
           </div>
         </div>
       </div>
+      {viewingDorm && (
+        <ViewDormModal
+          dorm={viewingDorm}
+          onClose={() => setViewingDorm(null)}
+          onEdit={() => setEditingDorm(viewingDorm)}
+        />
+      )}
       {editingDorm && (
         <EditDormModal
           dorm={editingDorm}
