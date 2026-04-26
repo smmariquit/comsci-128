@@ -6,6 +6,7 @@ import NotificationBell from '@/app/(main)/sys/component/notification';
 import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter-dorm';
 import { ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
+import { EditDormModal } from '@/app/(main)/sys/component/edit-dorm';
 
 // Dorm Data Types - showed in table
 export interface Dorm {
@@ -116,9 +117,13 @@ export default function DormManagementPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingDorm, setEditingDorm] = useState<Dorm | null>(null); //edit dorm
   const [filters, setFilters] = useState<UserFiltersState>({
     search: '', status: 'All Status', occupancy: 'All',
   });
+  const managersList = stubDorms
+  .filter((d) => d.dormitory && d.managerEmail)
+  .map((d) => ({ id: d.id, name: d.dormitory, email: d.managerEmail! })); // edit dorm manager list - for search dropdown
 
   // Fetch dorms from API
   useEffect(() => {
@@ -304,7 +309,10 @@ export default function DormManagementPage({
                       <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
                         View
                       </button>
-                      <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
+                      <button
+                        onClick={() => setEditingDorm(u)}
+                        className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+                      >
                         Edit
                       </button>
                     </div>
@@ -333,6 +341,19 @@ export default function DormManagementPage({
           </div>
         </div>
       </div>
+      {editingDorm && (
+        <EditDormModal
+          dorm={editingDorm}
+          managers={managersList}
+          onClose={() => setEditingDorm(null)}
+          onSave={(id, updates) => {
+            setDormList((prev) =>
+              prev.map((d) => (d.id === id ? { ...d, ...updates } : d))
+            );
+            setEditingDorm(null);
+          }}
+        />
+      )}
     </div>
   );
 }
