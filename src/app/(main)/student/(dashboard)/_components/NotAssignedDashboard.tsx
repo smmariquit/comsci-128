@@ -28,7 +28,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
   }
 
   return (
-    <div className="flex w-full flex-col items-start justify-start gap-4 lg:max-w-4xl">
+    <div className="flex w-full flex-col items-start justify-start gap-4 sm:max-w-4xl">
 
       <div className="inline-flex h-9 w-full items-center justify-start gap-2.5 overflow-hidden rounded-full bg-gray-800 px-6 sm:px-9 py-2 shadow-md">
         <div className={hStyle}>Welcome, {userName}</div>
@@ -40,7 +40,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
         </div>
         
         {/* grid layout for application progress*/}
-        <div className="grid w-full grid-cols-2 gap-y-6 px-4 py-8 sm:flex sm:justify-between sm:px-12 md:px-24">
+        <div className="grid w-full grid-cols-2 gap-y-6 px-4 py-8 sm:flex sm:justify-between sm:px-12">
           {[
             { label: "Dorm\nChosen", idx: 0 },
             { label: "Application\nSubmitted", idx: 1 },
