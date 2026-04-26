@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { floatingAnimations } from "./animations";
 import ServicesSection from "./ServicesSection";
 import ShowcaseSection from "./ShowcaseSection";
+import TestimonialsSection from "./TestimonialsSection";
 
 // Mapping colors
 const colors = {
@@ -119,6 +120,9 @@ export default function LandingPage() {
 
       {/* Photos slideshow */}
       <ShowcaseSection />
+      
+      {/* Testimonials */}
+      <TestimonialsSection />
 
       {/* Footer */}
       <footer
