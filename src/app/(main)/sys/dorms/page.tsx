@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter-dorm';
-import { Trash2, ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
 
 // Dorm Data Types - showed in table
@@ -306,9 +306,6 @@ export default function DormManagementPage({
                       </button>
                       <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
                         Edit
-                      </button>
-                      <button className="text-[#1a2332]/25 hover:text-red-400 transition-colors">
-                        <Trash2 size={15} />
                       </button>
                     </div>
                   </div>
