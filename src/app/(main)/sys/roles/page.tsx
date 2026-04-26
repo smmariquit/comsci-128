@@ -145,16 +145,51 @@ export default function UserManagementPage({
   
 
     const filtered = userList.filter((u) => {
-    const matchSearch = u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-                          u.email.toLowerCase().includes(filters.search.toLowerCase());
-    const matchRole   = filters.role   === 'All Roles'  || u.role      === filters.role;
-    const matchStatus = filters.status === 'All Status' || u.status    === filters.status;
-    const matchDorm   = filters.dorm   === 'All Dorm'   || u.dormitory === filters.dorm;
-    return matchSearch && matchRole && matchStatus && matchDorm;
-  });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+      const matchSearch = u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+                            u.email.toLowerCase().includes(filters.search.toLowerCase());
+      const matchRole   = filters.role   === 'All Roles'  || u.role      === filters.role;
+      const matchStatus = filters.status === 'All Status' || u.status    === filters.status;
+      const matchDorm   = filters.dorm   === 'All Dorm'   || u.dormitory === filters.dorm;
+      return matchSearch && matchRole && matchStatus && matchDorm;
+    });
+    const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
     const paginated  = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
+  
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-[#eae8e1]">
+        <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
+            <p className="text-[#1a2332]/60">Loading Managers...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-[#eae8e1]">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
+            <p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
+            <p className="text-red-500 text-sm mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-screen bg-[#eae8e1]">
 

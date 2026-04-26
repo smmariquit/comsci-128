@@ -22,6 +22,7 @@ export interface Dorm {
   occupied?: number;
 }
 
+
 // Sidebar + notifications
 export interface DormManagementProps {
   Dorm?: SidebarUser;
@@ -196,10 +197,11 @@ export default function DormManagementPage({
     if (loading) {
       return (
         <div className="flex min-h-screen bg-[#eae8e1]">
+          <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
-              <p className="text-[#1a2332]/60">Loading users...</p>
+              <p className="text-[#1a2332]/60">Loading Dorms...</p>
             </div>
           </div>
         </div>
