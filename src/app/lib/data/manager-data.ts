@@ -221,8 +221,6 @@ const deletePaymentDetails = async (id: number) => {
 		.select();
 };
 
-<<<<<<< HEAD
-=======
 const countAllManager = async (): Promise<number | null> => {
 	const { count, error } = await supabase
 		.from("manager")
@@ -584,7 +582,6 @@ const getAllBillings = async () => {
 	return data;
 };
 
->>>>>>> 00ed3308e8ef423b0a87bed02f4c5e9e85757c0e
 export const managerData = {
 	create,
 	getAll,
@@ -601,10 +598,6 @@ export const managerData = {
 	addPaymentDetails,
 	getPaymentDetails,
 	updatePaymentDetails,
-<<<<<<< HEAD
-	deletePaymentDetails
-}
-=======
 	deletePaymentDetails,
 	getUnassignedApprovedApplicants,
 	getTotalRoomsManaged,
@@ -615,4 +608,3 @@ export const managerData = {
 	getStudentBalance,
 	getAllBillings,
 };
->>>>>>> 00ed3308e8ef423b0a87bed02f4c5e9e85757c0e

@@ -19,16 +19,6 @@ async function create(userDetails: NewUser): Promise<User> {
 async function findAll(): Promise<User[]> {
 	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
-<<<<<<< HEAD
-  const { data, error } = await supabase
-    .from("user")
-    .select()
-    .eq("is_deleted", false);
-
-  if (error) throw new Error(`Get All Users Error: ${error.message}`);
-
-  return data ?? null;
-=======
 	const { data, error } = await supabase
 	.from('user')
 	.select()
@@ -37,7 +27,6 @@ async function findAll(): Promise<User[]> {
   if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
   return data ?? [];
->>>>>>> 00ed3308e8ef423b0a87bed02f4c5e9e85757c0e
 }
 
 async function findById(userId: number): Promise<User | null> {
@@ -266,25 +255,14 @@ async function countActiveUsers():Promise<number | null> {
 }
 
 export const userData = {
-<<<<<<< HEAD
-	create,
-	findAll,
-	findById,
-	findByEmail,
-	update,
-	deactivate,
-	countAllUser,
-	countActiveUsers
-=======
 	findStudents,
 	getUsersForHousingAdmin,
-  create,
-  findAll,
-  findById,
-  findByEmail,
-  update,
-  deactivate,
-  countAllUser,
+    create,
+    findAll,
+    findById,
+    findByEmail,
+    update,
+    deactivate,
+    countAllUser,
 	countActiveUsers,
->>>>>>> 00ed3308e8ef423b0a87bed02f4c5e9e85757c0e
 };

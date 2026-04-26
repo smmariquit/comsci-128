@@ -312,17 +312,6 @@ async function getStudentsHoused(managerId: number, housingId: number) {
 }
 
 export const housingData = {
-<<<<<<< HEAD
-	create,
-	findAll,
-	findById,
-	findWithRooms,
-	update,
-	deactivate,
-	countAllHousing,
-	getHousingDetailsOfStudent,
-	getStudentsHoused
-=======
   create,
   findAll,
   findById,
@@ -337,5 +326,4 @@ export const housingData = {
   findAllWithRooms,
   getOccupancyRate,
   getStudentsHoused,
->>>>>>> 00ed3308e8ef423b0a87bed02f4c5e9e85757c0e
 };
