@@ -5,6 +5,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
   
   const hStyle = "justify-center text-white text-lg font-semibold font-[family-name:var(--font-DM_Sans)]";
   const tStyle = "text-black text-lg font-[family-name:var(--font-DM_Sans)]";
+  
   const checkIcon = <CheckCircle2 size={96} className="text-green-700" strokeWidth={1.5} />;
   const crossIcon = <AlertCircle size={96} className="text-red-600" strokeWidth={1.5} />;
 
@@ -27,35 +28,37 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
   }
 
   return (
-    <div className="w-216 flex-1 flex flex-col justify-start items-start gap-4">
-      <div className="w-216 h-9 px-9 py-2 bg-gray-800 rounded-full shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] inline-flex justify-start items-center gap-2.5 overflow-hidden">
+    <div className="flex w-full flex-col items-start justify-start gap-4 lg:max-w-4xl">
+
+      <div className="inline-flex h-9 w-full items-center justify-start gap-2.5 overflow-hidden rounded-full bg-gray-800 px-6 sm:px-9 py-2 shadow-md">
         <div className={hStyle}>Welcome, {userName}</div>
       </div>
-      <div className="w-216 flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
-        <div className="self-stretch h-9 px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+
+      <div className="flex w-full flex-col items-start justify-start overflow-hidden rounded-2xl bg-stone-200 shadow-md">
+        <div className="inline-flex h-9 w-full items-center justify-start gap-2.5 bg-gray-800 px-6 sm:px-9 py-2">
           <div className={hStyle}>Application Status</div>
         </div>
-        <div className="self-stretch flex-1 px-24 py-4 inline-flex justify-between items-center overflow-hidden">
-          <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
-            {getApplicationStepStatus(0)}
-            <div className={`${tStyle} text-center justify-center font-semibold `}>Dorm<br />Chosen</div>
-          </div>
-          <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
-            {getApplicationStepStatus(1)}
-            <div className={`${tStyle} text-center justify-center font-semibold `}>Application<br />Submitted</div>
-          </div>
-          <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
-            {getApplicationStepStatus(2)}
-            <div className={`${tStyle} text-center justify-center font-semibold `}>Manager<br />Review</div>
-          </div>
-          <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
-            {getApplicationStepStatus(3)}
-            <div className={`${tStyle} text-center justify-center font-semibold `}>Room<br />Assigned</div>
-          </div>
+        
+        {/* grid layout for application progress*/}
+        <div className="grid w-full grid-cols-2 gap-y-6 px-4 py-8 sm:flex sm:justify-between sm:px-12 md:px-24">
+          {[
+            { label: "Dorm\nChosen", idx: 0 },
+            { label: "Application\nSubmitted", idx: 1 },
+            { label: "Manager\nReview", idx: 2 },
+            { label: "Room\nAssigned", idx: 3 },
+          ].map((step) => (
+            <div key={step.idx} className="flex flex-col items-center justify-center gap-2 text-center">
+              {getApplicationStepStatus(step.idx)}
+              <div className={`${tStyle} whitespace-pre-line font-semibold leading-tight`}>
+                {step.label}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="w-216 flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
-        <div className="self-stretch h-9 px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+      
+      <div className="flex w-full flex-col items-start justify-start overflow-hidden rounded-2xl bg-stone-200 shadow-md">
+        <div className="inline-flex h-9 w-full items-center justify-start gap-2.5 bg-gray-800 px-6 sm:px-9 py-2">
           <div className={hStyle}>Application Details</div>
         </div>
         <div className="self-stretch flex-1 px-9 py-4">
