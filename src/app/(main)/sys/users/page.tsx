@@ -59,10 +59,10 @@ export default function UserManagementPage({
 	const [filters, setFilters] = useState<UserFiltersState>({
 		search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
 	});
-  // State for pagination and modals
+  	// State for pagination and modals
 	const [page, setPage] = useState(1);
 	const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [disableUser, setDisableUser] = useState<User | null>(null);
+  	const [disableUser, setDisableUser] = useState<User | null>(null);
 
 	// Fetch all users from API
 	useEffect(() => {
@@ -96,10 +96,10 @@ export default function UserManagementPage({
 				
 				// Transform the data to match User interface
 				const transformedUsers: User[] = rawUsers.map((user: any) => ({
-					id: user.id || user.user_id || '',
+					id: String(user.account_number ?? ''),
 					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
 					gender: user.sex || user.gender || 'Not specified',
-					email: user.account_email || user.email || user.contact_email || '',
+					email: user.account_email,
 					role: user.user_type || user.role || 'Student',
 					status: user.is_deleted ? 'Disabled' : 'Active',
 					dormitory: user.dormitory || user.dorm_name || '—',
@@ -297,7 +297,9 @@ export default function UserManagementPage({
 									</button>
 																			
                   <button
-                    onClick={() => setDisableUser(u)}
+                    onClick={() => {
+					setDisableUser(u);
+					}}	
                     className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                       u.status === 'Active'
                         ? 'text-red-500 border border-red-200 hover:bg-red-50'
@@ -331,7 +333,7 @@ export default function UserManagementPage({
 			</div>
 			{editingUser && (
 				<EditUserModal
-					user={editingUser}  // paayos netoo
+					user={editingUser as any}  // paayos netoo
 					dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
 					onClose={() => setEditingUser(null)}
 					onSave={(id, role, dorm) => {
@@ -342,14 +344,19 @@ export default function UserManagementPage({
 				/>
 			)}
       {disableUser && (
-        <DisableAccountModal
-          user={disableUser} // paayos nalangs
-          onClose={() => setDisableUser(null)}
-          onConfirm={(id) => {
-            console.log("Toggle status for user:", id);
-          }}
-        />
-      )}
+		<DisableAccountModal
+			user={disableUser as any}
+			onClose={() => setDisableUser(null)}
+			onConfirm={(id) => {
+			setUsers(prev => prev.map(u => 
+				u.id === id 
+				? { ...u, status: u.status === 'Active' ? 'Disabled' : 'Active' }
+				: u
+			));
+			setDisableUser(null);
+			}}
+		/>
+		)}
 		</div>
 	);
 }

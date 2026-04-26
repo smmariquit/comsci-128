@@ -75,13 +75,8 @@ const getAllUser = async (): Promise<Public<User>[] | null> => {
 
 		if (!userProfiles) return [];
 
-		const publicInfos: Public<User>[] = [];
-		userProfiles.forEach((userDetails) => {
-			const { account_number, password, ...nonSensitiveInfo } =
-				userDetails;
-			publicInfos.push(nonSensitiveInfo);
-		});
-		return publicInfos;
+		
+		return userProfiles;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
