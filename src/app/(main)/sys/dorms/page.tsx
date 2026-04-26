@@ -251,7 +251,7 @@ export default function DormManagementPage({
 
             {/* Table Headers — must match GRID_COLS (8 columns) */}
             <div className={`grid ${GRID_COLS} gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6`}>
-              {['DORM', 'MANAGER', 'EMAIL ADDRESS', 'CAPACITY', 'ROOMS', 'OCCUPIED', 'STATUS', 'ACTIONS'].map((col) => (
+              {['DORM', 'MANAGER', 'EMAIL ADDRESS', 'CAPACITY', 'ROOMS', 'OCCUPIED', 'TYPE', 'ACTIONS'].map((col) => (
                 <span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">{col}</span>
               ))}
             </div>
@@ -300,9 +300,7 @@ export default function DormManagementPage({
                     <span className="text-sm text-[#1a2332]/70">{u.occupied ?? '—'}</span>
 
                     {/* STATUS */}
-                    <div>
-                      <StatusBadge status={u.status} />
-                    </div>
+                    <span className="text-sm text-[#1a2332]/70">{u.occupied ?? 'Mixed'}</span>
 
                     {/* ACTIONS */}
                     <div className="flex items-center gap-2">
