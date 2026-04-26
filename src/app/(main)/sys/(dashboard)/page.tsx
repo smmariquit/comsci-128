@@ -221,6 +221,42 @@ export default function DashboardPage({
 		const today = new Date().toLocaleDateString('en-US', {
 			weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
 		});
+
+		// Loading state
+		if (loading) {
+			return (
+				<div className="flex min-h-screen bg-[#eae8e1]">
+					<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+					<div className="flex-1 flex items-center justify-center">
+						<div className="text-center">
+							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
+							<p className="text-[#1a2332]/60">Loading dashboard...</p>
+						</div>
+					</div>
+				</div>
+			);
+		}
+	
+		// Error state
+		if (error) {
+			return (
+				<div className="flex min-h-screen bg-[#eae8e1]">
+					<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+					<div className="flex-1 flex items-center justify-center">
+						<div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
+							<p className="text-red-600 font-semibold mb-2">Error Loading Dashboard</p>
+							<p className="text-red-500 text-sm mb-4">{error}</p>
+							<button 
+								onClick={() => window.location.reload()} 
+								className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+							>
+								Try Again
+							</button>
+						</div>
+					</div>
+				</div>
+			);
+		}
 		return (
 			<div className="flex min-h-screen bg-[#eae8e1]">
 				      {/* 'Add Manager' Modal */}
