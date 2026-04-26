@@ -3,6 +3,7 @@ import type { Room, RoomInsert, RoomType, RoomUpdate } from "@/models/room";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
 import { housingData } from "../data/housing-data";
+import App from "next/app";
 
 const addRoom = async (data: RoomInsert): Promise<Room | null> => {
   try {
@@ -126,14 +127,29 @@ const assignRoom = async (roomId: number, studentId: string) => {
 
 const unassignRoom = async (roomId: number, studentIdOrAccount: string | number) => {
 	try {
+    // rbac
+    await validateAction(AppAction.ASSIGN_ROOM);
+
+    // room check
+    const room = await roomData.findByRoomId(roomId);
+    if (!room) throw new Error ("Room Not Found!");
+
+    // housing check
+    const housing = await housingData.findById(room.housing_id);
+    if (!housing) throw new Error ("Housing Not Found!");
+
+    // obac
+    await validateOwnership(housing.landlord_account_number);
+
+    // room unassignment
 		let account_number: number;
 
 		if (typeof studentIdOrAccount === "string" && studentIdOrAccount.length > 5) {
-             account_number = await roomData.getAccountbyStudentNumber(studentIdOrAccount);
-        } else {
-             // If it's the internal ID from the 'Remove' button, just use it
-             account_number = Number(studentIdOrAccount);
-        }
+      account_number = await roomData.getAccountbyStudentNumber(studentIdOrAccount);
+    } else {
+      // If it's the internal ID from the 'Remove' button, just use it
+      account_number = Number(studentIdOrAccount);
+    }
 
 		if (isNaN(account_number)) throw new Error("Invalid account number");
 
@@ -144,7 +160,7 @@ const unassignRoom = async (roomId: number, studentIdOrAccount: string | number)
 		return { success: true }
 	} catch (error: any) {
 		console.error("Service Error (unassignStudent): ", error.message);
-		throw new Error(error.message || "Failed to unassign student.");
+		throw error;
 	}
 };
 
