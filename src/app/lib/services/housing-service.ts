@@ -136,10 +136,14 @@ const getHousingWithRooms = async (
 	try {
 		const housing = await housingData.findWithRooms(housingId);
 		if (!housing) return null;
+
+		// obac
+		await validateOwnership(housing.landlord_account_number);
+
 		return housing;
 	} catch (error) {
 		console.error("Error: ", error);
-		throw new Error("Failed to fetch housing with rooms");
+		throw error;
 	}
 };
 
