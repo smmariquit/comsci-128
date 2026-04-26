@@ -78,8 +78,10 @@ export default function UserManagementPage({
   search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
   });
 
+  // Paging and modals state
   const [page, setPage] = useState(1);
   const [disableUser, setDisableUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   // Fetch managers from API
   useEffect(() => {
@@ -142,7 +144,7 @@ export default function UserManagementPage({
 
   
 
-  const filtered = userList.filter((u) => {
+    const filtered = userList.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
                           u.email.toLowerCase().includes(filters.search.toLowerCase());
     const matchRole   = filters.role   === 'All Roles'  || u.role      === filters.role;
@@ -223,7 +225,12 @@ export default function UserManagementPage({
                     <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border w-fit ${u.status === 'Active' ? 'border-emerald-300 text-emerald-600 bg-emerald-50' : 'border-red-200 text-red-500 bg-red-50'}`}>{u.status}</span>
                     <span className="text-sm text-[#1a2332]/60">{u.dormitory}</span>
                     <div className="flex items-center gap-2">
-                      <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">Edit</button>
+                      <button
+                        onClick={() => setEditingUser(u)}
+                        className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+                          >
+                        Edit
+                      </button>
                       <button
                         onClick={() => setDisableUser(u)}
                         className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
@@ -255,6 +262,18 @@ export default function UserManagementPage({
           </div>
         </div>
       </div>
+      {editingUser && (
+				<EditUserModal
+					user={editingUser}  // paayos netoo
+					dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
+					onClose={() => setEditingUser(null)}
+					onSave={(id, role, dorm) => {
+					
+					console.log("Updated:", id, role, dorm);
+					setEditingUser(null);
+					}}
+				/>
+			)}
       {disableUser && (
         <DisableAccountModal
           user={disableUser} // paayos nalangs
