@@ -1,103 +1,109 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
-import RoomTable, { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
-import RoomFilters, {
-  OccupancyFilter,
-  TypeFilter,
-} from  "@/components/admin/rooms/roomfilters";
-import { roomData } from "@/app/lib/data/room-data";
-import { roomService } from "@/app/lib/services/room-service";
+import { useEffect, useState } from "react";
+import { PlusSquare } from "lucide-react";
 import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
-import { supabase } from "@/app/lib/supabase";
-import { PlusSquare } from "lucide-react";
+import { roomData } from "@/app/lib/data/room-data";
+import { roomService } from "@/app/lib/services/room-service";
+import RoomFilters, { OccupancyFilter, TypeFilter } from "@/components/admin/rooms/roomfilters";
+import RoomTable, { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
+import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
 import RoomsPageLoading from "./loading";
+import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
 
 export default function Page() {
-
   const mockLandlordId = 179;
   const [hoveredAddRoom, setHoveredAddRoom] = useState(false);
 
-    const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [showFormModal, setShowFormModal] = useState(false);
-    const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
 
-    // ── Raw Data ──────────────────────────────────────────
-    const [rooms, setRooms] = useState<RoomRow[]>([]);
-    const [managedHousings, setManagedHousings] = useState<{housing_id: number, housing_name: string}[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [rooms, setRooms] = useState<RoomRow[]>([]);
+  const [managedHousings, setManagedHousings] = useState<{ housing_id: number; housing_name: string }[]>([]);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const [feedback, setFeedback] = useState<ActionFeedbackState | null>(null);
 
-    // ── Filter State ──────────────────────────────────────
-    const [search, setSearch] = useState("");
-    const [occupancy, setOccupancy] = useState<OccupancyFilter>("All");
-    const [roomType, setRoomType] = useState<TypeFilter>("All");
-    const [housing, setHousing] = useState("All");
+  const [search, setSearch] = useState("");
+  const [occupancy, setOccupancy] = useState<OccupancyFilter>("All");
+  const [roomType, setRoomType] = useState<TypeFilter>("All");
+  const [housing, setHousing] = useState("All");
 
-    // ── Derived Options ───────────────────────────────────
-    const housingOptions = Array.from(
-      new Set(rooms.map((r) => r.housing_name))
-    );
+  const housingOptions = Array.from(new Set(rooms.map((r) => r.housing_name)));
+  const allHousingOptions = managedHousings.map((h) => h.housing_name);
 
-    const allHousingOptions = managedHousings.map(h => h.housing_name);
-
-  // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
-    const roomCode = String(room.room_code || "").toLowerCase() || "";
+    const roomCode = String(room.room_code || "").toLowerCase();
     const searchTerm = search.toLowerCase();
 
     const matchesSearch =
       roomCode.includes(searchTerm) ||
-      (room.assigned_tenants || []).some((t) =>
-        t.id?.toLowerCase().includes(searchTerm) ||
-        t.name?.toLowerCase().includes(searchTerm)
+      (room.assigned_tenants || []).some((tenant) =>
+        tenant.id?.toLowerCase().includes(searchTerm) || tenant.name?.toLowerCase().includes(searchTerm),
       );
 
-    const matchesOccupancy =
-      occupancy === "All" || room.occupancy_status === occupancy;
+    const matchesOccupancy = occupancy === "All" || room.occupancy_status === occupancy;
+    const matchesType = roomType === "All" || room.room_type === roomType;
+    const matchesHousing = housing === "All" || room.housing_name === housing;
 
-    const matchesType =
-      roomType === "All" || room.room_type === roomType;
-
-    const matchesHousing =
-      housing === "All" || room.housing_name === housing;
-
-    return (
-      matchesSearch &&
-      matchesOccupancy &&
-      matchesType &&
-      matchesHousing
-    );
+    return matchesSearch && matchesOccupancy && matchesType && matchesHousing;
   });
 
-    const handleView = (room: RoomRow) => {
-            setSelectedRoom(room);
-            setShowViewModal(true);
-    };
-    const handleEdit = (room: RoomRow) => {
+  const refreshRooms = async () => {
+    const housings = await housingData.findbyLandlord(mockLandlordId);
+    setManagedHousings(housings);
+
+    const managedIds = housings.map((h) => h.housing_id);
+    const liveRooms = await roomData.findAllRoomDetailed(managedIds);
+    setRooms(liveRooms);
+  };
+
+  useEffect(() => {
+    setIsPageLoading(true);
+    refreshRooms().finally(() => setIsPageLoading(false));
+  }, [mockLandlordId]);
+
+  const handleView = (room: RoomRow) => {
+    setSelectedRoom(room);
+    setShowViewModal(true);
+  };
+
+  const handleEdit = (room: RoomRow) => {
     setSelectedRoom(room);
     setShowFormModal(true);
-    };
-    const handleAssign = (room: RoomRow) => {
+  };
+
+  const handleAssign = (room: RoomRow) => {
     setSelectedRoom(room);
     setShowAssignModal(true);
-    };
+  };
 
-  // ── Handlers ──────────────────────────────────────────
   const handleDelete = async (row: RoomRow) => {
     if (!window.confirm(`Are you sure you want to deactivate ${row.room_code}?`)) return;
 
     try {
-      setIsLoading(true);
+      setIsActionLoading(true);
       await roomData.deactivate(row.room_id);
-      setRooms((prev) => prev.filter((r) => r.room_id !== row.room_id));
+      setRooms((prev) => prev.filter((room) => room.room_id !== row.room_id));
+      setFeedback({
+        open: true,
+        kind: "success",
+        title: "Room deactivated",
+        message: `${row.room_code} was deactivated successfully.`,
+      });
     } catch (err) {
-      console.error("Failed to deactivate: ", err);
+      setFeedback({
+        open: true,
+        kind: "error",
+        title: "Could not deactivate room",
+        message: err instanceof Error ? err.message : "The room could not be deactivated.",
+      });
     } finally {
-      setIsLoading(false);
+      setIsActionLoading(false);
     }
   };
 
@@ -106,21 +112,34 @@ export default function Page() {
     const nextStatusUI: OccupancyStatus = nextStatus;
 
     try {
+      setIsActionLoading(true);
       await roomData.update(row.room_id, { occupancy_status: nextStatus as any });
       setRooms((prev) =>
-        prev.map((r) => r.room_id === row.room_id ? { ...r, occupancy_status: nextStatusUI } : r)
+        prev.map((room) => (room.room_id === row.room_id ? { ...room, occupancy_status: nextStatusUI } : room)),
       );
+      setFeedback({
+        open: true,
+        kind: "success",
+        title: "Occupancy updated",
+        message: `${row.room_code} is now marked as ${nextStatus.toLowerCase()}.`,
+      });
     } catch (err) {
-      console.error("Failed to update status: ", err);
+      setFeedback({
+        open: true,
+        kind: "error",
+        title: "Could not update occupancy",
+        message: err instanceof Error ? err.message : "The room occupancy could not be updated.",
+      });
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
   const handleFormSubmit = async (form: RoomForm) => {
     try {
-      if (showAddModal) {
-        // ── Add mode ──
-        setIsLoading(true);
+      setIsActionLoading(true);
 
+      if (showAddModal) {
         const selectedHousing = managedHousings.find((h) => h.housing_name === form.housing_name);
         const housingId = selectedHousing?.housing_id;
 
@@ -134,28 +153,41 @@ export default function Page() {
           maximum_occupants: Number(form.maximum_occupants),
           occupancy_status: form.occupancy_status as any,
         });
+
+        setFeedback({
+          open: true,
+          kind: "success",
+          title: "Room added",
+          message: "The new room was created successfully.",
+        });
       } else if (selectedRoom) {
-        // ── Edit mode ──
-        setIsLoading(true);
-
-        const dbStatus = form.occupancy_status;
-
         await roomData.update(selectedRoom.room_id, {
           room_type: form.room_type as any,
           maximum_occupants: Number(form.maximum_occupants),
-          occupancy_status: dbStatus as any,
+          occupancy_status: form.occupancy_status as any,
+        });
+
+        setFeedback({
+          open: true,
+          kind: "success",
+          title: "Room saved",
+          message: `${selectedRoom.room_code} was updated successfully.`,
         });
       }
 
       await refreshRooms();
-
       setShowAddModal(false);
       setShowFormModal(false);
       setSelectedRoom(null);
     } catch (err) {
-      console.error("Form error: ", err);
+      setFeedback({
+        open: true,
+        kind: "error",
+        title: showAddModal ? "Could not add room" : "Could not save room",
+        message: err instanceof Error ? err.message : "The room changes could not be saved.",
+      });
     } finally {
-      setIsLoading(false);
+      setIsActionLoading(false);
     }
   };
 
@@ -163,18 +195,26 @@ export default function Page() {
     if (!selectedRoom) return;
 
     try {
-      setIsLoading(true);
-
+      setIsActionLoading(true);
       await roomService.assignRoom(selectedRoom.room_id, studentId);
-
       await refreshRooms();
-
       setShowAssignModal(false);
       setSelectedRoom(null);
+      setFeedback({
+        open: true,
+        kind: "success",
+        title: "Tenant assigned",
+        message: `The tenant was assigned to ${selectedRoom.room_code} successfully.`,
+      });
     } catch (err) {
-      console.error("Failed to submit assignment: ", err);
+      setFeedback({
+        open: true,
+        kind: "error",
+        title: "Could not assign tenant",
+        message: err instanceof Error ? err.message : "The tenant could not be assigned.",
+      });
     } finally {
-      setIsLoading(false);
+      setIsActionLoading(false);
     }
   };
 
@@ -182,49 +222,31 @@ export default function Page() {
     if (!selectedRoom) return;
 
     try {
-      setIsLoading(true);
+      setIsActionLoading(true);
       await roomService.unassignRoom(selectedRoom.room_id, studentId);
-
       await refreshRooms();
-
-      setRooms((prev) => {
-        const updated = prev.find(r => r.room_id === selectedRoom.room_id);
-        if (updated) setSelectedRoom(updated);
-        return prev;
+      setFeedback({
+        open: true,
+        kind: "success",
+        title: "Tenant removed",
+        message: `The tenant was unassigned from ${selectedRoom.room_code} successfully.`,
       });
     } catch (err) {
-      console.error("Failed to unassign: ", err);
+      setFeedback({
+        open: true,
+        kind: "error",
+        title: "Could not remove tenant",
+        message: err instanceof Error ? err.message : "The tenant could not be unassigned.",
+      });
     } finally {
-      setIsLoading(false);
+      setIsActionLoading(false);
     }
   };
 
-  const refreshRooms = async () => {
-    try {
-      const housings = await housingData.findbyLandlord(mockLandlordId);
-      setManagedHousings(housings);
+  if (isPageLoading) return <RoomsPageLoading />;
 
-      const managedIds = housings.map(h => h.housing_id);
-      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
-      setRooms(liveRooms);
-    } catch (err) {
-      console.error ("Refrash failed: ", err);
-    }
-  };
-
-  // ── Fetch Data ────────────────────────────────────────
-  useEffect(() => {
-    setIsLoading(true);
-    refreshRooms().finally(() => setIsLoading(false));
-  }, [mockLandlordId]);
-
-  if (isLoading) return <RoomsPageLoading />;
-
-  // ── UI ────────────────────────────────────────────────
   return (
     <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
-
-      {/* Filters */}
       <RoomFilters
         search={search}
         occupancy={occupancy}
@@ -237,7 +259,6 @@ export default function Page() {
         onHousing={setHousing}
       />
 
-      {/* Table */}
       <RoomTable
         data={filteredRooms}
         onView={handleView}
@@ -247,10 +268,10 @@ export default function Page() {
         onToggleOccupancy={handleToggle}
       />
 
-      {/* Add Room Button */}
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <button
-          onClick={() => setShowAddModal(true)} 
+          onClick={() => setShowAddModal(true)}
+          disabled={isActionLoading}
           onMouseEnter={() => setHoveredAddRoom(true)}
           onMouseLeave={() => setHoveredAddRoom(false)}
           style={{
@@ -266,21 +287,21 @@ export default function Page() {
             borderRadius: 10,
             padding: "0 20px",
             height: 40,
-            cursor: "pointer",
+            cursor: isActionLoading ? "not-allowed" : "pointer",
+            opacity: isActionLoading ? 0.7 : 1,
             whiteSpace: "nowrap",
             flexShrink: 0,
             width: "fit-content",
-            transform: hoveredAddRoom ? "translateY(-1px)" : "translateY(0)",
-            boxShadow: hoveredAddRoom ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
+            transform: hoveredAddRoom && !isActionLoading ? "translateY(-1px)" : "translateY(0)",
+            boxShadow: hoveredAddRoom && !isActionLoading ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
             transition: "transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease",
           }}
         >
           <PlusSquare size={14} color="#fff" strokeWidth={2.2} aria-hidden="true" />
-          Add Room
+          {isActionLoading ? "Processing..." : "Add Room"}
         </button>
       </div>
 
-      {/* View Modal */}
       {showViewModal && selectedRoom && (
         <ViewRoomModal
           room={selectedRoom}
@@ -291,7 +312,6 @@ export default function Page() {
         />
       )}
 
-      {/* Edit Modal */}
       {showFormModal && selectedRoom && (
         <RoomFormModal
           mode="edit"
@@ -307,10 +327,10 @@ export default function Page() {
             setSelectedRoom(null);
           }}
           onSubmit={handleFormSubmit}
+          isSubmitting={isActionLoading}
         />
       )}
 
-      {/* Add Modal */}
       {showAddModal && (
         <RoomFormModal
           mode="add"
@@ -323,10 +343,10 @@ export default function Page() {
           housingOptions={allHousingOptions}
           onClose={() => setShowAddModal(false)}
           onSubmit={handleFormSubmit}
+          isSubmitting={isActionLoading}
         />
       )}
 
-      {/* Assign Modal */}
       {showAssignModal && selectedRoom && (
         <OverrideAssignModal
           room={selectedRoom}
@@ -337,8 +357,11 @@ export default function Page() {
           }}
           onAssign={(studentId) => handleAssignSubmit(studentId)}
           onUnassign={(studentId) => handleUnassign(studentId)}
+          isSubmitting={isActionLoading}
         />
       )}
+
+      <ActionFeedbackModal state={feedback} onClose={() => setFeedback(null)} />
     </div>
   );
 }

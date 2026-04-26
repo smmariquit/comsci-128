@@ -176,10 +176,11 @@ interface IssueBillModalProps {
   managedIds: number[];          // list of housing_name strings
   onClose:        () => void;
   onSubmit:       (form: IssueBillForm) => void;
+  isSubmitting?:  boolean;
 }
 
 export default function IssueBillModal({
-  open, onClose, onSubmit,
+  open, onClose, onSubmit, isSubmitting = false,
 }: IssueBillModalProps) {
 
   const today = new Date().toISOString().split("T")[0];
@@ -582,13 +583,19 @@ export default function IssueBillModal({
           flexShrink: 0, background: "#faf9f7",
         }}>
           <span style={{ fontSize: 11, color: T.teal }}>
-            {validCharges.length > 0
+            {isSubmitting
+              ? "Issuing bills..."
+              : validCharges.length > 0
               ? `${validCharges.length} bill${validCharges.length > 1 ? "s" : ""} will be created`
               : "No charges added yet"}
           </span>
           <div style={{ display: "flex", gap: 10 }}>
             <CancelBtn onClose={onClose} />
-            <PrimaryBtn label="Issue Bill ✓" disabled={!isValid} onClick={handleSubmit} />
+            <PrimaryBtn
+              label={isSubmitting ? "Issuing..." : "Issue Bill ✓"}
+              disabled={!isValid || isSubmitting}
+              onClick={handleSubmit}
+            />
           </div>
         </div>
 

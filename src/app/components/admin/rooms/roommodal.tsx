@@ -91,7 +91,7 @@ function ModalShell({
   );
 }
 
-function CancelBtn({ onClose }: { onClose: () => void }) {
+function CancelBtn({ onClose, disabled }: { onClose: () => void; disabled?: boolean }) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -99,10 +99,12 @@ function CancelBtn({ onClose }: { onClose: () => void }) {
       onClick={onClose}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      disabled={disabled}
       style={{
         fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500,
         padding: "9px 20px", borderRadius: 9, border: `1px solid ${C.cream}`,
-        background: "#fff", color: C.navy, cursor: "pointer",
+        background: "#fff", color: C.navy, cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.55 : 1,
         transform: hovered ? "translateY(-1px)" : "translateY(0)",
         boxShadow: hovered ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
         transition: "transform 0.15s ease, box-shadow 0.15s ease",
@@ -113,7 +115,7 @@ function CancelBtn({ onClose }: { onClose: () => void }) {
   );
 }
 
-function PrimaryBtn({ label, onClick }: { label: string; onClick: () => void }) {
+function PrimaryBtn({ label, onClick, disabled }: { label: string; onClick: () => void; disabled?: boolean }) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -121,10 +123,12 @@ function PrimaryBtn({ label, onClick }: { label: string; onClick: () => void }) 
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      disabled={disabled}
       style={{
         fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
         padding: "9px 20px", borderRadius: 9, border: "none",
-        background: C.orange, color: "#fff", cursor: "pointer",
+        background: C.orange, color: "#fff", cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.65 : 1,
         transform: hovered ? "translateY(-1px)" : "translateY(0)",
         boxShadow: hovered ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
         transition: "transform 0.15s ease, box-shadow 0.15s ease",
@@ -236,9 +240,10 @@ interface RoomFormModalProps {
   onClose:        () => void;
   onSubmit:       (form: RoomForm) => void;
   mode:           "add" | "edit";
+  isSubmitting?:  boolean;
 }
 
-export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode }: RoomFormModalProps) {
+export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode, isSubmitting = false }: RoomFormModalProps) {
   const [form, setForm] = useState<RoomForm>({
     housing_name:      initial?.housing_name      ?? "",
     room_type:         initial?.room_type          ?? "Co-ed",
@@ -262,10 +267,15 @@ export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode
         onClose={onClose}
         footer={
           <>
-            <CancelBtn onClose={onClose} />
+            <CancelBtn onClose={onClose} disabled={isSubmitting} />
             <PrimaryBtn
-              label={mode === "add" ? "Add Room" : "Save Changes"}
+              label={
+                isSubmitting
+                  ? mode === "add" ? "Adding..." : "Saving..."
+                  : mode === "add" ? "Add Room" : "Save Changes"
+              }
               onClick={() => onSubmit(form)}
+              disabled={isSubmitting}
             />
           </>
         }
@@ -329,13 +339,14 @@ export function RoomFormModal({ initial, housingOptions, onClose, onSubmit, mode
 // ── 3. Override Assignment Modal ──────────────────────────────────────────────
 
 export function OverrideAssignModal({
-  room, onClose, onAssign, onUnassign, onFetchEligibleStudents,
+  room, onClose, onAssign, onUnassign, onFetchEligibleStudents, isSubmitting = false,
 }: {
   room:       RoomRow;
   onClose:    () => void;
   onAssign:   (studentId: string) => void;
   onFetchEligibleStudents: () => Promise<{ id: any; name: string }[]>
   onUnassign: (studentId: string) => void;
+  isSubmitting?: boolean;
 }) {
   const [selectedId, setSelectedId] = useState(""); // Track dropdown selection
   const [students, setStudents] = useState<{ id: any; name: string }[]>([]);
@@ -361,11 +372,12 @@ export function OverrideAssignModal({
         onClose={onClose}
         footer={
           <>
-            <CancelBtn onClose={onClose} />
+            <CancelBtn onClose={onClose} disabled={isSubmitting} />
             {!isFull && (
               <PrimaryBtn
-                label={loading ? "Loading..." : "Assign Tenant"}
+                label={isSubmitting ? "Assigning..." : loading ? "Loading..." : "Assign Tenant"}
                 onClick={() => { if (selectedId) onAssign(selectedId); }}
+                disabled={loading || isSubmitting || !selectedId}
               />
             )}
           </>
@@ -385,6 +397,7 @@ export function OverrideAssignModal({
                       <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>{t.name}</span>
                       <button
                         onClick={() => onUnassign(t.id)}
+                        disabled={isSubmitting}
                         onMouseEnter={() => setRemoveHover(t.id)}
                         onMouseLeave={() => setRemoveHover((current) => (current === t.id ? null : current))}
                         style={{
@@ -392,7 +405,8 @@ export function OverrideAssignModal({
                           background: "none",
                           color: C.orange,
                           fontSize: 11,
-                          cursor: "pointer",
+                          cursor: isSubmitting ? "not-allowed" : "pointer",
+                          opacity: isSubmitting ? 0.55 : 1,
                           fontWeight: 600,
                           transform: removeHover === t.id ? "translateY(-1px)" : "translateY(0)",
                           textDecoration: removeHover === t.id ? "underline" : "none",
@@ -417,7 +431,7 @@ export function OverrideAssignModal({
                   style={selectStyle}
                   value={selectedId}
                   onChange={(e) => setSelectedId(e.target.value)}
-                  disabled={loading}
+                  disabled={loading || isSubmitting}
                 >
                   <option value="">
                     {loading ? "Fetching eligible students..." : "Select a student..."}
