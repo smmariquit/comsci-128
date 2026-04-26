@@ -155,6 +155,27 @@ const getRoomStats = async () => {
 	}
 };
 
+/*
+ * Fetches rooms for a specific housing facility and filters them
+ * by the student's preferred room type and available bed space.
+ */
+async function getAvailableRoomsForAssignment(housingId: number, roomType: string) {
+    const allRooms = await roomData.findAllRoomDetailed([housingId]);
+
+    const availableRooms = allRooms
+        .filter(room => 
+            room.room_type === roomType && 
+            room.current_occupants < room.maximum_occupants
+        )
+        .map(room => ({
+            room_id: room.room_id,
+            room_code: room.room_code,
+            available_beds: room.maximum_occupants - room.current_occupants
+        }));
+
+    return availableRooms;
+}
+
 export const roomService = {
 	addRoom,
 	getRoom,
@@ -165,4 +186,5 @@ export const roomService = {
 	unassignRoom,
 	getEligibleStudents,
     getRoomStats,
+    getAvailableRoomsForAssignment
 };
