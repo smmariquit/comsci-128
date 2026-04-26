@@ -1,5 +1,7 @@
 import { billData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
 
 const fetchAllBills = async (): Promise<BillRow[]> => {
     try {
@@ -14,6 +16,8 @@ const fetchAllBills = async (): Promise<BillRow[]> => {
 
 const markAsPaid = async (txnId: number) => {
     try {
+        // RBAC
+        await validateAction(AppAction.UPDATE_BILL_STATUS);
         return await billData.markAsPaid(txnId);
     } catch (error) {
         console.error("Service Error (markAsPaid): ", error);
