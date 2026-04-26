@@ -13,6 +13,7 @@ import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
 import { supabase } from "@/app/lib/supabase";
 import { PlusSquare } from "lucide-react";
+import RoomsPageLoading from "./loading";
 
 export default function Page() {
 
@@ -217,7 +218,7 @@ export default function Page() {
     refreshRooms().finally(() => setIsLoading(false));
   }, [mockLandlordId]);
 
-  if (isLoading) return <div className="p-6">Syncing with the database...</div>;
+  if (isLoading) return <RoomsPageLoading />;
 
   // ── UI ────────────────────────────────────────────────
   return (
