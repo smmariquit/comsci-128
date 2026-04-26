@@ -98,7 +98,7 @@ export default function UserManagementPage({
 				const transformedUsers: User[] = rawUsers.map((user: any) => ({
 					id: String(user.account_number ?? ''),
 					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-					gender: user.sex || user.gender || 'Not specified',
+					gender: user.sex,
 					email: user.account_email,
 					role: user.user_type || user.role || 'Student',
 					status: user.is_deleted ? 'Disabled' : 'Active',

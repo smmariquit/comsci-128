@@ -254,6 +254,23 @@ async function countActiveUsers():Promise<number | null> {
 	return count;
 }
 
+// For changing user role
+async function promote(
+	account_email: string,
+	userDetails: UpdateUser,
+): Promise<UpdateUser | null> {
+
+  const { data, error } = await supabase
+    .from("user")
+    .update(userDetails)
+    .eq("account_email", account_email)
+    .select("*");
+
+  if (error) throw new Error(`Update User Error: ${error.message}`);
+
+  return data && data.length > 0 ? data[0] : null;
+}
+
 export const userData = {
 	findStudents,
 	getUsersForHousingAdmin,
@@ -265,4 +282,5 @@ export const userData = {
     deactivate,
     countAllUser,
 	countActiveUsers,
+    promote
 };
