@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { LoaderCircle, Search } from "lucide-react";
 import { C } from "@/lib/palette";
 
@@ -309,6 +310,11 @@ function ConfirmModal({
   onClose,
   onConfirm,
   isProcessing
+}: {
+  config: ModalConfig;
+  onClose: () => void;
+  onConfirm: (finalRoomId?: number) => void; 
+  isProcessing: boolean;
 }) {
   const [availableRooms, setAvailableRooms] = useState<AvailableRoom[]>([]);
   const [isLoadingRooms, setIsLoadingRooms] = useState(false);
@@ -527,6 +533,7 @@ export default function ApplicationTable_Wrapper({
   onApprove?: (row: ApplicationReportRow) => void | Promise<void>;
   onReject?: (row: ApplicationReportRow) => void | Promise<void>;
 }) {
+  const router = useRouter();
   const [applications, setApplications] = useState<ApplicationReportRow[]>(liveApplications);
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "All">("Pending Admin Approval");
   const [search, setSearch] = useState("");
@@ -590,6 +597,8 @@ export default function ApplicationTable_Wrapper({
             : app
         ));
 
+        router.refresh();
+
       } else {
         // Reject workflow uses the original basic PATCH
         await patchApplicationStatus(modalConfig.row.application_id, "Rejected");
@@ -599,6 +608,8 @@ export default function ApplicationTable_Wrapper({
             ? { ...app, application_status: "Rejected" }
             : app
         ));
+
+        router.refresh();
       }
     } catch (error) {
       console.error("Failed action:", error);
