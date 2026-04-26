@@ -56,6 +56,12 @@ export async function validateOwnership(landlordId: number | string) {
     throw new Error("Authentication Required!");
   }
 
+  const role = await getCurrentUserRole();
+
+  if (role == "system_admin") {
+    return; // System admins bypass ownership checks
+  }
+
   const accountNumber = user?.user_metadata?.account_number;
 
   if (!accountNumber) {
