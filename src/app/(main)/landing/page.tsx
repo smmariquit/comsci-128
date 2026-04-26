@@ -6,6 +6,7 @@ import { floatingAnimations } from "./animations";
 import ServicesSection from "./ServicesSection";
 import ShowcaseSection from "./ShowcaseSection";
 import TestimonialsSection from "./TestimonialsSection";
+import CTASection from "./GSSection";
 
 // Mapping colors
 const colors = {
@@ -123,6 +124,9 @@ export default function LandingPage() {
       
       {/* Testimonials */}
       <TestimonialsSection />
+      
+      {/* Get Started with orange section */}
+      <CTASection />
 
       {/* Footer */}
       <footer
