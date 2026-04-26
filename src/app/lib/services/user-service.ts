@@ -5,6 +5,8 @@ import type { NewStudent, Student } from "@/models/student";
 import type { NewUser, UpdateUser, User } from "@/models/user";
 import type { NewStudentAcademic } from "../models/student_academic";
 import { supabaseAdmin } from "../supabase-admin";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 type Public<T> = Omit<T, "account_number" | "password">;
@@ -157,6 +159,9 @@ const deactivateUser = async (
 	userId: number,
 ): Promise<Public<UpdateUser> | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.DELETE_ACCOUNT); 
+
 		const updatedUser = await userData.deactivate(userId);
 		if (!updatedUser) return null;
 
