@@ -182,9 +182,14 @@ export default function DashboardPage({
 
 			// Process occupancy data
 			if (!occupancyResponse.ok) throw new Error(`Occupancy HTTP error! status: ${occupancyResponse.status}`);
-			const occupancyData: OccupancyItem[] = await occupancyResponse.json();
-			console.log('Occupancy data:', occupancyData);
-			setOccupancy(occupancyData);
+			const occupancyRawData = await occupancyResponse.json();
+
+			// Transform to OccupancyItem
+			const occupancyArray = occupancyRawData.map((item: any) => ({
+				name: item.name,
+				pct: item.occupancyRate
+			})) as OccupancyItem[];
+			setOccupancy(occupancyArray); 
 
 			// Update stats
 			setStats(prev => prev.map(stat => {
