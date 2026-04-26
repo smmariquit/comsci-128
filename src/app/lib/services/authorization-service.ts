@@ -13,9 +13,9 @@ async function getPermissions(): Promise<Permission[]> {
         .from("permissions")
         .select("*");
 
-    console.log("DB Fetch - Error:", error);
-    console.log("DB Fetch - Row Count:", data?.length);
-    console.log("DB Fetch - First Row:", data?.[0]);
+    // console.log("DB Fetch - Error:", error);
+    // console.log("DB Fetch - Row Count:", data?.length);
+    // console.log("DB Fetch - First Row:", data?.[0]);
 
     if (error) {
         console.error("Authorization: Error Fetching Permissions", error);

@@ -72,7 +72,7 @@ const updateApplicationStatus = async (
     return updated
   } catch (error) {
     console.error("Error: ", error)
-    throw new Error("Failed to update application status")
+    throw error;
   }
 }
 
