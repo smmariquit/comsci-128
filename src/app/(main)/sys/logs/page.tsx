@@ -7,6 +7,8 @@ import NotificationBell from '@/app/(main)/sys/component/notification';
 import AuditFilters, { type AuditFiltersState } from '@/app/(main)/sys/component/audit-filters';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ActionType } from '@/app/lib/data/audit-log-data';
+import { ViewAuditLogModal } from '@/app/(main)/sys/component/view-audit';
+
 
 // Types
 //export type ActionType = 'Login' | 'Logout' | 'Create' | 'Update' | 'Delete' | 'Export'; // temporary - hde ko anong pwedeng category ng actions to be logged
@@ -170,6 +172,7 @@ export default function AuditLogsPage({
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+  const [viewingLog, setViewingLog] = useState<AuditLog | null>(null); // view modal
 
   // Fetch audit logs from API
   useEffect(() => {
@@ -343,9 +346,12 @@ export default function AuditLogsPage({
 
                     {/* DETAILS */}
                     <div>
-                      <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
-                        View
-                      </button>
+                      <button
+                      onClick={() => setViewingLog(log)}
+                      className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+                    >
+                      View
+                    </button>
                     </div>
                   </div>
                 ))
@@ -373,6 +379,12 @@ export default function AuditLogsPage({
 
         </div>
       </div>
+      {viewingLog && (
+        <ViewAuditLogModal
+          log={viewingLog}
+          onClose={() => setViewingLog(null)}
+        />
+      )}
     </div>
   );
 }
