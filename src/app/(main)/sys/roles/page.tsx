@@ -16,7 +16,6 @@ export interface User {
   role: 'Landlord' | 'Manager' | string;
   status: 'Active' | 'Disabled' | string;
   dormitory: string;
-  joined: string;
 }
 
 // Sidebar + notifications
@@ -117,7 +116,6 @@ export default function UserManagementPage({
             role:      user.role || 'Manager',  // 👈 now uses manager_type
             status:    user.is_deleted ? 'Disabled' : 'Active',
             dormitory: '—',
-            joined:    '—',
         }));
 
         console.log('Transformed users:', transformedUsers);
@@ -196,8 +194,8 @@ export default function UserManagementPage({
               </span>
             </div>
             {/* Table Headers */}
-            <div className="grid grid-cols-[2.6fr_2.1fr_1.2fr_1.2fr_1.5fr_1.2fr_1fr] gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6">
-              {['NAME', 'EMAIL', 'ROLE', 'STATUS', 'DORMITORY', 'JOINED', 'ACTIONS'].map((col) => (
+            <div className="grid grid-cols-[2.6fr_2.1fr_1.2fr_1.2fr_1.5fr_1fr] gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6">
+              {['NAME', 'EMAIL', 'ROLE', 'STATUS', 'DORMITORY','ACTIONS'].map((col) => (
                 <span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">{col}</span>
               ))}
             </div>
@@ -207,7 +205,7 @@ export default function UserManagementPage({
                 <p className="text-sm text-[#1a2332]/40 text-center py-12">No users found.</p>
                       ) : (
                 paginated.map((u) => (
-                  <div key={u.id} className="grid grid-cols-[2.8fr_2.2fr_1.3fr_1.4fr_1.2fr_1.2fr_1.5fr] gap-4 px-6 py-4 items-center hover:bg-[#eae8e1]/30 transition-colors">
+                  <div key={u.id} className="grid grid-cols-[2.8fr_2.2fr_1.3fr_1.4fr_1.2fr_1.5fr] gap-4 px-6 py-4 items-center hover:bg-[#eae8e1]/30 transition-colors">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-full bg-[#1a2332] flex items-center justify-center text-white text-xs font-bold shrink-0">
                         {u.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
@@ -221,7 +219,6 @@ export default function UserManagementPage({
                     <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold w-fit ${{ Landlord: 'bg-purple-100 text-purple-700', Manager: 'bg-blue-100 text-blue-700' }[u.role] ?? 'bg-gray-100 text-gray-600'}`}>{u.role}</span>
                     <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border w-fit ${u.status === 'Active' ? 'border-emerald-300 text-emerald-600 bg-emerald-50' : 'border-red-200 text-red-500 bg-red-50'}`}>{u.status}</span>
                     <span className="text-sm text-[#1a2332]/60">{u.dormitory}</span>
-                    <span className="text-sm text-[#1a2332]/60">{u.joined}</span>
                     <div className="flex items-center gap-2">
                       <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">Edit</button>
                       <button className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${u.status === 'Active' ? 'text-red-500 border border-red-200 hover:bg-red-50' : 'text-emerald-600 border border-emerald-200 hover:bg-emerald-50'}`}>
