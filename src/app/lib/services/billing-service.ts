@@ -1,6 +1,26 @@
 import { billData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
 
+function normalizeStatus(rawStatus: unknown): BillRow["status"] {
+    const value = String(rawStatus ?? "").trim().toLowerCase();
+    if (value === "paid") return "Paid";
+    if (value === "overdue") return "Overdue";
+    return "Pending";
+}
+
+function getEffectiveStatus(bill: any): BillRow["status"] {
+    const normalized = normalizeStatus(bill?.status);
+    if (normalized === "Paid") return "Paid";
+
+    const due = new Date(bill?.due_date);
+    const now = new Date();
+    if (!Number.isNaN(due.getTime()) && due < now) {
+        return "Overdue";
+    }
+
+    return normalized;
+}
+
 const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[]> => {
     try {
         const { data, error } = await billData.getBillsOfLandlord(managedHousingIds);
@@ -9,8 +29,6 @@ const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[
         return (data || []).map((bill: any) => {
             const user = bill.student?.user;
             const app = bill.student?.student_accommodation_history || [];
-            console.log("managedHousingIds:", managedHousingIds);
-            console.log("raw app:", JSON.stringify(app));
             const relevantApp = app.find((a: any) => {
                 const room = Array.isArray(a.room) ? a.room[0] : a.room;
                 const housing = Array.isArray(room?.housing) ? room.housing[0] : room?.housing;
@@ -20,7 +38,6 @@ const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[
             const room = Array.isArray(relevantApp?.room) ? relevantApp.room[0] : relevantApp?.room;
             const housing = Array.isArray(room?.housing) ? room.housing[0] : room?.housing;
             const housingName = housing?.housing_name;
-            console.log(housingName)
 
             return {
                 transaction_id: bill.transaction_id,
@@ -29,9 +46,10 @@ const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[
                 housing_name: housingName || "Unassigned Property",
                 amount: Number(bill.amount),
                 bill_type: bill.bill_type,
-                status: bill.status,
+                status: getEffectiveStatus(bill),
                 due_date: bill.due_date,
                 issue_date: bill.issue_date,
+                date_paid: bill.date_paid,
             };
         });
     } catch (error) {
