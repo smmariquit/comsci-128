@@ -3,7 +3,7 @@ import { housingService } from "@/app/lib/services/housing-service";
 
 export async function GET() {
     try {
-    
+
         const count = await housingService.getHousingCount();
 
         // Fail
