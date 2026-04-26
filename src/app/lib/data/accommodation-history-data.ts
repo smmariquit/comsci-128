@@ -67,7 +67,7 @@ const createTenantRecord = async(
 
   const { data, error } = await supabase
     .from("student_accommodation_history")
-    .insert({
+    .upsert({
       account_number: accountNumber,
       room_id: roomId,
       movein_date: today,
