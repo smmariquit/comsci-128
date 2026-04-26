@@ -5,9 +5,8 @@ import type { Room, RoomInsert, RoomType, RoomUpdate } from "@/models/room";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
 import { housingData } from "../data/housing-data";
-import App from "next/app";
 
-const addRoom = async (data: RoomInsert): Promise<Room | null> => {
+export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
   try {
     const newRoom = await roomData.create(data);
     if (!newRoom) return null;
@@ -18,7 +17,7 @@ const addRoom = async (data: RoomInsert): Promise<Room | null> => {
   }
 };
 
-const getRoom = async (roomId: number): Promise<Room | null> => {
+export const getRoom = async (roomId: number): Promise<Room | null> => {
   try {
     const room = await roomData.findByRoomId(roomId);
     return room ?? null;
@@ -28,7 +27,7 @@ const getRoom = async (roomId: number): Promise<Room | null> => {
   }
 };
 
-const getAllRooms = async (): Promise<Room[]> => {
+export const getAllRooms = async (): Promise<Room[]> => {
   try {
     const rooms = await roomData.findAll();
     return rooms ?? [];
@@ -38,7 +37,7 @@ const getAllRooms = async (): Promise<Room[]> => {
   }
 };
 
-const updateRoom = async (
+export const updateRoom = async (
   roomId: number,
   updates: RoomUpdate,
 ): Promise<{ data?: Room; error?: string }> => {
@@ -88,7 +87,7 @@ const updateRoom = async (
   }
 };
 
-const deactivateRoom = async (roomId: number): Promise<Room | null> => {
+export const deactivateRoom = async (roomId: number): Promise<Room | null> => {
   try {
     const room = await roomData.findByRoomId(roomId);
     if (!room) {
@@ -109,7 +108,7 @@ const deactivateRoom = async (roomId: number): Promise<Room | null> => {
   }
 };
 
-const assignRoom = async (roomId: number, studentId: string) => {
+export const assignRoom = async (roomId: number, studentId: string) => {
 	try {
 
     // rbac
@@ -140,7 +139,7 @@ const assignRoom = async (roomId: number, studentId: string) => {
 	}
 };
 
-const unassignRoom = async (roomId: number, studentIdOrAccount: string | number) => {
+export const unassignRoom = async (roomId: number, studentIdOrAccount: string | number) => {
 	try {
     // rbac
     await validateAction(AppAction.ASSIGN_ROOM);
@@ -179,7 +178,7 @@ const unassignRoom = async (roomId: number, studentIdOrAccount: string | number)
 	}
 };
 
-const getEligibleStudents = async () => {
+export const getEligibleStudents = async () => {
 	try {
 		const allStudents = await roomData.findUnassignedStudents();
 
@@ -196,23 +195,11 @@ const getEligibleStudents = async () => {
 	}
 }
 
-const getRoomStats = async () => {
+export const getRoomStats = async () => {
 	try {
 		return await roomData.getRoomStats();
 	} catch (error: any) {
 		console.error("Service Error (getRoomStats): ", error.message);
 		throw new Error(error.message || "Failed to fetch room stats.");
 	}
-};
-
-export const roomService = {
-	addRoom,
-	getRoom,
-	getAllRooms,
-	updateRoom,
-	deactivateRoom,
-	assignRoom,
-	unassignRoom,
-	getEligibleStudents,
-  getRoomStats,
 };
