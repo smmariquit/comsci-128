@@ -35,10 +35,31 @@ export function DisableAccountModal({
 
   const isDisabling = user.status === "Active";
 
-  function handleConfirm() {
+    async function handleConfirm() {
+  console.log('handleConfirm called');
+  try {
+    const url = `/api/users/${user.id}`;
+    
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('User status updated:', data);
+    
     onConfirm(user.id);
     onClose();
+  } catch (err) {
+    console.error('Error updating user:', err);
   }
+}
 
   return (
     <>
