@@ -71,14 +71,14 @@ async function update(
   return data && data.length > 0 ? data[0] : null;
 }
 
-async function deactivate(userId: number): Promise<UpdateUser | null> {
+async function deactivate(email: string): Promise<UpdateUser | null> {
 	// This function takes a USERID of type STRING.
 	// CHANGES is_deleted field to true if user is found, otherwise return null.
 
   const { data, error } = await supabase
     .from("user")
     .update({ is_deleted: true })
-    .eq("account_number", userId)
+    .eq("account_email", email)
     .select();
 
   if (error) throw new Error(`Deactivate User Error: ${error.message}`);
