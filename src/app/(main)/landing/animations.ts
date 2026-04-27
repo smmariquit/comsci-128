@@ -1,5 +1,13 @@
 export const floatingAnimations = `
   /* ── SERVICES SCROLL ANIMATIONS ──────────────── */
+  @keyframes floatUpDown {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+  }
+
+  .float-updown {
+    animation: floatUpDown 6s ease-in-out infinite;
+  }
   @keyframes cardSlideUp {
     from { opacity: 0; transform: translateY(32px); }
     to   { opacity: 1; transform: translateY(0); }
