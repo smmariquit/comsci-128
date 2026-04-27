@@ -8,6 +8,18 @@ import { housingData } from "../data/housing-data";
 
 export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
   try {
+    // RBAC
+    await validateAction(AppAction.UPDATE_HOUSING);
+
+    // housing check
+    const housing = await housingData.findById(data.housing_id);
+    if (!housing) {
+      throw new Error("Housng Not Found.");
+    }
+
+    // OBAC
+    await validateOwnership(housing.landlord_account_number);
+
     const newRoom = await roomData.create(data);
     if (!newRoom) return null;
     return newRoom;
@@ -89,10 +101,23 @@ export const updateRoom = async (
 
 export const deactivateRoom = async (roomId: number): Promise<Room | null> => {
   try {
+    // RBAC
+    await validateAction(AppAction.UPDATE_HOUSING);
+
+    // Room Check
     const room = await roomData.findByRoomId(roomId);
     if (!room) {
       return null;
     }
+
+    // Housing Check
+    const housing = await housingData.findById(room.housing_id);
+    if (!housing) {
+      throw new Error ("Housing Not Found.");
+    }
+
+    // OBAC
+    await validateOwnership(housing.landlord_account_number);
 
     if (room.occupancy_status !== "Empty") {
       throw new Error(

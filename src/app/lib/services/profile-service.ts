@@ -97,6 +97,18 @@ async function updateManagerProfile(
 			...userUpdates
 		} = profileData;
 
+		// RBAC
+		await validateAction(AppAction.UPDATE_USER_DETAILS);
+
+		// USER CHECK
+		const user = await userData.findById(userId);
+		if (!user) {
+			throw new Error("User Not Found.");
+		}
+
+		// OBAC
+		await validateOwnership(user.account_number);
+
 		const updatedUser = await userData.update(userId, userUpdates);
 		if (!updatedUser) return null;
 
