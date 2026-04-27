@@ -10,7 +10,6 @@ import CTASection from "./GSSection";
 import HowItWorks from "./HowItWorksSection";
 import DormDigest from "./DormDigest";
 
-
 // Mapping colors
 const colors = {
   cream: '#EDE9DE',
@@ -121,7 +120,7 @@ export default function LandingPage() {
 
       {/* Services */}
       <ServicesSection />
-
+      
       {/* Photos slideshow */}
       <DormDigest /> 
       
