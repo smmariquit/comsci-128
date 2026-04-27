@@ -5,6 +5,9 @@ import { AppAction } from "../models/permissions";
 
 const fetchAllBills = async (): Promise<BillRow[]> => {
     try {
+        // RBAC
+        await validateAction(AppAction.BILL_STATUS);
+        
         const { data, error } = await billData.getAll();
         if (error) throw error;
         return (data || []) as unknown as BillRow[];
@@ -27,6 +30,9 @@ const markAsPaid = async (txnId: number) => {
 
 const removeBill = async (txnId: number) => {
     try {
+        // RBAC
+        await validateAction(AppAction.UPDATE_BILL_STATUS);
+
         await billData.remove(txnId);
         return { success: true };
     } catch (error) {
@@ -37,6 +43,9 @@ const removeBill = async (txnId: number) => {
 
 const createBill = async (billDetails: any) => {
     try {
+        // RBAC
+        await validateAction(AppAction.ASSIGN_BILL);
+
         return await billData.create(billDetails);
     } catch (error) {
         console.error("Service Error (createBill): ", error);

@@ -81,10 +81,16 @@ const deactivateHousing = async (
 	housingId: number,
 ): Promise<Housing | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.UPDATE_HOUSING);
+
 		const housing = await housingData.findById(housingId);
 		if (!housing) {
 			throw new Error("Housing record not found or already deactivated.");
 		}
+
+		// OBAC
+		await validateOwnership(housing.landlord_account_number);
 
 		/**
 		 * TODO: Integration Task
@@ -134,10 +140,14 @@ const getHousingWithRooms = async (
 	housingId: number,
 ): Promise<HousingWithRooms | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.UPDATE_HOUSING);
+
+		// Housing Check
 		const housing = await housingData.findWithRooms(housingId);
 		if (!housing) return null;
 
-		// obac
+		// OBAC
 		await validateOwnership(housing.landlord_account_number);
 
 		return housing;
@@ -152,6 +162,18 @@ const uploadHousingImage = async (
 	file: File,
 ): Promise<Housing | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.UPDATE_HOUSING);
+
+		// Housing Check
+		const housing = await housingData.findById(housingId);
+		if (!housing) {
+			throw new Error("Housing Not Found.");
+		}
+
+		// OBAC
+		await validateOwnership(housing.landlord_account_number);
+
 		return await housingData.uploadHousingImage(housingId, file);
 	} catch (error) {
 		console.error("Error: ", error);
