@@ -8,9 +8,9 @@ UPLB CASA is a centralized accommodation management system for the [University o
 
 <br>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://img.shields.io/github/license/smmariquit/comsci-128)
-
 ![badge](https://img.shields.io/badge/CMSC_128-University_of_The_Philippines_Los_Baños-maroon)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://img.shields.io/github/license/smmariquit/comsci-128)
 
 ![GitHub stars](https://img.shields.io/github/stars/smmariquit/comsci-128)
 ![Last commit](https://img.shields.io/github/last-commit/smmariquit/comsci-128)
