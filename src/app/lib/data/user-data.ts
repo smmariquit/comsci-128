@@ -22,7 +22,6 @@ async function findAll(): Promise<User[]> {
 	const { data, error } = await supabase
 	.from('user')
 	.select()
-	.eq('is_deleted', false);
 
   if (error) throw new Error(`Get All Users Error: ${error.message}`);
 

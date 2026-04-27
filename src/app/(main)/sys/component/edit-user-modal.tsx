@@ -77,7 +77,7 @@ export function EditUserModal({
     );
   }, [query, dormitories]);
 
-  // ✅ Use selectedDorm.name for display
+  // Use selectedDorm.name for display
   const displayValue = query !== "" ? query : selectedDorm?.name ?? "";
 
   function handleSave() {
