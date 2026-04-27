@@ -6,15 +6,22 @@ UPLB CASA is a centralized accommodation management system for the [University o
 
 **Live:** [uplb.casa](https://uplb.casa)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://img.shields.io/github/license/smmariquit/comsci-128)
+
+![badge](https://img.shields.io/badge/CMSC_128-University_of_The_Philippines_Los_Baños-maroon)
+
 ![GitHub stars](https://img.shields.io/github/stars/smmariquit/comsci-128)
 ![Last commit](https://img.shields.io/github/last-commit/smmariquit/comsci-128)
 
 
+<br>
+
 ![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-06B6D4?logo=tailwindcss&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-black?logo=vercel)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)
+
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-06B6D4?logo=tailwindcss&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 
 ---
