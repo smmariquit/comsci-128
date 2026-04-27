@@ -6,6 +6,7 @@ import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import AddManagerModal from '@/app/(main)/sys/component/add-manager-modal';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
+import { AuditLog } from '@/app/lib/models/audit_log';
 
 import {
 	TrendingUp,
@@ -77,6 +78,23 @@ function activityDotColor(type: string) {
 	}   
 }
 
+// Helper function
+// Fix the helper function
+function formatTimeAgo(timestamp: string): string {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    
+    return date.toLocaleDateString(); 
+}
 // Quick Access Button Icons
 const quickAccess = [
 	{ label: 'Add Manager',     icon: UserPlus,     href: null },
@@ -94,18 +112,6 @@ const stubUser: SidebarUser = {
 export default function DashboardPage({
 	// Dummy data for now - to be replaced with real data from backend/API integration
 	user = stubUser,
-	  recentActivity = [
-		{ type: 'billing',     text: 'Ivanne paid bill — Unit 1 · ₱6,700',       meta: 'Billing · Dorm 1',         time: '9:30 am'   },
-		{ type: 'application', text: 'Manager A approved application of User 2',  meta: 'Application · Dorm 2',     time: '8:40am'    },
-		{ type: 'billing',     text: 'User 1 submitted application for Dorm 1',   meta: 'Application · Room 4B',    time: 'Yesterday' },
-		{ type: 'room',        text: 'Room 14B added to Dorm 2',                  meta: 'Room Management · Dorm 2', time: 'Mar 22'    },
-		{ type: 'settings',    text: 'Admin updated room rates for Dorm 2',       meta: 'Settings · Room Rates',    time: 'Mar 19'    },
-	  ],
-	  occupancy = [
-		{ name: 'Dorm 1', pct: 45 },
-		{ name: 'Dorm 2', pct: 95 },
-		{ name: 'Dorm 3', pct: 95 },
-	  ],
 	  notifications = [
 		{ id: '1', title: 'Maintenance tonight',       body: '02:00 UTC — brief downtime',          read: false, time: '1h ago' },
 		{ id: '2', title: 'New user registered',        body: 'User Ivanne signed up for Dorm 1',   read: false, time: '3h ago' },
@@ -126,74 +132,88 @@ export default function DashboardPage({
 			{ label: 'TOTAL MANAGERS',   value: 0, sub: '↑ 79 added this month', dark: false },
 			{ label: 'TOTAL PROPERTIES', value: 0, sub: 'Dormitories managed',    dark: false },
 		]);
+		const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]); 
+		const [occupancy, setOccupancy] = useState<OccupancyItem[]>([]);
 
-		
-		// Fetch counts from API
+		// Fetch recent activities and counts from API
 		useEffect(() => {
-			const fetchCounts = async () => {
-				try {
-					setLoading(true);
-					setError(null);
+		const fetchData = async () => {
+			try {
+			setLoading(true);
+			setError(null);
 
-					const [userResponse, managerResponse, propertyResponse]  = await Promise.all([
-						fetch('/api/users/count'),
-						fetch('/api/manager/count'),
-						fetch('/api/housing/count')
-					]);
+			const [userResponse, managerResponse, propertyResponse, auditResponse, occupancyResponse] = await Promise.all([
+				fetch('/api/users/count'),
+				fetch('/api/manager/count'),
+				fetch('/api/housing/count'),
+				fetch('/api/audit-log/recent'),
+				fetch('/api/housing/occupancy')
+			]);
 
-					// Process user count
-					if (!userResponse.ok) {
-						throw new Error(`User count HTTP error! status: ${userResponse.status}`);
-					}
-					const userData = await userResponse.json();
-					setUserCount(userData.totalCount);       
-					setActiveCount(userData.activeCount);
+			// Process user count
+			if (!userResponse.ok) throw new Error(`User count HTTP error! status: ${userResponse.status}`);
+			const userData = await userResponse.json();
+			setUserCount(userData.totalCount);       
+			setActiveCount(userData.activeCount);
 
-					// Process manager count
-					if (!managerResponse.ok) {
-						throw new Error(`Manager count HTTP error! status: ${managerResponse.status}`);
-					}
-					const managerData = await managerResponse.json();
-					setManagerCount(managerData.count);
-					
-					// Process property count
-					if (!propertyResponse.ok) {
-						throw new Error(`Property count HTTP error! status: ${propertyResponse.status}`);
-					}
-					const propertyData = await propertyResponse.json();
-					setPropertyCount(propertyData.count);
+			// Process manager count
+			if (!managerResponse.ok) throw new Error(`Manager count HTTP error! status: ${managerResponse.status}`);
+			const managerData = await managerResponse.json();
+			setManagerCount(managerData.count);
+			
+			// Process property count
+			if (!propertyResponse.ok) throw new Error(`Property count HTTP error! status: ${propertyResponse.status}`);
+			const propertyData = await propertyResponse.json();
+			setPropertyCount(propertyData.count);
 
-					// Update stats with all counts
-					setStats(prev => prev.map(stat => {
-						if (stat.label === 'TOTAL USERS') {
-							return { ...stat, value: userData.totalCount }; 
-						}
-						if (stat.label === 'ACTIVE USERS') {
-							return { ...stat, value: userData.activeCount };  
-						}
-						if (stat.label === 'TOTAL MANAGERS') {
-							return { ...stat, value: managerData.count };
-						}
-						if (stat.label === 'TOTAL PROPERTIES') {
-							return { ...stat, value: propertyData.count };
-						}
-						return stat;
-					}));
+			// Process recent audit logs
+			if (!auditResponse.ok) throw new Error(`Audit log HTTP error! status: ${auditResponse.status}`);
+			const auditData: AuditLog[] = await auditResponse.json();
+			
+			// Transform AuditLog to ActivityItem
+			const formattedActivity = auditData.map(log => ({
+				type: (log.action_type || 'System') as string,
+				text: (log.audit_description || '') as string,
+				meta: `${log.action_type || 'System'} · ${log.user_name || 'Unknown'}` as string,
+				time: log.timestamp ? formatTimeAgo(log.timestamp) : 'Unknown'
+			})) as ActivityItem[];
+			
+			setRecentActivity(formattedActivity);
 
-				} catch (error) {
-					console.error('Error fetching counts:', error);
-					setError(error instanceof Error ? error.message : 'Failed to fetch counts');
-					setUserCount(0);
-					setManagerCount(0);
-					setPropertyCount(0); 
-				} finally {
-					setLoading(false);
-				}
-			};
+			// Process occupancy data
+			if (!occupancyResponse.ok) throw new Error(`Occupancy HTTP error! status: ${occupancyResponse.status}`);
+			const occupancyRawData = await occupancyResponse.json();
 
-			fetchCounts();
+			// Transform to OccupancyItem
+			const occupancyArray = occupancyRawData.map((item: any) => ({
+				name: item.name,
+				pct: item.occupancyRate
+			})) as OccupancyItem[];
+			setOccupancy(occupancyArray); 
+
+			// Update stats
+			setStats(prev => prev.map(stat => {
+				if (stat.label === 'TOTAL USERS') return { ...stat, value: userData.totalCount };
+				if (stat.label === 'ACTIVE USERS') return { ...stat, value: userData.activeCount };
+				if (stat.label === 'TOTAL MANAGERS') return { ...stat, value: managerData.count };
+				if (stat.label === 'TOTAL PROPERTIES') return { ...stat, value: propertyData.count };
+				return stat;
+			}));
+
+			} catch (error) {
+			console.error('Error fetching data:', error);
+			setError(error instanceof Error ? error.message : 'Failed to fetch data');
+			setUserCount(0);
+			setManagerCount(0);
+			setPropertyCount(0);
+			setRecentActivity([]);
+			} finally {
+			setLoading(false);
+			}
+		};
+
+		fetchData();
 		}, []);
-
 
 		const [showAddManager, setShowAddManager] = useState(false);
 		const [showAddDorm, setShowAddDorm] = useState(false);
@@ -201,6 +221,42 @@ export default function DashboardPage({
 		const today = new Date().toLocaleDateString('en-US', {
 			weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
 		});
+
+		// Loading state
+		if (loading) {
+			return (
+				<div className="flex min-h-screen bg-[#eae8e1]">
+					<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+					<div className="flex-1 flex items-center justify-center">
+						<div className="text-center">
+							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
+							<p className="text-[#1a2332]/60">Loading dashboard...</p>
+						</div>
+					</div>
+				</div>
+			);
+		}
+	
+		// Error state
+		if (error) {
+			return (
+				<div className="flex min-h-screen bg-[#eae8e1]">
+					<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+					<div className="flex-1 flex items-center justify-center">
+						<div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
+							<p className="text-red-600 font-semibold mb-2">Error Loading Dashboard</p>
+							<p className="text-red-500 text-sm mb-4">{error}</p>
+							<button 
+								onClick={() => window.location.reload()} 
+								className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+							>
+								Try Again
+							</button>
+						</div>
+					</div>
+				</div>
+			);
+		}
 		return (
 			<div className="flex min-h-screen bg-[#eae8e1]">
 				      {/* 'Add Manager' Modal */}

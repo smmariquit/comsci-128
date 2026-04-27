@@ -2,37 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LayoutGrid, Home, ChevronRight } from "lucide-react";
 
-// Grid icon — matches Figma's 4-dot grid (5.95×5.95 squares)
-function GridIcon({ active }: { active?: boolean }) {
-  const color = active ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)";
-  return (
-    <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-      <rect x="1.70" y="1.70" width="5.95" height="5.95" fill={color} />
-      <rect x="9.35" y="1.70" width="5.95" height="5.95" fill={color} />
-      <rect x="1.70" y="9.35" width="5.95" height="5.95" fill={color} />
-      <rect x="9.35" y="9.35" width="5.95" height="5.95" fill={color} />
-    </svg>
-  );
-}
-
-// Home icon for logo
-function HomeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <rect x="2.5" y="1.67" width="15" height="15.83" rx="1" fill="white" />
-    </svg>
-  );
-}
-
-// Chevron right
-function ChevronRight() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M5.25 3.5L8.75 7L5.25 10.5" stroke="rgba(237,233,222,0.30)" strokeWidth="1.31" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 const navItems = [
   { label: "Dashboard",            href: "/admin" },
@@ -112,7 +83,7 @@ export default function Sidebar({
             justifyContent: "center",
           }}
         >
-          <HomeIcon />
+          <Home size={20} color="white" />
         </div>
 
         {/* Brand name */}
@@ -183,7 +154,10 @@ export default function Sidebar({
                   display: "flex",
                 }}
               >
-                <GridIcon active={isActive} />
+                <LayoutGrid 
+                  size={17} 
+                  color={isActive ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)"} 
+                />
               </span>
 
               {/* Label */}
@@ -274,7 +248,7 @@ export default function Sidebar({
 
           {/* Chevron */}
           <div style={{ marginRight: 10 }}>
-            <ChevronRight />
+            <ChevronRight size={14} color="rgba(237,233,222,0.30)" />
           </div>
         </div>
       </div>
