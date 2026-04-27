@@ -4,11 +4,13 @@ import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { managerData } from "@/app/lib/data/manager-data";
 
 // promote User from Student to Housing Admin (Manager rather)
-async function create(userDetails: NewUser, managerDetails: NewManager) {
+async function create(
+  account_number:number, 
+  managerDetails: NewManager) {
   // managerDetails.manager_type must already be set to "Housing Admin"
 
   const newManagerData = await managerData.create(
-		userDetails,
+		account_number,
     managerDetails,
 	);
 
