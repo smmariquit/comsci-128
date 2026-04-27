@@ -134,10 +134,14 @@ const getHousingWithRooms = async (
 	housingId: number,
 ): Promise<HousingWithRooms | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.UPDATE_HOUSING);
+
+		// Housing Check
 		const housing = await housingData.findWithRooms(housingId);
 		if (!housing) return null;
 
-		// obac
+		// OBAC
 		await validateOwnership(housing.landlord_account_number);
 
 		return housing;
