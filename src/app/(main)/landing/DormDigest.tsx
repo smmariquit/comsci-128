@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import SeaBackground from "./SeaBackground";
 
 const MONO  = "'IBM Plex Mono', monospace";
 const SERIF = "'Playfair Display', serif";
@@ -9,7 +10,7 @@ const NEWS = [
     meta: "Apr 18, 2026 · Housing",
     title: "Tenants Evicted Due to Pets",
     desc: "Pets were discovered on Apartment X by Landlord A. Following the clause, tenants who refused to pay the violation fee were evicted effective immediately.",
-    heroBg: `url("/assets/images/dormdigest/cats_img.jpg")`,
+    heroBg: `url("assets/images/dormdigest/cats_img.jpg")`,
     side: [
       {
         tag: "New Opening",
@@ -154,13 +155,8 @@ const NEWS = [
 
   return (
     <section className="relative overflow-hidden bg-[#EAE6DC] px-12 py-20" id="news">
-
-      {/* Decorative orbs */}
-      <div className="pointer-events-none absolute -top-5 right-[15%] h-24 w-24 rounded-full bg-[#c2d3d0] opacity-45" />
-      <div className="pointer-events-none absolute top-14 right-[8%] h-14 w-14 rounded-full bg-[#4e7e79] opacity-20" />
-      <div className="pointer-events-none absolute bottom-16 left-[0.5%] h-10 w-10 rounded-full bg-[#c2d3d0] opacity-40" />
-      <div className="pointer-events-none absolute bottom-8 right-[2%] h-16 w-16 rounded-full bg-[#D8D3C6] opacity-70" />
-
+        <SeaBackground />
+        
       {/* Header  */}
       <div className="relative z-10 mb-9 flex items-baseline justify-between">
         <h2 style={{ fontFamily: SERIF, fontSize: "clamp(2rem, 3.5vw, 2.5rem)", color: "#0d1b2a", fontWeight: 700 }}>
