@@ -23,6 +23,9 @@ const colors = {
 export default function LandingPage() {
   return (
     <div className="min-h-screen font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
+      <div className="bg-[#1C2632] text-[#EDE9DE] py-2 px-4 text-center text-[10px] md:text-xs font-medium tracking-wide uppercase">
+        Testing UPLB CASA? Read the <a href="https://github.com/smmariquit/comsci-128/blob/fix/README/betaTesting.md" target="_blank" rel="noopener noreferrer" className="underline decoration-[#C9642A] underline-offset-2 hover:text-[#E3AF64] transition-colors">Beta Testing Guide</a>
+      </div>
 
       {/*animation for circles*/}
       <style>{floatingAnimations}</style>
@@ -91,16 +94,16 @@ export default function LandingPage() {
               </div>
 
               {/* Scroll to explore */}
-             <div className="flex items-center gap-3 mt-5 animate-float">
-              {/* Mouse icon */}
-              <div className="w-6 h-8 border-2 border-[#1a2332]/40 rounded-full flex justify-center pt-1">
-                <div className="w-1.5 h-1.5 bg-[#1a2332]/60 rounded-full animate-scroll-dot"></div>
-              </div>
+              <div className="flex items-center gap-3 mt-5 animate-float">
+                {/* Mouse icon */}
+                <div className="w-6 h-8 border-2 border-[#1a2332]/40 rounded-full flex justify-center pt-1">
+                  <div className="w-1.5 h-1.5 bg-[#1a2332]/60 rounded-full animate-scroll-dot"></div>
+                </div>
 
-              <p className="text-sm text-[#1a2332]/60 font-(--font-geist-mono)">
-                Scroll to explore
-              </p>
-            </div>
+                <p className="text-sm text-[#1a2332]/60 font-(--font-geist-mono)">
+                  Scroll to explore
+                </p>
+              </div>
             </div>
           </div>
 
@@ -127,13 +130,13 @@ export default function LandingPage() {
 
       {/* Photos slideshow */}
       <ShowcaseSection />
-      
+
       {/* How it works section */}
       <HowItWorks />
-      
+
       {/* Testimonials */}
       <TestimonialsSection />
-      
+
       {/* Get Started with orange section */}
       <CTASection />
 
