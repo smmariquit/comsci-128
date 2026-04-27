@@ -2,9 +2,9 @@ import { housingAdminData } from "@/app/lib/data/housing-admin-data";
 import { NewUser } from "@/models/user";
 import { NewManager } from "@/models/manager";
 
-const addHousingAdmin = async (userDetails: NewUser, managerDetails: NewManager) => {
+const addHousingAdmin = async (account_number: number, managerDetails: NewManager) => {
     try {
-        const result = await housingAdminData.create(userDetails, managerDetails);
+        const result = await housingAdminData.create(account_number, managerDetails);
         if (result?.error) {
             throw new Error(result.error.message || "Failed to add housing admin.");
         }

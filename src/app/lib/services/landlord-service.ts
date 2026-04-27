@@ -2,9 +2,9 @@ import { NewUser } from "@/models/user";
 import { landlordData } from "@/app/lib/data/landlord-data";
 import { NewManager } from "@/models/manager";
 
-const addLandlord = async (userDetails: NewUser, managerDetails: NewManager) => {
+const addLandlord = async (account_number:number, managerDetails: NewManager) => {
     try {
-        const result = await landlordData.create(userDetails, managerDetails);
+        const result = await landlordData.create(account_number, managerDetails);
         if (result?.error) {
             throw new Error(result.error.message || "Failed to add landlord.");
         }
