@@ -18,6 +18,10 @@ export default function Page() {
 
 	const [housingId, setHousingId] = useState("");
 	const [updateForm, setUpdateForm] = useState<Partial<Housing>>({});
+	const [status, setStatus] = useState<{
+		message: string;
+		type: "success" | "error" | null;
+	}>({ message: "", type: null });
 
 	// Mock token to pass backend's authorization check
 	const authHeader = { Authorization: "Bearer local-dev-token" };
@@ -51,6 +55,7 @@ export default function Page() {
 	// --- Create Record (POST) ---
 	const handleCreate = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setStatus({ message: "Creating...", type: null });
 		try {
 			const res = await fetch("/api/housing", {
 				method: "POST",
@@ -62,7 +67,7 @@ export default function Page() {
 			});
 
 			if (res.ok) {
-				alert("Dormitory added successfully!");
+				setStatus({ message: "Dormitory added successfully!", type: "success" });
 				// Reset form to defaults
 				setFormData({
 					housing_name: "",
@@ -73,15 +78,16 @@ export default function Page() {
 				fetchDorms();
 			} else {
 				const errData = await res.json();
-				alert(`Error: ${errData.error}`);
+				setStatus({ message: `Error: ${errData.error}`, type: "error" });
 			}
 		} catch (_err) {
-			alert("System error. Check console.");
+			setStatus({ message: "System error. Check console.", type: "error" });
 		}
 	};
 
 	const handleUpdate = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setStatus({ message: "Updating...", type: null });
 
 		// for frontend, important to filter out fields for PATCH requests
 		const filteredUpdateForm = Object.fromEntries(
@@ -102,7 +108,7 @@ export default function Page() {
 			});
 
 			if (res.ok) {
-				alert("Dormitory updated successfully!");
+				setStatus({ message: "Dormitory updated successfully!", type: "success" });
 
 				setUpdateForm({
 					housing_name: "",
@@ -113,16 +119,17 @@ export default function Page() {
 				fetchDorms();
 			} else {
 				const errData = await res.json();
-				alert(`Error: ${errData.error}`);
+				setStatus({ message: `Error: ${errData.error}`, type: "error" });
 			}
 		} catch (_err) {
-			alert("System error. Check console.");
+			setStatus({ message: "System error. Check console.", type: "error" });
 		}
 	};
 
 	// --- Get Housing By ID ---
 	const handleSearch = async () => {
 		if (!searchId) return;
+		setStatus({ message: "Searching...", type: null });
 		try {
 			const res = await fetch(`/api/housing/${searchId}`, {
 				headers: authHeader,
@@ -131,12 +138,14 @@ export default function Page() {
 
 			if (res.ok) {
 				setSingleDorm(result.data);
+				setStatus({ message: "Search complete.", type: "success" });
+				setTimeout(() => setStatus({ message: "", type: null }), 2000);
 			} else {
-				alert(result.error);
+				setStatus({ message: result.error, type: "error" });
 				setSingleDorm(null);
 			}
 		} catch (_err) {
-			alert("An error occurred during the search.");
+			setStatus({ message: "An error occurred during the search.", type: "error" });
 		}
 	};
 	return (
@@ -160,6 +169,20 @@ export default function Page() {
 				>
 					Dormitory Management
 				</h1>
+
+				{status.message && (
+					<div style={{
+						padding: "10px",
+						marginTop: "10px",
+						borderRadius: "4px",
+						backgroundColor: status.type === "success" ? "#2d5a27" : status.type === "error" ? "#7c2b2b" : "#2b4c7c",
+						color: "white",
+						fontWeight: "bold",
+						textAlign: "center"
+					}}>
+						{status.message}
+					</div>
+				)}
 
 				<div
 					style={{ display: "flex", gap: "40px", marginTop: "20px" }}
