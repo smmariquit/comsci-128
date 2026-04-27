@@ -16,22 +16,32 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 	try {
 		const { account_email, first_name, last_name, password } = userDetails;
 
-    // Check if email already exists
-    const existing = await userData.findByEmail(account_email);
-    if (existing) throw new Error("Email already in use.");
+		// Check if email already exists
+		const existing = await userData.findByEmail(account_email);
+		if (existing) throw new Error("Email already in use.");
 
-    // Check fields that are required
-    if (!account_email) throw new Error("Email is required.");
-    if (!first_name) throw new Error("First name is required.");
-    if (!last_name) throw new Error("Last name is required.");
-    if (!password) throw new Error("Password is required");
-    // Student default
-    userDetails.user_type = "Student";
-    // Hash pw
-    const salt = await bcrypt.genSalt(12);
-    userDetails.password = await bcrypt.hash(password, salt);
+		// Check fields that are required
+		if (!account_email) throw new Error("Email is required.");
+		if (!first_name) throw new Error("First name is required.");
+		if (!last_name) throw new Error("Last name is required.");
+		if (!password) throw new Error("Password is required");
+		// Student default
+		userDetails.user_type = "Student";
+		// Hash pw
+		const salt = await bcrypt.genSalt(12);
+		userDetails.password = await bcrypt.hash(password, salt);
 
-		// mock... replace once there's input for StudentAcademic
+		// mock... replace once there's input for Student and StudentAcademic
+		const studentDetails: NewStudent = {
+			student_number: 2024000001,
+			sex: "Male",
+			birth_date: "2004-05-14",
+			mobile_number: "09171234567",
+			address: "123 Sample St, Quezon City, Metro Manila",
+			emergency_contact_name: "Maria Santos",
+			emergency_contact_number: "09181234567",
+		} as NewStudent;
+
 		const studentAcademicDetails: NewStudentAcademic = {
 			degree_program: "BS Computer Science",
 			standing: "Sophomore",
@@ -46,12 +56,11 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 			studentAcademicDetails,
 		);
 
-
-    return createdUserStudent;
-  } catch (error) {
-    console.error("Error: ", error);
-    throw error;
-  }
+		return createdUserStudent;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw error;
+	}
 };
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
@@ -118,7 +127,7 @@ const updateUser = async (
 };
 
 const deactivateUser = async (
-	email: string
+	email: string,
 ): Promise<Public<UpdateUser> | null> => {
 	try {
 		const updatedUser = await userData.deactivate(email);
@@ -159,35 +168,33 @@ const getActiveUserCount = async (): Promise<number | null> => {
 };
 
 const promoteUserType = async (
-  account_email: string,
-  userType: Role,
-  insertTable: string,
+	account_email: string,
+	userType: Role,
+	insertTable: string,
 ): Promise<ServiceResponse<any>> => {
-  try {
-    const updatedUser = await userData.promote(account_email, {
-      user_type: userType,
-    });
+	try {
+		const updatedUser = await userData.promote(account_email, {
+			user_type: userType,
+		});
 
-    if (!updatedUser) {
-      return { error: "User not found" };
-    }
+		if (!updatedUser) {
+			return { error: "User not found" };
+		}
 
-	// Insert in the table of the current role
-	if (userType == "Student"){
+		// Insert in the table of the current role
+		if (userType == "Student") {
+		}
 
+		if (userType == "Manager") {
+		}
+
+		const { account_number, password, ...safeUser } = updatedUser;
+
+		return { data: safeUser };
+	} catch (error: any) {
+		console.error("Error:", error.message);
+		return { error: "Failed to update user type" };
 	}
-
-	if (userType == "Manager"){
-
-	}
-
-    const { account_number, password, ...safeUser } = updatedUser;
-
-    return { data: safeUser };
-  } catch (error: any) {
-    console.error("Error:", error.message);
-    return { error: "Failed to update user type" };
-  }
 };
 
 export const userService = {
