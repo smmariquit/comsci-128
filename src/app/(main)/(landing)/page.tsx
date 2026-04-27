@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { floatingAnimations } from "./animations";
 import ServicesSection from "./ServicesSection";
 import ShowcaseSection from "./ShowcaseSection";
@@ -22,20 +24,26 @@ const colors = {
 export default function LandingPage() {
   return (
     <div className="min-h-screen font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
+      <div className="bg-[#1C2632] text-[#EDE9DE] py-2 px-4 text-center text-[10px] md:text-xs font-medium tracking-wide uppercase">
+        Testing UPLB CASA? Read the <a href="https://github.com/smmariquit/comsci-128/blob/fix/README/betaTesting.md" target="_blank" rel="noopener noreferrer" className="underline decoration-[#C9642A] underline-offset-2 hover:text-[#E3AF64] transition-colors">Beta Testing Guide</a>
+      </div>
 
       {/*animation for circles*/}
       <style>{floatingAnimations}</style>
 
       {/* ── Navbar ── */}
       <nav className="flex justify-between items-center px-8 py-6 md:px-16">
-        <div className="font-bold text-xl tracking-tight">Title</div>
+        <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
+          <Image src="/favicon.png" alt="UPLB CASA Logo" width={32} height={32} />
+          UPLB CASA
+        </div>
         <div className="flex items-center gap-5">
-          <button className="font-medium text-[#C9642A] hover:underline transition-colors">
+          <Link href="/login" className="font-medium text-[#C9642A] hover:underline transition-colors">
             Log in
-          </button>
-          <button className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
+          </Link>
+          <Link href="/register" className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
             Sign up
-          </button>
+          </Link>
         </div>
       </nav>
 
@@ -78,25 +86,25 @@ export default function LandingPage() {
 
               {/* CTA buttons */}
               <div className="fade-up-delay flex items-start gap-3">
-                <button className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md">
+                <Link href="/student/housing" className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md">
                   Find a Dorm
-                </button>
-                <button className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors">
+                </Link>
+                <Link href="#how" className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors">
                   Learn More
-                </button>
+                </Link>
               </div>
 
               {/* Scroll to explore */}
-             <div className="flex items-center gap-3 mt-5 animate-float">
-              {/* Mouse icon */}
-              <div className="w-6 h-8 border-2 border-[#1a2332]/40 rounded-full flex justify-center pt-1">
-                <div className="w-1.5 h-1.5 bg-[#1a2332]/60 rounded-full animate-scroll-dot"></div>
-              </div>
+              <div className="flex items-center gap-3 mt-5 animate-float">
+                {/* Mouse icon */}
+                <div className="w-6 h-8 border-2 border-[#1a2332]/40 rounded-full flex justify-center pt-1">
+                  <div className="w-1.5 h-1.5 bg-[#1a2332]/60 rounded-full animate-scroll-dot"></div>
+                </div>
 
-              <p className="text-sm text-[#1a2332]/60 font-(--font-geist-mono)">
-                Scroll to explore
-              </p>
-            </div>
+                <p className="text-sm text-[#1a2332]/60 font-(--font-geist-mono)">
+                  Scroll to explore
+                </p>
+              </div>
             </div>
           </div>
 
@@ -123,13 +131,13 @@ export default function LandingPage() {
 
       {/* Photos slideshow */}
       <ShowcaseSection />
-      
+
       {/* How it works section */}
       <HowItWorks />
-      
+
       {/* Testimonials */}
       <TestimonialsSection />
-      
+
       {/* Get Started with orange section */}
       <CTASection />
 
@@ -138,7 +146,7 @@ export default function LandingPage() {
         className="py-10 px-8 text-center text-xs font-(family-name:--font-geist-mono) leading-relaxed space-y-1"
         style={{ backgroundColor: colors.light_blue, color: colors.cream }}
       >
-        <p>© 2026 Website Name</p>
+        <p>© 2026 UPLB CASA</p>
         <p>University of the Philippines Los Baños AY 2025-2026</p>
         <p>In partial fulfillment of the requirements for CMSC 128: Software Engineering</p>
       </footer>
