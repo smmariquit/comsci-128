@@ -1,6 +1,7 @@
 # UPLB CASA — Beta Testing Guide
 
 **URL:** [uplb.casa](https://uplb.casa)  
+**Alternative URLs**: [128.stimmie.dev](https://128.stimmie.dev) or [comsci-128.vercel.app](https://comsci-128.vercel.app)
 **Repository:** [github.com/smmariquit/comsci-128](https://github.com/smmariquit/comsci-128)
 
 This guide walks you through testing UPLB CASA as each user role. Our team has included the relevant functional requirements alongside each test case so you know exactly what the system is supposed to do. We request that you verify the accuracy of these requirements alongside the testing. Please file issues using the template at the bottom of this document.
