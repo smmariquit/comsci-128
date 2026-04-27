@@ -87,14 +87,14 @@ export default function HowItWorks() {
 
         {/* Two-column grid */}
         <div
-          className="grid grid-cols-2 gap-16 items-center relative z-10 transition-all duration-650 ease-in-out" // transition to scroll
+          className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10 transition-all duration-650 ease-in-out"
           style={{
             opacity:   visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(22px)",
           }}
         >
           {/* Left: Steps */}
-          <div className="flex flex-col gap-6 mt-2">
+          <div className="flex flex-col gap-6 mt-2 px-4 md:px-0">
             {STEPS.map((step, i) => {
               const isActive = activeStep === i;
               return (
@@ -117,10 +117,10 @@ export default function HowItWorks() {
 
                   {/* Body */}
                   <div>
-                    <h4 className="mb-1 leading-snug text-[1.45rem] text-[#f5f2ec] font-['Playfair_Display',serif]">
+                    <h4 className="mb-1 leading-snug text-[1.2rem] md:text-[1.45rem] text-[#f5f2ec] font-['Playfair_Display',serif]">
                       {step.title}
                     </h4>
-                    <p className="leading-relaxed text-[.85rem] text-[rgba(194,211,208,.7)] font-['IBM_Plex_Mono',monospace]">
+                    <p className="leading-relaxed text-[.75rem] md:text-[.85rem] text-[rgba(194,211,208,.7)] font-['IBM_Plex_Mono',monospace]">
                       {step.desc}
                     </p>
                   </div>
@@ -130,7 +130,7 @@ export default function HowItWorks() {
           </div>
 
           {/* Right: Card visual */}
-          <div className="relative" style={{ height: "380px" }}>
+          <div className="relative hidden md:block" style={{ height: "380px" }}>
 
             {/* Main card - 1 */}
             <div className="absolute float-updown w-70 top-25 left-80 z-10 rounded-2xl bg-white/10 border border-[rgba(194,211,208,.18)] p-[1.4rem] shadow-[0_8px_32px_rgba(13,27,42,.25)]">
