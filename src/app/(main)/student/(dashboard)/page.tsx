@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-    const currUser = await userData.findById(30);
+    const currUser = await userData.findById(139);
     const userHousingStatus = await getHousingStatus(currUser!.account_number);
     const userHousingDetails = await getCompleteDashboardData(
         currUser!.account_number,
