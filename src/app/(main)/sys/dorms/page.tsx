@@ -373,7 +373,7 @@ export default function DormManagementPage({
           onEdit={() => setEditingDorm(viewingDorm)}
         />
       )}
-      {editingDorm && (
+      {/* {editingDorm && (
         <EditDormModal
           dorm={editingDorm}
           managers={managersList}
@@ -385,7 +385,7 @@ export default function DormManagementPage({
             setEditingDorm(null);
           }}
         />
-      )}
+      )} */}
     </div>
   );
 }

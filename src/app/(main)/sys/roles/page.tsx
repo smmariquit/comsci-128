@@ -299,7 +299,7 @@ export default function UserManagementPage({
       </div>
       {editingUser && (
 				<EditUserModal
-					user={editingUser}  // paayos netoo
+					user={editingUser as any}  // paayos netoo
 					dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
 					onClose={() => setEditingUser(null)}
 					onSave={(id, role, dorm) => {
@@ -311,7 +311,7 @@ export default function UserManagementPage({
 			)}
       {disableUser && (
         <DisableAccountModal
-          user={disableUser} // paayos nalangs
+          user={disableUser as any} // paayos nalangs
           onClose={() => setDisableUser(null)}
           onConfirm={(id) => {
             console.log("Toggle status for user:", id);

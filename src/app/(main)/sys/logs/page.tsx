@@ -6,7 +6,7 @@ import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import AuditFilters, { type AuditFiltersState } from '@/app/(main)/sys/component/audit-filters';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { ActionType } from '@/app/lib/data/audit-log-data';
+import { ActionType } from "@/app/lib/models/audit_log";
 import { ViewAuditLogModal } from '@/app/(main)/sys/component/view-audit';
 
 
