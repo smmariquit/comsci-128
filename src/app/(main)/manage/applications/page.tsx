@@ -1,5 +1,10 @@
 
+import type { Metadata } from "next";
 import { applicationService } from "@/app/lib/services/application-service";
+
+export const metadata: Metadata = {
+  title: "Applications",
+};
 import Link from "next/link";
 import ApplicationsClient from "./_components/ApplicationsClient";
 

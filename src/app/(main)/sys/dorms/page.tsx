@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/search-filter-dorm';
-import { Trash2, ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
+import { EditDormModal } from '@/app/(main)/sys/component/edit-dorm';
+import { ViewDormModal } from '@/app/(main)/sys/component/view-dorm';
 
-// User Data Types - showed in table
-export interface User {
+// Dorm Data Types - showed in table
+export interface Dorm {
   id: string;
   name: string;
   status: 'Accepting' | 'Disabled' | string;
@@ -20,11 +22,12 @@ export interface User {
   occupied?: number;
 }
 
+
 // Sidebar + notifications
-export interface UserManagementProps {
-  user?: SidebarUser;
-  users?: User[];
-  totalUsers?: number;
+export interface DormManagementProps {
+  Dorm?: SidebarUser;
+  Dorms?: Dorm[];
+  totalDorms?: number;
   notifications?: Notification[];
   onLogout?: () => void;
 }
@@ -39,27 +42,16 @@ export interface Notification {
 }
 
 // Hardcoded stubs for development - to be replaced with real data fetching logic
-const stubUser: SidebarUser = {
+const stubDorm: SidebarUser = {
   name: 'Luthelle Fernandez',
   role: 'System Admin',
   initials: 'LF',
 };
 
-// Hardcoded list of users for the table - in a real app, this would come from an API
-const stubUsers: User[] = [
-  { id: '1', name: 'Sampaguita Dorm',     dormAddress: '123 Roxas St, Diliman, QC',  managerEmail: 'ldelarosa@up.edu.ph',   status: 'Accepting', dormitory: 'Luis Dela Rosa',    capacity: 32, rooms: 32, occupied: 30 },
-  { id: '2', name: 'Ilang-Ilang Dorm',    dormAddress: '45 Kamuning Rd, QC',         managerEmail: 'jiantonio@up.edu.ph',   status: 'Accepting', dormitory: 'Justine Antonio',   capacity: 40, rooms: 40, occupied: 38 },
-  { id: '3', name: 'Rosal Dorm',          dormAddress: '78 UP Campus, Diliman',      managerEmail: 'phfababeir@up.edu.ph',  status: 'Accepting', dormitory: 'Paul Fababeir',     capacity: 25, rooms: 25, occupied: 20 },
-  { id: '4', name: 'Kamia Dorm',          dormAddress: '12 Maginhawa St, QC',        managerEmail: 'jpomamos@up.edu.ph',    status: 'Disabled',  dormitory: 'Jun Paul Omamos',   capacity: 20, rooms: 20, occupied: 0  },
-  { id: '5', name: 'Cadena de Amor Dorm', dormAddress: '9 Lakandula St, QC',         managerEmail: 'jguevarra@up.edu.ph',   status: 'Accepting', dormitory: 'Joy Guevarra',      capacity: 30, rooms: 30, occupied: 27 },
-  { id: '6', name: 'Adelfa Dorm',         dormAddress: '3 Tandang Sora Ave, QC',     managerEmail: 'hespinocilla@up.edu.ph',status: 'Disabled',  dormitory: 'Haira Espinocilla', capacity: 18, rooms: 18, occupied: 0  },
-  { id: '7', name: 'Molave Dorm',         dormAddress: '55 Esteban Abada, QC',       managerEmail: 'alfernandez@up.edu.ph', status: 'Accepting', dormitory: 'Althea Fernandez',  capacity: 22, rooms: 22, occupied: 19 },
-];
-
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
   { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',       read: false, time: '1h ago'    },
-  { id: '2', title: 'New user registered', body: 'User Ivanne signed up for Dorm 1', read: false, time: '3h ago'    },
+  { id: '2', title: 'New Dorm registered', body: 'Dorm Ivanne signed up for Dorm 1', read: false, time: '3h ago'    },
   { id: '3', title: 'Occupancy alert',     body: 'Dorm 2 is at 95% capacity',        read: true,  time: 'Yesterday' },
 ];
 
@@ -105,27 +97,82 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-// Main User Management Page component
-export default function UserManagementPage({
-  user = stubUser,
-  users: initialUsers = stubUsers,
+// Main Dorm Management Page component
+export default function DormManagementPage({
+  Dorm = stubDorm,
   notifications = stubNotifications,
   onLogout,
-}: UserManagementProps) {
-  const [userList, setUserList] = useState<User[]>(initialUsers);
+}: DormManagementProps) {
+  const [DormList, setDormList] = useState<Dorm[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingDorm, setEditingDorm] = useState<Dorm | null>(null); //edit dorm
+  const [viewingDorm, setViewingDorm] = useState<Dorm | null>(null); // view dorm
   const [filters, setFilters] = useState<UserFiltersState>({
     search: '', status: 'All Status', occupancy: 'All',
   });
+  const [managersList, setManagersList] = useState<{ id: string; name: string; email: string }[]>([]);
+  
+  // Fetch dorms from API
+  useEffect(() => {
+      const fetchDorms = async () => {
+          try {
+              setLoading(true);
+              setError(null);
+
+              const response = await fetch('/api/housing/occupancy');
+
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const data = await response.json();
+
+              console.log('Raw dorm data:', data);
+
+              // Handle different response formats
+              const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
+
+              // Transform DB fields to match Dorm interface 
+              const transformed: Dorm[] = rawDorms
+                  .map((dorm: any) => ({
+                      id: String(dorm.housingId || ''), 
+                      name: dorm.name || 'Unknown', 
+                      status: 'Accepting', 
+                      dormitory: 'Unassigned', // Fix later in the query
+                      dormAddress: dorm.address || undefined, 
+                      managerEmail: undefined, // FIx later in the query
+                      capacity: dorm.occupancyRate|| undefined, 
+                      rooms: dorm.totalRooms || undefined,
+                      occupied: dorm.occupiedRooms || undefined,
+                      type: dorm.housingType
+                  }));
+
+              console.log('Transformed dorms:', transformed);
+
+              setDormList(transformed);
+          } catch (error) {
+              console.error('Error fetching dorms:', error);
+              setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
+              setDormList([]);
+              setManagersList([]);
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      fetchDorms();
+  }, []);
 
   const [page, setPage] = useState(1);
 
   const handleAddDorm = (newDorm: NewDorm) => {
-    setUserList((prev) => [newDorm, ...prev]);
+    setDormList((prev) => [newDorm, ...prev]);
     setPage(1);
   };
 
-  const filtered = userList.filter((u) => {
+  const filtered = DormList.filter((u) => {
     const matchSearch =
       u.name.toLowerCase().includes(filters.search.toLowerCase()) ||
       u.managerEmail?.toLowerCase().includes(filters.search.toLowerCase());
@@ -146,6 +193,40 @@ export default function UserManagementPage({
   const showingFrom = filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
   const showingTo   = Math.min(page * ITEMS_PER_PAGE, filtered.length);
 
+  // Loading state
+    if (loading) {
+      return (
+        <div className="flex min-h-screen bg-[#eae8e1]">
+          <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
+              <p className="text-[#1a2332]/60">Loading Dorms...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  
+    // Error state
+    if (error) {
+      return (
+        <div className="flex min-h-screen bg-[#eae8e1]">
+          <div className="flex-1 flex items-center justify-center">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
+              <p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
+              <p className="text-red-500 text-sm mb-4">{error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+  }
   return (
     <div className="flex min-h-screen bg-[#eae8e1]">
 
@@ -157,7 +238,7 @@ export default function UserManagementPage({
       />
 
       {/* Sidebar */}
-      <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+      <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-auto">
@@ -166,7 +247,7 @@ export default function UserManagementPage({
         <div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-[#1a2332]/6">
           <div>
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Dorm Management</h1>
-            <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Assign and manage roles for users and dormitory managers</p>
+            <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Assign and manage roles for Dorms and dormitory managers</p>
           </div>
           <NotificationBell notifications={notifications} />
         </div>
@@ -194,7 +275,7 @@ export default function UserManagementPage({
 
             {/* Table Headers — must match GRID_COLS (8 columns) */}
             <div className={`grid ${GRID_COLS} gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6`}>
-              {['DORM', 'MANAGER', 'EMAIL ADDRESS', 'CAPACITY', 'ROOMS', 'OCCUPIED', 'STATUS', 'ACTIONS'].map((col) => (
+              {['DORM', 'MANAGER', 'EMAIL ADDRESS', 'CAPACITY', 'ROOMS', 'OCCUPIED', 'TYPE', 'ACTIONS'].map((col) => (
                 <span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">{col}</span>
               ))}
             </div>
@@ -243,20 +324,21 @@ export default function UserManagementPage({
                     <span className="text-sm text-[#1a2332]/70">{u.occupied ?? '—'}</span>
 
                     {/* STATUS */}
-                    <div>
-                      <StatusBadge status={u.status} />
-                    </div>
+                    <span className="text-sm text-[#1a2332]/70">{u.occupied ?? 'Mixed'}</span>
 
                     {/* ACTIONS */}
                     <div className="flex items-center gap-2">
-                      <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
+                      <button
+                        onClick={() => setViewingDorm(u)}
+                        className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+                      >
                         View
                       </button>
-                      <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
+                      <button
+                        onClick={() => setEditingDorm(u)}
+                        className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+                      >
                         Edit
-                      </button>
-                      <button className="text-[#1a2332]/25 hover:text-red-400 transition-colors">
-                        <Trash2 size={15} />
                       </button>
                     </div>
                   </div>
@@ -284,6 +366,26 @@ export default function UserManagementPage({
           </div>
         </div>
       </div>
+      {viewingDorm && (
+        <ViewDormModal
+          dorm={viewingDorm}
+          onClose={() => setViewingDorm(null)}
+          onEdit={() => setEditingDorm(viewingDorm)}
+        />
+      )}
+      {/* {editingDorm && (
+        <EditDormModal
+          dorm={editingDorm}
+          managers={managersList}
+          onClose={() => setEditingDorm(null)}
+          onSave={(id, updates) => {
+            setDormList((prev) =>
+              prev.map((d) => (d.id === id ? { ...d, ...updates } : d))
+            );
+            setEditingDorm(null);
+          }}
+        />
+      )} */}
     </div>
   );
 }

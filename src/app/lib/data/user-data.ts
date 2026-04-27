@@ -26,7 +26,7 @@ async function findAll(): Promise<User[]> {
 
   if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
-	return data ?? [];
+  return data ?? [];
 }
 
 async function findById(userId: number): Promise<User | null> {
@@ -64,21 +64,21 @@ async function update(
     .from("user")
     .update(userDetails)
     .eq("account_number", Number(userId))
-    .select();
+    .select("*");
 
   if (error) throw new Error(`Update User Error: ${error.message}`);
 
   return data && data.length > 0 ? data[0] : null;
 }
 
-async function deactivate(userId: number): Promise<UpdateUser | null> {
+async function deactivate(email: string): Promise<UpdateUser | null> {
 	// This function takes a USERID of type STRING.
 	// CHANGES is_deleted field to true if user is found, otherwise return null.
 
   const { data, error } = await supabase
     .from("user")
     .update({ is_deleted: true })
-    .eq("account_number", userId)
+    .eq("account_email", email)
     .select();
 
   if (error) throw new Error(`Deactivate User Error: ${error.message}`);
@@ -254,15 +254,33 @@ async function countActiveUsers():Promise<number | null> {
 	return count;
 }
 
+// For changing user role
+async function promote(
+	account_email: string,
+	userDetails: UpdateUser,
+): Promise<UpdateUser | null> {
+
+  const { data, error } = await supabase
+    .from("user")
+    .update(userDetails)
+    .eq("account_email", account_email)
+    .select("*");
+
+  if (error) throw new Error(`Update User Error: ${error.message}`);
+
+  return data && data.length > 0 ? data[0] : null;
+}
+
 export const userData = {
 	findStudents,
 	getUsersForHousingAdmin,
-  create,
-  findAll,
-  findById,
-  findByEmail,
-  update,
-  deactivate,
-  countAllUser,
+    create,
+    findAll,
+    findById,
+    findByEmail,
+    update,
+    deactivate,
+    countAllUser,
 	countActiveUsers,
+    promote
 };
