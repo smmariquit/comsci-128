@@ -8,6 +8,7 @@ import ShowcaseSection from "./ShowcaseSection";
 import TestimonialsSection from "./TestimonialsSection";
 import CTASection from "./GSSection";
 import HowItWorks from "./HowItWorksSection";
+import DormDigest from "./DormDigest";
 
 
 // Mapping colors
@@ -122,7 +123,7 @@ export default function LandingPage() {
       <ServicesSection />
 
       {/* Photos slideshow */}
-      <ShowcaseSection />
+      <DormDigest /> 
       
       {/* How it works section */}
       <HowItWorks />
