@@ -5,6 +5,7 @@ import { managerData } from "../data/manager-data";
 import { userData } from "../data/user-data";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
+import App from "next/app";
 
 async function getStudentProfile(
 	userId: number,
@@ -96,6 +97,18 @@ async function updateManagerProfile(
 			manager,
 			...userUpdates
 		} = profileData;
+
+		// RBAC
+		await validateAction(AppAction.UPDATE_USER_DETAILS);
+
+		// USER CHECK
+		const user = await userData.findById(userId);
+		if (!user) {
+			throw new Error("User Not Found.");
+		}
+
+		// OBAC
+		await validateOwnership(user.account_number);
 
 		const updatedUser = await userData.update(userId, userUpdates);
 		if (!updatedUser) return null;
