@@ -21,6 +21,11 @@ export function ApplyFormContent() {
 	>("");
 	const [moveOutDate, setMoveOutDate] = useState("");
 	const [fileName, setFileName] = useState<string>("");
+	const [status, setStatus] = useState<{
+		message: string;
+		type: "success" | "error" | null;
+	}>({ message: "", type: null });
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -37,51 +42,76 @@ export function ApplyFormContent() {
 	}, [dormId]);
 
 	const submitApplication = async () => {
+		setStatus({ message: "", type: null });
+
 		if (moveOutDate <= dateNow) {
-			alert("Move-out date cannot be in the past");
+			setStatus({ message: "Move-out date cannot be in the past", type: "error" });
 			return;
 		}
 		if (selectedRoomType === "") {
-			alert("Please select a room type");
+			setStatus({ message: "Please select a room type", type: "error" });
 			return;
 		}
 		if (fileName === "") {
-			alert("Please upload a file");
+			setStatus({ message: "Please upload a file", type: "error" });
 			return;
 		}
-		const response = await applicationData.create({
-			housing_name: dormData?.housing_name || "",
-			preferred_room_type: selectedRoomType,
-			application_status: "Pending Manager Approval",
-			expected_moveout_date: moveOutDate,
-			actual_moveout_date: null,
-			room_id: null,
-			manager_account_number: dormData?.manager_account_number || null,
-			student_account_number: dormData?.student_account_number || null,
-			landlord_account_number: dormData?.landlord_account_number || null,
-			document_type: "Form 5/Proof of Enrollment",
-			document_url: fileName,
-			created_at: new Date().toISOString(),
-			is_deleted: false,
-		});
-		if (response) {
-			alert("Application submitted successfully");
-		} else {
-			alert("Application submission failed");
+
+		setIsSubmitting(true);
+		try {
+			const response = await applicationData.create({
+				housing_name: dormData?.housing_name || "",
+				preferred_room_type: selectedRoomType,
+				application_status: "Pending Manager Approval",
+				expected_moveout_date: moveOutDate,
+				actual_moveout_date: null,
+				room_id: null,
+				manager_account_number: dormData?.manager_account_number || null,
+				student_account_number: dormData?.student_account_number || null,
+				landlord_account_number: dormData?.landlord_account_number || null,
+				document_type: "Form 5/Proof of Enrollment",
+				document_url: fileName,
+				created_at: new Date().toISOString(),
+				is_deleted: false,
+			});
+
+			if (response) {
+				setStatus({ message: "Application submitted successfully! Redirecting to dashboard...", type: "success" });
+				setTimeout(() => {
+					router.push("/student");
+				}, 2000);
+			} else {
+				setStatus({ message: "Application submission failed. Please try again.", type: "error" });
+			}
+		} catch (error) {
+			setStatus({ message: "An error occurred during submission.", type: "error" });
+		} finally {
+			setIsSubmitting(false);
 		}
 	};
 
 	const headerName = dormData?.housing_name || "Housing";
 
 	return (
-		<div className="mx-auto mt-8 w-[90vw] flex-1 bg-[#EDE9DE] p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)]">
+		<div className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner">
 			{/* Back Button */}
 			<button
 				onClick={() => router.back()}
-				className="mb-6 flex items-center text-[#1C2632] hover:opacity-70 transition-opacity"
+				className="mb-6 flex items-center gap-2 rounded-lg border border-[#1C2632]/20 bg-white px-4 py-2 text-sm font-semibold text-[#1C2632] shadow-sm transition-all hover:bg-[#1C2632] hover:text-white active:scale-95"
 			>
-				<ChevronLeft size={24} strokeWidth={3} />
+				<ChevronLeft size={18} strokeWidth={3} />
+				<span>Back to Browser</span>
 			</button>
+
+			{status.message && (
+				<div className={`mb-6 p-4 rounded-lg text-sm font-medium ${
+					status.type === "success" 
+						? "bg-green-100 text-green-700 border border-green-200" 
+						: "bg-red-100 text-red-700 border border-red-200"
+				}`}>
+					{status.message}
+				</div>
+			)}
 
 			<form
 				className="space-y-6"
@@ -188,9 +218,14 @@ export function ApplyFormContent() {
 				<div className="flex justify-end pt-4">
 					<button
 						type="submit"
-						className="rounded-[12px] bg-[#D66B38] px-12 py-3 text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95 shadow-md"
+						disabled={isSubmitting}
+						className={`rounded-[12px] px-12 py-3 text-sm font-bold text-white transition-transform shadow-md ${
+							isSubmitting 
+								? "bg-gray-400 cursor-not-allowed" 
+								: "bg-[#D66B38] hover:scale-105 active:scale-95"
+						}`}
 					>
-						Submit
+						{isSubmitting ? "Submitting..." : "Submit"}
 					</button>
 				</div>
 			</form>
