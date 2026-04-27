@@ -20,6 +20,19 @@ export interface User {
 	room: string;
 }
 
+// Dorm Data Types - showed in table
+export interface Dorm {
+  id: string;
+  name: string;
+  status: 'Accepting' | 'Disabled' | string;
+  dormitory: string;
+  dormAddress?: string;
+  managerEmail?: string;
+  capacity?: number;
+  rooms?: number;
+  occupied?: number;
+}
+
 export interface UserManagementProps {
 	user?: SidebarUser;
 	notifications?: Notification[];
@@ -54,6 +67,7 @@ export default function UserManagementPage({
 	onLogout,
 }: UserManagementProps) {
 	const [users, setUsers] = useState<User[]>([]);
+	const [dorms, setDormList] = useState<Dorm[]>([])
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [filters, setFilters] = useState<UserFiltersState>({
@@ -72,14 +86,33 @@ export default function UserManagementPage({
 				setError(null);
 				
 				const response = await fetch('/api/users');
+				const dormResponse = await fetch('/api/housing');
 				
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
 				
 				const data = await response.json();
-				
-				console.log('Raw API data:', data); // Debug: see what you're getting
+				const dormData = await dormResponse.json();
+
+				let rawDorms = [];
+				if (Array.isArray(dormData)) {
+					rawDorms = dormData;
+				} else if (dormData.data && Array.isArray(dormData.data)) {
+					rawDorms = dormData.data;
+				}
+		
+				const transformedDorms: Dorm[] = rawDorms.map((dorm: any) => ({
+					id: String(dorm.housing_id || dorm.id || ''),
+					name: dorm.housing_name || dorm.name || 'Unknown',
+					status: 'Accepting',
+					dormitory: dorm.housing_name || dorm.name || 'Unknown',
+					dormAddress: dorm.housing_address || dorm.address || undefined,
+					managerEmail: undefined,
+					capacity: dorm.rent_price || undefined,
+					rooms: dorm.total_rooms || undefined,
+					occupied: dorm.occupied_rooms || undefined,
+				}));
 				
 				// Ensure we always have an array
 				let rawUsers = [];
@@ -109,6 +142,7 @@ export default function UserManagementPage({
 				console.log('Transformed users:', transformedUsers); 
 				
 				setUsers(transformedUsers);
+				setDormList(transformedDorms);
 			} catch (error) {
 				console.error('Error fetching users:', error);
 				setError(error instanceof Error ? error.message : 'Failed to fetch users');
@@ -334,7 +368,7 @@ export default function UserManagementPage({
 			{editingUser && (
 				<EditUserModal
 					user={editingUser as any}  // paayos netoo
-					dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
+					dormitories={dorms}
 					onClose={() => setEditingUser(null)}
 					onSave={(id, role, dorm) => {
 					

@@ -357,25 +357,26 @@ export default function UserManagementPage({
               "Student": "user", // optional if you have this
             };
 
-            // 1. Update role
+            // Update role
             const route = roleRouteMap[role];
 
             if (!route) {
               throw new Error(`No API route defined for role: ${role}`);
             }
 
-            // const response = await fetch(`/api/${route}/${userId}`, {
-            //   method: "POST",
-            //   headers: { "Content-Type": "application/json" },
-            //   body: JSON.stringify({
-            //     account_number: userId,
-            //     manager_type: role,
-            //   }),
-            // });
+            const response = await fetch(`/api/${route}/${userId}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                account_number: userId,
+                manager_type: role,
+              }),
+            });
 
-            // if (!response.ok) throw new Error("Failed to update role");
+            if (!response.ok) throw new Error("Failed to update role");
             console.log(dorm?.id);
-            // 2. Assign dorm
+
+            // Assign dorm manager
             if (dorm) {
               const assignManager = await fetch(`/api/housing/${dorm.id}`, {
                 method: "PATCH",

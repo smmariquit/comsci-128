@@ -204,7 +204,7 @@ export function EditUserModal({
                 value={displayValue}
                 onChange={(e) => {
                   setQuery(e.target.value);
-                  setSelectedDorm(undefined);  // ✅ Fixed
+                  setSelectedDorm(undefined);  
                   setOpen(true);
                 }}
                 onFocus={() => {
@@ -229,12 +229,12 @@ export function EditUserModal({
                         key={d.id}
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          setSelectedDorm(d);  // ✅ Store whole Dorm object
+                          setSelectedDorm(d); 
                           setQuery("");
                           setOpen(false);
                         }}
                         className={`block w-full px-4 py-3 text-sm cursor-pointer hover:bg-gray-200
-                          ${d.id === selectedDorm?.id ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}  // ✅ Compare by id
+                          ${d.id === selectedDorm?.id ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}  
                       >
                         {d.name}
                       </div>
