@@ -100,7 +100,7 @@ export default function UserManagementPage({
 					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
 					gender: user.sex,
 					email: user.account_email,
-					role: user.user_type || user.role || 'Student',
+					role: user.user_type,
 					status: user.is_deleted ? 'Disabled' : 'Active',
 					dormitory: user.dormitory || user.dorm_name || '—',
 					room: user.room || user.room_number || '—',
