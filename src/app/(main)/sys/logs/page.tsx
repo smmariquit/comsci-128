@@ -1,11 +1,14 @@
 'use client';
+import Link from "next/link";
 
 import { useState, useEffect } from 'react';
 import Sidebar, { type SidebarUser } from '@/app/(main)/sys/component/sidebar';
 import NotificationBell from '@/app/(main)/sys/component/notification';
 import AuditFilters, { type AuditFiltersState } from '@/app/(main)/sys/component/audit-filters';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { ActionType } from '@/models/audit_log';
+import { ActionType } from "@/app/lib/models/audit_log";
+import { ViewAuditLogModal } from '@/app/(main)/sys/component/view-audit';
+
 
 // Types
 //export type ActionType = 'Login' | 'Logout' | 'Create' | 'Update' | 'Delete' | 'Export'; // temporary - hde ko anong pwedeng category ng actions to be logged
@@ -169,7 +172,8 @@ export default function AuditLogsPage({
   const [page, setPage] = useState(1);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
+  const [viewingLog, setViewingLog] = useState<AuditLog | null>(null); // view modal
 
   // Fetch audit logs from API
   useEffect(() => {
@@ -254,6 +258,42 @@ export default function AuditLogsPage({
     a.href = url; a.download = 'audit-logs.csv'; a.click();
     URL.revokeObjectURL(url);
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-[#eae8e1]">
+        <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
+            <p className="text-[#1a2332]/60">Loading Audit Logs...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-[#eae8e1]">
+        <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
+            <p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
+            <p className="text-red-500 text-sm mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-[#eae8e1]">
@@ -343,9 +383,12 @@ export default function AuditLogsPage({
 
                     {/* DETAILS */}
                     <div>
-                      <button className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors">
-                        View
-                      </button>
+                      <button
+                      onClick={() => setViewingLog(log)}
+                      className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+                    >
+                      View
+                    </button>
                     </div>
                   </div>
                 ))
@@ -373,6 +416,12 @@ export default function AuditLogsPage({
 
         </div>
       </div>
+      {viewingLog && (
+        <ViewAuditLogModal
+          log={viewingLog}
+          onClose={() => setViewingLog(null)}
+        />
+      )}
     </div>
   );
 }

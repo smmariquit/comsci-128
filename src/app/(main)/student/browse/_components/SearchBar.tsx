@@ -1,6 +1,7 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { Filter, Search, ArrowDownNarrowWide } from "lucide-react";
 
 
 //SEARCHBAR FOR STUDENT BROWSE
@@ -31,9 +32,7 @@ export default function SearchBar() {
                     onClick={() => { setIsFilterOpen(!isFilterOpen); setIsSortOpen(false); }}
                     className="flex items-center justify-center text-[#C9642A]"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
+                    <Filter size={20} fill="currentColor" />
                 </button>
 
                 {isFilterOpen && (
@@ -53,15 +52,11 @@ export default function SearchBar() {
             <div className="relative flex-1 group">
                 {/* Search Icon (Left) */}
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-4 w-4 text-[#567375] group-focus-within:text-[#C9642A] transition-colors" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+                    <Search 
+                        size={16}
+                        className="text-[#567375] group-focus-within:text-[#C9642A] transition-colors" 
+                        strokeWidth={2}
+                    />
                 </div>
 
                 <input 
@@ -78,25 +73,7 @@ export default function SearchBar() {
                     onClick={() => { setIsSortOpen(!isSortOpen); setIsFilterOpen(false); }}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-black/5 transition-colors text-sm font-semibold text-[#C9642A]"
                 >
-                    {/* Sort Icon: Three bars with a descending arrow */}
-                    <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="20" 
-                        height="20" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        className="lucide lucide-arrow-down-narrow-wide"
-                    >
-                        <path d="m3 16 4 4 4-4"/>
-                        <path d="M7 20V4"/>
-                        <path d="M11 4h10"/>
-                        <path d="M11 8h7"/>
-                        <path d="M11 12h4"/>
-                    </svg>
+                    <ArrowDownNarrowWide size={20} strokeWidth={2} />
                     
                     <span>
                         {searchParams.get('sort') === 'asc' ? 'Price: Low-High' : 
