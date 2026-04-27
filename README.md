@@ -78,9 +78,7 @@ Every system transaction is recorded with user ID, timestamp, partial IP address
 [vercel]: https://vercel.com/
 
 ---
-## Getting Started
-
----
+# Getting Started
 
 ## Project Structure
 
