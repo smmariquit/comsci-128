@@ -6,11 +6,24 @@
 
 This guide walks you through testing UPLB CASA as each user role. Our team has included the relevant functional requirements alongside each test case so you know exactly what the system is supposed to do. We request that you verify the accuracy of these requirements alongside the testing. Please file issues using the template at the bottom of this document.
 
----
-
-> [!NOTE]
+> [!IMPORTANT]
 > All four portals share the same login page. Role-based redirection happens automatically after authentication.
 
+## Test Logins
+
+email: student@tester.com
+pw: student
+
+email: systemadmin@tester.com
+pw: systemadmin
+
+email: housingadmin@tester.com
+pw: housingadmin
+
+email: landlord@tester.com
+pw: landlord
+
+--------------------------------
 
 ## Summarized Application Flow 
 
@@ -28,8 +41,6 @@ Student submits an application
 ```
 
 Rejection at any stage sets the application status to `Rejected` and closes the application. If a housing has no assigned manager, the Admin/Landlord handles both levels of screening directly.
-
-<!-- TODO: verify accuracy -->
 
 ---
 
@@ -51,7 +62,6 @@ Rejection at any stage sets the application status to `Rejected` and closes the 
 5. Verify the application appears with status `Pending Manager Approval`
 6. After a Manager approves, verify status updates to `Pending Admin Approval`
 7. After Admin approves, verify status updates to `Approved`
-
 <!-- TODO: Verify final path for billing -->
 8. Navigate to **Billing** to verify outstanding balance and billing history display
 
@@ -153,58 +163,3 @@ Rejection at any stage sets the application status to `Rejected` and closes the 
 | Deactivate an account; check previous data | Application history, accommodation records, and logs remain | §5.5.12 |
 
 ---
-
-## Known Limitations
-
-The following are currently known incomplete or deferred features. Do not file bugs for these.
-
-| Feature | Status |
-|---|---|
-| Application period enforcement | Not yet enforced, submissions currently accepted at any time |
-| Billing full flow: SOA generation, payment verification | Partially implemented |
-| Report export (PDF, CSV, Excel) | Partially implemented |
-| Accommodation Notice auto-generation on approval | Not yet implemented (SRS REQ-10 §4.7) |
-| Auth middleware on all API routes | Disabled during development |
-
----
-
-## Filing a Bug Report
-
-File issues at: [github.com/smmariquit/comsci-128/issues][issues]
-
-[issues]: https://github.com/smmariquit/comsci-128/issues
-
-```
-**Title:** Short description of the issue
-
-**Role:** Student / Manager / Admin / Sys Admin
-
-**Steps to Reproduce:**
-1.
-2.
-3.
-
-**Expected Behavior:**
-What should have happened.
-
-**Actual Behavior:**
-What actually happened.
-
-**Screenshots / Console Errors:**
-Attach if available. Browser console (F12) errors are especially useful.
-
-**Browser / Device:**
-e.g. Chrome 124, Windows 11
-```
-
-### Severity Labels
-
-| Label | When to use |
-|---|---|
-| `bug:critical` | System crash, data loss, security vulnerability |
-| `bug:major` | Core feature broken with no workaround |
-| `bug:minor` | Visual glitch or non-blocking issue |
-| `enhancement` | Suggestion for improvement |
-
-
-
