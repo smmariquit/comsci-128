@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import { X, AlertTriangle } from "lucide-react";
-import { Role } from "@/app/lib/models/audit_log";
 import { Dorm } from "../roles/page";
 
 // Roles of Users (For UI only) different from enums Role
@@ -21,10 +20,9 @@ interface EditUserModalProps {
   user: User;
   dormitories?: Dorm[];
   onClose: () => void;
-  onSave: (userId: User["id"], newuserType: userType, newDormitory?: string) => void;
+  onSave: (userId: User["id"], newuserType: userType, newDormitory?: Dorm) => void;
 }
 
-// userType options description for display in the modal - userType, label, and description for each userType type 
 const userTypeS: { value: userType; label: string; description: string }[] = [
   { value: "Student",         label: "Student",         description: "Tenant access only"        },
   { value: "Landlord",        label: "Landlord",        description: "Owner-level access"        },
@@ -32,36 +30,26 @@ const userTypeS: { value: userType; label: string; description: string }[] = [
   { value: "Housing Manager", label: "Housing Manager", description: "Owner-level property access"},
 ];
 
-// If userType is one of these, dorm assignment is required before saving changes. 
-// Otherwise, dorm assignment is optional and will be cleared on userType change.
 const DORM_REQUIRED_userTypeS: userType[] = ["Dorm Manager", "Landlord", "Housing Manager"];
 
-// Avatar helper - Logo
 function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
-// Modal component
 export function EditUserModal({
   user,
-  dormitories, // hard coded for now
+  dormitories,
   onClose,
   onSave,
 }: EditUserModalProps) {
   const [selecteduserType, setSelecteduserType] = useState<userType>(user.userType);
-  const [selectedDorm, setSelectedDorm] = useState<string>(user.dormitory ?? "");
+  const [selectedDorm, setSelectedDorm] = useState<Dorm | undefined>(undefined);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const dormRequired = DORM_REQUIRED_userTypeS.includes(selecteduserType);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -73,25 +61,24 @@ export function EditUserModal({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Reset when dormRequired turns off
   useEffect(() => {
     if (!dormRequired) {
       setQuery("");
       setOpen(false);
+      setSelectedDorm(undefined);
     }
   }, [dormRequired]);
 
-  // While typing in the dorm search box, filter the dorm list based on the query. 
-  // If query is empty, show all dorms.
   const filteredDorms = useMemo(() => {
-    if (!dormitories) return []; 
+    if (!dormitories) return [];
     if (!query) return dormitories;
     return dormitories.filter((d) =>
       d.name.toLowerCase().includes(query.toLowerCase())
     );
   }, [query, dormitories]);
 
-  const displayValue = query !== "" ? query : selectedDorm;
+  // ✅ Use selectedDorm.name for display
+  const displayValue = query !== "" ? query : selectedDorm?.name ?? "";
 
   function handleSave() {
     onSave(user.id, selecteduserType, selectedDorm || undefined);
@@ -114,9 +101,7 @@ export function EditUserModal({
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 id="modal-title" className="text-xl font-bold text-[#1a2332]">
-                  Edit User
-                </h2>
+                <h2 className="text-xl font-bold text-[#1a2332]">Edit User</h2>
                 <p className="text-sm text-[#1a2332]/50 font-mono mt-0.5">
                   Update the assigned userType and dormitory for this user
                 </p>
@@ -184,7 +169,9 @@ export function EditUserModal({
                       type="button"
                       onClick={() => {
                         setSelecteduserType(userType.value);
-                        if (!DORM_REQUIRED_userTypeS.includes(userType.value)) setSelectedDorm("");
+                        if (!DORM_REQUIRED_userTypeS.includes(userType.value)) {
+                          setSelectedDorm(undefined);
+                        }
                       }}
                       className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all
                         ${isSelected
@@ -217,7 +204,7 @@ export function EditUserModal({
                 value={displayValue}
                 onChange={(e) => {
                   setQuery(e.target.value);
-                  setSelectedDorm("");
+                  setSelectedDorm(undefined);  // ✅ Fixed
                   setOpen(true);
                 }}
                 onFocus={() => {
@@ -242,12 +229,12 @@ export function EditUserModal({
                         key={d.id}
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          setSelectedDorm(d.name);
+                          setSelectedDorm(d);  // ✅ Store whole Dorm object
                           setQuery("");
                           setOpen(false);
                         }}
                         className={`block w-full px-4 py-3 text-sm cursor-pointer hover:bg-gray-200
-                          ${d.name === selectedDorm ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}
+                          ${d.id === selectedDorm?.id ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}  // ✅ Compare by id
                       >
                         {d.name}
                       </div>

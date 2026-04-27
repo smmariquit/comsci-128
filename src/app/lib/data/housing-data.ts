@@ -75,8 +75,8 @@ async function update(
     .from("housing")
     .update(housingDetails)
     .eq("housing_id", housingId)
-    .select()
-    .single();
+    .select("*")
+    .single(); 
 
   if (error) {
     if (error.code === "PGRST116") return null;

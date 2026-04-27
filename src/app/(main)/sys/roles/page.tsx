@@ -343,10 +343,71 @@ export default function UserManagementPage({
           user={editingUser as any}
           dormitories={dorms}  
           onClose={() => setEditingUser(null)}
-          onSave={(id, role, dorm) => {
-            console.log("Updated:", id, role, dorm);
+          onSave={async (id, role, dorm) => {
+          try {
+            const userId = id.toString();
+            
+
+            console.log("Saving:", { userId, role, dorm });
+
+            const roleRouteMap: Record<string, string> = {
+              "Landlord": "landlord",
+              "Dorm Manager": "housing-admin",   // adjust if needed
+              "Housing Manager": "housing-admin",
+              "Student": "user", // optional if you have this
+            };
+
+            // 1. Update role
+            const route = roleRouteMap[role];
+
+            if (!route) {
+              throw new Error(`No API route defined for role: ${role}`);
+            }
+
+            // const response = await fetch(`/api/${route}/${userId}`, {
+            //   method: "POST",
+            //   headers: { "Content-Type": "application/json" },
+            //   body: JSON.stringify({
+            //     account_number: userId,
+            //     manager_type: role,
+            //   }),
+            // });
+
+            // if (!response.ok) throw new Error("Failed to update role");
+            console.log(dorm?.id);
+            // 2. Assign dorm
+            if (dorm) {
+              const assignManager = await fetch(`/api/housing/${dorm.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  housing_id: dorm.id,
+                  manager_account_number: Number(userId),
+                }),
+              });
+
+              if (!assignManager.ok) throw new Error("Failed to assign housing");
+            }
+
+            // 3. Update UI
+            setUserList((prev) =>
+              prev.map((u) =>
+                u.id === id
+                  ? {
+                      ...u,
+                      role,
+                      dormitory: dorm?.name ?? u.dormitory,
+                    }
+                  : u
+              )
+            );
+
             setEditingUser(null);
-          }}
+          } catch (err) {
+            console.error("SAVE ERROR:", err);
+            alert("Failed to update user");
+          }
+        }}
         />
       )}
       {disableUser && (
