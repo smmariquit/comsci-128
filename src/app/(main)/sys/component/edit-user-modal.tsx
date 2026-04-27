@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { X, AlertTriangle } from "lucide-react";
 import { Role } from "@/app/lib/models/audit_log";
+import { Dorm } from "../roles/page";
 
 // Roles of Users (For UI only) different from enums Role
 type userType = "Student" | "Landlord" | "Dorm Manager" | "Housing Manager";
@@ -18,7 +19,7 @@ interface User {
 
 interface EditUserModalProps {
   user: User;
-  dormitories?: string[];
+  dormitories?: Dorm[];
   onClose: () => void;
   onSave: (userId: User["id"], newuserType: userType, newDormitory?: string) => void;
 }
@@ -48,7 +49,7 @@ function getInitials(name: string) {
 // Modal component
 export function EditUserModal({
   user,
-  dormitories = ["Dorm 1", "Dorm 2", "Dorm 3", "Dorm 4"], // hard coded for now
+  dormitories, // hard coded for now
   onClose,
   onSave,
 }: EditUserModalProps) {
@@ -83,9 +84,10 @@ export function EditUserModal({
   // While typing in the dorm search box, filter the dorm list based on the query. 
   // If query is empty, show all dorms.
   const filteredDorms = useMemo(() => {
+    if (!dormitories) return []; 
     if (!query) return dormitories;
     return dormitories.filter((d) =>
-      d.toLowerCase().includes(query.toLowerCase())
+      d.name.toLowerCase().includes(query.toLowerCase())
     );
   }, [query, dormitories]);
 
@@ -236,19 +238,19 @@ export function EditUserModal({
                 <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-60 overflow-y-auto">
                   {filteredDorms.length > 0 ? (
                     filteredDorms.map((d) => (
-                      <option
-                        key={d}
+                      <div
+                        key={d.id}
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => {
-                          setSelectedDorm(d);
+                          setSelectedDorm(d.name);
                           setQuery("");
                           setOpen(false);
                         }}
                         className={`block w-full px-4 py-3 text-sm cursor-pointer hover:bg-gray-200
-                          ${d === selectedDorm ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}
+                          ${d.name === selectedDorm ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}
                       >
-                        {d}
-                      </option>
+                        {d.name}
+                      </div>
                     ))
                   ) : (
                     <div className="px-4 py-3 text-sm text-gray-400">

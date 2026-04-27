@@ -20,6 +20,20 @@ export interface User {
   dormitory: string;
 }
 
+// Dorm Data Types - showed in table
+export interface Dorm {
+  id: string;
+  name: string;
+  status: 'Accepting' | 'Disabled' | string;
+  dormitory: string;
+  dormAddress?: string;
+  managerEmail?: string;
+  capacity?: number;
+  rooms?: number;
+  occupied?: number;
+}
+
+
 // Sidebar + notifications
 export interface UserManagementProps {
   user?: SidebarUser;
@@ -77,6 +91,7 @@ export default function UserManagementPage({
   const [filters, setFilters] = useState<UserFiltersState>({
   search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
   });
+  const [dorms, setDormList] = useState<Dorm[]>([]);
 
   // Paging and modals state
   const [page, setPage] = useState(1);
@@ -91,14 +106,17 @@ export default function UserManagementPage({
         setError(null);
 
         const response = await fetch('/api/manager');
+        const dormResponse = await fetch('/api/housing');
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
+        const dormData = await dormResponse.json();
 
         console.log('Raw API data:', data);
+        console.log('Raw dorm data:', dormData);
 
         let rawUsers = [];
         if (Array.isArray(data)) {
@@ -112,20 +130,43 @@ export default function UserManagementPage({
           rawUsers = [];
         }
 
+        
+
+        // ✅ Transform housing data
+        let rawDorms = [];
+        if (Array.isArray(dormData)) {
+          rawDorms = dormData;
+        } else if (dormData.data && Array.isArray(dormData.data)) {
+          rawDorms = dormData.data;
+        }
+
+        const transformedDorms: Dorm[] = rawDorms.map((dorm: any) => ({
+          id: String(dorm.housing_id || dorm.id || ''),
+          name: dorm.housing_name || dorm.name || 'Unknown',
+          status: 'Accepting',
+          dormitory: dorm.housing_name || dorm.name || 'Unknown',
+          dormAddress: dorm.housing_address || dorm.address || undefined,
+          managerEmail: undefined,
+          capacity: dorm.rent_price || undefined,
+          rooms: dorm.total_rooms || undefined,
+          occupied: dorm.occupied_rooms || undefined,
+        }));
+        
         // Transform raw data to match User interface
         const transformedUsers: User[] = rawUsers.map((user: any) => ({
-            id:        user.account_number?.toString() || '',
-            name:      `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-            gender:    user.sex || 'Not specified',
-            email:     user.account_email || user.contact_email || '',
-            role:      user.role || 'Manager',  // 👈 now uses manager_type
-            status:    user.is_deleted ? 'Disabled' : 'Active',
-            dormitory: '—',
+          id: user.account_number?.toString() || '',
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+          gender: user.sex || 'Not specified',
+          email: user.account_email || user.contact_email || '',
+          role: user.manager_type || 'Manager',
+          status: user.is_deleted ? 'Disabled' : 'Active',
+          dormitory: '—',
         }));
-
         console.log('Transformed users:', transformedUsers);
+        console.log('Transformed dorms:', transformedDorms);
 
         setUserList(transformedUsers);
+        setDormList(transformedDorms);
       } catch (error) {
         console.error('Error fetching managers:', error);
         setError(error instanceof Error ? error.message : 'Failed to fetch managers');
@@ -198,7 +239,7 @@ export default function UserManagementPage({
         open={showModal}
         onClose={() => setShowModal(false)}
         onAdd={handleAddManager}
-        dormOptions={['Dorm 1', 'Dorm 2', 'Dorm 3']}
+       // dormOptions={dorms}
       />
 
       {/* Sidebar */}
@@ -298,17 +339,16 @@ export default function UserManagementPage({
         </div>
       </div>
       {editingUser && (
-				<EditUserModal
-					user={editingUser as any}  // paayos netoo
-					dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
-					onClose={() => setEditingUser(null)}
-					onSave={(id, role, dorm) => {
-					
-					console.log("Updated:", id, role, dorm);
-					setEditingUser(null);
-					}}
-				/>
-			)}
+        <EditUserModal
+          user={editingUser as any}
+          dormitories={dorms}  
+          onClose={() => setEditingUser(null)}
+          onSave={(id, role, dorm) => {
+            console.log("Updated:", id, role, dorm);
+            setEditingUser(null);
+          }}
+        />
+      )}
       {disableUser && (
         <DisableAccountModal
           user={disableUser as any} // paayos nalangs
