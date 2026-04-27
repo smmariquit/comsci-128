@@ -49,22 +49,14 @@ async function getById(applicationId: number): Promise<Application | null> {
 	return data && data.length > 0 ? data[0] : null;
 }
 
-async function getByManager(managerAccountNumber: number): Promise<Application[]>{
-  const { data, error } = await supabase
-    .from("application")
-    .select(`
-		application_id,
-		housing_name,
-		preferred_room_type, 
-		application_status,
-		expected_moveout_date,
-		actual_moveout_date, 
-		room_id, 
-		student_account_number,
-		manager:manager_account_number_fkey(account_number)
-	`)
-    .eq("manager.account_number", managerAccountNumber)
-    .eq("application.is_deleted", false);
+async function getByManager(
+	managerAccountNumber: number,
+): Promise<Application[]> {
+	const { data, error } = await supabase
+		.from("application")
+		.select("*")
+		.eq("manager.account_number", managerAccountNumber)
+		.eq("application.is_deleted", false);
 
 	if (error) throw error;
 	return data ?? [];
