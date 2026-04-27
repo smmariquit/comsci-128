@@ -1,5 +1,16 @@
 export const floatingAnimations = `
-  /* ── SERVICES SCROLL ANIMATIONS ──────────────── */
+  /* Dorm Digest Animations */  
+  @keyframes dd-ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .dd-ticker-scroll { animation: dd-ticker 28s linear infinite; }
+    .dd-ticker-scroll:hover { animation-play-state: paused; }
+    .dd-hero-zoom { transition: transform .4s ease; }
+    .dd-hero-card:hover .dd-hero-zoom { transform: scale(1.04); }
+    .dd-wide-zoom { transition: transform .35s ease; }
+    .dd-wide-card:hover .dd-wide-zoom { transform: scale(1.06); }
+    .dd-mini-zoom { transition: transform .35s ease; }
+    .dd-mini:hover .dd-mini-zoom { transform: scale(1.07); }
+    
+  /*SERVICES SCROLL ANIMATIONS */
   @keyframes floatUpDown {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-12px); }
