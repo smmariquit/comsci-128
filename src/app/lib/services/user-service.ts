@@ -167,35 +167,6 @@ const getActiveUserCount = async (): Promise<number | null> => {
 	}
 };
 
-const promoteUserType = async (
-	account_email: string,
-	userType: Role,
-	insertTable: string,
-): Promise<ServiceResponse<any>> => {
-	try {
-		const updatedUser = await userData.promote(account_email, {
-			user_type: userType,
-		});
-
-		if (!updatedUser) {
-			return { error: "User not found" };
-		}
-
-		// Insert in the table of the current role
-		if (userType == "Student") {
-		}
-
-		if (userType == "Manager") {
-		}
-
-		const { account_number, password, ...safeUser } = updatedUser;
-
-		return { data: safeUser };
-	} catch (error: any) {
-		console.error("Error:", error.message);
-		return { error: "Failed to update user type" };
-	}
-};
 
 export const userService = {
 	addUser,
