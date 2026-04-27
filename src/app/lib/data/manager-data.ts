@@ -32,6 +32,17 @@ const getAll = async () => {
 		.eq("is_deleted", false);
 };
 
+// GET manager count
+const getCount = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("manager")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+}
+
 // FIND manager by ID
 const findById = async (account_number: number) => {
 	const { data, error } = await supabase
@@ -158,6 +169,8 @@ const deleteBankDetails = async (bank_number: number) => {
 		.eq("bank_number", bank_number)
 		.select();
 };
+
+// manager_payment_details
 
 // CREATE manager_payment
 const addPaymentDetails = async (paymentData: any) => {
@@ -572,6 +585,7 @@ const getAllBillings = async () => {
 export const managerData = {
 	create,
 	getAll,
+	getCount,
 	findById,
 	update,
 	findManagerProfileById,

@@ -142,6 +142,15 @@ const uploadHousingImage = async (
 	}
 };
 
+const getOccupancyRate = async () => {
+	try {
+		return await housingData.getHousingCardsData();
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to fetch Housing Cards");
+	}
+}
+
 export const housingService = {
 	addHousing,
 	getHousing,
@@ -152,4 +161,5 @@ export const housingService = {
 	uploadHousingImage,
 	updateHousing,
 	deactivateHousing,
+	getOccupancyRate
 };
