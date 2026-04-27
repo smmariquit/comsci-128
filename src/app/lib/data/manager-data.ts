@@ -22,7 +22,7 @@ const create = async (
 
 	const managerInsert = {
 		account_number: accountNumber,
-		manager_type: "Landlord",
+		manager_type: managerDetails.manager_type, 
 	};
 
     // create in manager row
