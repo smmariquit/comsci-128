@@ -5,7 +5,6 @@ import { managerData } from "../data/manager-data";
 import { userData } from "../data/user-data";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
-import App from "next/app";
 
 async function getStudentProfile(
 	userId: number,
