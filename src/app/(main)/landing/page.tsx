@@ -7,6 +7,8 @@ import ServicesSection from "./ServicesSection";
 import ShowcaseSection from "./ShowcaseSection";
 import TestimonialsSection from "./TestimonialsSection";
 import CTASection from "./GSSection";
+import HowItWorks from "./HowItWorksSection";
+
 
 // Mapping colors
 const colors = {
@@ -63,11 +65,11 @@ export default function LandingPage() {
               <span className="text-[#567375] relative">
                 Isko
                 {/* underline accent */}
-                <span className="absolute -bottom-1 left-0 w-full h-[3px] rounded-full bg-[#E3AF64]/60" />
+                <span className="absolute -bottom-1 left-0 w-full h-0.75 rounded-full bg-[#E3AF64]/60" />
               </span>
             </h1>
 
-            <p className="pt-4 fade-up-delay text-sm leading-relaxed opacity-60 max-w-md font-[family-name:var(--font-geist-mono)]">
+            <p className="pt-4 fade-up-delay text-sm leading-relaxed opacity-60 max-w-md font-(family-name:--font-geist-mono)">
               Explore a wide range of verified dorms, apartments, and boarding houses near UPLB — helping students find secure, comfortable, and affordable housing with ease.
             </p>
 
@@ -91,7 +93,7 @@ export default function LandingPage() {
                 <div className="w-1.5 h-1.5 bg-[#1a2332]/60 rounded-full animate-scroll-dot"></div>
               </div>
 
-              <p className="text-sm text-[#1a2332]/60 font-[var(--font-geist-mono)]">
+              <p className="text-sm text-[#1a2332]/60 font-(--font-geist-mono)">
                 Scroll to explore
               </p>
             </div>
@@ -99,7 +101,7 @@ export default function LandingPage() {
           </div>
 
           {/* Decorative Circles Container */}
-          <div className="hidden md:block relative w-[28rem] h-[28rem] self-center">
+          <div className="hidden md:block relative w-md h-112 self-center">
 
             {/* Front Circle */}
             <div
@@ -122,6 +124,9 @@ export default function LandingPage() {
       {/* Photos slideshow */}
       <ShowcaseSection />
       
+      {/* How it works section */}
+      <HowItWorks />
+      
       {/* Testimonials */}
       <TestimonialsSection />
       
@@ -130,7 +135,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer
-        className="py-10 px-8 text-center text-xs font-[family-name:var(--font-geist-mono)] leading-relaxed space-y-1"
+        className="py-10 px-8 text-center text-xs font-(family-name:--font-geist-mono) leading-relaxed space-y-1"
         style={{ backgroundColor: colors.light_blue, color: colors.cream }}
       >
         <p>© 2026 Website Name</p>
