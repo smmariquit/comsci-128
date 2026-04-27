@@ -23,7 +23,7 @@ const colors = {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
+    <div className="min-h-screen overflow-x-hidden font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
       <div className="bg-[#1C2632] text-[#EDE9DE] py-2 px-4 text-center text-[10px] md:text-xs font-medium tracking-wide uppercase">
         Testing UPLB CASA? Read the <a href="https://github.com/smmariquit/comsci-128/blob/fix/README/betaTesting.md" target="_blank" rel="noopener noreferrer" className="underline decoration-[#C9642A] underline-offset-2 hover:text-[#E3AF64] transition-colors">Beta Testing Guide</a>
       </div>
