@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { floatingAnimations } from "./animations"; 
+import { floatingAnimations } from "./animations";
 
-// Data 
+// Data
 const STEPS = [
   {
     num: "01",
@@ -27,10 +27,10 @@ const STEPS = [
   },
 ];
 
-// Component 
+// Component
 export default function HowItWorks() {
   const [activeStep, setActiveStep] = useState(0);
-  const [visible,    setVisible]    = useState(false);
+  const [visible, setVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   // Scroll reveal
@@ -38,8 +38,10 @@ export default function HowItWorks() {
     const el = sectionRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.1 }
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.1 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -70,7 +72,7 @@ export default function HowItWorks() {
         <div
           className="flex items-end justify-between relative z-10 transition-all duration-650 ease-in-out"
           style={{
-            opacity:   visible ? 1 : 0,
+            opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(18px)",
           }}
         >
@@ -79,8 +81,7 @@ export default function HowItWorks() {
               Getting started
             </p>
             <h2 className="leading-tight text-[clamp(2rem,5vw,3rem)] text-[#f5f2ec] font-['Playfair_Display',serif]">
-              How It{" "}
-              <em className="text-[#d4784a] italic">Works</em>
+              How It <em className="text-[#d4784a] italic">Works</em>
             </h2>
           </div>
         </div>
@@ -89,7 +90,7 @@ export default function HowItWorks() {
         <div
           className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10 transition-all duration-650 ease-in-out"
           style={{
-            opacity:   visible ? 1 : 0,
+            opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(22px)",
           }}
         >
@@ -107,9 +108,11 @@ export default function HowItWorks() {
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs transition-all duration-300 font-['IBM_Plex_Mono',monospace]"
                     style={{
-                      border:     isActive ? "1.5px solid #b85c28" : "1.5px solid rgba(194,211,208,.3)",
+                      border: isActive
+                        ? "1.5px solid #b85c28"
+                        : "1.5px solid rgba(194,211,208,.3)",
                       background: isActive ? "#b85c28" : "transparent",
-                      color:      isActive ? "#fff" : "rgba(194,211,208,.8)",
+                      color: isActive ? "#fff" : "rgba(194,211,208,.8)",
                     }}
                   >
                     {step.num}
@@ -131,10 +134,8 @@ export default function HowItWorks() {
 
           {/* Right: Card visual */}
           <div className="relative hidden md:block" style={{ height: "380px" }}>
-
             {/* Main card - 1 */}
             <div className="absolute float-updown w-70 top-25 left-80 z-10 rounded-2xl bg-white/10 border border-[rgba(194,211,208,.18)] p-[1.4rem] shadow-[0_8px_32px_rgba(13,27,42,.25)]">
-
               {/* Verified tag */}
               <p className="mb-2.5 text-[.65rem] tracking-[.12em] uppercase text-[rgba(194,211,208,.65)] font-['IBM_Plex_Mono',monospace]">
                 Verified · Available Slots Now!
@@ -170,7 +171,6 @@ export default function HowItWorks() {
 
             {/* Main card - 2 */}
             <div className="absolute float-updown w-70 left-5 z-10 rounded-2xl bg-white/10 border border-[rgba(194,211,208,.18)] p-[1.4rem] shadow-[0_8px_32px_rgba(13,27,42,.25)]">
-
               {/* Verified tag */}
               <p className="mb-2.5 text-[.65rem] tracking-[.12em] uppercase text-[rgba(194,211,208,.65)] font-['IBM_Plex_Mono',monospace]">
                 Verified · Available Slots Now!
@@ -203,7 +203,6 @@ export default function HowItWorks() {
                 </span>
               </p>
             </div>
-
           </div>
         </div>
       </section>
