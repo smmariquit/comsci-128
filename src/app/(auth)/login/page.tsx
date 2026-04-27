@@ -95,6 +95,7 @@ export default function LoginPage() {
           </form>
         ) : (
           <button
+            type="button"
             onClick={handleSignOut}
             className="w-full rounded bg-red-500 py-2 text-white"
           >
