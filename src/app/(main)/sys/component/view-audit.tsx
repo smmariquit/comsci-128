@@ -1,7 +1,7 @@
 "use client";
 
 import { X, ShieldCheck, Clock, Monitor, Globe, User, Tag, Activity } from "lucide-react";
-import { type ActionType } from "@/app/lib/data/audit-log-data";
+import { ActionType } from "@/app/lib/models/audit_log";
 
 // Types and interfaces
 
@@ -59,7 +59,6 @@ const ACTION_STYLES: Partial<Record<ActionType, string>> = {
   "Application Status":        "bg-blue-50    text-blue-700    ring-1 ring-blue-200",
   "Bill Status":               "bg-amber-50   text-amber-700   ring-1 ring-amber-200",
   "Auth Register":             "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-  "Auth Logic":                "bg-orange-50  text-orange-600  ring-1 ring-orange-200",
   "Change Auth Password":      "bg-yellow-50  text-yellow-700  ring-1 ring-yellow-200",
   "Delete Account":            "bg-rose-50    text-rose-600    ring-1 ring-rose-200",
   "Update User Role":          "bg-purple-50  text-purple-700  ring-1 ring-purple-200",
@@ -68,7 +67,6 @@ const ACTION_STYLES: Partial<Record<ActionType, string>> = {
   "Withdraw Application":      "bg-red-50     text-red-600     ring-1 ring-red-200",
   "Create Housing":            "bg-teal-50    text-teal-700    ring-1 ring-teal-200",
   "Update Housing":            "bg-cyan-50    text-cyan-700    ring-1 ring-cyan-200",
-  "Assign Student Housing":    "bg-lime-50    text-lime-700    ring-1 ring-lime-200",
   "Assign Bill":               "bg-orange-50  text-orange-700  ring-1 ring-orange-200",
   "Update Bill Status":        "bg-amber-50   text-amber-600   ring-1 ring-amber-200",
   "Issue Bill Refund":         "bg-green-50   text-green-700   ring-1 ring-green-200",
@@ -79,7 +77,6 @@ const ACTION_DOT: Partial<Record<ActionType, string>> = {
   "Application Status":        "bg-blue-500",
   "Bill Status":               "bg-amber-500",
   "Auth Register":             "bg-emerald-500",
-  "Auth Logic":                "bg-orange-500",
   "Change Auth Password":      "bg-yellow-500",
   "Delete Account":            "bg-rose-500",
   "Update User Role":          "bg-purple-500",
@@ -88,7 +85,6 @@ const ACTION_DOT: Partial<Record<ActionType, string>> = {
   "Withdraw Application":      "bg-red-500",
   "Create Housing":            "bg-teal-500",
   "Update Housing":            "bg-cyan-500",
-  "Assign Student Housing":    "bg-lime-500",
   "Assign Bill":               "bg-orange-600",
   "Update Bill Status":        "bg-amber-600",
   "Issue Bill Refund":         "bg-green-500",

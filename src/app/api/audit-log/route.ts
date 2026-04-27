@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         // Filler for system admin (temporary for testing)
         const auditLogs = await auditLogService.getAuditLogs(
             "174",
-            "Landlord",
+            "Manager",
             174
         );
 
