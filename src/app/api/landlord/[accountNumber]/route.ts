@@ -24,7 +24,7 @@ export async function POST(
       );
     }
 
-    const newLandlord = landlordService.addLandlord(
+    const newLandlord =  await landlordService.addLandlord(
       parsedAccountNumber,
       accountDetails
     );

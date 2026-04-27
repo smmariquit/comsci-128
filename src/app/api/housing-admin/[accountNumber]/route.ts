@@ -2,20 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { housingAdminService } from "@/app/lib/services/housing-admin";
 import { NewManager } from "@/app/lib/models/manager";
 
-// POST /api/landlord/[accountNumber]
+// POST /api/housing-admin/[accountNumber]
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ accountNumber: string }> }
+  { params }: { params: { accountNumber: string } }
 ) {
   try {
-    const resolvedParams = await params; 
-    const { accountNumber } = resolvedParams;
+    const { accountNumber } = params;
 
-    console.log("params:", resolvedParams);
+    console.log("raw params:", params);
 
     const parsedAccountNumber = Number(accountNumber);
-
-    const accountDetails: NewManager = await req.json();
 
     if (!Number.isInteger(parsedAccountNumber) || parsedAccountNumber <= 0) {
       return NextResponse.json(
@@ -24,18 +21,28 @@ export async function POST(
       );
     }
 
-    const newHousingAdmin = housingAdminService.addHousingAdmin(
+    const accountDetails: NewManager = await req.json();
+
+    console.log("accountDetails:", accountDetails);
+
+    const newHousingAdmin = await housingAdminService.addHousingAdmin(
       parsedAccountNumber,
       accountDetails
     );
 
     return NextResponse.json(
-      { data: newHousingAdmin},
+      { data: newHousingAdmin },
       { status: 201 }
     );
-  } catch (error) {
+
+  } catch (error: any) {
+    console.error("Housing Admin API Error:", error);
+
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      {
+        error: "Internal Server Error",
+        message: error?.message ?? "Unknown error",
+      },
       { status: 500 }
     );
   }
