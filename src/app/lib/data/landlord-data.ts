@@ -32,7 +32,9 @@ async function create(userDetails: NewUser, managerDetails: NewManager) {
 
 // Read all landlords with user details
 async function getAll() {
-	const { data, error } = await supabase.from("landlord").select(`
+  const { data, error } = await supabase
+    .from("landlord")
+    .select(`
       account_number,
       manager:landlord_account_number_fkey (
         manager_type,
@@ -52,21 +54,20 @@ async function getAll() {
         )
       )
     `);
-
-	if (error) {
-		console.error("Error fetching landlords:", error.message);
-		return { data: null, error };
-	}
-
-	return { data, error: null };
+ 
+  if (error) {
+    console.error("Error fetching landlords:", error.message);
+    return { data: null, error };
+  }
+ 
+  return { data, error: null };
 }
 
 // Read single landlord with user details by account_number
 async function getById(accountNumber: number) {
-	const { data, error } = await supabase
-		.from("landlord")
-		.select(
-			`
+  const { data, error } = await supabase
+    .from("landlord")
+    .select(`
       account_number,
       manager:account_number (
         manager_type,
@@ -85,17 +86,16 @@ async function getById(accountNumber: number) {
           is_deleted
         )
       )
-    `,
-		)
-		.eq("account_number", accountNumber)
-		.single();
-
-	if (error) {
-		console.error("Error fetching landlord:", error.message);
-		return { data: null, error };
-	}
-
-	return { data, error: null };
+    `)
+    .eq("account_number", accountNumber)
+    .single();
+ 
+  if (error) {
+    console.error("Error fetching landlord:", error.message);
+    return { data: null, error };
+  }
+ 
+  return { data, error: null };
 }
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number

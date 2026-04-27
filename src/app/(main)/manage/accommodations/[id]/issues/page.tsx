@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Issues",
+};
 
 export default function Page() {
   return (

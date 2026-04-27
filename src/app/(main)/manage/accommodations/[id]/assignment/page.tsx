@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { housingService } from "@/app/lib/services/housing-service";
+
+export const metadata: Metadata = {
+  title: "Room Assignment",
+};
 import { applicationService } from "@/app/lib/services/application-service";
 import AssignmentClient from "./_components/AssignmentClient";
 import { accommodationHistoryService } from "@/app/lib/services/accommodation-history-service";
