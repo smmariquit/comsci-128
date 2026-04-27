@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 export default function CTASection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -19,7 +19,7 @@ export default function CTASection() {
         }, 60);
         observer.disconnect();
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
 
     if (sectionRef.current) observer.observe(sectionRef.current);
@@ -49,14 +49,17 @@ export default function CTASection() {
           <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight font-['DM_Serif_Display']">
             Ready to find your <br />
             home away from home?
-        </h2>
-        <p className="text-sm text-white/70 font-['Chivo_Mono'] tracking-wider">
+          </h2>
+          <p className="text-sm text-white/70 font-['Chivo_Mono'] tracking-wider">
             Join over 1,200 students who found their dorm through CASA.
-        </p>
+          </p>
         </div>
 
         {/* Button */}
-        <Link href="/register" className="shrink-0 bg-white text-[#C9642A] text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[#EDE9DE] transition-colors duration-200 whitespace-nowrap">
+        <Link
+          href="/register"
+          className="shrink-0 bg-white text-[#C9642A] text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[#EDE9DE] transition-colors duration-200 whitespace-nowrap"
+        >
           Get Started Free
         </Link>
       </div>
