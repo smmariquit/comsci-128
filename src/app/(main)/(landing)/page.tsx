@@ -3,6 +3,7 @@
 import React from 'react';
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { floatingAnimations } from "./animations";
 import ServicesSection from "./ServicesSection";
 import ShowcaseSection from "./ShowcaseSection";
@@ -37,12 +38,12 @@ export default function LandingPage() {
           UPLB CASA
         </div>
         <div className="flex items-center gap-5">
-          <button className="font-medium text-[#C9642A] hover:underline transition-colors">
+          <Link href="/login" className="font-medium text-[#C9642A] hover:underline transition-colors">
             Log in
-          </button>
-          <button className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
+          </Link>
+          <Link href="/register" className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
             Sign up
-          </button>
+          </Link>
         </div>
       </nav>
 
@@ -85,12 +86,12 @@ export default function LandingPage() {
 
               {/* CTA buttons */}
               <div className="fade-up-delay flex items-start gap-3">
-                <button className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md">
+                <Link href="/student/housing" className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md">
                   Find a Dorm
-                </button>
-                <button className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors">
+                </Link>
+                <Link href="#how" className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors">
                   Learn More
-                </button>
+                </Link>
               </div>
 
               {/* Scroll to explore */}
