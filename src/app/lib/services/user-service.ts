@@ -1,11 +1,18 @@
 import bcrypt from "bcrypt";
+import { studentData } from "@/app/lib/data/student-data";
 import { userData } from "@/app/lib/data/user-data";
-import { User, NewUser, UpdateUser } from "@/models/user";
+import type { NewStudent, Student } from "@/models/student";
+import type { NewUser, UpdateUser, User } from "@/models/user";
+import type { NewStudentAcademic } from "../models/student_academic";
+import { supabase } from "../supabase";
+import { Role } from "../models/audit_log";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 type Public<T> = Omit<T, "account_number" | "password">;
 
-const addUser = async (userDetails: NewUser): Promise<User> => {
+const allowedSex = ["Female", "Male", "Prefer not to say"];
+
+const addUser = async (userDetails: NewUser): Promise<Student> => {
 	try {
 		const { account_email, first_name, last_name, password } = userDetails;
 
@@ -24,9 +31,32 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 		const salt = await bcrypt.genSalt(12);
 		userDetails.password = await bcrypt.hash(password, salt);
 
+		// mock... replace once there's input for Student and StudentAcademic
+		const studentDetails: NewStudent = {
+			student_number: 2024000001,
+			sex: "Male",
+			birth_date: "2004-05-14",
+			mobile_number: "09171234567",
+			address: "123 Sample St, Quezon City, Metro Manila",
+			emergency_contact_name: "Maria Santos",
+			emergency_contact_number: "09181234567",
+		} as NewStudent;
+
+		const studentAcademicDetails: NewStudentAcademic = {
+			degree_program: "BS Computer Science",
+			standing: "Sophomore",
+			status: "Active",
+		};
+
 		// Insert user
-		const createdUser = await userData.create(userDetails);
-		return createdUser;
+		// const createdUser = await userData.createUser(userDetails);
+		const createdUserStudent = await studentData.create(
+			userDetails,
+			studentDetails,
+			studentAcademicDetails,
+		);
+
+		return createdUserStudent;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw error;
@@ -97,10 +127,10 @@ const updateUser = async (
 };
 
 const deactivateUser = async (
-	userId: number,
+	email: string,
 ): Promise<Public<UpdateUser> | null> => {
 	try {
-		const updatedUser = await userData.deactivateById(userId);
+		const updatedUser = await userData.deactivate(email);
 		if (!updatedUser) return null;
 
 		// TODO: reevaluate returning data for disable or not
@@ -113,10 +143,66 @@ const deactivateUser = async (
 	}
 };
 
+const getUserCount = async (): Promise<number | null> => {
+	try {
+		const userCount = await userData.countAllUser();
+		if (!userCount) return null;
+
+		return userCount;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+const getActiveUserCount = async (): Promise<number | null> => {
+	try {
+		const userCount = await userData.countActiveUsers();
+		if (!userCount) return null;
+
+		return userCount;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
+};
+
+const promoteUserType = async (
+	account_email: string,
+	userType: Role,
+	insertTable: string,
+): Promise<ServiceResponse<any>> => {
+	try {
+		const updatedUser = await userData.promote(account_email, {
+			user_type: userType,
+		});
+
+		if (!updatedUser) {
+			return { error: "User not found" };
+		}
+
+		// Insert in the table of the current role
+		if (userType == "Student") {
+		}
+
+		if (userType == "Manager") {
+		}
+
+		const { account_number, password, ...safeUser } = updatedUser;
+
+		return { data: safeUser };
+	} catch (error: any) {
+		console.error("Error:", error.message);
+		return { error: "Failed to update user type" };
+	}
+};
+
 export const userService = {
 	addUser,
 	getUser,
 	getAllUser,
 	updateUser,
 	deactivateUser,
+	getUserCount,
+	getActiveUserCount,
 };
