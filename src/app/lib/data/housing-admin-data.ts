@@ -9,17 +9,12 @@ async function create(
   managerDetails: NewManager) {
   // managerDetails.manager_type must already be set to "Housing Admin"
 
-  const newManagerData = await managerData.create(
-		account_number,
-    managerDetails,
-	);
-
-  managerDetails.account_number = newManagerData.account_number
+  await managerData.create( account_number, managerDetails,);
 
 	// Insert into housing_admin
 	const { data, error: adminError } = await supabase
 		.from("housing_admin")
-		.insert([managerDetails])
+		.insert([{account_number}])
 		.select();
 
 	if (adminError) {

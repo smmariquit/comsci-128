@@ -7,10 +7,8 @@ async function create(
   account_number: number, 
   managerDetails: NewManager
 ) {
-  const newManagerData = await managerData.create(
-    account_number,
-    managerDetails,
-  );
+  
+  await managerData.create(account_number,managerDetails,);
 
   const { data, error: adminError } = await supabase
     .from("landlord")
