@@ -129,10 +129,8 @@ export default function UserManagementPage({
           console.warn('Unexpected API response format:', data);
           rawUsers = [];
         }
-
         
-
-        // ✅ Transform housing data
+        // Transform housing data
         let rawDorms = [];
         if (Array.isArray(dormData)) {
           rawDorms = dormData;
@@ -352,9 +350,9 @@ export default function UserManagementPage({
 
             const roleRouteMap: Record<string, string> = {
               "Landlord": "landlord",
-              "Dorm Manager": "housing-admin",   // adjust if needed
+              "Dorm Manager": "housing-admin",  
               "Housing Manager": "housing-admin",
-              "Student": "user", // optional if you have this
+              "Student": "user", 
             };
 
             // Update role

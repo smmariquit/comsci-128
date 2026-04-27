@@ -87,7 +87,7 @@ const getAllUser = async (): Promise<Public<User>[] | null> => {
 
 		const publicInfos: Public<User>[] = [];
 		userProfiles.forEach((userDetails) => {
-			const { account_number, password, ...nonSensitiveInfo } =
+			const { password, ...nonSensitiveInfo } =
 				userDetails;
 			publicInfos.push(nonSensitiveInfo);
 		});
