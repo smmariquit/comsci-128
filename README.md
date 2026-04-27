@@ -4,7 +4,9 @@ UPLB CASA is a centralized accommodation management system for the [University o
 
 [uplb]: https://uplb.edu.ph/
 
-**Live:** [uplb.casa](https://uplb.casa)
+[![badge](https://img.shields.io/badge/Live:-uplb.casa-maroon)](https://uplb.casa)
+
+<br>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://img.shields.io/github/license/smmariquit/comsci-128)
 
