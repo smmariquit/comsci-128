@@ -20,10 +20,15 @@ const create = async (
 
     if (removeStudentError) throw new Error(`Create Manager (remove student) Error: ${removeStudentError.message}`);
 
+	const managerInsert = {
+		account_number: accountNumber,
+		manager_type: "Landlord",
+	};
+
     // create in manager row
     const { data: createdManager, error: createManagerError} = await supabase
         .from("manager")
-        .insert([managerDetails])
+        .insert([managerInsert])
         .select();
 
     if (createManagerError) throw new Error(`Create Manager Error: ${createManagerError.message}`);

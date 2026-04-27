@@ -4,32 +4,25 @@ import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { managerData } from "@/app/lib/data/manager-data";
 
 async function create(
-	account_number:number, 
-	managerDetails: NewManager) {
-	// Call createManager with manager_type "Landlord"
-	// createManager internally calls createUser with user_type "Manager"
-	const newManagerData = await managerData.create(
-		account_number,
-		managerDetails,
-	);
+  account_number: number, 
+  managerDetails: NewManager
+) {
+  const newManagerData = await managerData.create(
+    account_number,
+    managerDetails,
+  );
 
-	managerDetails.account_number = newManagerData.account_number;
+  const { data, error: adminError } = await supabase
+    .from("landlord")
+    .insert([{ account_number }])
+    .select();
 
-	// Insert into housing_admin
-	const { data, error: adminError } = await supabase
-		.from("landlord")
-		.insert([managerDetails])
-		.select();
+  if (adminError) {
+    console.error("Landlord insert error:", adminError);
+    throw new Error(`Landlord insert error: ${adminError.message}`);
+  }
 
-	if (adminError) {
-		console.error(
-			"Error inserting into housing_admin:",
-			adminError.message,
-		);
-		return { data: null, error: adminError };
-	}
-
-	return data[0];
+  return data[0];
 }
 
 // Read all landlords with user details

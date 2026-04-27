@@ -2,17 +2,23 @@ import { NewUser } from "@/models/user";
 import { landlordData } from "@/app/lib/data/landlord-data";
 import { NewManager } from "@/models/manager";
 
-const addLandlord = async (account_number:number, managerDetails: NewManager) => {
-    try {
-        const result = await landlordData.create(account_number, managerDetails);
-        if (result?.error) {
-            throw new Error(result.error.message || "Failed to add landlord.");
-        }
-        return result;
-    } catch (error) {
-        console.error("Error adding landlord:", error);
-        throw new Error("Failed to add landlord.");
-    }
+const addLandlord = async (
+  accountNumber: number,
+  managerDetails: NewManager,
+): Promise<NewManager | null> => {
+  try {
+    const landlord = await landlordData.create(accountNumber, managerDetails);
+    
+    if (!landlord) return null;
+
+    // TODO: Add audit log
+
+    return landlord;
+  } catch (error: any) {
+    console.error("Error adding landlord:", error); 
+    console.error("Error message:", error.message); 
+    throw new Error(`Failed to add landlord: ${error.message}`); 
+  }
 };
 
 const fetchAllHousingAdmins = async () => {
