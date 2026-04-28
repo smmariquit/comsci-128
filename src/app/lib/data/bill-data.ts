@@ -2,7 +2,7 @@ import { supabase } from "../supabase";
 import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill"
 
 const create = async (billData: Bill) => {
-	return await supabase.from("bill").insert([billData]).select().single();
+	return await supabase.from("bill").insert([billData]).select();
 };
 
 const getAll = async () => {
@@ -60,7 +60,7 @@ const getBillsOfManager = async (accountNumber: number) => {
 const getBillsOfStudent = async (accountNumber: number) => {
 	return await supabase
 		.from("bill")
-		.select("*, manager!inner(*)")
+		.select("*")
 		.eq("student_account_number", accountNumber)
 		.eq("is_deleted", false);
 };
@@ -107,7 +107,6 @@ const getTotalBalance = async (accountNumber: number) => {
 export const billData = {
 	create,
 	getAll,
-	getAllByManager,
 	getById,
 	update,
 	markAsPaid,
