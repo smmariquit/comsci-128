@@ -5,7 +5,7 @@ import { managerData } from "@/app/lib/data/manager-data";
 
 async function create(accountNumber: number, managerDetails: NewManager) {
 	// Call createManager with manager_type "Landlord"
-	// createManager internally calls createUser with user_type "Manager"
+
 	const newManagerData = await managerData.create(
 		accountNumber,
 		managerDetails,
