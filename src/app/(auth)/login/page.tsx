@@ -1,8 +1,8 @@
 "use client";
 
-
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { setCookie } from "@/app/lib/utils";
 
@@ -38,7 +38,7 @@ export default function LoginPage() {
       const { data: profile } = await supabase
         .from("user")
         .select("user_type, account_number")
-        .eq("account_email", email)
+        .eq("account_email", form.email)
         .single();
 
       if (profile) {
