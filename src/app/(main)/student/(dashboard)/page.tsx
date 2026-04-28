@@ -6,8 +6,8 @@ import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";
 import AssignedDashboard from "./_components/AssignedDashboard";
 import NotAssignedDashboard from "./_components/NotAssignedDashboard";
 import { Suspense } from "react";
+import Image from "next/image";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
-import { userData } from "@/app/lib/data/user-data";
 import SearchBar from "./SearchBar";
 
 export const metadata: Metadata = {
