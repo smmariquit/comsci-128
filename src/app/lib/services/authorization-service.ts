@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { AppAction, Permission, UserRole } from "@/models/permissions";
 import { createSupabaseServerClient } from "../server-client";
 
