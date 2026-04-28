@@ -75,7 +75,7 @@ export async function validateOwnership(ownerAccountNumber: number | string) {
   console.log(`Ownership Verified: Account ${accountNumber} owns resource ${ownerAccountNumber}`);
 }
 
-async function getCurrentUserRole(): Promise<UserRole> {
+export async function getCurrentUserRole(): Promise<UserRole> {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
