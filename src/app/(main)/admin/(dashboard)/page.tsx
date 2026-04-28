@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import ActiveUsers from "@/app/components/admin/dashboard/activeusers";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
+  title: "Housing Administrator Dashboard",
+  description: "Overview of occupancy, users, rooms, billings, and reports for managed properties",
 };
 import OccupancyChart from "@/app/components/admin/dashboard/occupancy_chart";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
