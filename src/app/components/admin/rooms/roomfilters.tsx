@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { OccupancyStatus,  RoomType } from "./roomtable.tsx";
+import { Search } from "lucide-react";
 
 export type OccupancyFilter = "All" | OccupancyStatus;
 export type TypeFilter      = "All" | RoomType;

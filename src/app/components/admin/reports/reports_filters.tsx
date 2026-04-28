@@ -1,23 +1,25 @@
+
 "use client";
 
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { ReportType } from "@/app/components/admin/reports/reports_wrapper";
+import { Search } from "lucide-react";
 
 interface Props {
-  reportType:     ReportType;
-  search:         string;
-  housing:        string;
+  reportType: ReportType;
+  search: string;
+  housing: string;
   housingOptions: string[];
-  status:         string;
-  dateFrom:       string;
-  dateTo:         string;
-  onSearch:       (v: string) => void;
-  onHousing:      (v: string) => void;
-  onStatus:       (v: string) => void;
-  onDateFrom:     (v: string) => void;
-  onDateTo:       (v: string) => void;
+  status: string;
+  dateFrom: string;
+  dateTo: string;
+  onSearch: (v: string) => void;
+  onHousing: (v: string) => void;
+  onStatus: (v: string) => void;
+  onDateFrom: (v: string) => void;
+  onDateTo: (v: string) => void;
 }
 
 const inputBase: React.CSSProperties = {
@@ -44,52 +46,52 @@ const labelStyle: React.CSSProperties = {
 // Status options per report type
 const STATUS_OPTIONS: Record<ReportType, { label: string; value: string }[]> = {
   occupancy: [
-    { value: "All",               label: "All Statuses" },
-    { value: "Empty",             label: "Empty" },
-    { value: "Partially Occupied",          label: "Partially Occupied" },
-    { value: "Fully Occupied",          label: "Fully Occupied" },
+    { value: "All", label: "All Statuses" },
+    { value: "Empty", label: "Empty" },
+    { value: "Partially Occupied", label: "Partially Occupied" },
+    { value: "Fully Occupied", label: "Fully Occupied" },
     // { value: "Under Maintenance", label: "Under Maintenance" },
   ],
   application: [
-    { value: "All",       label: "All Statuses" },
-    { value: "Pending Manager Approval",   label: "Pending Manager Approval" },
-    { value: "Pending Admin Approval",   label: "Pending Admin Approval" },
-    { value: "Approved",  label: "Approved" },
-    { value: "Rejected",  label: "Rejected" },
+    { value: "All", label: "All Statuses" },
+    { value: "Pending Manager Approval", label: "Pending Manager Approval" },
+    { value: "Pending Admin Approval", label: "Pending Admin Approval" },
+    { value: "Approved", label: "Approved" },
+    { value: "Rejected", label: "Rejected" },
     { value: "Cancelled", label: "Cancelled" },
   ],
   revenue: [
-    { value: "All",     label: "All Statuses" },
-    { value: "Paid",    label: "Paid" },
+    { value: "All", label: "All Statuses" },
+    { value: "Paid", label: "Paid" },
     { value: "Pending", label: "Pending" },
     { value: "Overdue", label: "Overdue" },
   ],
   accommodation: [
-    { value: "All",      label: "All Types" },
-    { value: "Men Only",   label: "Men Only" },
-    { value: "Women Only",   label: "Women Only" },
-    { value: "Co-ed",    label: "Co-ed" },
+    { value: "All", label: "All Types" },
+    { value: "Men Only", label: "Men Only" },
+    { value: "Women Only", label: "Women Only" },
+    { value: "Co-ed", label: "Co-ed" },
   ],
 };
 
 const SEARCH_PLACEHOLDER: Record<ReportType, string> = {
-  occupancy:     "Search room code...",
-  application:   "Search student name, number...",
-  revenue:       "Search student name...",
+  occupancy: "Search room code...",
+  application: "Search student name, number...",
+  revenue: "Search student name...",
   accommodation: "Search student name, room...",
 };
 
 const STATUS_LABEL: Record<ReportType, string> = {
-  occupancy:     "Occupancy Status",
-  application:   "Application Status",
-  revenue:       "Payment Status",
+  occupancy: "Occupancy Status",
+  application: "Application Status",
+  revenue: "Payment Status",
   accommodation: "Room Type",
 };
 
 const SHOW_DATE: Record<ReportType, boolean> = {
-  occupancy:     false,
-  application:   true,
-  revenue:       true,
+  occupancy: false,
+  application: true,
+  revenue: true,
   accommodation: true,
 };
 

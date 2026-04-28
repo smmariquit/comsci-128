@@ -114,9 +114,10 @@ export default function Sidebar({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            overflow: "hidden",
           }}
         >
-          <HomeIcon />
+          <Image src="/favicon.png" alt="Logo" width={28} height={28} />
         </div>
 
         {/* Brand name */}
@@ -132,7 +133,7 @@ export default function Sidebar({
             letterSpacing: 0.10,
           }}
         >
-          HousingAdmin
+          UPLB CASA
         </div>
 
         {/* Subtitle */}

@@ -1,9 +1,11 @@
+
 "use client";
 
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { PaymentStatus, BillType } from "./billingtable";
+import { Search } from "lucide-react";
 
 export type StatusFilter   = "All" | PaymentStatus;
 export type BillTypeFilter = "All" | BillType;
