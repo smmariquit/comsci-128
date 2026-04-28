@@ -6,6 +6,7 @@
 
 import type { NextRequest } from "next/server";
 import { supabase } from "./supabase";
+import { createSupabaseServerClient } from "./server-client";
 
 export async function authenticate(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -23,4 +24,18 @@ export async function authenticate(req: NextRequest) {
   }
 
   return { user: data.user };
+}
+
+export async function getManagerAccountNumber(): Promise<number | null> {
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data } = await supabase
+    .from("user")
+    .select("account_number")
+    .eq("uuid", user.id)
+    .single()
+
+  return data?.account_number ?? null
 }
