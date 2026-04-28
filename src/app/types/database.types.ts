@@ -280,7 +280,7 @@ export type Database = {
             foreignKeyName: "housing_manager_account_number_fkey"
             columns: ["manager_account_number"]
             isOneToOne: false
-            referencedRelation: "housing_admin"
+            referencedRelation: "user"
             referencedColumns: ["account_number"]
           },
         ]
@@ -479,6 +479,7 @@ export type Database = {
           emergency_contact_number: string | null
           emergency_contact_relationship: string | null
           housing_status: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted: boolean
           student_number: number
         }
         Insert: {
@@ -487,6 +488,7 @@ export type Database = {
           emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
           housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted?: boolean
           student_number: number
         }
         Update: {
@@ -495,6 +497,7 @@ export type Database = {
           emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
           housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted?: boolean
           student_number?: number
         }
         Relationships: [
