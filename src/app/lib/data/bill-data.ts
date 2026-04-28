@@ -109,27 +109,19 @@ const getTotalBalance = async (accountNumber: number) => {
 };
 
 //gets gross Revenue
-const getGrossRevenue = async (): Promise<number> => {
-
-	const {data,error} = await supabase
-		.from("bill")
-		.select("amount")
-		.eq("status", "Paid")
-		.eq("is_deleted",false)
-
-	if (error) throw new Error(error.message);
-
-	return data?.reduce((sum:number, bill:any) => sum + Number(bill.amount), 0) ?? 0;
-};
-
-const getGrossRevenueByManager = async (managerAccountNumber: number): Promise<number> => {
-
-  const { data, error } = await supabase
+const getGrossRevenue = async (managerAccountNumber?: number): Promise<number> => {
+	
+  let query = supabase
     .from("bill")
     .select("amount")
     .eq("status", "Paid")
-    .eq("manager_account_number", managerAccountNumber)
     .eq("is_deleted", false);
+
+  if (managerAccountNumber) {
+    query = query.eq("manager_account_number", managerAccountNumber);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error(error.message);
 
