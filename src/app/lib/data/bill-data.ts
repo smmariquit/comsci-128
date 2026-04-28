@@ -108,6 +108,20 @@ const getTotalBalance = async (accountNumber: number) => {
 	return total ?? 0;
 };
 
+//gets gross Revenue
+const getGrossRevenue = async (): Promise<number> => {
+
+	const {data,error} = await supabase
+		.from("bill")
+		.select("amount")
+		.eq("status", "Paid")
+		.eq("is_deleted",false)
+
+	if (error) throw new Error(error.message);
+
+	return data?.reduce((sum:number, bill:any) => sum + Number(bill.amount), 0) ?? 0;
+};
+
 export const billData = {
 	create,
 	getAll,
@@ -119,5 +133,6 @@ export const billData = {
 	getBillsOfStudent,
 	getBillsByStatus,
 	getOverdueBills,
-	getTotalBalance
+	getTotalBalance,
+	getGrossRevenue
 };
