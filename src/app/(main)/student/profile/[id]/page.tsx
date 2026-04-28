@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import StudentNavBar from "../../_components/StudentNavBar";
 import { StudentProfile } from "@/app/lib/models/student";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "My Profile",
+	description: "View and update your personal information.",
+}
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
