@@ -413,8 +413,14 @@ export default function UserManagementPage({
           user={disableUser as any} // paayos nalangs
           onClose={() => setDisableUser(null)}
           onConfirm={(id) => {
-            console.log("Toggle status for user:", id);
-          }}
+            // update user list in page
+            setUserList(prev => prev.map(u => 
+                u.id === id  
+                ? { ...u, status: u.status === 'Active' ? 'Disabled' : 'Active' }
+                : u
+            ));
+            setDisableUser(null);
+        }}
         />
       )}
     </div>
