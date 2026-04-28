@@ -1,6 +1,7 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { Filter, Search, ArrowDownNarrowWide } from "lucide-react";
 
 //SEARCHBAR FOR STUDENT BROWSE
 export default function SearchBar() {

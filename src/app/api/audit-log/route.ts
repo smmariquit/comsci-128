@@ -2,7 +2,7 @@ import { auditLogService } from "@/app/lib/services/audit-log-service";
 import { NextRequest, NextResponse } from "next/server";
 
 // Fetch all audit logs for system admin
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
         /*
             TODO:
@@ -10,11 +10,25 @@ export async function GET() {
             - role access (role guard) middleware
         */
 
-        const auditLogs = await auditLogService.getAllAuditLogs();
+        // filler for system admin
+        
+        // Authorization check
+        // if (!user) {
+        //     return NextResponse.json(
+        //         { message: "Unauthorized" },
+        //         { status: 401 },
+        //     );
+        // }
+
+        // Filler for system admin (temporary for testing)
+        const auditLogs = await auditLogService.getAuditLogs(
+            "174",
+            "Manager",
+            174
+        );
 
         // Send Response
-        if (!auditLogs) {
-            // User not found
+        if (!auditLogs || auditLogs.length === 0) {
             return NextResponse.json(
                 { message: "Audit logs not found." },
                 { status: 404 },

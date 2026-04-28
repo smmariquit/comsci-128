@@ -4,9 +4,13 @@ import { userData } from "@/app/lib/data/user-data";
 import type { NewStudent, Student } from "@/models/student";
 import type { NewUser, UpdateUser, User } from "@/models/user";
 import type { NewStudentAcademic } from "../models/student_academic";
+import { supabase } from "../supabase";
+import { Role } from "../models/audit_log";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 type Public<T> = Omit<T, "account_number" | "password">;
+
+const allowedSex = ["Female", "Male", "Prefer not to say"];
 
 const addUser = async (userDetails: NewUser): Promise<Student> => {
 	try {
@@ -21,26 +25,23 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 		if (!first_name) throw new Error("First name is required.");
 		if (!last_name) throw new Error("Last name is required.");
 		if (!password) throw new Error("Password is required");
-
-		// Default to Student if not specified
-		if (!userDetails.user_type) {
+		// Student default
 		userDetails.user_type = "Student";
-		}
-		
 		// Hash pw
 		const salt = await bcrypt.genSalt(12);
 		userDetails.password = await bcrypt.hash(password, salt);
 
-		// mock... replace once there's input for Student
+		// mock... replace once there's input for Student and StudentAcademic
 		const studentDetails: NewStudent = {
-			student_number: Math.floor(100000 + Math.random() * 900000),
-			housing_status: "Not Assigned",
-			emergency_contact_name: null,
-			emergency_contact_number: null,
-			emergency_contact_relationship: null,
-		};
+			student_number: 2024000001,
+			sex: "Male",
+			birth_date: "2004-05-14",
+			mobile_number: "09171234567",
+			address: "123 Sample St, Quezon City, Metro Manila",
+			emergency_contact_name: "Maria Santos",
+			emergency_contact_number: "09181234567",
+		} as NewStudent;
 
-		// mock... replace once there's input for StudentAcademic
 		const studentAcademicDetails: NewStudentAcademic = {
 			degree_program: "BS Computer Science",
 			standing: "Sophomore",
@@ -126,10 +127,10 @@ const updateUser = async (
 };
 
 const deactivateUser = async (
-	userId: number,
+	email: string,
 ): Promise<Public<UpdateUser> | null> => {
 	try {
-		const updatedUser = await userData.deactivate(userId);
+		const updatedUser = await userData.deactivate(email);
 		if (!updatedUser) return null;
 
 		// TODO: reevaluate returning data for disable or not
@@ -146,27 +147,55 @@ const getUserCount = async (): Promise<number | null> => {
 	try {
 		const userCount = await userData.countAllUser();
 		if (!userCount) return null;
-		
-		return userCount; 
-		
+
+		return userCount;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
 	}
-}
+};
 
 const getActiveUserCount = async (): Promise<number | null> => {
 	try {
 		const userCount = await userData.countActiveUsers();
 		if (!userCount) return null;
-		
-		return userCount; 
-		
+
+		return userCount;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
 	}
-}
+};
+
+const promoteUserType = async (
+	account_email: string,
+	userType: Role,
+	insertTable: string,
+): Promise<ServiceResponse<any>> => {
+	try {
+		const updatedUser = await userData.promote(account_email, {
+			user_type: userType,
+		});
+
+		if (!updatedUser) {
+			return { error: "User not found" };
+		}
+
+		// Insert in the table of the current role
+		if (userType == "Student") {
+		}
+
+		if (userType == "Manager") {
+		}
+
+		const { account_number, password, ...safeUser } = updatedUser;
+
+		return { data: safeUser };
+	} catch (error: any) {
+		console.error("Error:", error.message);
+		return { error: "Failed to update user type" };
+	}
+};
 
 export const userService = {
 	addUser,
@@ -175,5 +204,5 @@ export const userService = {
 	updateUser,
 	deactivateUser,
 	getUserCount,
-	getActiveUserCount
+	getActiveUserCount,
 };

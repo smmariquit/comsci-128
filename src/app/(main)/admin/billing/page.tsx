@@ -10,6 +10,7 @@ import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
 import { billingService } from "@/app/lib/services/billing-service";
+import { Receipt, DollarSign, Check, Clock, AlertTriangle } from "lucide-react";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
@@ -89,17 +90,7 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
         
       }}
     >
-      {/* Receipt icon */}
-      <svg
-        width="14" height="14" viewBox="0 0 24 24"
-        fill="none" stroke="#fff" strokeWidth="2.2"
-        strokeLinecap="round" strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M14 2H6a2 2 0 0 0-2 2v16l3-2 3 2 3-2 3 2V4a2 2 0 0 0-2-2z"/>
-        <line x1="9" y1="9"  x2="15" y2="9"/>
-        <line x1="9" y1="13" x2="15" y2="13"/>
-      </svg>
+      <Receipt size={14} color="#fff" strokeWidth={2.2} aria-hidden="true" />
       Issue New Bill
     </button>
   );
@@ -266,9 +257,7 @@ export default function BillingPage() {
           value={`₱${totalAmount.toLocaleString("en-PH")}`}
           accent={C.navy}
           icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
+            <DollarSign size={14} strokeWidth={2.2} />
           }
         />
         <SummaryCard
@@ -276,9 +265,7 @@ export default function BillingPage() {
           value={paidCount}
           accent="#2a7d4f"
           icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
+            <Check size={14} strokeWidth={2.2} />
           }
         />
         <SummaryCard
@@ -286,9 +273,7 @@ export default function BillingPage() {
           value={pendingCount}
           accent="#A07820"
           icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
+            <Clock size={14} strokeWidth={2.2} />
           }
         />
         <SummaryCard
@@ -296,10 +281,7 @@ export default function BillingPage() {
           value={overdueCount}
           accent={C.orange}
           icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
+            <AlertTriangle size={14} strokeWidth={2.2} />
           }
         />
       </div>
