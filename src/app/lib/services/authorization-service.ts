@@ -109,7 +109,7 @@ export async function getCurrentUserRole(): Promise<UserRole> {
 
     const subRole = managerData?.manager_type?.toLowerCase();
 
-    if (subRole === "housing administrator" || subRole === "house admin") {
+    if (subRole === "housing administrator") {
       return "housing_admin";
     }
     return "landlord";
