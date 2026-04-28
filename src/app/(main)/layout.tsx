@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Main",
+  title: "System Administrator",
+  description: "System Administrator panel for the CASA system.",
 };
 
 export default function MainLayout({
