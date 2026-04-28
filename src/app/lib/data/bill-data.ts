@@ -119,6 +119,7 @@ const getTotalBalance = async (accountNumber: number) => {
 export const billData = {
 	create,
 	getAll,
+	getAllByManager,
 	getById,
 	update,
 	markAsPaid,
