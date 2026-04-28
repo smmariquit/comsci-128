@@ -21,7 +21,6 @@ export const metadata: Metadata = {
     "UPLB Centralized Accommodation System Application – find and manage student housing near UPLB.",
 };
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen overflow-x-hidden`}
+      >
         {children}
       </body>
     </html>
