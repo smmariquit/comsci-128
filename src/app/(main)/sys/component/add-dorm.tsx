@@ -87,7 +87,7 @@ export default function AddDormModal({
                 
                 housing_type:    'UP Housing',       // or add a toggle in the form
                 rent_price:      parseFloat(monthlyRate) || 0,
-                manager_account_number:   Number(managerId), 
+                manager_account_number:  managerId  ? Number(managerId)  : undefined,  // nullable
                 landlord_account_number: Number(landlordId)  
             }),
         });
@@ -275,6 +275,7 @@ export default function AddDormModal({
           <button
             type="button"
             onClick={handleSubmit}
+            disabled={!landlordId} 
             className="px-5 py-2 text-sm font-semibold text-white bg-[#e8622a] rounded-xl hover:bg-[#d4561f] transition-colors"
           >
             Add Dormitory
