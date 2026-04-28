@@ -24,8 +24,8 @@ export interface AddDormModalProps {
   open: boolean;
   onClose: () => void;
   onAdd: (dorm: NewDorm) => void;
-  managers?: { id: string; name: string; email: string }[];
-  landlords?: { id: string; name: string; email: string }[];
+  managers?: { id: string; name: string}[];
+  landlords?: { id: string; name: string }[];
 }
 
 
@@ -46,7 +46,7 @@ export default function AddDormModal({
   open,
   onClose,
   onAdd,
-  managers = STUB_MANAGERS,
+  managers,
   landlords
 }: AddDormModalProps) {
   const [dormName,        setDormName]        = useState('');
@@ -73,7 +73,7 @@ export default function AddDormModal({
 
 // Submit handler
   const handleSubmit = async () => {
-    const manager    = managers.find((m) => m.id === managerId);
+    const manager    = (managers ?? []).find((m) => m.id === managerId);
     const rooms      = parseInt(totalRooms)      || 0;
     const capPerRoom = parseInt(capacityPerRoom) || 0;
 
@@ -107,7 +107,6 @@ export default function AddDormModal({
             capacityPerRoom: capPerRoom,
             monthlyRate:     parseFloat(monthlyRate)     || 0,
             securityDeposit: parseFloat(securityDeposit) || 0,
-            managerEmail:    manager?.email,
             dormitory:       manager?.name ?? '',
             status:          'Accepting',
             occupied:        0,
@@ -230,7 +229,7 @@ export default function AddDormModal({
                   className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer`}
                 >
                   <option value="">Select a manager...</option>
-                  {managers.map((m) => (
+                  {(managers ?? []).map((m) => (
                     <option key={m.id} value={m.id}>{m.name}</option>
                   ))}
                 </select>
