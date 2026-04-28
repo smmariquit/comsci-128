@@ -45,7 +45,7 @@ async function getAll() {
           home_address,
           phone_number,
           contact_email,
-          user_type,
+          user_type
         )
       )
     `);

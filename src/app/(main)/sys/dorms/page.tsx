@@ -25,7 +25,6 @@ export interface Dorm {
 interface LandlordOption {
     id: string;
     name: string;
-    email: string;
 }
 
 // Sidebar + notifications
@@ -127,17 +126,20 @@ export default function DormManagementPage({
             setLoading(true);
             setError(null);
 
-            const [response, landlordResponse] = await Promise.all([
+            const [response, landlordResponse, managerResponse] = await Promise.all([
                 fetch('/api/housing/occupancy'),
                 fetch('/api/landlord'),
+                fetch('/api/housing-admin'),
             ]);
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             if (!landlordResponse.ok) throw new Error(`HTTP error! status: ${landlordResponse.status}`);
+            if (!managerResponse.ok) throw new Error(`HTTP error! status: ${managerResponse.status}`);
 
             const data = await response.json();
             const landlordData = await landlordResponse.json();
-            console.log('Raw landlord data:', landlordData);
+            const managerData = await managerResponse.json();
+
             // Transform dorms
             const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
             const transformed: Dorm[] = rawDorms.map((dorm: any) => ({
@@ -165,8 +167,19 @@ export default function DormManagementPage({
                 };
             });
 
+            const rawManagers = Array.isArray(managerData) ? managerData : Array.isArray(managerData.data) ? managerData.data : [];
+            const transformedManagers = rawManagers.map((m: any) => {
+                const user = m.manager?.user;
+                return {
+                    id:   String(m.account_number),
+                    name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+                    email: user?.account_email || '',
+                };
+            });
+
             setDormList(transformed);
             setLandlordList(transformedLandlords);
+            setManagersList(transformedManagers)
         } catch (error) {
             console.error('Error fetching dorms:', error);
             setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
@@ -251,6 +264,7 @@ export default function DormManagementPage({
         onClose={() => setShowModal(false)}
         onAdd={handleAddDorm}
         landlords={landlordList}
+        managers={managersList}
       />
 
       {/* Sidebar */}
