@@ -131,7 +131,7 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: false
             referencedRelation: "user"
-            referencedColumns: ["account_number"]
+            referencedColumns: ["account_number_draft"]
           },
           {
             foreignKeyName: "audit_log_assigned_manager_fkey"
@@ -281,7 +281,7 @@ export type Database = {
             columns: ["manager_account_number"]
             isOneToOne: false
             referencedRelation: "user"
-            referencedColumns: ["account_number"]
+            referencedColumns: ["account_number_draft"]
           },
         ]
       }
@@ -344,7 +344,7 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: true
             referencedRelation: "user"
-            referencedColumns: ["account_number"]
+            referencedColumns: ["account_number_draft"]
           },
         ]
       }
@@ -506,7 +506,7 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: true
             referencedRelation: "user"
-            referencedColumns: ["account_number"]
+            referencedColumns: ["account_number_draft"]
           },
         ]
       }
@@ -591,14 +591,14 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: true
             referencedRelation: "user"
-            referencedColumns: ["account_number"]
+            referencedColumns: ["account_number_draft"]
           },
         ]
       }
       user: {
         Row: {
           account_email: string
-          account_number: number
+          account_number_draft: number
           birthday: string | null
           contact_email: string | null
           first_name: string
@@ -612,11 +612,10 @@ export type Database = {
           profile_picture: string | null
           sex: Database["public"]["Enums"]["Sex"]
           user_type: Database["public"]["Enums"]["UserType"]
-          uuid: string
         }
         Insert: {
           account_email: string
-          account_number?: never
+          account_number_draft?: number
           birthday?: string | null
           contact_email?: string | null
           first_name: string
@@ -630,11 +629,10 @@ export type Database = {
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
           user_type?: Database["public"]["Enums"]["UserType"]
-          uuid?: string
         }
         Update: {
           account_email?: string
-          account_number?: never
+          account_number_draft?: number
           birthday?: string | null
           contact_email?: string | null
           first_name?: string
@@ -648,7 +646,6 @@ export type Database = {
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
           user_type?: Database["public"]["Enums"]["UserType"]
-          uuid?: string
         }
         Relationships: []
       }
