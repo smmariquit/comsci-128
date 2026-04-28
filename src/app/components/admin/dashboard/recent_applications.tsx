@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { C } from "@/lib/palette";
 
-export type ApplicationStatus = "Pending" | "Approved" | "Rejected" | "Cancelled";
+export type ApplicationStatus =
+  | "Pending Manager Approval"
+  | "Pending Admin Approval"
+  | "Approved"
+  | "Rejected"
+  | "Cancelled";
 
 export interface ApplicationRow {
   application_id: number;
@@ -15,7 +20,8 @@ export interface ApplicationRow {
 }
 
 const STATUS_STYLES: Record<ApplicationStatus, { bg: string; text: string }> = {
-  Pending:   C.statusPending,
+  "Pending Manager Approval": C.statusPendingManager,
+  "Pending Admin Approval":   C.statusPendingAdmin,
   Approved:  C.statusApproved,
   Rejected:  C.statusRejected,
   Cancelled: C.statusCancelled,
@@ -86,7 +92,7 @@ export default function RecentApplications({ data }: Props) {
 
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, tableLayout: "auto" }}>
           <thead>
             <tr style={{ background: C.cream }}>
               {["Student", "Housing", "Room Type", "Expected Move-out", "Status"].map((h) => (
@@ -126,10 +132,14 @@ export default function RecentApplications({ data }: Props) {
                     transition: "background 0.15s ease",
                   }}
                 >
-                  <td style={{ padding: "12px 24px", color: C.navy, fontWeight: 500 }}>{row.student_name}</td>
+                  <td style={{ padding: "12px 24px", color: C.navy, fontWeight: 500, whiteSpace: "nowrap" }}>
+                    {row.student_name}
+                  </td>
                   <td style={{ padding: "12px 24px", color: C.teal }}>{row.housing_name}</td>
-                  <td style={{ padding: "12px 24px", color: C.teal }}>{row.preferred_room_type}</td>
-                  <td style={{ padding: "12px 24px", color: C.teal, fontFamily: "'DM Mono', monospace", fontSize: 12 }}>
+                  <td style={{ padding: "12px 24px", color: C.teal, whiteSpace: "nowrap" }}>
+                    {row.preferred_room_type}
+                  </td>
+                  <td style={{ padding: "12px 24px", color: C.teal, fontFamily: "'DM Mono', monospace", fontSize: 12, whiteSpace: "nowrap" }}>
                     {row.expected_moveout_date}
                   </td>
                   <td style={{ padding: "12px 24px" }}>
@@ -144,6 +154,8 @@ export default function RecentApplications({ data }: Props) {
                         fontFamily: "'DM Mono', monospace",
                         letterSpacing: "0.04em",
                         textTransform: "uppercase",
+                        whiteSpace: "nowrap",   // ← KEY FIX: prevents badge text from wrapping
+                        display: "inline-block",
                       }}
                     >
                       {row.application_status}
