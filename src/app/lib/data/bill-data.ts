@@ -110,7 +110,7 @@ const getTotalBalance = async (accountNumber: number) => {
 
 //gets gross Revenue
 const getGrossRevenue = async (managerAccountNumber?: number): Promise<number> => {
-	
+
   let query = supabase
     .from("bill")
     .select("amount")
@@ -140,6 +140,5 @@ export const billData = {
 	getBillsByStatus,
 	getOverdueBills,
 	getTotalBalance,
-	getGrossRevenue,
-	getGrossRevenueByManager
+	getGrossRevenue
 };
