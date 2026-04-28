@@ -156,7 +156,7 @@ function ServiceCard({
 
       {/* Bottom accent line */}
       <div
-        className="absolute bottom-0 left-0 h-[2px] transition-all duration-500"
+        className="absolute bottom-0 left-0 h-0.5 transition-all duration-500"
         style={{
           width:      isActive ? "100%" : hovered ? "40%" : "0%",
           background: isActive ? "rgba(255,255,255,0.5)" : RUST_LT,
