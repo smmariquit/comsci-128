@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "User Management",
   description: "View and manage students under managed properties.",
 };
+
 import { userData } from "@/lib/data/user-data";
 
 export default async function UsersPage() {
@@ -14,13 +15,15 @@ export default async function UsersPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      gap: 16,
-      padding: "24px",
-      fontFamily: "'DM Sans', sans-serif",
-    }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        padding: "24px",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
       <UsersFilterTableWrapper liveUsers={liveUsers} />
     </div>
   );
