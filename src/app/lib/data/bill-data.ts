@@ -12,23 +12,12 @@ const getAll = async () => {
 		.eq("is_deleted", false);
 };
 
-const getAllByManager = async (managerAccountNumber: number) => {
-	// get all bills under a manager
-	
-	return await supabase
-		.from("bill")
-		.select("*, student!inner(*)")
-		.eq("manager_account_number", managerAccountNumber)
-		.eq("is_deleted", false);
-};
-
 const getById = async (transactionId: number) => {
 	return await supabase
 		.from("bill")
 		.select("*, manager!inner(*), student!inner(*)")
 		.eq("transaction_id", transactionId)
-		.eq("is_deleted", false)
-		.single();
+		.eq("is_deleted", false);
 };
 
 const update = async (transactionId: number, updates: Bill) => {
@@ -36,8 +25,7 @@ const update = async (transactionId: number, updates: Bill) => {
 		.from("bill")
 		.update(updates)
 		.eq("transaction_id", transactionId)
-		.select()
-		.single();
+		.select();
 };
 
 const markAsPaid = async (transactionId: number) => {
