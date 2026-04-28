@@ -35,18 +35,16 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 
 		// mock... replace once there's input for Student and StudentAcademic
 		const studentDetails: NewStudent = {
-			student_number: 2024000001,
-			sex: "Male",
-			birth_date: "2004-05-14",
-			mobile_number: "09171234567",
-			address: "123 Sample St, Quezon City, Metro Manila",
+			student_number: 0,
+            housing_status: 'Not Assigned',
 			emergency_contact_name: "Maria Santos",
 			emergency_contact_number: "09181234567",
+            emergency_contact_relationship: 'Mother'
 		} as NewStudent;
 
 		const studentAcademicDetails: NewStudentAcademic = {
 			degree_program: "BS Computer Science",
-			standing: "Sophomore",
+			standing: "Freshman",
 			status: "Active",
 		};
 
@@ -136,7 +134,7 @@ const deactivateUser = async (
 		// RBAC
 		await validateAction(AppAction.DELETE_ACCOUNT); 
 
-		const updatedUser = await userData.deactivate(userId);
+		const updatedUser = await userData.deactivate(email);
 		if (!updatedUser) return null;
 
 		// TODO: reevaluate returning data for disable or not
