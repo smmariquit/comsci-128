@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "Accommodations Management",
+  description: "View and manage all housings for managed properties",
 };
 import DormCard from "@/app/components/admin/dorm_card";
 import DeleteHousingForm from '@/app/components/admin/delete_housing_form';
