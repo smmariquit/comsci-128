@@ -62,90 +62,37 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-bold">Register</h1>
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        <form className="space-y-3" onSubmit={handleRegister}>
-          <input
-            type="text"
-            placeholder="First Name"
-            value={first_name}
-            onChange={(e) => setFirstName(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Middle Name (optional)"
-            value={middle_name}
-            onChange={(e) => setMiddleName(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-          />
-          <input
-            type="text"
-            placeholder="Last Name"
-            value={last_name}
-            onChange={(e) => setLastName(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-            required
-          />
-          <input
-            type="date"
-            placeholder="Birthday (optional)"
-            value={birthday}
-            onChange={(e) => setBirthday(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-          />
-          <input
-            type="text"
-            placeholder="Home Address (optional)"
-            value={home_address}
-            onChange={(e) => setHomeAddress(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-          />
-          <input
-            type="text"
-            placeholder="Phone Number (optional)"
-            value={phone_number}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-          />
-          <select
-            value={sex}
-            onChange={(e) => setSex(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-          >
-            <option value="">Select Sex (optional)</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Prefer not to say">Prefer not to say</option>
-          </select>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-            required
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded bg-black py-2 text-white disabled:opacity-50"
-          >
-            {loading ? "Registering..." : "Register"}
-          </button>
-        </form>
-      </div>
+
+    <div className="w-[1440px] h-[900px] relative bg-black/20 overflow-hidden">
+    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[292px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
+        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Enter first name</div>
+    </div>
+    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[356px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
+        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Enter last name</div>
+    </div>
+    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[420px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
+        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Enter email</div>
+    </div>
+    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[484px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
+        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Enter password</div>
+    </div>
+    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[548px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
+        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Confirm password</div>
+    </div>
+    <div className="w-32 left-[955px] top-[781px] absolute inline-flex flex-col justify-center items-center">
+        <div className="w-64 text-center justify-start text-stone-200 text-sm font-normal font-['Inter']">Already have an account?</div>
+        <div className="self-stretch text-center justify-start text-stone-200 text-sm font-bold font-['Inter'] underline">Click here to login.</div>
+    </div>
+    <div className="w-[576px] h-[867px] left-[18px] top-[16px] absolute bg-gray-500 rounded-[31px] border border-black" />
+    <div className="w-20 h-20 left-[981px] top-[119px] absolute bg-zinc-300 rounded-2xl border border-black" />
+    <div className="w-64 h-14 pl-4 pr-5 pt-4 pb-5 left-[886px] top-[706px] absolute bg-stone-50 rounded-lg inline-flex justify-start items-center gap-8">
+        {/* <img className="w-6 h-6" src="https://placehold.co/25x26" /> */}
+        <div className="w-44 h-3.5 text-center justify-start text-black text-base font-normal font-['Inter']">Sign up using Google.</div>
+    </div>
+    <div data-property-1="Default" className="w-48 h-12 px-16 py-3.5 left-[919px] top-[626px] absolute bg-orange-300 rounded-3xl outline outline-1 outline-offset-[-1px] outline-stone-200 inline-flex justify-center items-center gap-2.5">
+        <div className="text-center justify-start text-gray-800 text-base font-bold font-['Inter']">Continue</div>
+    </div>
+    <div className="w-28 h-11 left-[963px] top-[211px] absolute text-center justify-start text-zinc-300 text-3xl font-bold font-['Inter']">Sign up</div>
     </div>
   );
 }

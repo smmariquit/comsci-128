@@ -49,59 +49,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-bold">Login</h1>
-
-        {/* Status pop-up */}
-        {status && (
-          <div className="rounded bg-emerald-500/80 px-4 py-2 text-white shadow-md">
-            {status}
-          </div>
-        )}
-
-        {!currentUser ? (
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="Email"
-              className="w-full rounded border px-3 py-2"
-            />
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Password"
-              className="w-full rounded border px-3 py-2"
-            />
-            {/* <Link href="/student"> */}
-            <button
-              type="submit"
-              className="w-full rounded bg-black py-2 text-white"
-            >
-              Log in
-            </button>
-
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="w-full rounded bg-black py-2 text-white"
-            >
-              Continue with Google
-            </button>
-            {/* </Link> */}
-          </form>
-        ) : (
-          <button
-            onClick={handleSignOut}
-            className="w-full rounded bg-red-500 py-2 text-white"
-          >
-            Sign Out
-          </button>
-        )}
-      </div>
+<div className="w-[1440px] h-[900px] relative bg-black/20 overflow-hidden">
+    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[305px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
+        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Enter email</div>
     </div>
+    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[369px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
+        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Enter password</div>
+    </div>
+    <div className="w-32 left-[955px] top-[433px] absolute inline-flex flex-col justify-center items-center">
+        <div className="self-stretch text-center justify-start text-stone-200 text-sm font-normal font-['Inter']">Forgot password?</div>
+        <div className="self-stretch text-center justify-start text-stone-200 text-sm font-bold font-['Inter'] underline">Click here to reset.</div>
+    </div>
+    <div className="w-32 left-[955px] top-[733px] absolute inline-flex flex-col justify-center items-center">
+        <div className="w-52 text-center justify-start text-stone-200 text-sm font-normal font-['Inter']">Don’t have an account?</div>
+        <div className="w-52 text-center justify-start text-stone-200 text-sm font-bold font-['Inter'] underline">Click here to sign up.</div>
+    </div>
+    <div className="w-[576px] h-[867px] left-[18px] top-[16px] absolute bg-gray-500 rounded-[31px] border border-black" />
+    <div className="w-20 h-20 left-[981px] top-[132px] absolute bg-zinc-300 rounded-2xl border border-black" />
+    <div className="w-64 h-14 pl-4 pr-5 pt-4 pb-5 left-[886px] top-[658px] absolute bg-stone-50 rounded-lg inline-flex justify-start items-center gap-8">
+        {/* <img className="w-6 h-6" src="https://placehold.co/25x26" /> */}
+        <div className="w-44 h-3.5 text-center justify-start text-black text-base font-normal font-['Inter']">Sign in using Google.</div>
+    </div>
+    <div data-property-1="Default" className="w-48 h-12 px-16 py-3.5 left-[919px] top-[548px] absolute bg-orange-300 rounded-3xl outline outline-1 outline-offset-[-1px] outline-stone-200 inline-flex justify-center items-center gap-2.5">
+        <div className="text-center justify-start text-gray-800 text-base font-bold font-['Inter']">Login</div>
+    </div>
+    <div className="w-28 h-11 left-[963px] top-[236px] absolute text-center justify-start text-zinc-300 text-3xl font-bold font-['Inter']">Login</div>
+</div>
   );
 }
