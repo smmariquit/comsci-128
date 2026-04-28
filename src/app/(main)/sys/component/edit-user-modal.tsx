@@ -5,7 +5,7 @@ import { X, AlertTriangle } from "lucide-react";
 import { Dorm } from "../roles/page";
 
 // Roles of Users (For UI only) different from enums Role
-type userType = "Student" | "Landlord" | "Dorm Manager" | "Housing Manager";
+type userType = "Student" | "Landlord" | "Housing Administrator";
 
 interface User {
   id: string | number;
@@ -24,13 +24,12 @@ interface EditUserModalProps {
 }
 
 const userTypeS: { value: userType; label: string; description: string }[] = [
-  { value: "Student",         label: "Student",         description: "Tenant access only"        },
-  { value: "Landlord",        label: "Landlord",        description: "Owner-level access"        },
-  { value: "Dorm Manager",    label: "Dorm Manager",    description: "Manage dorm and tenants"   },
-  { value: "Housing Manager", label: "Housing Manager", description: "Owner-level property access"},
+  { value: "Student",               label: "Student",               description: "Tenant access only"         },
+  { value: "Landlord",              label: "Landlord",              description: "Owner-level access"         },
+  { value: "Housing Administrator", label: "Housing Administrator", description: "Manage dorm and tenants"    },
 ];
 
-const DORM_REQUIRED_userTypeS: userType[] = ["Dorm Manager", "Landlord", "Housing Manager"];
+const DORM_REQUIRED_userTypeS: userType[] = ["Landlord", "Housing Administrator"];
 
 function getInitials(name: string) {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -77,7 +76,6 @@ export function EditUserModal({
     );
   }, [query, dormitories]);
 
-  // Use selectedDorm.name for display
   const displayValue = query !== "" ? query : selectedDorm?.name ?? "";
 
   function handleSave() {
