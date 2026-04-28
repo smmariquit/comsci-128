@@ -24,6 +24,13 @@ function UnitCard({ unit, onClick }: { unit: Unit; onClick: () => void }) {
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
       className="cursor-pointer border rounded-xl p-6 bg-[var(--dark-blue)] flex flex-col gap-3 w-full min-h-[180px] hover:shadow-md transition"
     >
       <h3 className="text-lg font-semibold text-[var(--dark-orange)]">{unit.name}</h3>
