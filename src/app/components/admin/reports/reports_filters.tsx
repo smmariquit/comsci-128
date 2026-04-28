@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { ReportType } from "@/app/components/admin/reports/reports_wrapper";
-import { Search } from "lucide-react";
 
 interface Props {
   reportType: ReportType;
