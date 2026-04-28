@@ -105,7 +105,7 @@ const updateUser = async (
 	try {
 		// To consider: separate update on password for stronger security
 		// e.g. email validation for changing password
-		const { account_number, account_email, is_deleted, ...allowedUpdates } =
+		const { account_number, account_email, ...allowedUpdates } =
 			updates;
 
 		const updatedUser = await userData.update(userId, allowedUpdates);
