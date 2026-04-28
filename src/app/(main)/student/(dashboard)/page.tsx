@@ -7,8 +7,8 @@ import AssignedDashboard from "./_components/AssignedDashboard";
 import NotAssignedDashboard from "./_components/NotAssignedDashboard";
 import { Suspense } from "react";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
-import { userData } from "@/app/lib/data/user-data";
 import SearchBar from "./SearchBar";
+import Image from "next/image";
 
 export const metadata: Metadata = {
     title: "Student Dashboard",
