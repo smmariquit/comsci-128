@@ -1,3 +1,5 @@
+import "server-only";
+
 import bcrypt from "bcrypt";
 import { studentData } from "@/app/lib/data/student-data";
 import { userData } from "@/app/lib/data/user-data";
