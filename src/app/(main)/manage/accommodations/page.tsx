@@ -35,13 +35,13 @@ function AccommodationCard({
 }) {
   return (
     <Link href={`/manage/accommodations/${id}`}>
-      <div className="flex items-center gap-6 rounded-xl p-6 bg-[var(--cream)] text-[var(--dark-orange)] shadow-sm border-l-8 border-[var(--teal)] hover:shadow-md transition">
+      <div className="flex items-center gap-6 rounded-xl p-3 bg-[#f5ede1] text-[var(--dark-orange)] shadow-xl border-l-8 border-[var(--teal)] hover:shadow-md transition">
 
-        <div className="w-35 h-35 bg-gray-300 rounded-lg overflow-hidden">
+        <div className="w-80 h-40 bg-gray-300 rounded-lg overflow-hidden">
           <img src={image} alt="Accommodation" className="w-full h-full object-cover" />
         </div>
 
-        <div className="flex flex-col w-full gap-2">
+        <div className="flex flex-col w-full gap-10">
           <div className="font-semibold text-2xl text-[var(--dark-blue)]">
             {name}
           </div>
@@ -77,7 +77,7 @@ export default async function AccommodationsPage() {
       </section> */}
      
       <section className="flex flex-col gap-4 px-5">
-        <h1 className="text-3xl text-[var(--dark-orange)] font-semibold">Accommodations List</h1>
+        <h1 className="text-3xl text-[var(--dark-orange)] font-semibold">Accommodations</h1>
 
         {/* filter */}
         <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
@@ -89,8 +89,8 @@ export default async function AccommodationsPage() {
         {!housings || housings.length === 0 ? (
           <p className="text-gray-500">No accommodations found.</p>
         ) : (
-          <div className="flex flex-col gap-6 bg-[var(--cream)] p-6 rounded-xl">
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[var(--cream)] p-6 rounded-xl">
+            {/* Remove the extra bg and padding from inner div if you want, or keep it */}
             {housings.map((housing) => {
               const totalOccupants = housing.room.reduce(
                 (sum, r) => sum + (r.maximum_occupants ?? 0),
@@ -106,7 +106,7 @@ export default async function AccommodationsPage() {
                   key={housing.housing_id}
                   id={housing.housing_id}
                   name={housing.housing_name}
-                  image="/assets/placeholders/housing-card.svg"
+                  image={housing.housing_image}
                   details={[
                     { label: "Total Occupants", value: totalOccupants },
                     { label: "Free Slots", value: freeSlots },
@@ -114,9 +114,8 @@ export default async function AccommodationsPage() {
                 />
               );
             })}
-
           </div>
         )}
-      </section>
+        </section>
     </main>
   )};
