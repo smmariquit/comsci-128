@@ -1,29 +1,35 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
+
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
   const [status, setStatus] = useState("");
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
-  async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  }
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("");
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: form.email,
+      password: form.password,
     });
 
     if (error) {
       setStatus(error.message);
-      setCurrentUser(null);
     } else {
       setStatus("Signed in successfully");
       setCurrentUser(data.user);
@@ -59,13 +65,6 @@ export default function LoginPage() {
         router.push(target);
       }
     }
-    console.log({ data });
-  }
-
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    setCurrentUser(null);
-    setStatus("Signed out successfully");
   }
 
   async function handleGoogleSignIn() {
@@ -79,59 +78,58 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-bold">Login</h1>
-
-        {/* Status pop-up */}
-        {status && (
-          <div className="rounded bg-emerald-500/80 px-4 py-2 text-white shadow-md">
-            {status}
-          </div>
-        )}
-
-        {!currentUser ? (
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="Email"
-              className="w-full rounded border px-3 py-2"
-            />
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Password"
-              className="w-full rounded border px-3 py-2"
-            />
-            {/* <Link href="/student"> */}
-            <button
-              type="submit"
-              className="w-full rounded bg-black py-2 text-white"
-            >
-              Log in
-            </button>
-
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="w-full rounded bg-black py-2 text-white"
-            >
-              Continue with Google
-            </button>
-            {/* </Link> */}
-          </form>
-        ) : (
-          <button
-            onClick={handleSignOut}
-            className="w-full rounded bg-red-500 py-2 text-white"
-          >
-            Sign Out
-          </button>
-        )}
+  <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+    <form
+      className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
+      onSubmit={handleSubmit}
+      autoComplete="off"
+    >
+      <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Login</h2>
+      {status && <div className="text-red-400 text-center">{status}</div>}
+      <input
+        className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={handleChange}
+        required
+      />
+      <input
+        className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+        type="password"
+        name="password"
+        placeholder="Password"
+        value={form.password}
+        onChange={handleChange}
+        required
+      />
+      <button
+        type="submit"
+        className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"
+      >
+        Login
+      </button>
+      <div className="text-center text-stone-200 mt-2">
+        Don’t have an account?{' '}
+        <a href="/register" className="font-bold underline">Sign up</a>
       </div>
-    </div>
+      <div className="flex items-center gap-2 mt-4">
+        <div className="flex-grow h-px bg-stone-400" />
+        <span className="text-stone-400 text-xs">or</span>
+        <div className="flex-grow h-px bg-stone-400" />
+      </div>
+      <button
+        type="button"
+        className="bg-stone-50 text-black rounded-lg py-3 mt-2 flex items-center justify-center gap-2 font-normal"
+        onClick={handleGoogleSignIn}
+      >
+        Sign in using Google
+      </button>
+      <div className="text-center text-stone-200 mt-2">
+        <a href="#" className="font-bold underline">Forgot password?</a>
+      </div>
+    </form>
+  </div>
   );
 }

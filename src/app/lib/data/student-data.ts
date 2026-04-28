@@ -73,6 +73,7 @@ async function findStudentProfileById(
             contact_email,
             profile_picture,
             user_type,
+            google_identity,
             student:student_account_number_fkey(
                 account_number,
                 student_number,
@@ -110,25 +111,23 @@ async function updateStudent(
 		.from("student")
 		.update(updates)
 		.eq("account_number", accountNumber)
-		.select()
-		.single();
+		.select();
 
 	if (error) {
 		console.error("Error updating student:", error);
 		return null;
 	}
-	return data;
+	return data[0];
 }
 
 async function getStudentAcademicById(accountNumber: number) {
 	const { data, error } = await supabase
 		.from("student_academic")
 		.select("*")
-		.eq("account_number", accountNumber)
-		.single();
+		.eq("account_number", accountNumber);
 
 	if (error) throw new Error(error.message);
-	return data;
+	return data[0];
 }
 
 async function updateAcademicDetails(
@@ -139,15 +138,14 @@ async function updateAcademicDetails(
 		.from("student_academic")
 		.update(updates)
 		.eq("account_number", accountNumber)
-		.select()
-		.single();
+		.select();
 
 	if (error) {
 		console.error("Error updating student academic:", error);
 		return null;
 	}
-	console.log(data);
-	return data;
+
+	return data[0];
 }
 
 // CREATE a stay record (Check-in)
@@ -157,12 +155,11 @@ async function createAccommodationHistory(
 	const { data, error } = await supabase
 		.from("student_accommodation_history")
 		.insert([history])
-		.select()
-		.single();
+		.select();
 
 	if (error)
 		throw new Error(`History Record Creation Error: ${error.message}`);
-	return data;
+	return data[0];
 }
 
 // UPDATE a stay record (Check-out)
@@ -335,22 +332,20 @@ async function getActiveHousingDetails(studentAccountNumber: number) {
 const getBillingSummary = async (accountNumber: number) => {
 	const { data, error } = await supabase
 		.from("bill")
-		.select(
-			`
-      transaction_id,
-      amount,
-      status,
-      due_date,
-      bill_type,
-      manager (
-        manager_type,
-        user:account_number (
-          first_name,
-          last_name
-        )
-      )
-    `,
-		)
+		.select(`
+			transaction_id,
+			amount,
+			status,
+			due_date,
+			bill_type,
+			manager!inner(
+				manager_type,
+				user!inner (
+					first_name,
+					last_name
+				)
+			)
+		`)
 		.eq("student_account_number", accountNumber)
 		.eq("is_deleted", false);
 
@@ -388,22 +383,20 @@ const getBillingSummary = async (accountNumber: number) => {
 const getBillingHistory = async (accountNumber: number) => {
 	const { data, error } = await supabase
 		.from("bill")
-		.select(
-			`
-        transaction_id,
-        amount,
-        bill_type,
-        status,
-        date_paid,
-        due_date,
-        manager (
-          user:account_number (
-            first_name,
-            last_name
-          )
-        )
-      `,
-		)
+		.select(`
+			transaction_id,
+			amount,
+			bill_type,
+			status,
+			date_paid,
+			due_date,
+			manager!inner(
+				user!inner (
+					first_name,
+					last_name
+				)
+			)
+		`)
 		.eq("student_account_number", accountNumber)
 		.eq("is_deleted", false)
 		.order("due_date", { ascending: false });
@@ -416,22 +409,20 @@ const getBillingHistory = async (accountNumber: number) => {
 const getUnpaidBills = async (accountNumber: number) => {
 	const { data, error } = await supabase
 		.from("bill")
-		.select(
-			`
-        transaction_id,
-        amount,
-        bill_type,
-        due_date,
-        status,
-        manager (
-          user:account_number (
-            first_name,
-            last_name,
-            email
-          )
-        )
-      `,
-		)
+		.select(`
+			transaction_id,
+			amount,
+			bill_type,
+			due_date,
+			status,
+			manager!inner(
+				user!inner (
+					first_name,
+					last_name,
+					account_email
+				)
+			)
+		`)
 		.eq("student_account_number", accountNumber)
 		.in("status", ["Pending", "Overdue"])
 		.eq("is_deleted", false)
