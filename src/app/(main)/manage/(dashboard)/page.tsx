@@ -150,7 +150,7 @@ export default async function MgrDashboardPage() {
             logs.map((log: any) => (
               <div
                 key={log.audit_id}
-                className="bg-gray-100 p-3 rounded text-sm text-gray-800 flex justify-between items-center border border-gray-400"
+                className="bg-gray-100 p-3 rounded text-sm text-gray-800 flex justify-between items-center border border-gray-300"
               >
                 <span><span className="font-bold">{log.action_type}</span> — {log.audit_description ?? "No description"}</span>
                 <span className="text-xs text-gray-110 shrink-0 ml-4">
