@@ -25,6 +25,7 @@ export interface AddDormModalProps {
   onClose: () => void;
   onAdd: (dorm: NewDorm) => void;
   managers?: { id: string; name: string; email: string }[];
+  landlords?: { id: string; name: string; email: string }[];
 }
 
 
@@ -46,6 +47,7 @@ export default function AddDormModal({
   onClose,
   onAdd,
   managers = STUB_MANAGERS,
+  landlords
 }: AddDormModalProps) {
   const [dormName,        setDormName]        = useState('');
   const [address,         setAddress]         = useState('');
@@ -55,6 +57,7 @@ export default function AddDormModal({
   const [monthlyRate,     setMonthlyRate]     = useState('');
   const [securityDeposit, setSecurityDeposit] = useState('');
   const [managerId,       setManagerId]       = useState('');
+  const [landlordId, setLandlordId] = useState(''); 
 
   if (!open) return null;
 
@@ -63,6 +66,7 @@ export default function AddDormModal({
     setDormName(''); setAddress(''); setDescription('');
     setTotalRooms(''); setCapacityPerRoom('');
     setMonthlyRate(''); setSecurityDeposit('');
+    setLandlordId('');
   };
 
   const handleClose = () => { reset(); onClose(); };
@@ -83,7 +87,8 @@ export default function AddDormModal({
                 
                 housing_type:    'UP Housing',       // or add a toggle in the form
                 rent_price:      parseFloat(monthlyRate) || 0,
-                manager_account_number: managerId ? Number(managerId) : undefined,
+                manager_account_number:   Number(managerId), 
+                landlord_account_number: Number(landlordId)  
             }),
         });
 
@@ -216,7 +221,7 @@ export default function AddDormModal({
           {/* Assignment & Status */}
           <Section label="Assignment & Status">
 
-            <Field label="Assign Manager" hint="Only users with Manager or Landlord role are listed">
+            <Field label="Assign Manager">
               {/* Wrapper for custom chevron icon */}
               <div className="relative">
                 <select
@@ -227,6 +232,25 @@ export default function AddDormModal({
                   <option value="">Select a manager...</option>
                   {managers.map((m) => (
                     <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={14}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2332]/40"
+                />
+              </div>
+            </Field>
+
+            <Field label="Assign Landlord">
+              <div className="relative">
+                <select
+                  value={landlordId}
+                  onChange={(e) => setLandlordId(e.target.value)}
+                  className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer`}
+                >
+                  <option value="">Select a landlord...</option>
+                 {(landlords ?? []).map((l) => (
+                      <option key={l.id} value={l.id}>{l.name}</option>
                   ))}
                 </select>
                 <ChevronDown
