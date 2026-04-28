@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "Accommodations Management",
   description: "View and manage all housings for managed properties",
 };
+
+import DeleteHousingForm from "@/app/components/admin/delete_housing_form";
 import DormCard from "@/app/components/admin/dorm_card";
-import DeleteHousingForm from '@/app/components/admin/delete_housing_form';
-import { housingData } from '@/lib/data/housing-data'
-import HousingImageUpload from '@/app/components/housing_image_upload';
+import HousingImageUpload from "@/app/components/housing_image_upload";
+import { housingData } from "@/lib/data/housing-data";
 
 // NOTE: This page is now a server component, for fast async data fetching
 // For interactivity (e.g. useState), import client components
@@ -18,13 +18,9 @@ export default async function Page() {
     <main className="min-h-screen text-white flex flex-col items-center p-6">
       {/* DORM CARDS SECTION */}
       <section className="w-full mb-12">
-        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
           {liveDormCards.map((housing) => (
-            <DormCard
-              key={housing.housingId}
-              {...housing}
-            />
+            <DormCard key={housing.housingId} {...housing} />
           ))}
         </div>
       </section>
