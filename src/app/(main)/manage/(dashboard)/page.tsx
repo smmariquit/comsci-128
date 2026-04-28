@@ -6,7 +6,7 @@ import { billingService } from "@/app/lib/services/billing-service";
 import { getManagerAccountNumber } from "@/app/lib/auth";
 import Link from "next/link";
 
-import { Home, FileCheck, FileX} from 'lucide-react';
+import { Home, FileCheck, FileX, Bed, UserCheck, Armchair} from 'lucide-react';
 
 
 export const metadata: Metadata = {
@@ -38,7 +38,7 @@ function StatCard({
 }) {
   return (
     <div className="bg-[var(--cream)] py-3 px-6 rounded-lg flex items-center gap-4 border-t-4 border-[var(--dark-orange)] shadow-md">
-      <IconComponent className="w-12 h-12 text-[var(--dark-orange)]" strokeWidth={1.5} />
+      <IconComponent className="w-12 h-12 text-orange-800" strokeWidth={1.5} />
       <div className="flex flex-col justify-center">
         <p className="text-lg font-bold text-[var(--dark-blue)]">{value}</p>
         <p className="text-sm text-[var(--dark-orange)]">{label}</p>
@@ -106,12 +106,12 @@ export default async function MgrDashboardPage() {
           </div>
 
           <div className="md:col-span-2 grid grid-cols-2 gap-4">
+            <StatCard label="Total Occupants" value={roomStats.totalOccupants} icon={UserCheck} />
             <StatCard label="New Applicants" value={stats.pending} icon={Home} />
-            <StatCard label="Approved Applications" value={stats.approved} icon="/assets/placeholders/avatar-128x128.svg" />
-            <StatCard label="Rejected Applications" value={stats.rejected} icon="/assets/placeholders/avatar-128x128.svg" />
-            <StatCard label="Total Rooms" value={roomStats.totalRooms} icon="/assets/placeholders/avatar-128x128.svg" />
-            <StatCard label="Total Occupants" value={roomStats.totalOccupants} icon="/assets/placeholders/avatar-128x128.svg" />
-            <StatCard label="Vacant Rooms" value={roomStats.totalFreeRooms} icon="/assets/placeholders/avatar-128x128.svg" />
+            <StatCard label="Approved Applications" value={stats.approved} icon={FileCheck} />
+            <StatCard label="Rejected Applications" value={stats.rejected} icon={FileX} />
+            <StatCard label="Total Rooms" value={roomStats.totalRooms} icon={Bed} />
+            <StatCard label="Vacant Rooms" value={roomStats.totalFreeRooms} icon={Armchair}/>
           </div>
 
         </div>
