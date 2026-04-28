@@ -1,7 +1,9 @@
+
 "use client";
 
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
+import { Search } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

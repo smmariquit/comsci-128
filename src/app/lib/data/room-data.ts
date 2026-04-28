@@ -38,11 +38,11 @@ async function findByHousingId(
 ): Promise<RoomWithParentHousing> {
   const { data, error } = await supabase
     .from("room")
-    .select(
-      `*,
-            housing:housing_id(
-            housing_name, housing_address
-            )`,
+    .select(`
+		*,
+		housing!inner(
+			housing_name, housing_address
+		)`,
     )
     .eq("housing_id", housing_id)
     .eq("is_deleted", false)
@@ -108,7 +108,7 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 		.from("room")
 		.select(`
 			*,
-			housing:housing_id (housing_name),
+			housing!inner (housing_name),
 			tenants:student_accommodation_history!room_id (
 				account_number,
 				movein_date,
@@ -174,11 +174,10 @@ async function insertAccommodation(roomId: number, studentId: number) {
 			movein_date: new Date().toISOString().split('T')[0],
 			moveout_date: null,
 		})
-		.select()
-		.single();
+		.select();
 
 	if (error) throw new Error(error.message);
-	return data;
+	return data[0];
 }
 
 async function endAccommodation(roomId: number, studentId: number) {

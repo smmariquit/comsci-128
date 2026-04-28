@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { ImagePlus } from "lucide-react";
 import { C } from "@/lib/palette";
+import { Image as ImageIcon } from "lucide-react";
 
 export default function HousingImageUpload() {
 	const [housingIdInput, setHousingIdInput] = useState("");

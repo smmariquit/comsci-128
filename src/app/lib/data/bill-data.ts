@@ -1,9 +1,11 @@
 import { supabase } from "../supabase";
+import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill"
 
-const create = async (billData: any) => {
+const create = async (billData: Bill) => {
 	return await supabase.from("bill").insert([billData]).select().single();
 };
 
+// TODO: TO FIX ALL INNER JOINS
 const getAll = async () => {
 	return await supabase
 		.from("bill")
@@ -21,59 +23,59 @@ const getAll = async () => {
 		.eq("is_deleted", false);
 };
 
-const getById = async (transaction_id: number) => {
+const getById = async (transactionId: number) => {
 	return await supabase
 		.from("bill")
-		.select("*, manager(*), student(*)")
-		.eq("transaction_id", transaction_id)
+		.select("*, manager!inner(*), student!inner(*)")
+		.eq("transaction_id", transactionId)
 		.eq("is_deleted", false)
 		.single();
 };
 
-const update = async (transaction_id: number, updates: any) => {
+const update = async (transactionId: number, updates: Bill) => {
 	return await supabase
 		.from("bill")
 		.update(updates)
-		.eq("transaction_id", transaction_id)
+		.eq("transaction_id", transactionId)
 		.select()
 		.single();
 };
 
-const markAsPaid = async (transaction_id: number) => {
+const markAsPaid = async (transactionId: number) => {
 	return await supabase
 		.from("bill")
 		.update({
 			status: "Paid",
 			date_paid: new Date().toISOString(),
 		})
-		.eq("transaction_id", transaction_id)
+		.eq("transaction_id", transactionId)
 		.select()
 		.single();
 };
 
 // delete bill
-const remove = async (transaction_id: number) => {
+const remove = async (transactionId: number) => {
 	return await supabase
 		.from("bill")
 		.update({ is_deleted: true })
-		.eq("transaction_id", transaction_id);
+		.eq("transaction_id", transactionId);
 };
 
 // GET bills by manager
-const getBillsOfManager = async (account_number: number) => {
+const getBillsOfManager = async (accountNumber: number) => {
 	return await supabase
 		.from("bill")
-		.select("*, student(*)")
-		.eq("manager_account_number", account_number)
+		.select("*, student!inner(*)")
+		.eq("manager_account_number", accountNumber)
 		.eq("is_deleted", false);
 };
 
 // GET bills per student
-const getBillsOfStudent = async (account_number: number) => {
+const getBillsOfStudent = async (accountNumber: number) => {
 	return await supabase
 		.from("bill")
-		.select("*, manager(*)")
-		.eq("student_account_number", account_number)
+		.select("*, manager!inner(*)")
+		.eq("student_account_number", accountNumber)
 		.eq("is_deleted", false);
 };
 
@@ -81,7 +83,7 @@ const getBillsOfStudent = async (account_number: number) => {
 const getBillsByStatus = async (status: string) => {
 	return await supabase
 		.from("bill")
-		.select("*, manager(*), student(*)")
+		.select("*, manager!inner(*), student!inner(*)")
 		.eq("status", status)
 		.eq("is_deleted", false);
 };
@@ -92,18 +94,18 @@ const getOverdueBills = async () => {
 
 	return await supabase
 		.from("bill")
-		.select("*, manager(*), student(*)")
+		.select("*, manager!inner(*), student!inner(*)")
 		.lt("due_date", today)
 		.eq("status", "Pending")
 		.eq("is_deleted", false);
 };
 
 // total balance per student
-const getTotalBalance = async (account_number: number) => {
+const getTotalBalance = async (accountNumber: number) => {
 	const { data, error } = await supabase
 		.from("bill")
 		.select("amount, status")
-		.eq("student_account_number", account_number)
+		.eq("student_account_number", accountNumber)
 		.eq("is_deleted", false);
 
 	const total = data?.reduce((sum: number, bill: any) => {

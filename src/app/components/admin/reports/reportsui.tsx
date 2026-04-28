@@ -7,6 +7,7 @@ import { C } from "@/lib/palette";
 import type {
   OccupancyStatus, RoomType, ApplicationStatus, PaymentStatus, BillType,
 } from "./reportsmock";
+import { Download } from "lucide-react";
 
 // ── StatCard (exact design from user) ────────────────────────────────────────
 

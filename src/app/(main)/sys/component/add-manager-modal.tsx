@@ -41,52 +41,7 @@ export default function AddManagerModal({
     const name = `${form.firstName.trim()} ${form.lastName.trim()}`.trim();
     if (!name || !form.email || !form.dorm || !form.password) return;
 
-    try {
-        // ← different API based on role
-        const endpoint = form.role === 'Landlord' ? '/api/landlord' : '/api/housing-admin';
 
-        const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                account_email: form.email,
-                first_name: form.firstName,
-                last_name: form.lastName,
-                phone_number: form.contact || null,
-                sex: form.sex || null,
-                password: form.password,
-            }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error(data.message);
-            return;
-        }
-
-        // Map API response to local User type for the UI
-        const now = new Date();
-        const joined = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-        const newUser: User = {
-            id: String(data.user.account_number),
-            name,
-            gender: form.sex || 'Prefer not to say',
-            email: form.email,
-            role: form.role,
-            status: 'Active',
-            dormitory: form.dorm,
-            joined,
-        };
-
-        onAdd(newUser);
-        setForm({ firstName: '', lastName: '', sex: '', email: '', contact: '', role: 'Manager', dorm: '', password: '' });
-        onClose();
-
-    } catch (err) {
-        console.error("Error adding manager:", err);
-    }
 };
 
   return (
