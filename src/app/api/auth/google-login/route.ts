@@ -35,9 +35,8 @@ async function resolveManagerRole(accountNumber: number) {
   }
 
   const managerType = managerData?.manager_type?.toLowerCase();
-  if (managerType === "housing administrator" || managerType === "house admin") {
+  if (managerType === "housing administrator") 
     return "housing_admin" as UserRole;
-  }
 
   return "landlord" as UserRole;
 }
