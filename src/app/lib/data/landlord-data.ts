@@ -37,18 +37,18 @@ async function getAll() {
       manager:landlord_account_number_fkey (
         manager_type,
         user:manager_account_number_fkey (
-          account_number,
-          account_email,
-          first_name,
-          middle_name,
-          last_name,
-          sex,
-          birthday,
-          home_address,
-          phone_number,
-          contact_email,
-          user_type,
-          is_deleted
+			account_number,
+			account_email,
+			first_name,
+			middle_name,
+			last_name,
+			sex,
+			birthday,
+			home_address,
+			phone_number,
+			contact_email,
+			user_type,
+			is_deleted
         )
       )
     `);
@@ -106,7 +106,7 @@ async function getTotalTenantsByLandlord(accountNumber: number) {
 				housing!inner(manager_account_number)
 			)
 		`, { count: "exact", head: true })
-		.eq("room.housing.manager_account_number", accountNumber);
+		.eq("housing.manager_account_number", accountNumber);
 
 	if (error) {
 		console.error("Error counting tenants by landlord:", error.message);
@@ -115,13 +115,6 @@ async function getTotalTenantsByLandlord(accountNumber: number) {
 
 	return { data: count ?? 0, error: null };
 }
-
-//Delete housing admin (uncomment if needed)
-// export async function deleteHousingAdmin(accountNumber: number) {
-//   const { error } = await supabase
-//     .from("housing_admin")
-//     .delete()
-//     .eq("account_number", accountNumber);
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
 async function getTotalTenantsManaged(accountNumber: number) {
@@ -153,7 +146,7 @@ async function getGrossRevenue(accountNumber: number) {
 			housing!inner(landlord_account_number)
 			)
       	`)
-		.eq("room.housing.landlord_account_number", accountNumber);
+		.eq("housing.landlord_account_number", accountNumber);
 
 	if (tenantError) {
 		console.error(
@@ -194,7 +187,7 @@ async function getTotalRoomsManaged(accountNumber: number) {
 		.select(`
 			housing!inner(
 				landlord_account_number
-			)
+			) 
 		`, { count: "exact", head: true })
 		.eq("housing.landlord_account_number", accountNumber);
 	return { data: count ?? 0, error };
