@@ -181,6 +181,7 @@ async function getApplicationDetailById(applicationId: number) {
       application_status,
       expected_moveout_date,
       preferred_room_type,
+	  landlord_account_number,
       student:student_account_number (
         account_number,
         user:user!account_number (
