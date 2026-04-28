@@ -373,19 +373,19 @@ export default function DormManagementPage({
           onEdit={() => setEditingDorm(viewingDorm)}
         />
       )}
-      {/* {editingDorm && (
+      {editingDorm && (
         <EditDormModal
-          dorm={editingDorm}
+          dorm={editingDorm as any}
           managers={managersList}
           onClose={() => setEditingDorm(null)}
           onSave={(id, updates) => {
             setDormList((prev) =>
-              prev.map((d) => (d.id === id ? { ...d, ...updates } : d))
+                prev.map((d) => (d.id === id ? { ...d, ...updates, id: String(updates.id ?? d.id) } : d))
             );
             setEditingDorm(null);
           }}
         />
-      )} */}
+      )}
     </div>
   );
 }
