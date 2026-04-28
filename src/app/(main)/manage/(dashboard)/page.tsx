@@ -4,6 +4,7 @@ import { housingService } from "@/app/lib/services/housing-service";
 import { roomService } from "@/app/lib/services/room-service";
 import { billingService } from "@/app/lib/services/billing-service";
 import { getManagerAccountNumber } from "@/app/lib/auth";
+import { auditLogService } from "@/app/lib/services/audit-log-service";
 import Link from "next/link";
 
 import { Home, FileCheck, FileX, Bed, UserCheck, Armchair} from 'lucide-react';
@@ -60,15 +61,15 @@ function DormCard({
 }) {
   return (
     <Link href={`/manage/accommodations/${id}`}>
-      <div className="relative h-64 rounded-xl overflow-hidden shadow cursor-pointer group">
+      <div className="relative h-84 rounded-xl overflow-hidden shadow cursor-pointer group border border-gray-800">
         <img
           src={image || "/assets/placeholders/housing-card.svg"}
           alt={name}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
         />
-        <div className="absolute bottom-0 w-full bg-[var(--dark-blue)]/60 text-[var(--light-yellow)] p-2 text-center">
-          <p className="font-semibold leading-tight">{name}</p>
-          <p className="text-xs opacity-80">{location}</p>
+        <div className="absolute bottom-0 w-full bg-[var(--dark-blue)]/90 text-[var(--light-yellow)] p-2 text-center">
+          <p className="font-bold leading-tight">{name}</p>
+          <p className="text-xs opacity-90">{location}</p>
         </div>
       </div>
     </Link>
@@ -86,11 +87,12 @@ function ActivityItem({ text }: { text: string }) {
 export default async function MgrDashboardPage() {
   const managerAccountNumber = await getManagerAccountNumber()
 
-  const [stats, roomStats, dorms, grossRevenue] = await Promise.all([
+  const [stats, roomStats, dorms, grossRevenue, logs] = await Promise.all([
     applicationService.getDashboardStats(),
     roomService.getRoomStats(),
     housingService.getAllHousing(),
     billingService.getGrossRevenue(managerAccountNumber ?? undefined),
+    auditLogService.getRecentLogs()
   ])
 
   return (
@@ -129,7 +131,7 @@ export default async function MgrDashboardPage() {
                 key={dorm.housing_id}
                 id={dorm.housing_id}
                 name={dorm.housing_name}
-                image="/assets/placeholders/housing-card.svg"
+                image={dorm.housing_image}
                 location={dorm.housing_address}
               />
             ))
@@ -139,12 +141,24 @@ export default async function MgrDashboardPage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4 px-6">
+      <section className="flex flex-col gap-4 px-6 pb-6">
         <h2 className="text-xl font-semibold text-[var(--dark-orange)]">Recent Activities</h2>
-        <div className="flex flex-col gap-1 p-4 border-orange-500">
-          <ActivityItem text="Wen Ruohan applied to Dorm A" />
-          <ActivityItem text="Wen Zhuliu was approved for Dorm B" />
-          <ActivityItem text="Wen Chao was rejected for Dorm C" />
+        <div className="flex flex-col gap-2">
+          {logs.length === 0 ? (
+            <p className="text-gray-500 text-sm">No recent activity.</p>
+          ) : (
+            logs.map((log: any) => (
+              <div
+                key={log.audit_id}
+                className="bg-gray-100 p-3 rounded text-sm text-gray-800 flex justify-between items-center border border-gray-400"
+              >
+                <span><span className="font-bold">{log.action_type}</span> — {log.audit_description ?? "No description"}</span>
+                <span className="text-xs text-gray-110 shrink-0 ml-4">
+                  {new Date(log.timestamp).toLocaleString("en-PH")}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </section>
 
