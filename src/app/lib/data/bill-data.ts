@@ -89,14 +89,12 @@ const getBillsByStatus = async (managerAccountNumber: number | null, status: str
 };
 
 // gets overdue bills
-const getOverdueBills = async () => {
-	const today = new Date().toISOString();
-
+const getOverdueBills = async (managerAccountNumber: number) => {
 	return await supabase
 		.from("bill")
-		.select("*, manager!inner(*), student!inner(*)")
-		.lt("due_date", today)
-		.eq("status", "Pending")
+		.select("*, student!inner(*)")
+		.eq("status", "Overdue")
+		.eq("manager_account_number", managerAccountNumber)
 		.eq("is_deleted", false);
 };
 
