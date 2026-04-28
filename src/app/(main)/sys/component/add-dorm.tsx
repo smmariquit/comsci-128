@@ -27,7 +27,6 @@ export interface AddDormModalProps {
   managers?: { id: string; name: string; email: string }[];
 }
 
-type InitialStatus = 'Active' | 'Inactive' | 'Maintenance';
 
 // List of Managers for the dropdown - hardcoded for now, but to be fetched from the real database
 const STUB_MANAGERS = [
@@ -39,16 +38,6 @@ const STUB_MANAGERS = [
   { id: '6', name: 'Haira Espinocilla', email: 'hespinocilla@up.edu.ph' },
   { id: '7', name: 'Althea Fernandez',  email: 'alfernandez@up.edu.ph'  },
 ];
-
-// Status display - radio buttons
-const STATUS_CONFIG: Record<
-  InitialStatus,
-  { dot: string; border: string; bg: string; text: string }
-> = {
-  Active:      { dot: 'bg-emerald-500', border: 'border-emerald-400', bg: 'bg-emerald-50/60',  text: 'text-emerald-700' },
-  Inactive:    { dot: 'bg-blue-400',    border: 'border-blue-300',    bg: 'bg-blue-50/60',     text: 'text-blue-700'    },
-  Maintenance: { dot: 'bg-amber-400',   border: 'border-amber-300',   bg: 'bg-amber-50/60',    text: 'text-amber-700'   },
-};
 
 
 // Main component - modal dialog for adding a new dormitory
@@ -66,7 +55,6 @@ export default function AddDormModal({
   const [monthlyRate,     setMonthlyRate]     = useState('');
   const [securityDeposit, setSecurityDeposit] = useState('');
   const [managerId,       setManagerId]       = useState('');
-  const [status,          setStatus]          = useState<InitialStatus>('Active');
 
   if (!open) return null;
 
@@ -75,7 +63,6 @@ export default function AddDormModal({
     setDormName(''); setAddress(''); setDescription('');
     setTotalRooms(''); setCapacityPerRoom('');
     setMonthlyRate(''); setSecurityDeposit('');
-    setManagerId(''); setStatus('Active');
   };
 
   const handleClose = () => { reset(); onClose(); };
@@ -224,30 +211,6 @@ export default function AddDormModal({
                   size={14}
                   className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2332]/40"
                 />
-              </div>
-            </Field>
-
-            <Field label="Initial Status">
-              <div className="grid grid-cols-3 gap-2">
-                {(['Active', 'Inactive', 'Maintenance'] as InitialStatus[]).map((s) => {
-                  const cfg     = STATUS_CONFIG[s];
-                  const isActive = s === status;
-                  return (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setStatus(s)}
-                      className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-sm font-medium transition-colors ${
-                        isActive
-                          ? `${cfg.border} ${cfg.bg} ${cfg.text}`
-                          : 'border-[#1a2332]/10 text-[#1a2332]/50 hover:border-[#1a2332]/20'
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                      {s}
-                    </button>
-                  );
-                })}
               </div>
             </Field>
 
