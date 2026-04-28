@@ -66,12 +66,26 @@ const getBillsOfStudent = async (accountNumber: number) => {
 };
 
 // GET bills based on their payment status
-const getBillsByStatus = async (status: string) => {
-	return await supabase
+const getBillsByStatus = async (managerAccountNumber: number | null, status: string) => {
+	let query = supabase
 		.from("bill")
-		.select("*, manager!inner(*), student!inner(*)")
+		.select("*, student!inner(*)")
 		.eq("status", status)
 		.eq("is_deleted", false);
+
+	// if bills managed by manager only
+	// otherwise no filtering (system admin view)
+	if (managerAccountNumber != null) {
+		query = query.eq("bill.manager_account_number", managerAccountNumber);
+	}
+
+	const { data , error } = await query;
+
+	if (error) {
+		throw Error(`Getting bills by status error: ${error.message}`)
+	}
+
+	return data;
 };
 
 // gets overdue bills
