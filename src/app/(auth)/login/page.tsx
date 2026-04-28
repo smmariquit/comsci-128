@@ -1,41 +1,36 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
+
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
-// import { useRouter } from "next/navigation";
-// import Link from "next/link";
+
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
   const [status, setStatus] = useState("");
   const supabase = getSupabaseBrowserClient();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  // const router = useRouter();
 
-  async function handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  }
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("");
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: form.email,
+      password: form.password,
     });
     if (error) {
       setStatus(error.message);
-      setCurrentUser(null);
     } else {
       setStatus("Signed in successfully");
-      setCurrentUser(data.user);
       // router.push("/student");
     }
-    console.log({ data });
-  }
-
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    setCurrentUser(null);
-    setStatus("Signed out successfully");
   }
 
   async function handleGoogleSignIn() {
@@ -49,31 +44,58 @@ export default function LoginPage() {
   }
 
   return (
-<div className="w-[1440px] h-[900px] relative bg-black/20 overflow-hidden">
-    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[305px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
-        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Enter email</div>
-    </div>
-    <div className="w-96 h-12 pl-7 pr-56 py-3 left-[834px] top-[369px] absolute bg-gray-800 rounded-3xl outline outline-1 outline-stone-200 inline-flex justify-start items-center gap-2.5">
-        <div className="justify-start text-stone-200 text-base font-normal font-['Inter']">| Enter password</div>
-    </div>
-    <div className="w-32 left-[955px] top-[433px] absolute inline-flex flex-col justify-center items-center">
-        <div className="self-stretch text-center justify-start text-stone-200 text-sm font-normal font-['Inter']">Forgot password?</div>
-        <div className="self-stretch text-center justify-start text-stone-200 text-sm font-bold font-['Inter'] underline">Click here to reset.</div>
-    </div>
-    <div className="w-32 left-[955px] top-[733px] absolute inline-flex flex-col justify-center items-center">
-        <div className="w-52 text-center justify-start text-stone-200 text-sm font-normal font-['Inter']">Don’t have an account?</div>
-        <div className="w-52 text-center justify-start text-stone-200 text-sm font-bold font-['Inter'] underline">Click here to sign up.</div>
-    </div>
-    <div className="w-[576px] h-[867px] left-[18px] top-[16px] absolute bg-gray-500 rounded-[31px] border border-black" />
-    <div className="w-20 h-20 left-[981px] top-[132px] absolute bg-zinc-300 rounded-2xl border border-black" />
-    <div className="w-64 h-14 pl-4 pr-5 pt-4 pb-5 left-[886px] top-[658px] absolute bg-stone-50 rounded-lg inline-flex justify-start items-center gap-8">
-        {/* <img className="w-6 h-6" src="https://placehold.co/25x26" /> */}
-        <div className="w-44 h-3.5 text-center justify-start text-black text-base font-normal font-['Inter']">Sign in using Google.</div>
-    </div>
-    <div data-property-1="Default" className="w-48 h-12 px-16 py-3.5 left-[919px] top-[548px] absolute bg-orange-300 rounded-3xl outline outline-1 outline-offset-[-1px] outline-stone-200 inline-flex justify-center items-center gap-2.5">
-        <div className="text-center justify-start text-gray-800 text-base font-bold font-['Inter']">Login</div>
-    </div>
-    <div className="w-28 h-11 left-[963px] top-[236px] absolute text-center justify-start text-zinc-300 text-3xl font-bold font-['Inter']">Login</div>
-</div>
+  <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+    <form
+      className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
+      onSubmit={handleSubmit}
+      autoComplete="off"
+    >
+      <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Login</h2>
+      {status && <div className="text-red-400 text-center">{status}</div>}
+      <input
+        className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={handleChange}
+        required
+      />
+      <input
+        className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+        type="password"
+        name="password"
+        placeholder="Password"
+        value={form.password}
+        onChange={handleChange}
+        required
+      />
+      <button
+        type="submit"
+        className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"
+      >
+        Login
+      </button>
+      <div className="text-center text-stone-200 mt-2">
+        Don’t have an account?{' '}
+        <a href="/register" className="font-bold underline">Sign up</a>
+      </div>
+      <div className="flex items-center gap-2 mt-4">
+        <div className="flex-grow h-px bg-stone-400" />
+        <span className="text-stone-400 text-xs">or</span>
+        <div className="flex-grow h-px bg-stone-400" />
+      </div>
+      <button
+        type="button"
+        className="bg-stone-50 text-black rounded-lg py-3 mt-2 flex items-center justify-center gap-2 font-normal"
+        onClick={handleGoogleSignIn}
+      >
+        Sign in using Google
+      </button>
+      <div className="text-center text-stone-200 mt-2">
+        <a href="#" className="font-bold underline">Forgot password?</a>
+      </div>
+    </form>
+  </div>
   );
 }
