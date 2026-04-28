@@ -31,7 +31,6 @@ export interface SidebarProps {
 const navItems = [
     { label: 'Dashboard',            href: '/sys',        icon: LayoutDashboard },
     { label: 'User Management',      href: '/sys/users',  icon: Users },
-    { label: 'Role Management',      href: '/sys/roles',  icon: ShieldCheck },
     { label: 'Dorm Management',      href: '/sys/dorms',  icon: BedDouble },
     { label: 'Audit Logs',           href: '/sys/logs',   icon: ClipboardList },
     { label: 'System Configuration', href: '/sys/config', icon: Settings },
