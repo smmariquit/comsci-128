@@ -35,32 +35,30 @@ export function DisableAccountModal({
 
   const isDisabling = user.status === "Active";
 
-  async function handleConfirm() {
-  console.log('handleConfirm called');
-  try {
-    const encodedEmail = encodeURIComponent(user.email);
-    const url = `/api/users/${encodedEmail}`;
-    
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error response body:', errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
+    async function handleConfirm() {
+    try {
+      const url = `/api/users/${user.id}`;
+
+      const isDisabling = user.status === "Active";
+
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          is_deleted: isDisabling, // true = disable, false = enable
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      onConfirm(user.id);
+      onClose();
+    } catch (err) {
+      console.error("Error updating user:", err);
     }
-    
-    const data = await response.json();
-    console.log('User status updated:', data);
-    
-    onConfirm(user.id);
-    onClose();
-  } catch (err) {
-    console.error('Error updating user:', err);
   }
-}
 
   return (
     <>

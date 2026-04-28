@@ -349,10 +349,9 @@ export default function UserManagementPage({
             console.log("Saving:", { userId, role, dorm });
 
             const roleRouteMap: Record<string, string> = {
-              "Landlord": "landlord",
-              "Dorm Manager": "housing-admin",  
-              "Housing Manager": "housing-admin",
-              "Student": "user", 
+                "Landlord": "landlord",       
+                "Manager": "housing-admin", 
+                "Student": "student", 
             };
 
             // Update role

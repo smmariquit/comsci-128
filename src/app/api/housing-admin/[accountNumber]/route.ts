@@ -8,9 +8,7 @@ export async function POST(
   { params }: { params: { accountNumber: string } }
 ) {
   try {
-    const { accountNumber } = params;
-
-    console.log("raw params:", params);
+    const { accountNumber } =  await params;
 
     const parsedAccountNumber = Number(accountNumber);
 

@@ -129,7 +129,7 @@ export default function UserManagementPage({
 				
 				// Transform the data to match User interface
 				const transformedUsers: User[] = rawUsers.map((user: any) => ({
-					id: String(user.account_number ?? ''),
+					id: user.account_number,
 					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
 					gender: user.sex,
 					email: user.account_email,
@@ -378,10 +378,9 @@ export default function UserManagementPage({
 				console.log("Saving:", { userId, role, dorm });
 
 				const roleRouteMap: Record<string, string> = {
-				"Landlord": "landlord",
-				"Dorm Manager": "housing-admin",  
-				"Housing Manager": "housing-admin",
-				"Student": "user", 
+					"Landlord":              "landlord",
+					"Housing Administrator": "housing-admin",  
+					"Student":               "student",
 				};
 
 				// Update role
