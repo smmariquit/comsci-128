@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import { X, AlertTriangle } from "lucide-react";
-import { Dorm } from "../roles/page";
 
 // Roles of Users (For UI only) different from enums Role
 type userType = "Student" | "Landlord" | "Housing Administrator";
@@ -16,6 +15,18 @@ interface User {
   status: "Active" | "Disabled";
 }
 
+export interface Dorm {
+  id: string;
+  name: string;
+  status: 'Accepting' | 'Disabled' | string;
+  dormitory: string;
+  dormAddress?: string;
+  managerEmail?: string;
+  capacity?: number;
+  rooms?: number;
+  occupied?: number;
+}
+
 interface EditUserModalProps {
   user: User;
   dormitories?: Dorm[];
@@ -24,7 +35,6 @@ interface EditUserModalProps {
 }
 
 const userTypeS: { value: userType; label: string; description: string }[] = [
-  { value: "Student",               label: "Student",               description: "Tenant access only"         },
   { value: "Landlord",              label: "Landlord",              description: "Owner-level access"         },
   { value: "Housing Administrator", label: "Housing Administrator", description: "Manage dorm and tenants"    },
 ];
