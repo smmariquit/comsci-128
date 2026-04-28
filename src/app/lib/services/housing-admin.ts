@@ -15,6 +15,20 @@ const addHousingAdmin = async (account_number: number, managerDetails: NewManage
     }
 };
 
+const fetchAllHousingAdmins = async () => {
+    try {
+        const result = await housingAdminData.getAll();
+        if (result?.error) {
+            throw new Error(result.error.message || "Failed to fetch housing admin.");
+        }
+        return result;
+    } catch (error) {
+        console.error("Error fetching housing admin:", error);
+        throw new Error("Failed to fetch housing admin.");
+    }
+}
+
 export const housingAdminService = {
-    addHousingAdmin
+    addHousingAdmin,
+    fetchAllHousingAdmins
 };

@@ -22,6 +22,11 @@ export interface Dorm {
   occupied?: number;
 }
 
+interface LandlordOption {
+    id: string;
+    name: string;
+    email: string;
+}
 
 // Sidebar + notifications
 export interface DormManagementProps {
@@ -113,54 +118,64 @@ export default function DormManagementPage({
     search: '', status: 'All Status', occupancy: 'All',
   });
   const [managersList, setManagersList] = useState<{ id: string; name: string; email: string }[]>([]);
+  const [landlordList, setLandlordList] = useState<LandlordOption[]>([]);
   
   // Fetch dorms from API
   useEffect(() => {
-      const fetchDorms = async () => {
-          try {
-              setLoading(true);
-              setError(null);
+    const fetchDorms = async () => {
+        try {
+            setLoading(true);
+            setError(null);
 
-              const response = await fetch('/api/housing/occupancy');
+            const [response, landlordResponse] = await Promise.all([
+                fetch('/api/housing/occupancy'),
+                fetch('/api/landlord'),
+            ]);
 
-              if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-              }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            if (!landlordResponse.ok) throw new Error(`HTTP error! status: ${landlordResponse.status}`);
 
-              const data = await response.json();
+            const data = await response.json();
+            const landlordData = await landlordResponse.json();
+            console.log('Raw landlord data:', landlordData);
+            // Transform dorms
+            const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
+            const transformed: Dorm[] = rawDorms.map((dorm: any) => ({
+                id:           String(dorm.housing_id || ''),
+                name:         dorm.housing_name || 'Unknown',
+                status:       dorm.is_deleted ? 'Disabled' : 'Accepting',
+                dormitory:    'Unassigned',
+                dormAddress:  dorm.housing_address || undefined,
+                managerEmail: undefined,
+                capacity:     dorm.occupancy_rate || undefined,
+                rooms:        dorm.total_rooms || undefined,
+                occupied:     dorm.occupied_rooms || undefined,
+            }));
 
-              console.log('Raw dorm data:', data);
+            // Transform landlords
+            const rawLandlords = Array.isArray(landlordData) ? landlordData : Array.isArray(landlordData.data) ? landlordData.data : [];
+            console.log('Raw landlord data:', rawLandlords);
 
-              // Handle different response formats
-              const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
+            const transformedLandlords: LandlordOption[] = rawLandlords.map((l: any) => {
+                const user = l.manager?.user;
+                return {
+                    id:    String(l.account_number),
+                    name:  `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+                    email: user?.account_email || '',
+                };
+            });
 
-              // Transform DB fields to match Dorm interface 
-              const transformed: Dorm[] = rawDorms
-                  .map((dorm: any) => ({
-                      id: String(dorm.housingId || ''), 
-                      name: dorm.name || 'Unknown', 
-                      status: 'Accepting', 
-                      dormitory: 'Unassigned', // Fix later in the query
-                      dormAddress: dorm.address || undefined, 
-                      managerEmail: undefined, // FIx later in the query
-                      capacity: dorm.occupancyRate|| undefined, 
-                      rooms: dorm.totalRooms || undefined,
-                      occupied: dorm.occupiedRooms || undefined,
-                      type: dorm.housingType
-                  }));
-
-              console.log('Transformed dorms:', transformed);
-
-              setDormList(transformed);
-          } catch (error) {
-              console.error('Error fetching dorms:', error);
-              setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
-              setDormList([]);
-              setManagersList([]);
-          } finally {
-              setLoading(false);
-          }
-      };
+            setDormList(transformed);
+            setLandlordList(transformedLandlords);
+        } catch (error) {
+            console.error('Error fetching dorms:', error);
+            setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
+            setDormList([]);
+            setLandlordList([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
       fetchDorms();
   }, []);
@@ -235,6 +250,7 @@ export default function DormManagementPage({
         open={showModal}
         onClose={() => setShowModal(false)}
         onAdd={handleAddDorm}
+        landlords={landlordList}
       />
 
       {/* Sidebar */}
