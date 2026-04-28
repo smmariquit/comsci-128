@@ -201,6 +201,46 @@ const promoteUserType = async (
 	}
 };
 
+const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
+    const email = googleUser.email;
+    const googleId = googleUser.identities?.[0]?.id;
+
+    const fullName = googleUser.user_metadata?.full_name || "";
+    const nameParts = fullName.split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
+
+    const existingUser = await userData.findByEmail(email);
+
+    if (existingUser) {
+        return existingUser;
+    }
+
+	// create user
+	const userDetails: NewUser = {
+		account_email: email,
+		contact_email: email,
+		first_name: firstName,
+		last_name: lastName,
+
+		middle_name: null,
+		birthday: null,
+		home_address: null,
+		phone_number: null,
+
+		sex: "Prefer not to say",
+		password: "", // No password for OAuth users
+		user_type: "Student",
+		google_identity: googleId,
+		profile_picture: null,
+		is_deleted: false,
+	};
+
+	const createdUser = await userData.create(userDetails);
+	return createdUser;
+}
+
+
 export const userService = {
 	addUser,
 	getUser,
@@ -209,4 +249,5 @@ export const userService = {
 	deactivateUser,
 	getUserCount,
 	getActiveUserCount,
+	findOrCreateGoogleUser,
 };
