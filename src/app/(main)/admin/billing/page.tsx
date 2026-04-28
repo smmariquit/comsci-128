@@ -9,7 +9,7 @@ import  IssueBillModal, {ViewBillModal} from "@/app/components/admin/billings/bi
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
-import { billingService } from "@/app/lib/services/billing-service";
+import { billingClient } from "@/app/lib/client/billing-client";
 import { Receipt, DollarSign, Check, Clock, AlertTriangle } from "lucide-react";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ export default function BillingPage() {
     if (!isLoading) setIsLoading(true);
 
     try {
-      const data = await billingService.fetchAllBills();
+      const data = await billingClient.fetchAllBills();
       setBills(data);
     } catch (error) {
       console.error("Refresh Load Error: ", error);
@@ -177,7 +177,7 @@ export default function BillingPage() {
     if (!confirm(`Mark transaction #${row.transaction_id} as paid?`)) return;
 
     try {
-      await billingService.markAsPaid(row.transaction_id);
+      await billingClient.markAsPaid(row.transaction_id);
       await loadBills();
     } catch (error) {
       console.error ("Error handleMarkPaid: ", error);
@@ -188,7 +188,7 @@ export default function BillingPage() {
     if (!confirm(`Mark transaction #${row.transaction_id} as deleted?`)) return;
 
     try {
-      await billingService.removeBill(row.transaction_id);
+      await billingClient.removeBill(row.transaction_id);
       await loadBills();
     } catch (error) {
       console.error ("Error handleDelete: ", error);
@@ -216,7 +216,7 @@ export default function BillingPage() {
           // const studentId = form.student_account_number ?? 
           //   bills.find(b => b.student_name === form.student_name)?.student_account_number;
 
-          return billingService.createBill({
+          return billingClient.createBill({
             student_account_number: studentId,
             bill_type: dbType,
             amount: parseFloat(charge.amount),

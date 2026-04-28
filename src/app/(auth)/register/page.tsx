@@ -2,11 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import { setCookie } from "@/app/lib/utils";
 
 
 
 export default function RegisterPage() {
   const router = useRouter();
+  const supabase = getSupabaseBrowserClient();
   const [form, setForm] = useState({
     first_name: "",
     middle_name: "",
@@ -51,10 +54,58 @@ export default function RegisterPage() {
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Registration failed.");
-      router.push("/student");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed.");
+      }
+
+      // Role-based redirection logic
+      const profile = data.user;
+      if (profile) {
+        const userType = profile.user_type?.toLowerCase();
+
+        await supabase.auth.updateUser({
+          data: { account_number: profile.account_number }
+        });
+
+        setCookie("account_number", String(profile.account_number), 1);
+        setCookie("is_logged_in", "true", 1);
+
+        if (userType === "manager") {
+          const managerType = data.manager_type?.toLowerCase();
+          setCookie("user_role", managerType || "manager", 1);
+        } else {
+          setCookie("user_role", userType, 1);
+        }
+
+        let target = "/";
+
+        if (userType === "student") {
+          target = "/student";
+        } else if (userType === "system admin" || userType === "admin") {
+          target = "/sys";
+        } else if (userType === "manager") {
+          // Fetch manager details to determine if they are a Housing Admin or Landlord
+          const { data: manager } = await supabase
+            .from("manager")
+            .select("manager_type")
+            .eq("account_number", profile.account_number)
+            .single();
+
+          const managerType = manager?.manager_type?.toLowerCase();
+          if (
+            managerType === "housing administrator" ||
+            managerType === "house admin"
+          ) {
+            target = "/admin";
+          } else {
+            target = "/manage";
+          }
+        }
+        router.push(target);
+      }
+    } catch (_err) {
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

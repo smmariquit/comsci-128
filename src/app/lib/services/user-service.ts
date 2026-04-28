@@ -4,7 +4,9 @@ import { userData } from "@/app/lib/data/user-data";
 import type { NewStudent, Student } from "@/models/student";
 import type { NewUser, UpdateUser, User } from "@/models/user";
 import type { NewStudentAcademic } from "../models/student_academic";
-import { supabase } from "../supabase";
+import { supabaseAdmin } from "../supabase-admin";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
 import { Role } from "../models/audit_log";
 
 type ServiceResponse<T> = { data?: T; error?: string };
@@ -12,7 +14,7 @@ type Public<T> = Omit<T, "account_number" | "password">;
 
 const allowedSex = ["Female", "Male", "Prefer not to say"];
 
-const addUser = async (userDetails: NewUser): Promise<Student> => {
+const addUser = async (userDetails: NewUser): Promise<User> => {
 	try {
 		const { account_email, first_name, last_name, password } = userDetails;
 
@@ -33,30 +35,29 @@ const addUser = async (userDetails: NewUser): Promise<Student> => {
 
 		// mock... replace once there's input for Student and StudentAcademic
 		const studentDetails: NewStudent = {
-			student_number: 2024000001,
-			sex: "Male",
-			birth_date: "2004-05-14",
-			mobile_number: "09171234567",
-			address: "123 Sample St, Quezon City, Metro Manila",
+			student_number: 0,
+            housing_status: 'Not Assigned',
 			emergency_contact_name: "Maria Santos",
 			emergency_contact_number: "09181234567",
+            emergency_contact_relationship: 'Mother'
 		} as NewStudent;
 
 		const studentAcademicDetails: NewStudentAcademic = {
 			degree_program: "BS Computer Science",
-			standing: "Sophomore",
+			standing: "Freshman",
 			status: "Active",
 		};
 
 		// Insert user
-		// const createdUser = await userData.createUser(userDetails);
-		const createdUserStudent = await studentData.create(
-			userDetails,
+		const createdUser = await userData.create(userDetails);
+		
+		await studentData.create(
+			createdUser.account_number,
 			studentDetails,
 			studentAcademicDetails,
 		);
 
-		return createdUserStudent;
+		return createdUser;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw error;
@@ -130,6 +131,9 @@ const deactivateUser = async (
 	email: string,
 ): Promise<Public<UpdateUser> | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.DELETE_ACCOUNT); 
+
 		const updatedUser = await userData.deactivate(email);
 		if (!updatedUser) return null;
 
