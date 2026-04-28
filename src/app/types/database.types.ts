@@ -602,11 +602,12 @@ export type Database = {
           birthday: string | null
           contact_email: string | null
           first_name: string
+          google_identity: string | null
           home_address: string | null
           is_deleted: boolean | null
           last_name: string
           middle_name: string | null
-          password: string
+          password: string | null
           phone_number: string | null
           profile_picture: string | null
           sex: Database["public"]["Enums"]["Sex"]
@@ -614,15 +615,16 @@ export type Database = {
         }
         Insert: {
           account_email: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name: string
+          google_identity?: string | null
           home_address?: string | null
           is_deleted?: boolean | null
           last_name: string
           middle_name?: string | null
-          password: string
+          password?: string | null
           phone_number?: string | null
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
@@ -630,15 +632,16 @@ export type Database = {
         }
         Update: {
           account_email?: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name?: string
+          google_identity?: string | null
           home_address?: string | null
           is_deleted?: boolean | null
           last_name?: string
           middle_name?: string | null
-          password?: string
+          password?: string | null
           phone_number?: string | null
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
