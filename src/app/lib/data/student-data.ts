@@ -73,6 +73,7 @@ async function findStudentProfileById(
             contact_email,
             profile_picture,
             user_type,
+            google_identity,
             student:student_account_number_fkey(
                 account_number,
                 student_number,

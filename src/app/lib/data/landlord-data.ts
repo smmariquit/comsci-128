@@ -32,7 +32,9 @@ async function create(userDetails: NewUser, managerDetails: NewManager) {
 
 // Read all landlords with user details
 async function getAll() {
-	const { data, error } = await supabase.from("landlord").select(`
+  const { data, error } = await supabase
+    .from("landlord")
+    .select(`
       account_number,
       manager:landlord_account_number_fkey (
         manager_type,
@@ -52,60 +54,63 @@ async function getAll() {
         )
       )
     `);
-
-	if (error) {
-		console.error("Error fetching landlords:", error.message);
-		return { data: null, error };
-	}
-
-	return { data, error: null };
+ 
+  if (error) {
+    console.error("Error fetching landlords:", error.message);
+    return { data: null, error };
+  }
+ 
+  return { data, error: null };
 }
 
 // Read single landlord with user details by account_number
 async function getById(accountNumber: number) {
-	const { data, error } = await supabase
-		.from("landlord")
-		.select(`
-			account_number,
-			manager!inner (
-				manager_type,
-				user!inner (
-					account_number,
-					account_email,
-					first_name,
-					middle_name,
-					last_name,
-					sex,
-					birthday,
-					home_address,
-					phone_number,
-					contact_email,
-					user_type,
-				)
-			)
-		`)
-		.eq("account_number", accountNumber)
-		.eq("is_deleted", false)
-		.single();
-
-	if (error) {
-		console.error("Error fetching landlord:", error.message);
-		return { data: null, error };
-	}
-
-	return { data, error: null };
+  const { data, error } = await supabase
+    .from("landlord")
+    .select(`
+      account_number,
+      manager:account_number (
+        manager_type,
+        user:account_number (
+          account_number,
+          account_email,
+          first_name,
+          middle_name,
+          last_name,
+          sex,
+          birthday,
+          home_address,
+          phone_number,
+          contact_email,
+          user_type,
+          is_deleted
+        )
+      )
+    `)
+    .eq("account_number", accountNumber)
+    .single();
+ 
+  if (error) {
+    console.error("Error fetching landlord:", error.message);
+    return { data: null, error };
+  }
+ 
+  return { data, error: null };
 }
 
 // Count the number of students who are in a dormitory that is managed by a certain landlord number
-async function getTotalTenantsByLandlord(accountNumber: number) {
+export async function getTotalTenantsByLandlord(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("student_accommodation_history")
-		.select(`
-			account_number,
-			room!inner(
-				housing!inner(manager_account_number)
-			)
-		`, { count: "exact", head: true })
+		.select(
+			`
+        account_number,
+        room:room_id!inner(
+          housing:housing_id!inner(manager_account_number)
+        )
+      `,
+			{ count: "exact", head: true },
+		)
 		.eq("room.housing.manager_account_number", accountNumber);
 
 	if (error) {
@@ -127,12 +132,14 @@ async function getTotalTenantsByLandlord(accountNumber: number) {
 async function getTotalTenantsManaged(accountNumber: number) {
 	const { count, error } = await supabase
 		.from("student_accommodation_history")
-		.select(`
-			account_number,
-			room!inner(
-				housing!inner(landlord_account_number)
-			)
-      		`, { count: "exact", head: true }
+		.select(
+			`
+        account_number,
+        room:room_id!inner(
+          housing:housing_id!inner(landlord_account_number)
+        )
+      `,
+			{ count: "exact", head: true },
 		)
 		.eq("room.housing.landlord_account_number", accountNumber);
 
@@ -147,12 +154,14 @@ async function getTotalTenantsManaged(accountNumber: number) {
 async function getGrossRevenue(accountNumber: number) {
 	const { data: tenants, error: tenantError } = await supabase
 		.from("student_accommodation_history")
-		.select(`
-			account_number,
-			room!inner(
-			housing!inner(landlord_account_number)
-			)
-      	`)
+		.select(
+			`
+        account_number,
+        room:room_id!inner(
+          housing:housing_id!inner(landlord_account_number)
+        )
+      `,
+		)
 		.eq("room.housing.landlord_account_number", accountNumber);
 
 	if (tenantError) {
@@ -222,7 +231,6 @@ export const landlordData = {
 	getAll,
 	getById,
 	getPendingAdminApplications,
-	getTotalTenantsByLandlord,
 	getTotalRoomsManaged,
 	getTotalProperties,
 	getTotalTenantsManaged,
