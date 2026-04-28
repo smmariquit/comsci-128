@@ -68,30 +68,52 @@ export default function AddDormModal({
   const handleClose = () => { reset(); onClose(); };
 
 // Submit handler
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const manager    = managers.find((m) => m.id === managerId);
     const rooms      = parseInt(totalRooms)      || 0;
     const capPerRoom = parseInt(capacityPerRoom) || 0;
 
-    const newDorm: NewDorm = {
-      id:              Date.now().toString(),
-      name:            dormName,
-      dormAddress:     address,
-      description:     description || undefined,
-      rooms,
-      capacity:        rooms * capPerRoom,
-      capacityPerRoom: capPerRoom,
-      monthlyRate:     parseFloat(monthlyRate)     || 0,
-      securityDeposit: parseFloat(securityDeposit) || 0,
-      managerEmail:    manager?.email,
-      dormitory:       manager?.name ?? '',
-      // Map Active → Accepting; anything else → Disabled (matches User.status)
-      status:          status === 'Active' ? 'Accepting' : 'Disabled',
-      occupied:        0,
-    };
+    try {
+        const response = await fetch('/api/housing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                housing_name:    dormName,
+                housing_address: address,
+                
+                housing_type:    'UP Housing',       // or add a toggle in the form
+                rent_price:      parseFloat(monthlyRate) || 0,
+                manager_account_number: managerId ? Number(managerId) : undefined,
+            }),
+        });
 
-    onAdd(newDorm);
-    handleClose();
+        if (!response.ok) throw new Error('Failed to add dormitory');
+
+        const data = await response.json();
+
+        // Build local state object from API response
+        const newDorm: NewDorm = {
+            id:              String(data.data?.housing_id || Date.now()),
+            name:            dormName,
+            dormAddress:     address,
+            description:     description || undefined,
+            rooms,
+            capacity:        rooms * capPerRoom,
+            capacityPerRoom: capPerRoom,
+            monthlyRate:     parseFloat(monthlyRate)     || 0,
+            securityDeposit: parseFloat(securityDeposit) || 0,
+            managerEmail:    manager?.email,
+            dormitory:       manager?.name ?? '',
+            status:          'Accepting',
+            occupied:        0,
+        };
+
+        onAdd(newDorm);
+        handleClose();
+    } catch (err) {
+        console.error('Error adding dorm:', err);
+        alert('Failed to add dormitory');
+    }
   };
   return (
     /* Backdrop */
