@@ -7,6 +7,7 @@ import type { NewStudentAcademic } from "../models/student_academic";
 import { supabaseAdmin } from "../supabase-admin";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
+import { Role } from "../models/audit_log";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 type Public<T> = Omit<T, "account_number" | "password">;
@@ -17,59 +18,32 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 	try {
 		const { account_email, first_name, last_name, password } = userDetails;
 
-		// required fields check
+		// Check if email already exists
+		const existing = await userData.findByEmail(account_email);
+		if (existing) throw new Error("Email already in use.");
+
+		// Check fields that are required
 		if (!account_email) throw new Error("Email is required.");
 		if (!first_name) throw new Error("First name is required.");
 		if (!last_name) throw new Error("Last name is required.");
 		if (!password) throw new Error("Password is required");
-
-		// validate sex
-
-		if (userDetails.sex && !allowedSex.includes(userDetails.sex)) {
-			throw new Error(
-				`Invalid sex value. Must be one of: ${allowedSex.join(", ")}`,
-			);
-		}
-
-		// Check if email already exists
-		const { data: existingUser } = await supabaseAdmin
-			.from("user")
-			.select("*")
-			.eq("account_email", account_email)
-			.single();
-		if (existingUser) throw new Error("Email already in use.");
-
+		// Student default
+		userDetails.user_type = "Student";
 		// Hash pw
 		const salt = await bcrypt.genSalt(12);
-		const hashedPassword = await bcrypt.hash(password, salt);
-		userDetails.password = hashedPassword;
-		userDetails.user_type = "Student";
-		userDetails.sex = userDetails.sex || "Prefer not to say";
+		userDetails.password = await bcrypt.hash(password, salt);
 
-		// create supabase auth user
-		const { data: authData, error: authError } =
-			await supabaseAdmin.auth.admin.createUser({
-				email: account_email,
-				password,
-				email_confirm: true,
-			});
-
-		if (authError) {
-			throw new Error(authError.message);
-		}
-
-		const _user = authData.user;
-
-		// Mock student record
+		// mock... replace once there's input for Student and StudentAcademic
 		const studentDetails: NewStudent = {
-			student_number: Math.floor(100000 + Math.random() * 900000),
-			housing_status: "Not Assigned",
-			emergency_contact_name: null,
-			emergency_contact_number: null,
-			emergency_contact_relationship: null,
-		};
+			student_number: 2024000001,
+			sex: "Male",
+			birth_date: "2004-05-14",
+			mobile_number: "09171234567",
+			address: "123 Sample St, Quezon City, Metro Manila",
+			emergency_contact_name: "Maria Santos",
+			emergency_contact_number: "09181234567",
+		} as NewStudent;
 
-		// mock... replace once there's input for StudentAcademic
 		const studentAcademicDetails: NewStudentAcademic = {
 			degree_program: "BS Computer Science",
 			standing: "Sophomore",
@@ -156,7 +130,7 @@ const updateUser = async (
 };
 
 const deactivateUser = async (
-	userId: number,
+	email: string,
 ): Promise<Public<UpdateUser> | null> => {
 	try {
 		// RBAC
@@ -196,6 +170,36 @@ const getActiveUserCount = async (): Promise<number | null> => {
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Error");
+	}
+};
+
+const promoteUserType = async (
+	account_email: string,
+	userType: Role,
+	insertTable: string,
+): Promise<ServiceResponse<any>> => {
+	try {
+		const updatedUser = await userData.promote(account_email, {
+			user_type: userType,
+		});
+
+		if (!updatedUser) {
+			return { error: "User not found" };
+		}
+
+		// Insert in the table of the current role
+		if (userType == "Student") {
+		}
+
+		if (userType == "Manager") {
+		}
+
+		const { account_number, password, ...safeUser } = updatedUser;
+
+		return { data: safeUser };
+	} catch (error: any) {
+		console.error("Error:", error.message);
+		return { error: "Failed to update user type" };
 	}
 };
 

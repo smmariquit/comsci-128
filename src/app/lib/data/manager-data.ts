@@ -32,6 +32,17 @@ const getAll = async () => {
 		.eq("is_deleted", false);
 };
 
+// GET manager count
+const getCount = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("manager")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
+};
+
 // FIND manager by ID
 const findById = async (account_number: number) => {
 	const { data, error } = await supabase
@@ -63,6 +74,7 @@ const findManagerProfileById = async (
             contact_email,
             profile_picture,
             user_type,
+            google_identity,
             manager:manager_account_number_fkey(
                 account_number,
                 manager_type,
@@ -126,10 +138,7 @@ const deactivate = async (account_number: number) => {
 
 // CREATE manager bank
 const createBankDetails = async (bankData: any) => {
-	return await supabase
-		.from("manager_bank")
-		.insert([bankData])
-		.select();
+	return await supabase.from("manager_bank").insert([bankData]).select();
 };
 
 // READ banks using manager
@@ -158,6 +167,8 @@ const deleteBankDetails = async (bank_number: number) => {
 		.eq("bank_number", bank_number)
 		.select();
 };
+
+// manager_payment_details
 
 // CREATE manager_payment
 const addPaymentDetails = async (paymentData: any) => {
@@ -572,6 +583,7 @@ const getAllBillings = async () => {
 export const managerData = {
 	create,
 	getAll,
+	getCount,
 	findById,
 	update,
 	findManagerProfileById,

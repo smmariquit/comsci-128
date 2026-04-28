@@ -280,7 +280,7 @@ export type Database = {
             foreignKeyName: "housing_manager_account_number_fkey"
             columns: ["manager_account_number"]
             isOneToOne: false
-            referencedRelation: "housing_admin"
+            referencedRelation: "user"
             referencedColumns: ["account_number"]
           },
         ]
@@ -479,6 +479,7 @@ export type Database = {
           emergency_contact_number: string | null
           emergency_contact_relationship: string | null
           housing_status: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted: boolean
           student_number: number
         }
         Insert: {
@@ -487,6 +488,7 @@ export type Database = {
           emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
           housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted?: boolean
           student_number: number
         }
         Update: {
@@ -495,6 +497,7 @@ export type Database = {
           emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
           housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted?: boolean
           student_number?: number
         }
         Relationships: [
@@ -599,11 +602,12 @@ export type Database = {
           birthday: string | null
           contact_email: string | null
           first_name: string
+          google_identity: string | null
           home_address: string | null
           is_deleted: boolean | null
           last_name: string
           middle_name: string | null
-          password: string
+          password: string | null
           phone_number: string | null
           profile_picture: string | null
           sex: Database["public"]["Enums"]["Sex"]
@@ -611,15 +615,16 @@ export type Database = {
         }
         Insert: {
           account_email: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name: string
+          google_identity?: string | null
           home_address?: string | null
           is_deleted?: boolean | null
           last_name: string
           middle_name?: string | null
-          password: string
+          password?: string | null
           phone_number?: string | null
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
@@ -627,15 +632,16 @@ export type Database = {
         }
         Update: {
           account_email?: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name?: string
+          google_identity?: string | null
           home_address?: string | null
           is_deleted?: boolean | null
           last_name?: string
           middle_name?: string | null
-          password?: string
+          password?: string | null
           phone_number?: string | null
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
