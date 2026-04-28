@@ -102,7 +102,7 @@ export default function LandingPage() {
               {/* CTA buttons */}
               <div className="fade-up-delay flex items-start gap-3">
                 <Link
-                  href="/student/housing"
+                  href="/student/browse"
                   className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md"
                 >
                   Find a Dorm

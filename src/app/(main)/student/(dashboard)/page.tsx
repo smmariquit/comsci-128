@@ -29,22 +29,12 @@ export default async function DashboardPage() {
 
     return (
         // MAIN PAGE
-        <div
-            style={{
-                width: "100%",
-                minHeight: "100%",
-                background: "#1C2632",
-                display: "inline-flex",
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                alignItems: "stretch",
-            }}
-        >
+        <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
             {/* NAVBAR */}
             <StudentNavBar path={"Dashboard"} userId={currUser?.account_number} />
 
             {/* BODY */}
-            <div className="self-stretch flex-1 px-9 py-4 bg-stone-200 flex flex-col justify-start items-center gap-4 overflow-hidden">
+            <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col justify-start items-center gap-4 overflow-hidden">
                 {DashboardContent(userHousingStatus?.housing_status)}
             </div>
         </div>
