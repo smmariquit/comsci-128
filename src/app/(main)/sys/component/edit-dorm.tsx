@@ -11,6 +11,13 @@ type DormType   = "Mixed" | "Male Only" | "Female Only";
 export interface DormManager {
   id: string | number;
   name: string;
+  email: string;
+}
+
+export interface DormLandlord {
+  id: string | number;
+  name: string;
+  email: string;
 }
 
 export interface EditDormData {
@@ -31,8 +38,8 @@ export interface EditDormModalProps {
   /** List of eligible managers to pick from */
   onClose: () => void;
   onSave: (dormId: EditDormData["id"], updates: Partial<EditDormData>) => void;
-  managers?: { id: string; name: string}[];
-  landlords?: { id: string; name: string }[];
+  managers?: DormManager[];
+  landlords?: DormLandlord[];
 }
 
 // Constants
@@ -74,36 +81,67 @@ export function EditDormModal({
   const [selectedManager, setSelectedManager] = useState<DormManager | null>(
     () => (managers ?? []).find((m) => m.name === dorm.dormitory) ?? null
   );
-  const [query,    setQuery]    = useState("");
-  const [open,     setOpen]     = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedLandlord, setSelectedLandlord] = useState<DormLandlord | null>(
+    () => (landlords ?? []).find((l) => l.name === dorm.dormitory) ?? null
+  );
+  const [managerQuery, setManagerQuery] = useState("");
+  const [managerOpen, setManagerOpen] = useState(false);
+
+  const [landlordQuery, setLandlordQuery] = useState("");
+  const [landlordOpen, setLandlordOpen] = useState(false);
+  const managerRef = useRef<HTMLDivElement>(null);
+  const landlordRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setQuery("");
+      const target = e.target as Node;
+
+      if (managerRef.current && !managerRef.current.contains(target)) {
+        setManagerOpen(false);
+        setManagerQuery("");
+      }
+
+      if (landlordRef.current && !landlordRef.current.contains(target)) {
+        setLandlordOpen(false);
+        setLandlordQuery("");
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+    // Filter managers and landlord list while typing
+    const filteredManagers = useMemo(() => {
+      const list = managers ?? [];
 
-  // Filter managers list while typing
-  const filteredManagers = useMemo(() => {
-  const list = managers ?? [];
+      const q = managerQuery.toLowerCase();
 
-  if (!query) return list;
+      if (!q) return list;
 
-  return list.filter(
-    (m) =>
-      m.name.toLowerCase().includes(query.toLowerCase())
-  );
-}, [query, managers]);
+      return list.filter(
+        (m) =>
+          m.name.toLowerCase().includes(q) ||
+          m.email.toLowerCase().includes(q)
+      );
+    }, [managerQuery, managers]);
+
+    const filteredLandlords = useMemo(() => {
+      const list = landlords ?? [];
+      const q = landlordQuery.toLowerCase();
+
+      if (!q) return list;
+
+      return list.filter(
+        (l) =>
+          l.name.toLowerCase().includes(q) ||
+          l.email.toLowerCase().includes(q)
+      );
+    }, [landlordQuery, landlords]);
 
   // What's shown in the manager input field
-  const managerDisplayValue = query !== "" ? query : (selectedManager?.name ?? "");
+  const managerDisplayValue = managerQuery !== "" ? managerQuery : (selectedManager?.name ?? "");
+  const landlordDisplayValue = landlordQuery !== "" ? landlordQuery : (selectedLandlord?.name ?? "");
 
   function handleSave() {
     onSave(dorm.id, {
@@ -285,7 +323,7 @@ export function EditDormModal({
               <p className="text-sm font-bold text-[#1a2332]">Manager &amp; Status</p>
 
               {/* Assign Manager — searchable, mirrors "Assign to Dormitory" in EditUserModal */}
-              <div ref={containerRef} className="relative space-y-1.5">
+              <div ref={managerRef} className="relative space-y-1.5">
                 <label className="block text-xs font-semibold text-[#b85c28]">
                   Assign Manager
                 </label>
@@ -316,20 +354,20 @@ export function EditDormModal({
                 <input
                   value={managerDisplayValue}
                   onChange={(e) => {
-                    setQuery(e.target.value);
+                    setManagerQuery(e.target.value);
                     setSelectedManager(null);
-                    setOpen(true);
+                    setManagerOpen(true);
                   }}
                   onFocus={() => {
-                    setQuery("");
-                    setOpen(true);
+                    setManagerQuery("");
+                    setManagerOpen(true);
                   }}
                   placeholder="Search by name or email…"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
                 />
 
                 {/* Dropdown */}
-                {open && (
+                {managerOpen && (
                   <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-52 overflow-y-auto">
                     {filteredManagers.length > 0 ? (
                       filteredManagers.map((m) => (
@@ -339,8 +377,8 @@ export function EditDormModal({
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
                             setSelectedManager(m);
-                            setQuery("");
-                            setOpen(false);
+                            setManagerQuery("");
+                            setManagerOpen(false);
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-200
                             ${m.id === selectedManager?.id ? "bg-[#fdf0e8]" : ""}`}
@@ -351,6 +389,9 @@ export function EditDormModal({
                           <div className="flex-1 min-w-0">
                             <p className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
                               {m.name}
+                            </p>
+                            <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">
+                              {m.email}
                             </p>
                            
                           </div>  
@@ -367,8 +408,8 @@ export function EditDormModal({
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
                         setSelectedManager(null);
-                        setQuery("");
-                        setOpen(false);
+                        setManagerQuery("");
+                        setManagerOpen(false);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-[#1a2332]/40 italic hover:bg-gray-200 border-t border-gray-200 transition-colors"
                     >
@@ -378,8 +419,115 @@ export function EditDormModal({
                 )}
               </div>
 
+              
+
               {/* Status */}
               
+            </div>
+
+            {/* Assign Landlord — searchable dropdown */}
+            <div ref={landlordRef} className="relative space-y-1.5">
+              <label className="block text-xs font-semibold text-[#1a2332]">
+                Assign Landlord
+              </label>
+
+              {/* Current landlord preview */}
+              {selectedLandlord && (
+                <div className="flex items-center gap-2.5 px-4 py-2.5 mb-1 bg-[#e8f0fd] border border-blue-200 rounded-xl">
+                  <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-bold text-white">
+                      {getInitials(selectedLandlord.name)}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-blue-700 truncate">
+                      {selectedLandlord.name}
+                    </p>
+                  </div>
+
+                  {/* Clear selection */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLandlord(null)}
+                    className="shrink-0 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-200 transition-colors"
+                    aria-label="Clear landlord"
+                  >
+                    <X size={11} className="text-blue-700" />
+                  </button>
+                </div>
+              )}
+
+              {/* Input */}
+              <input
+                value={landlordDisplayValue}
+                onChange={(e) => {
+                  setLandlordQuery(e.target.value);
+                  setSelectedLandlord(null);
+                  setLandlordOpen(true);
+                }}
+                onFocus={() => {
+                  setLandlordQuery("");
+                  setLandlordOpen(true);
+                }}
+                placeholder="Search landlord by name or email…"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-blue-400 transition-colors"
+              />
+
+              {/* Dropdown */}
+              {landlordOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-52 overflow-y-auto">
+                  {filteredLandlords.length > 0 ? (
+                    filteredLandlords.map((l) => (
+                      <button
+                        key={l.id}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          setSelectedLandlord(l);
+                          setLandlordQuery("");
+                          setLandlordOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-200
+                          ${l.id === selectedLandlord?.id ? "bg-[#e8f0fd]" : ""}`}
+                      >
+                        <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                          <span className="text-[10px] font-bold text-white">
+                            {getInitials(l.name)}
+                          </span>
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-[#1a2332] truncate">
+                            {l.name}
+                          </p>
+                          <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">
+                            {l.email}
+                          </p>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-400">
+                      No landlords found
+                    </div>
+                  )}
+
+                  {/* Unassign option */}
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => {
+                      setSelectedLandlord(null);
+                      setLandlordQuery("");
+                      setLandlordOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-[#1a2332]/40 italic hover:bg-gray-200 border-t border-gray-200 transition-colors"
+                  >
+                    Unassigned
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Warning */}
