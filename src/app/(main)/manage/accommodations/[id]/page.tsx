@@ -3,6 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Accommodation Details",
+  description: "View details, rooms, and occupancy for this accommodation.",
 };
 import { housingService } from "@/app/lib/services/housing-service";
 import { accommodationHistoryService } from "@/app/lib/services/accommodation-history-service";

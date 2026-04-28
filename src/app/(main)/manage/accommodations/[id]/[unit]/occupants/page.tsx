@@ -3,6 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Occupants",
+  description: "View and manage current occupants of this room",
 };
 
 export default function Page() {
