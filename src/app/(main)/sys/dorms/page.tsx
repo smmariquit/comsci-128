@@ -143,17 +143,16 @@ export default function DormManagementPage({
             // Transform dorms
             const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
             const transformed: Dorm[] = rawDorms.map((dorm: any) => ({
-                id:           String(dorm.housing_id || ''),
-                name:         dorm.housing_name || 'Unknown',
-                status:       dorm.is_deleted ? 'Disabled' : 'Accepting',
-                dormitory:    'Unassigned',
-                dormAddress:  dorm.housing_address || undefined,
-                managerEmail: undefined,
-                capacity:     dorm.occupancy_rate || undefined,
-                rooms:        dorm.total_rooms || undefined,
-                occupied:     dorm.occupied_rooms || undefined,
+              id:           String(dorm.housingId),
+              name:         dorm.name || 'Unknown',
+              status:       'Accepting', // or compute if needed
+              dormitory:    'Unassigned',
+              dormAddress:  dorm.address || undefined,
+              managerEmail: undefined,
+              capacity:     dorm.totalRooms || undefined, // or compute later
+              rooms:        dorm.totalRooms || undefined,
+              occupied:     dorm.occupiedRooms || undefined,
             }));
-
             // Transform landlords
             const rawLandlords = Array.isArray(landlordData) ? landlordData : Array.isArray(landlordData.data) ? landlordData.data : [];
             console.log('Raw landlord data:', rawLandlords);
@@ -167,15 +166,16 @@ export default function DormManagementPage({
                 };
             });
 
-            const rawManagers = Array.isArray(managerData) ? managerData : Array.isArray(managerData.data) ? managerData.data : [];
+            const rawManagers = managerData?.data?.data ?? [];
             const transformedManagers = rawManagers.map((m: any) => {
-                const user = m.manager?.user;
-                return {
-                    id:   String(m.account_number),
-                    name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
-                    email: user?.account_email || '',
-                };
+              const user = m.manager?.user;
+              return {
+                id: String(m.account_number),
+                name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+                email: user?.account_email || '',
+              };
             });
+
 
             setDormList(transformed);
             setLandlordList(transformedLandlords);
