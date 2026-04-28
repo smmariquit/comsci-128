@@ -13,11 +13,10 @@ async function create(housingDetails: HousingInsert): Promise<Housing | null> {
   const { data: newRecord, error } = await supabase
     .from("housing")
     .insert(housingDetails)
-    .select()
-    .single();
+    .select();
 
   if (error) throw new Error(error.message);
-  return newRecord;
+  return newRecord[0];
 }
 
 // Fetches all active dorms, sorted alphabetically
@@ -42,13 +41,12 @@ async function findWithRooms(id: number): Promise<HousingWithRooms> {
 		`,
     )
     .eq("housing_id", id)
-    .eq("is_deleted", false)
-    .single();
+    .eq("is_deleted", false);
 
   if (error) throw new Error(error.message);
   //Filter deleted rooms
-  data.room = data.room?.filter((room: any) => !room.is_deleted) ?? [];
-  return data;
+  data[0].room = data[0].room?.filter((room: any) => !room.is_deleted) ?? [];
+  return data[0];
 }
 
 // Fetches a specific dorm by its unique ID
@@ -57,14 +55,13 @@ async function findById(id: number): Promise<Housing | null> {
     .from("housing")
     .select("*")
     .eq("housing_id", id)
-    .eq("is_deleted", false)
-    .single();
+    .eq("is_deleted", false);
 
   if (error) {
     if (error.code === "PGRST116") return null;
     throw new Error(error.message);
   }
-  return data;
+  return data[0];
 }
 
 async function update(
@@ -75,15 +72,14 @@ async function update(
     .from("housing")
     .update(housingDetails)
     .eq("housing_id", housingId)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     if (error.code === "PGRST116") return null;
     throw new Error(error.message);
   }
 
-  return data;
+  return data[0];
 }
 
 //deletes a housing
@@ -92,15 +88,14 @@ async function deactivate(housingId: number): Promise<Housing | null> {
     .from("housing")
     .update({ is_deleted: true }) // Soft delete
     .eq("housing_id", housingId)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     if (error.code === "PGRST116") return null;
     throw new Error(error.message);
   }
 
-  return data;
+  return data[0];
 }
 
 // List all rooms
@@ -298,10 +293,27 @@ async function getStudentsHoused(managerId: number, housingId: number) {
     .from("housing")
     .select(`
       *,
-      room!inner(*),
-      student_accommodation_history!inner(*),
-      student!inner(*),
-      user!inner(*)
+      room!inner(
+        *,
+        student_accommodation_history!inner(
+          *,
+          student!inner(
+            *,
+            user!inner(
+              first_name,
+              middle_name,
+              last_name,
+              account_email,
+              home_address,
+              birthday,
+              phone_number,
+              contact_email,
+              sex,
+              profile_picture
+            )
+          )
+        )
+      )
     `)
     .eq("housing.housing_id", housingId)
     .eq("housing.manager_account_number", managerId);
