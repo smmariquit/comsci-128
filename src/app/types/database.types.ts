@@ -131,7 +131,7 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: false
             referencedRelation: "user"
-            referencedColumns: ["account_number_draft"]
+            referencedColumns: ["account_number"]
           },
           {
             foreignKeyName: "audit_log_assigned_manager_fkey"
@@ -281,7 +281,7 @@ export type Database = {
             columns: ["manager_account_number"]
             isOneToOne: false
             referencedRelation: "user"
-            referencedColumns: ["account_number_draft"]
+            referencedColumns: ["account_number"]
           },
         ]
       }
@@ -344,7 +344,7 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: true
             referencedRelation: "user"
-            referencedColumns: ["account_number_draft"]
+            referencedColumns: ["account_number"]
           },
         ]
       }
@@ -506,7 +506,7 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: true
             referencedRelation: "user"
-            referencedColumns: ["account_number_draft"]
+            referencedColumns: ["account_number"]
           },
         ]
       }
@@ -591,14 +591,14 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: true
             referencedRelation: "user"
-            referencedColumns: ["account_number_draft"]
+            referencedColumns: ["account_number"]
           },
         ]
       }
       user: {
         Row: {
           account_email: string
-          account_number_draft: number
+          account_number: number
           birthday: string | null
           contact_email: string | null
           first_name: string
@@ -615,7 +615,7 @@ export type Database = {
         }
         Insert: {
           account_email: string
-          account_number_draft?: number
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name: string
@@ -632,7 +632,7 @@ export type Database = {
         }
         Update: {
           account_email?: string
-          account_number_draft?: number
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name?: string
