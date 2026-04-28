@@ -11,7 +11,6 @@ type DormType   = "Mixed" | "Male Only" | "Female Only";
 export interface DormManager {
   id: string | number;
   name: string;
-  email: string;
 }
 
 export interface EditDormData {
@@ -25,15 +24,15 @@ export interface EditDormData {
   status: DormStatus | string;
   /** Manager name currently displayed in the table (dormitory field) */
   dormitory?: string;
-  managerEmail?: string;
 }
 
 export interface EditDormModalProps {
   dorm: EditDormData;
   /** List of eligible managers to pick from */
-  managers?: DormManager[];
   onClose: () => void;
   onSave: (dormId: EditDormData["id"], updates: Partial<EditDormData>) => void;
+  managers?: { id: string; name: string}[];
+  landlords?: { id: string; name: string }[];
 }
 
 // Constants
@@ -56,7 +55,8 @@ function getInitials(name: string) {
 
 export function EditDormModal({
   dorm,
-  managers = [],
+  managers,
+  landlords,
   onClose,
   onSave,
 }: EditDormModalProps) {
@@ -72,7 +72,7 @@ export function EditDormModal({
 
   // Manager searchable dropdown — mirrors "Assign to Dormitory" in EditUserModal
   const [selectedManager, setSelectedManager] = useState<DormManager | null>(
-    () => managers.find((m) => m.name === dorm.dormitory) ?? null
+    () => (managers ?? []).find((m) => m.name === dorm.dormitory) ?? null
   );
   const [query,    setQuery]    = useState("");
   const [open,     setOpen]     = useState(false);
@@ -92,13 +92,15 @@ export function EditDormModal({
 
   // Filter managers list while typing
   const filteredManagers = useMemo(() => {
-    if (!query) return managers;
-    return managers.filter(
-      (m) =>
-        m.name.toLowerCase().includes(query.toLowerCase()) ||
-        m.email.toLowerCase().includes(query.toLowerCase())
-    );
-  }, [query, managers]);
+  const list = managers ?? [];
+
+  if (!query) return list;
+
+  return list.filter(
+    (m) =>
+      m.name.toLowerCase().includes(query.toLowerCase())
+  );
+}, [query, managers]);
 
   // What's shown in the manager input field
   const managerDisplayValue = query !== "" ? query : (selectedManager?.name ?? "");
@@ -113,7 +115,6 @@ export function EditDormModal({
       description: description.trim() || undefined,
       status,
       dormitory:   selectedManager?.name  ?? undefined,
-      managerEmail: selectedManager?.email ?? undefined,
     });
     onClose();
   }
@@ -299,7 +300,6 @@ export function EditDormModal({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-[#b85c28] truncate">{selectedManager.name}</p>
-                      <p className="text-[10px] text-[#b85c28]/60 font-mono truncate">{selectedManager.email}</p>
                     </div>
                     {/* Clear selection */}
                     <button
@@ -352,8 +352,8 @@ export function EditDormModal({
                             <p className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
                               {m.name}
                             </p>
-                            <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">{m.email}</p>
-                          </div>
+                           
+                          </div>  
                         </button>
                       ))
                     ) : (

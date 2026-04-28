@@ -145,11 +145,11 @@ export default function DormManagementPage({
             const transformed: Dorm[] = rawDorms.map((dorm: any) => ({
               id:           String(dorm.housingId),
               name:         dorm.name || 'Unknown',
-              status:       'Accepting', // or compute if needed
+              status:       'Accepting',
               dormitory:    'Unassigned',
               dormAddress:  dorm.address || undefined,
               managerEmail: undefined,
-              capacity:     dorm.totalRooms || undefined, // or compute later
+              capacity:     dorm.totalRooms || undefined,
               rooms:        dorm.totalRooms || undefined,
               occupied:     dorm.occupiedRooms || undefined,
             }));
