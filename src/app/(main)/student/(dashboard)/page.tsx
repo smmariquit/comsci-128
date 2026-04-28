@@ -8,6 +8,7 @@ import NotAssignedDashboard from "./_components/NotAssignedDashboard";
 
 export const metadata: Metadata = {
     title: "Student Dashboard",
+    description: "View your housing statis, billing, and accommodation details.s",
 };
 
 export default async function DashboardPage() {
