@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { UserType, HousingStatus } from "./usertable";
-import { Search } from "lucide-react";
 
 export type UserTypeFilter    = "All" | UserType;
 export type HousingFilter     = "All" | HousingStatus;

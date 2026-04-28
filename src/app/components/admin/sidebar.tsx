@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   BarChart3,
   BedDouble,

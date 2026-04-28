@@ -129,36 +129,7 @@ async function getHousingCardsData() {
             *,
             room!inner(*)
         `)
-        .eq("is_deleted", false)
-        .order("housing_name", { ascending: true });
-
-    if (error) throw new Error(error.message);
-
-    // map and calculate the exact props needed for the DormCard
-    return housings.map((housing) => {
-        const activeRooms = housing.room?.filter((r: any) => !r.is_deleted) || [];
-        
-        const totalRooms = activeRooms.length;
-        const vacantRooms = activeRooms.filter((r: any) => r.occupancy_status === "Empty").length;
-        const occupiedRooms = totalRooms - vacantRooms;
-        
-        const occupancyRate = totalRooms > 0 
-            ? Math.round((occupiedRooms / totalRooms) * 100) 
-            : 0;
-
-        return {
-    housingId: housing.housing_id.toString(),
-    name: housing.housing_name,
-    address: housing.housing_address,
-    totalRooms,
-    occupiedRooms,
-    vacantRooms,
-    occupancyRate,
-    minRent: housing.rent_price,
-    imageUrl: housing.housing_image ?? undefined,  // ← add this
-};
-    });
-    .eq("is_deleted", false)
+  .eq("is_deleted", false)
     .order("housing_name", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -185,6 +156,7 @@ async function getHousingCardsData() {
       vacantRooms,
       occupancyRate,
       minRent: housing.rent_price,
+      imageUrl: housing.housing_image ?? undefined,
     };
   });
 }
@@ -303,7 +275,7 @@ async function getStudentsByRoom(roomId: number) {
     //.eq("application_status", "Approved")
     .is("moveout_date", null);
 
-  if (error) throw new Error ("failed to fetch students: " + error.message);
+  if (error) throw new Error(`failed to fetch students: ${error.message}`);
 
   return (data || []).map((app: any) => ({
     account_number: app.account_number,
@@ -321,6 +293,8 @@ async function findbyLandlord(landlordId: number): Promise<Housing[] | []> {
   if (error) throw new Error ("Failed to fetch housing by landlord: " + error.message);
 
   return data ?? [];
+}
+
 // Get occupancy rate of 1 housing
 // Returns a ratio = total current tenants / total maximum occupants
 async function getOccupancyRate(housingId: number): Promise<number> {

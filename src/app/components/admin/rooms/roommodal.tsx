@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { RoomRow, RoomType, OccupancyStatus } from "./roomtable";
-import { X } from "lucide-react";
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
 
