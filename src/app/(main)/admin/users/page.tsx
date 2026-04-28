@@ -3,6 +3,7 @@ import UsersFilterTableWrapper from "@/app/components/admin/user/userfilter_tabl
 
 export const metadata: Metadata = {
   title: "User Management",
+  description: "View and manage students under managed properties.",
 };
 import { userData } from "@/lib/data/user-data";
 
