@@ -10,6 +10,7 @@ const getAllManagers = async (): Promise<User[] | null> => {
         const { data: landlordDataResult } = await landlordData.getAll();
         const { data: housingAdminDataResult } = await housingAdminData.getAll();
 
+   
         // extract and combine nested user object  
         return [...(landlordDataResult ?? []), ...(housingAdminDataResult ?? [])]
             .map((profile: any) => ({
@@ -25,7 +26,7 @@ const getAllManagers = async (): Promise<User[] | null> => {
 
 const getManagerCount = async(): Promise<number | null> => {
     try {
-            const managerCount = await managerData.countAllManager();
+            const managerCount = await managerData.getCount();
             if (!managerCount) return null;
             
             return managerCount; 

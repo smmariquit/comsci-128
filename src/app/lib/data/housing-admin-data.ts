@@ -35,9 +35,9 @@ async function create(userDetails: NewUser, managerDetails: NewManager) {
 async function getAll() {
 	const { data, error } = await supabase.from("housing_admin").select(`
       account_number,
-      manager:account_number (
+      manager!inner(
         manager_type,
-        user:account_number (
+        user!inner(
           account_number,
           account_email,
           first_name,
@@ -49,7 +49,6 @@ async function getAll() {
           phone_number,
           contact_email,
           user_type,
-          is_deleted
         )
       )
     `);
@@ -69,9 +68,9 @@ async function getById(accountNumber: number) {
 		.select(
 			`
       account_number,
-      manager:account_number (
+      manager!inner (
         manager_type,
-        user:account_number (
+        user!inner (
           account_number,
           account_email,
           first_name,
@@ -110,18 +109,18 @@ async function getPendingManagerApplications(managerAccountNumber: number) {
       housing_name,
       preferred_room_type,
       expected_moveout_date,
-      student:student_account_number (
+      student!inner (
         account_number,
         student_number,
         housing_status,
-        user:account_number (
+        user!inner (
           first_name,
           middle_name,
           last_name,
           account_email
         )
       ),
-      manager:manager_account_number (
+      manager!inner (
         account_number
       )
     `)

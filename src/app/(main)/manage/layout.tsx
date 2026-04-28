@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Manager Dashboard",
+};
 
 export default function ManageLayout({
   children,
@@ -6,13 +11,10 @@ export default function ManageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
-
-      <header className="w-full">
-
-        {/*top navbar*/} 
+    <div className="h-screen flex flex-col overflow-hidden">
+      <header className="flex-shrink-0">
+        {/*top navbar*/}
         <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
-          
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-10">
               <h1 className="text-lg font-bold">Manager</h1>
@@ -48,7 +50,7 @@ export default function ManageLayout({
             <div className="flex items-center gap-6 text-sm">
               {/* change for notifs later*/}
               <Link
-                href="/manage" 
+                href="/manage"
                 className="hover:text-[var(--light-yellow)] transition-colors"
               >
                 Notifications
@@ -61,29 +63,24 @@ export default function ManageLayout({
                 Profile
               </Link>
             </div>
-
           </div>
         </nav>
 
         {/*breadcrumbs to be implemented*/}
         <nav className="px-6 py-1 bg-[var(--teal)] text-[var(--dark-blue)] text-sm">
-            <Link
-                href="/manage"
-                className="font-medium hover:font-bold"
-            >
-                Dashboard
-            </Link>
+          <Link href="/manage" className="font-medium hover:font-bold">
+            Dashboard
+          </Link>
         </nav>
-
       </header>
 
-      <main className="flex-1 px-6 bg-[var(--dark-blue)]">
+      <main className="flex-1 overflow-y-auto bg-[var(--dark-blue)]">
         {children}
       </main>
 
-      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
+      <footer className="flex-shrink-0 bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
         © 2026 CMSC 128 Project
       </footer>
-    </div>    
+    </div>
   );
 }

@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-
-export const metadata: Metadata = {
-  title: "Student Dashboard",
-};
-
+import { userData } from "@/app/lib/data/user-data";
+import { getHousingStatus } from "@/app/lib/data/student-dashboard";
+import { getCompleteDashboardData } from "@/app/lib/services/student-dashboard.service";
+import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";
+import AssignedDashboard from "./_components/AssignedDashboard";
+import NotAssignedDashboard from "./_components/NotAssignedDashboard";
 import { Suspense } from "react";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 import { userData } from "@/app/lib/data/user-data";
 import SearchBar from "./SearchBar";
+
+export const metadata: Metadata = {
+    title: "Student Dashboard",
+};
+
 
 export default async function DashboardPage() {
   const currUser = await userData.findById(30);
