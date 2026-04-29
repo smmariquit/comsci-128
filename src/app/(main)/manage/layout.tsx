@@ -18,30 +18,30 @@ export default function ManageLayout({
         <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-10">
-              <h1 className="text-lg font-bold">Manager</h1>
+              <h1 className="text-lg font-bold flex items-center">Manager</h1>
 
-              <div className="flex items-center text-sm">
+              <div className="flex items-center text-sm h-full">
                 <Link
                   href="/manage"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors flex items-center h-full"
                 >
                   Dashboard
                 </Link>
 
-                <span className="mx-2 opacity-60">|</span>
+                <span className="mx-2 opacity-60 flex items-center h-full">|</span>
 
                 <Link
                   href="/manage/accommodations"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors flex items-center h-full"
                 >
                   Accommodations
                 </Link>
 
-                <span className="mx-2 opacity-60">|</span>
+                <span className="mx-2 opacity-60 flex items-center h-full">|</span>
 
                 <Link
                   href="/manage/applications"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors flex items-center h-full"
                 >
                   Applications
                 </Link>
@@ -52,14 +52,14 @@ export default function ManageLayout({
               {/* change for notifs later*/}
               <Link
                 href="/manage"
-                className="hover:text-[var(--light-yellow)] transition-colors"
+                className="hover:text-[var(--light-yellow)] transition-colors flex items-center"
               >
                 Notifications
               </Link>
 
               <Link
                 href="/profile"
-                className="hover:text-[var(--light-yellow)] transition-colors"
+                className="hover:text-[var(--light-yellow)] transition-colors flex items-center"
               >
                 Profile
               </Link>
