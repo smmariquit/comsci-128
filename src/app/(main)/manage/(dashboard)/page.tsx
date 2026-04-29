@@ -89,6 +89,7 @@ function ActivityItem({ text }: { text: string }) {
 export default async function MgrDashboardPage() {
   const managerAccountNumber = await getManagerAccountNumber()
 
+
   const [stats, roomStats, dorms, grossRevenue, logs] = await Promise.all([
     applicationService.getDashboardStats(),
     getRoomStats(),
