@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutGrid, Home, ChevronRight } from "lucide-react";
-import Image from "next/image";
+import Logo from "@/app/components/Logo";
 
 
 const navItems = [
@@ -85,7 +85,7 @@ export default function Sidebar({
             overflow: "hidden",
           }}
         >
-          <Image src="/favicon.png" alt="Logo" width={28} height={28} />
+          <Logo size={28} showText={false} href={null} />
         </div>
 
         {/* Brand name */}
