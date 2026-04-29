@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { C } from "@/lib/palette";
 import { Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 export default function HousingImageUpload() {
 	const [housingIdInput, setHousingIdInput] = useState("");
@@ -175,18 +176,20 @@ export default function HousingImageUpload() {
 									width: "100%",
 								}}
 							>
-								<img
-									src={getSafePreviewUrl(previewUrl)}
-									alt="Preview"
-									style={{
-										width: "100%",
-										height: 130,
-										objectFit: "cover",
-										borderRadius: 8,
-										border: `1px solid ${C.dividerLight}`,
-										marginBottom: 12,
-									}}
-								/>
+								   <Image
+									   src={getSafePreviewUrl(previewUrl)}
+									   alt="Preview"
+									   width={400}
+									   height={130}
+									   style={{
+										   width: "100%",
+										   height: 130,
+										   objectFit: "cover",
+										   borderRadius: 8,
+										   border: `1px solid ${C.dividerLight}`,
+										   marginBottom: 12,
+									   }}
+								   />
 								{selectedFile && (
 									<div
 										style={{

@@ -4,6 +4,7 @@ import { Bell } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
+  description: "Manager panel for managing properties, applications, and tenants.",
 };
 
 export default function ManageLayout({

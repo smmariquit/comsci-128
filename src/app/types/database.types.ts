@@ -250,7 +250,7 @@ export type Database = {
           housing_name: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
-          landlord_account_number?: number
+          landlord_account_number: number
           manager_account_number?: number | null
           rent_price: number
           start_application_date?: string | null
@@ -543,19 +543,19 @@ export type Database = {
         Row: {
           account_number: number
           movein_date: string
-          moveout_date: string | null
+          moveout_date: string
           room_id: number
         }
         Insert: {
           account_number: number
           movein_date: string
-          moveout_date?: string | null
+          moveout_date: string
           room_id: number
         }
         Update: {
           account_number?: number
           movein_date?: string
-          moveout_date?: string | null
+          moveout_date?: string
           room_id?: number
         }
         Relationships: [
@@ -612,11 +612,10 @@ export type Database = {
           profile_picture: string | null
           sex: Database["public"]["Enums"]["Sex"]
           user_type: Database["public"]["Enums"]["UserType"]
-          uuid: string
         }
         Insert: {
           account_email: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name: string
@@ -630,11 +629,10 @@ export type Database = {
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
           user_type?: Database["public"]["Enums"]["UserType"]
-          uuid?: string
         }
         Update: {
           account_email?: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name?: string
@@ -648,7 +646,6 @@ export type Database = {
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
           user_type?: Database["public"]["Enums"]["UserType"]
-          uuid?: string
         }
         Relationships: []
       }

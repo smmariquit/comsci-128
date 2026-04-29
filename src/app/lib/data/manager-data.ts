@@ -41,7 +41,7 @@ const getCount = async (): Promise<number | null> => {
 	if (error) throw new Error(error.message);
 
 	return count;
-}
+};
 
 // FIND manager by ID
 const findById = async (account_number: number) => {
@@ -74,6 +74,7 @@ const findManagerProfileById = async (
             contact_email,
             profile_picture,
             user_type,
+            google_identity,
             manager:manager_account_number_fkey(
                 account_number,
                 manager_type,
@@ -137,10 +138,7 @@ const deactivate = async (account_number: number) => {
 
 // CREATE manager bank
 const createBankDetails = async (bankData: any) => {
-	return await supabase
-		.from("manager_bank")
-		.insert([bankData])
-		.select();
+	return await supabase.from("manager_bank").insert([bankData]).select();
 };
 
 // READ banks using manager

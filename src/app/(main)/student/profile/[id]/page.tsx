@@ -7,10 +7,10 @@ import { StudentProfile } from "@/app/lib/models/student";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
-		| (StudentProfile["student"][number] & {
-				student_academic: StudentProfile["student"][number]["student_academic"][number];
-		  })
-		| null;
+	| (StudentProfile["student"][number] & {
+		student_academic: StudentProfile["student"][number]["student_academic"][number];
+	})
+	| null;
 };
 
 export default function StudentProfilePage() {
@@ -42,9 +42,9 @@ export default function StudentProfilePage() {
 					...data,
 					student: studentObj
 						? {
-								...studentObj,
-								student_academic: academicObj,
-							}
+							...studentObj,
+							student_academic: academicObj,
+						}
 						: null,
 				} as StudentPayload);
 			} catch (err) {
@@ -172,11 +172,10 @@ export default function StudentProfilePage() {
 							<button
 								key={tab}
 								onClick={() => setActiveTab(tab)}
-								className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${
-									activeTab === tab
-										? "bg-[#567375] text-white shadow-md"
-										: "text-[#1C2632] hover:bg-[#E3AF64]/20"
-								}`}
+								className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${activeTab === tab
+									? "bg-[#567375] text-white shadow-md"
+									: "text-[#1C2632] hover:bg-[#E3AF64]/20"
+									}`}
 							>
 								{tab}
 							</button>
@@ -192,13 +191,12 @@ export default function StudentProfilePage() {
 					</button>
 
 					{saveStatus.message && (
-						<div className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all ${
-							saveStatus.type === "success" 
-								? "bg-green-100 text-green-700" 
-								: saveStatus.type === "error"
+						<div className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all ${saveStatus.type === "success"
+							? "bg-green-100 text-green-700"
+							: saveStatus.type === "error"
 								? "bg-red-100 text-red-700"
 								: "bg-blue-100 text-blue-700"
-						}`}>
+							}`}>
 							{saveStatus.message}
 						</div>
 					)}
@@ -328,9 +326,8 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
 				disabled={disabled}
 				value={value || ""}
 				onChange={(e) => onChange && onChange(e.target.value)}
-				className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
-					disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
-				}`}
+				className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
+					}`}
 			/>
 		</div>
 	);
