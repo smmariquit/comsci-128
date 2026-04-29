@@ -37,7 +37,7 @@ function AccommodationCard({
 }) {
   return (
     <Link href={`/manage/accommodations/${id}`}>
-      <div className="flex items-center gap-6 rounded-xl p-3 bg-[#f5ede1] text-[var(--dark-orange)] shadow-xl border-l-8 border-[var(--teal)] hover:shadow-md transition">
+      <div className="min-w-[600px] flex items-center gap-6 rounded-xl p-3 bg-[#f5ede1] text-[var(--dark-orange)] shadow-xl border-l-8 border-[var(--teal)] hover:shadow-md transition">
         <div className="w-80 h-40 bg-gray-300 rounded-lg overflow-hidden flex-shrink-0">
           <img
             src={image || "/assets/placeholders/housing-card.svg"}
@@ -45,8 +45,8 @@ function AccommodationCard({
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="flex flex-col w-full gap-10">
-          <div className="font-semibold text-2xl text-[var(--dark-blue)]">{name}</div>
+        <div className="flex flex-col w-full gap-10 min-w-0">
+          <div className="font-semibold text-2xl text-[var(--dark-blue)] truncate">{name}</div>
           <div className="flex w-full">
             {details.map((detail, index) => (
               <DetailItem key={index} label={detail.label} value={detail.value} />
@@ -159,11 +159,11 @@ export default function AccommodationsPage({ housings }: { housings: Housing[] }
           resultCount={filtered.length}
         />
       </section>
-      <section className="px-5">
+      <section className="px-5 overflow-x-auto">
         {filtered.length === 0 ? (
           <p className="text-gray-500">No accommodations found.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[var(--cream)] p-6 rounded-xl">
+          <div className="grid grid-cols-1 gap-4 bg-[var(--cream)] p-6 rounded-xl">
             {filtered.map((housing) => {
               const totalOccupants = housing.room.reduce(
                 (sum, r) => sum + (r.maximum_occupants ?? 0), 0

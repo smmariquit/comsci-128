@@ -5,6 +5,7 @@ import { getRoomStats } from "@/app/lib/services/room-service";
 import { billingService } from "@/app/lib/services/billing-service";
 import { getManagerAccountNumber } from "@/app/lib/auth";
 import { auditLogService } from "@/app/lib/services/audit-log-service";
+import DormsSection from "./DormsSection";
 import Link from "next/link";
 
 import { Home, FileCheck, FileX, Bed, UserCheck, Armchair} from 'lucide-react';
@@ -121,25 +122,10 @@ export default async function MgrDashboardPage() {
       </section>
 
       <section className="flex flex-col gap-4 p-6 bg-[var(--teal)]/70">
-        <h2 className="text-xl text-[var(--dark-blue)] font-semibold">Dorms Managed</h2>
-        <div className="bg-gray-200 h-10 rounded flex items-center px-3 text-sm text-gray-600">
-          Filter (to be implemented)
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 p-2">
-          {dorms && dorms.length > 0 ? (
-            dorms.map((dorm: any) => (
-              <DormCard
-                key={dorm.housing_id}
-                id={dorm.housing_id}
-                name={dorm.housing_name}
-                image={dorm.housing_image}
-                location={dorm.housing_address}
-              />
-            ))
-          ) : (
-            <p className="text-gray-500">No dorms found.</p>
-          )}
-        </div>
+        <h2 className="text-3xl text-[var(--dark-blue)] font-extrabold"> Dorms Managed</h2>
+
+        <DormsSection dorms={dorms ?? []} />
+
       </section>
 
       <section className="flex flex-col gap-4 px-6 pb-6">
@@ -154,7 +140,7 @@ export default async function MgrDashboardPage() {
                 className="bg-gray-100 p-3 rounded text-sm text-gray-800 flex justify-between items-center border border-gray-300"
               >
                 <span><span className="font-bold">{log.action_type}</span> — {log.audit_description ?? "No description"}</span>
-                <span className="text-xs text-gray-110 shrink-0 ml-4">
+                <span className="text-sm text-gray-110 shrink-0 ml-4">
                   {new Date(log.timestamp).toLocaleString("en-PH")}
                 </span>
               </div>
