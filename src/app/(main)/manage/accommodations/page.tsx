@@ -30,7 +30,7 @@ function AccommodationCard({
 }: {
   id: number;
   name: string;
-  image: string;
+  image: string | null;
   details: { label: string; value: string | number }[];
 }) {
   return (
@@ -38,7 +38,7 @@ function AccommodationCard({
       <div className="flex items-center gap-6 rounded-xl p-3 bg-[#f5ede1] text-[var(--dark-orange)] shadow-xl border-l-8 border-[var(--teal)] hover:shadow-md transition">
 
         <div className="w-80 h-40 bg-gray-300 rounded-lg overflow-hidden">
-          <img src={image} alt="Accommodation" className="w-full h-full object-cover" />
+          <img src={image || "/assets/placeholders/housing-card.svg"} alt="Accommodation" className="w-full h-full object-cover" />
         </div>
 
         <div className="flex flex-col w-full gap-10">

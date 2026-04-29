@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Bell } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -12,72 +13,65 @@ export default function ManageLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="w-full">
-        {/*top navbar*/}
-        <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-10">
-              <h1 className="text-lg font-bold">Manager</h1>
+      {/* NAV BAR */}
+      <header className="w-full bg-[#1C2632] text-m">
+        <div className=" mx-auto flex h-16 md:h-20 items-center justify-between px-4 md:px-10">
+          <div className="flex items-center gap-4 md:gap-8">
+            <h1 className="text-[#EDE9DE] text-lg md:text-xl font-semibold font-[family-name:var(--font-geist-sans)] tracking-tight">
+              UPLB CASA
+            </h1>
 
-              <div className="flex items-center text-sm">
-                <Link
-                  href="/manage"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
-                >
-                  Dashboard
-                </Link>
-
-                <span className="mx-2 opacity-60">|</span>
-
-                <Link
-                  href="/manage/accommodations"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
-                >
-                  Accommodations
-                </Link>
-
-                <span className="mx-2 opacity-60">|</span>
-
-                <Link
-                  href="/manage/applications"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
-                >
-                  Applications
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6 text-sm">
-              {/* change for notifs later*/}
-              <Link
-                href="/manage"
-                className="hover:text-[var(--light-yellow)] transition-colors"
-              >
-                Notifications
+            <nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
+              <Link href="/manage" className="text-[#EDE9DE] hover:opacity-80 transition-opacity">
+                Dashboard
               </Link>
-
               <Link
-                href="/profile"
-                className="hover:text-[var(--light-yellow)] transition-colors"
+                href="/manage/accommodations"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity"
               >
-                Profile
+                Accommodations
               </Link>
-            </div>
+              <Link
+                href="/manage/applications"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity"
+              >
+                Applications
+              </Link>
+            </nav>
           </div>
-        </nav>
 
-        {/*breadcrumbs to be implemented*/}
-        <nav className="px-6 py-1 bg-[var(--teal)] text-[var(--dark-blue)] text-sm">
-          <Link href="/manage" className="font-medium hover:font-bold">
-            Dashboard
-          </Link>
-        </nav>
+          <div className="flex items-center gap-4 md:gap-6">
+            {/* Mobile Nav Link */}
+            <Link href="/manage" className="md:hidden text-[#EDE9DE] text-xs font-medium">
+              Dashboard
+            </Link>
+
+            <button className="text-[#EDE9DE] hover:opacity-80 transition-opacity items-center justify-center">
+              <Bell size={22} strokeWidth={2} />
+            </button>
+
+            <Link href="/manage/profile/21">
+              <div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all items-center justify-center" ></div>
+            </Link>
+          </div>
+        </div>
       </header>
 
-      <main className="flex-1 px-6 bg-[var(--dark-blue)]">{children}</main>
+      {/* BREAD CRUMBS */}
+      <div className="w-full bg-[#567375] font-[family-name:var(--font-geist-sans)]">
+        <div className="max-w-7xl mx-auto px-4 md:px-10 py-2 text-[#EDE9DE] text-[13px] font-sans font-regular">
+          Dashboard
+        </div>
+      </div>
 
-      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
-        © 2026 CMSC 128 Project
+      {/* MAIN CONTENT */}
+      <main className="flex-1 bg-[var(--cream)]">{children}</main>
+
+      {/* FOOTER */}
+      <footer className="bg-[#1C2632] text-[#EDE9DE] px-6 py-10 text-sm">
+        <div className="max-w-7xl mx-auto">
+          © 2026 CMSC 128 Project
+        </div>
       </footer>
     </div>
   );
