@@ -130,22 +130,34 @@ export default function AccommodationsPage({ housings }: { housings: Housing[] }
     let result = [...housings];
     const q = search.trim().toLowerCase();
     if (q) result = result.filter((h) => h.housing_name.toLowerCase().includes(q));
+    
     result.sort((a, b) => {
-        const aSlots = a.room.filter((r) => r.occupancy_status === "Empty").length;
-        const bSlots = b.room.filter((r) => r.occupancy_status === "Empty").length;
-        const aOccupants = a.room.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0);
-        const bOccupants = b.room.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0);
-        switch (sort) {
-        case "name-asc":        return a.housing_name.localeCompare(b.housing_name);
-        case "name-desc":       return b.housing_name.localeCompare(a.housing_name);
-        case "slots-asc":       return aSlots - bSlots;
-        case "slots-desc":      return bSlots - aSlots;
-        case "occupants-asc":   return aOccupants - bOccupants;
-        case "occupants-desc":  return bOccupants - aOccupants;
-        }
-     });
-        return result;
-    }, [housings, search, sort]);
+      const nameA = a.housing_name.trim().toLowerCase();
+      const nameB = b.housing_name.trim().toLowerCase();
+      const aSlots = a.room.filter((r) => r.occupancy_status === "Empty").length;
+      const bSlots = b.room.filter((r) => r.occupancy_status === "Empty").length;
+      const aOccupants = a.room.reduce((sum, r) => sum + (r.occupants_count ?? 0), 0);
+      const bOccupants = b.room.reduce((sum, r) => sum + (r.occupants_count ?? 0), 0);
+      
+      switch (sort) {
+        case "name-asc":
+          return nameA.localeCompare(nameB);
+        case "name-desc":
+          return nameB.localeCompare(nameA);
+        case "slots-asc":
+          return aSlots - bSlots;
+        case "slots-desc":
+          return bSlots - aSlots;
+        case "occupants-asc":
+          return aOccupants - bOccupants;
+        case "occupants-desc":
+          return bOccupants - aOccupants;
+        default:
+          return 0;
+      }
+    });
+    return result;
+  }, [housings, search, sort]);
 
   return (
     <main className="min-h-screen flex flex-col p-6 gap-6 bg-[var(--cream)]">
@@ -166,7 +178,7 @@ export default function AccommodationsPage({ housings }: { housings: Housing[] }
           <div className="grid grid-cols-1 gap-4 bg-[var(--cream)] p-6 rounded-xl">
             {filtered.map((housing) => {
               const totalOccupants = housing.room.reduce(
-                (sum, r) => sum + (r.maximum_occupants ?? 0), 0
+                (sum, r) => sum + (r.occupants_count ?? 0), 0
               );
               const freeSlots = housing.room.filter(
                 (r) => r.occupancy_status === "Empty"
