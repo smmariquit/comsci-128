@@ -113,29 +113,30 @@ async function getDocuments(applicationId: number) {
 }
 
 // GET SELECTED STATS FOR MANAGER DASHBOARD
-async function getApplicationStats() {
-	const { data, error } = await supabase
-		.from("application")
-		.select("application_status")
-		.eq("is_deleted", false);
+async function getApplicationStats(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select("application_status")
+    .eq("is_deleted", false)
+    .eq("landlord_account_number", managerAccountNumber);
 
-	if (error) {
-		console.error("Error fetching applications stats: ", error);
-		throw new Error("Failed to fetch application stats");
-	}
+  if (error) {
+    console.error("Error fetching applications stats: ", error);
+    throw new Error("Failed to fetch application stats");
+  }
 
-	const total = data.length;
-	const pending = data.filter(
-		(a) => a.application_status === "Pending",
-	).length;
-	const approved = data.filter(
-		(a) => a.application_status === "Approved",
-	).length;
-	const rejected = data.filter(
-		(a) => a.application_status === "Rejected",
-	).length;
+  const total = data.length;
+  const pending = data.filter(
+    (a) => a.application_status === "Pending",
+  ).length;
+  const approved = data.filter(
+    (a) => a.application_status === "Approved",
+  ).length;
+  const rejected = data.filter(
+    (a) => a.application_status === "Rejected",
+  ).length;
 
-	return { total, pending, approved, rejected };
+  return { total, pending, approved, rejected };
 }
 
 // APPLICATION DATA JOINED WITH STUDENT ACCOUNT NUMBER
