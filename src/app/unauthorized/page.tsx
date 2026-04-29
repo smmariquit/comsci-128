@@ -255,8 +255,7 @@ export default function NotFoundPage() {
                 {/* Description */}
                 <div className="anim-desc" style={{ width: '100%', maxWidth: 420, marginBottom: 32 }}>
                     <p style={{ textAlign: 'center', color: '#6B7C6A', fontSize: 15, fontFamily: 'DM Mono, monospace', fontWeight: 400, lineHeight: '25.5px', margin: 0 }}>
-                        The page you&apos;re looking for has moved, been removed,
-                        or never existed. Let&apos;s get you back on track.
+                        You don't have access to the page you tried to visit.
                     </p>
                 </div>
 
