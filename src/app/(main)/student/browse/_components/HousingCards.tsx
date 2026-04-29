@@ -62,8 +62,14 @@ export default function HousingCards({ cards }: { cards: any[] }) {
                 height={264}
                 className="block h-auto w-full"
                 />
-                <div className="flex-1 bg-[#1C2632] px-3.5 py-2.5 text-m font-semibold text-[#C9642A] truncate font-[family-name:var(--font-geist-sans)]">
-                {card.name}
+                <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1.5 font-[family-name:var(--font-geist-sans)]">
+                    <div className="text-sm font-bold text-[#C9642A] truncate">
+                        {card.name}
+                    </div>
+                    <div className="flex justify-between items-center text-[11px] text-white/60">
+                        <span className="bg-white/10 px-2 py-0.5 rounded-full">{card.type}</span>
+                        <span className="font-semibold text-white/90">₱{card.price}/mo</span>
+                    </div>
                 </div>
             </div>
             ))}

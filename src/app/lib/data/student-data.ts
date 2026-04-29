@@ -21,14 +21,12 @@ type RoomPerHousing = {
 };
 
 async function create(
-	userDetails: NewUser,
+	accountNumber: number,
 	studentDetails: NewStudent,
 	studentAcademicDetails: NewStudentAcademic,
 ): Promise<Student> {
-	const newUserData = await userData.create(userDetails);
-
-	studentDetails.account_number = newUserData.account_number;
-	studentAcademicDetails.account_number = newUserData.account_number;
+	studentDetails.account_number = accountNumber;
+	studentAcademicDetails.account_number = accountNumber;
 
 	const { data, error } = await supabase
 		.from("student")
@@ -75,6 +73,7 @@ async function findStudentProfileById(
             contact_email,
             profile_picture,
             user_type,
+            google_identity,
             student:student_account_number_fkey(
                 account_number,
                 student_number,

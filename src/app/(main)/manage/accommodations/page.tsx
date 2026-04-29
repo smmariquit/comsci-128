@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { housingService } from "@/app/lib/services/housing-service";
 
 export const metadata: Metadata = {
   title: "Accommodations",
+  description: "View and manage all registered housings.",
 };
 
 
@@ -38,7 +40,7 @@ function AccommodationCard({
       <div className="flex items-center gap-6 rounded-xl p-6 bg-[var(--cream)] text-[var(--dark-orange)] shadow-sm border-l-8 border-[var(--teal)] hover:shadow-md transition">
 
         <div className="w-35 h-35 bg-gray-300 rounded-lg overflow-hidden">
-          <img src={image} alt="Accommodation" className="w-full h-full object-cover" />
+          <Image src={image} alt="Accommodation" width={140} height={140} className="w-full h-full object-cover" />
         </div>
 
         <div className="flex flex-col w-full gap-2">
