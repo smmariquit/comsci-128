@@ -99,7 +99,7 @@ export default async function MgrDashboardPage() {
     getRoomStats(managerAccountNumber),
     housingService.getAllHousingByManager(managerAccountNumber),
     billingService.getGrossRevenue(managerAccountNumber ?? undefined),
-    auditLogService.getRecentLogs()
+    auditLogService.getRecentLogsByManager(managerAccountNumber)
   ])
 
   return (
