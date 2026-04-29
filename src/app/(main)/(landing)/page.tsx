@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Logo from "@/app/components/Logo";
 import Link from "next/link";
 import { floatingAnimations } from "./animations";
 import CTASection from "./GSSection";
@@ -24,7 +24,7 @@ export default function LandingPage() {
       <div className="bg-[#1C2632] text-[#EDE9DE] py-2 px-4 text-center text-[10px] md:text-xs font-medium tracking-wide uppercase">
         Testing UPLB CASA? Read the{" "}
         <a
-          href="https://github.com/smmariquit/comsci-128/blob/fix/README/betaTesting.md"
+          href="https://github.com/smmariquit/comsci-128/blob/staging/betaTesting.md"
           target="_blank"
           rel="noopener noreferrer"
           className="underline decoration-[#C9642A] underline-offset-2 hover:text-[#E3AF64] transition-colors"
@@ -38,15 +38,7 @@ export default function LandingPage() {
 
       {/* ── Navbar ── */}
       <nav className="flex justify-between items-center px-8 py-6 md:px-16">
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-          <Image
-            src="/favicon.png"
-            alt="UPLB CASA Logo"
-            width={32}
-            height={32}
-          />
-          UPLB CASA
-        </div>
+        <Logo href={null} size={64} textClassName="text-[#1C2632]" />
         <div className="flex items-center gap-5">
           <Link
             href="/login"
