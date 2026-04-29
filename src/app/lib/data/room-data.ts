@@ -252,19 +252,20 @@ async function updateStudentHousingStatus(accountNumber: number, status: string)
 
 
 
-async function getRoomStats() {
+async function getRoomStats(managerAccountNumber: number) {
   const { data, error } = await supabase
     .from("room")
-    .select("maximum_occupants, occupancy_status")
+    .select("maximum_occupants, occupants_count, housing!inner(manager_account_number)")
     .eq("is_deleted", false)
+    .eq("housing.manager_account_number", managerAccountNumber);
 
   if (error) {
     throw new Error(error.message);
   }
 
   const totalRooms = data?.length ?? 0
-  const totalOccupants = data?.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0) ?? 0
-  const totalFreeRooms = data?.filter(r => r.occupancy_status === "Empty").length ?? 0
+  const totalOccupants = data?.reduce((sum, r) => sum + (r.occupants_count ?? 0), 0) ?? 0
+  const totalFreeRooms = data?.filter(r => r.occupants_count < r.maximum_occupants).length ?? 0
 
   return { totalRooms, totalOccupants, totalFreeRooms }
 }
