@@ -250,7 +250,7 @@ export type Database = {
           housing_name: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
-          landlord_account_number?: number
+          landlord_account_number: number
           manager_account_number?: number | null
           rent_price: number
           start_application_date?: string | null
@@ -543,19 +543,19 @@ export type Database = {
         Row: {
           account_number: number
           movein_date: string
-          moveout_date: string | null
+          moveout_date: string
           room_id: number
         }
         Insert: {
           account_number: number
           movein_date: string
-          moveout_date?: string | null
+          moveout_date: string
           room_id: number
         }
         Update: {
           account_number?: number
           movein_date?: string
-          moveout_date?: string | null
+          moveout_date?: string
           room_id?: number
         }
         Relationships: [
