@@ -4,9 +4,10 @@ import { applicationService } from "@/app/lib/services/application-service";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
+  description: "Overview of properties, applications, and tenant activity for managed properties",
 };
 import { housingService } from "@/app/lib/services/housing-service";
-import { roomService } from "@/app/lib/services/room-service";
+import * as roomService from "@/app/lib/services/room-service";
 import Link from "next/link";
 
 

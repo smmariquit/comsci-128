@@ -7,10 +7,10 @@ import { StudentProfile } from "@/app/lib/models/student";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
-		| (StudentProfile["student"][number] & {
-				student_academic: StudentProfile["student"][number]["student_academic"][number];
-		  })
-		| null;
+	| (StudentProfile["student"][number] & {
+		student_academic: StudentProfile["student"][number]["student_academic"][number];
+	})
+	| null;
 };
 
 export default function StudentProfilePage() {
@@ -18,6 +18,10 @@ export default function StudentProfilePage() {
 	const [student, setStudent] = useState<StudentPayload | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("Personal Information");
+	const [saveStatus, setSaveStatus] = useState<{
+		message: string;
+		type: "success" | "error" | null;
+	}>({ message: "", type: null });
 
 	useEffect(() => {
 		async function fetchProfile() {
@@ -38,9 +42,9 @@ export default function StudentProfilePage() {
 					...data,
 					student: studentObj
 						? {
-								...studentObj,
-								student_academic: academicObj,
-							}
+							...studentObj,
+							student_academic: academicObj,
+						}
 						: null,
 				} as StudentPayload);
 			} catch (err) {
@@ -53,6 +57,7 @@ export default function StudentProfilePage() {
 	}, [id]);
 
 	const handleSave = async () => {
+		setSaveStatus({ message: "Saving...", type: null });
 		try {
 			const res = await fetch(`/api/student/profile/${id}`, {
 				method: "PATCH",
@@ -61,9 +66,14 @@ export default function StudentProfilePage() {
 				body: JSON.stringify(student),
 			});
 
-			if (res.ok) alert("All records updated successfully!");
+			if (res.ok) {
+				setSaveStatus({ message: "All records updated successfully!", type: "success" });
+				setTimeout(() => setSaveStatus({ message: "", type: null }), 3000);
+			} else {
+				setSaveStatus({ message: "Failed to update profile.", type: "error" });
+			}
 		} catch (err) {
-			alert("Error saving changes.");
+			setSaveStatus({ message: "Error saving changes.", type: "error" });
 		}
 	};
 
@@ -130,13 +140,13 @@ export default function StudentProfilePage() {
 	const studentAcademic = studentDetails?.student_academic;
 
 	return (
-		<div className="flex flex-col min-h-screen bg-[#1C2632] font-[family-name:var(--font-geist-sans)]">
+		<div className="flex flex-col min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
 			<StudentNavBar path="Student Profile" userId={Number(id)} />
 
 			{/* Main Content*/}
-			<div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-10 flex gap-12">
+			<div className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner">
 				{/* Left Card Sidebar */}
-				<div className="w-1/3 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-8 flex flex-col items-center shadow-sm">
+				<div className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-6 md:p-8 flex flex-col items-center shadow-sm h-fit">
 					{/* Profile Circle */}
 					<div className="w-32 h-32 bg-[#1C2632] rounded-full mb-6 flex items-center justify-center">
 						<span className="text-[#EDE9DE] text-4xl font-bold">
@@ -153,7 +163,7 @@ export default function StudentProfilePage() {
 					</p>
 
 					{/* Navigation Tabs */}
-					<div className="w-full space-y-3 mb-12">
+					<div className="w-full space-y-2 md:space-y-3 mb-8 md:mb-12">
 						{[
 							"Personal Information",
 							"Emergency Contact",
@@ -162,11 +172,10 @@ export default function StudentProfilePage() {
 							<button
 								key={tab}
 								onClick={() => setActiveTab(tab)}
-								className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${
-									activeTab === tab
-										? "bg-[#567375] text-white shadow-md"
-										: "text-[#1C2632] hover:bg-[#E3AF64]/20"
-								}`}
+								className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${activeTab === tab
+									? "bg-[#567375] text-white shadow-md"
+									: "text-[#1C2632] hover:bg-[#E3AF64]/20"
+									}`}
 							>
 								{tab}
 							</button>
@@ -176,14 +185,25 @@ export default function StudentProfilePage() {
 					{/* Action Button */}
 					<button
 						onClick={handleSave}
-						className="w-full bg-[#C9642A] text-white py-4 rounded-xl font-bold text-lg hover:brightness-110 transition-all shadow-lg active:scale-[0.98]"
+						className="w-full bg-[#C9642A] text-white py-4 rounded-xl font-bold text-lg hover:brightness-110 transition-all shadow-lg active:scale-[0.98] mb-4"
 					>
 						Save changes
 					</button>
+
+					{saveStatus.message && (
+						<div className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all ${saveStatus.type === "success"
+							? "bg-green-100 text-green-700"
+							: saveStatus.type === "error"
+								? "bg-red-100 text-red-700"
+								: "bg-blue-100 text-blue-700"
+							}`}>
+							{saveStatus.message}
+						</div>
+					)}
 				</div>
 
 				{/* RIGHT FORM AREA */}
-				<div className="flex-1 flex flex-col gap-6 pt-10">
+				<div className="flex-1 flex flex-col gap-6 pt-0 md:pt-10">
 					<h3 className="text-[#1C2632] text-xl font-bold border-b border-[#E3AF64] pb-2 mb-4">
 						{activeTab}
 					</h3>
@@ -306,9 +326,8 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
 				disabled={disabled}
 				value={value || ""}
 				onChange={(e) => onChange && onChange(e.target.value)}
-				className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
-					disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
-				}`}
+				className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
+					}`}
 			/>
 		</div>
 	);

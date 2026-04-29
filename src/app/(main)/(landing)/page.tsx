@@ -20,7 +20,7 @@ const colors = {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
+    <div className="min-h-screen overflow-x-hidden font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
       <div className="bg-[#1C2632] text-[#EDE9DE] py-2 px-4 text-center text-[10px] md:text-xs font-medium tracking-wide uppercase">
         Testing UPLB CASA? Read the{" "}
         <a

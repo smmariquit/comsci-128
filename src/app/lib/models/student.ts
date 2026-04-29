@@ -11,12 +11,12 @@ export type NewStudent = TablesInsert<"student">;
 export type UpdateStudent = TablesUpdate<"student">;
 
 export type StudentProfile = Omit<User, "password" | "is_deleted"> & {
-	student: (Student & {
+	student: (Omit<Student, "is_deleted"> & {
 		student_academic: StudentAcademic[];
 	})[];
 };
 export type NewStudentProfile = Omit<NewUser, "password" | "is_deleted"> & {
-	student: Omit<NewStudent, "student_number"> & {
+	student: Omit<NewStudent, "student_number" | "is_deleted"> & {
 		student_academic: Partial<NewStudentAcademic>;
 	};
 };

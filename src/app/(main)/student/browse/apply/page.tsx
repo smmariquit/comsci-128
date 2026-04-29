@@ -1,25 +1,23 @@
 import { Suspense } from "react";
 import StudentNavBar from "../../_components/StudentNavBar";
 import { ApplyFormContent } from "./_components/ApplyFormContent";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Apply for Housing",
+	description: "Subit a housing application for your chosen accommodation.",
+}
 
 export default function ApplyPage() {
 	return (
-		<div
-			style={{
-				width: "100%",
-				minHeight: "100vh",
-				background: "#1C2632",
-				display: "flex",
-				flexDirection: "column",
-			}}
-		>
+		<div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
 			{/* Header */}
 			<StudentNavBar path="Housing Browser > Apply" />
 
 			{/* Application */}
 			<Suspense
 				fallback={
-					<div className="mx-auto mt-8 w-[90vw] flex-1 bg-[#EDE9DE] p-10 rounded-t-[20px]">
+					<div className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] shadow-inner">
 						Loading...
 					</div>
 				}

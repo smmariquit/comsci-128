@@ -4,6 +4,12 @@ import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";
 import HousingCards from "./_components/HousingCards";
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Browse Housing",
+    description: "Explore avaialble dormitories and hosuing options.",
+}
 
 export default async function DormBrowsePage({
     searchParams,
@@ -27,21 +33,12 @@ export default async function DormBrowsePage({
     const cards = allHousing.map((item) => ({
         id: item.housing_id,
         name: item.housing_name,
+        type: item.housing_type,
+        price: item.rent_price,
     }));
 
     return (
-
-        <div
-            style={{
-                width: "100%",
-                minHeight: "100%",
-                background: "#1C2632",
-                display: "inline-flex",
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                alignItems: "stretch",
-            }}
-        >
+        <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
             <StudentNavBar
                 path={"Housing Browser"}
                 userId={currUser?.account_number}
@@ -50,7 +47,7 @@ export default async function DormBrowsePage({
             <SearchBar />
 
             {/* HOUSING CARDS CONTAINER */}
-            <div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-6">
+            <div className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner">
                 <HousingCards cards={cards} />
             </div>
         </div>
