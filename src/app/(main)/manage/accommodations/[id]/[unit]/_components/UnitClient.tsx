@@ -50,6 +50,7 @@ export default function UnitClient({
   const [currentRoom, setCurrentRoom] = useState<Room>(room)
   const [isEditing, setIsEditing] = useState(false)
   const [selectedType, setSelectedType] = useState<RoomType>(room.room_type)
+  
   const [maxOccupants, setMaxOccupants] = useState<number>(room.maximum_occupants ?? 1)
 
   const handleSave = async () => {
@@ -105,6 +106,7 @@ export default function UnitClient({
                       type="number"
                       value={maxOccupants}
                       onChange={(e) => setMaxOccupants(Number(e.target.value))}
+                      min={1}
                       className="w-full p-2 bg-slate-700 rounded text-white"
                     />
                   </div>
