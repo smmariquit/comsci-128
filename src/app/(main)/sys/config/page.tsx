@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "System Configuration",
+  description: "Configure system-level settings for the UPLB CASA app.",
 };
 
 const stubUser = {

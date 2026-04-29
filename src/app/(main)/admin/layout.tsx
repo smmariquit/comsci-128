@@ -3,7 +3,8 @@ import PageHeader from "@/app/components/admin/pageheader";
 import Sidebar from "@/app/components/admin/sidebar";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
+  title: "Housing Administrator",
+  description: "Housing Administrator Panel",
 };
 
 export default function AdminLayout({

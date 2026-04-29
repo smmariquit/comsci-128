@@ -150,7 +150,7 @@ export default function LoginPage() {
         Sign in using Google
       </button>
       <div className="text-center text-stone-200 mt-2">
-        <a href="#" className="font-bold underline">Forgot password?</a>
+        <a href="/forgot-password" className="font-bold underline">Forgot password?</a>
       </div>
     </form>
   </div>

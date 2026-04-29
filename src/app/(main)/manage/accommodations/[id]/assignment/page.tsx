@@ -3,6 +3,7 @@ import { housingService } from "@/app/lib/services/housing-service";
 
 export const metadata: Metadata = {
   title: "Room Assignment",
+  description: "Assign students to rooms in this accommodation.",
 };
 import { applicationService } from "@/app/lib/services/application-service";
 import AssignmentClient from "./_components/AssignmentClient";

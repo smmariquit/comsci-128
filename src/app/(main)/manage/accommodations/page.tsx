@@ -5,6 +5,7 @@ import { housingService } from "@/app/lib/services/housing-service";
 
 export const metadata: Metadata = {
   title: "Accommodations",
+  description: "View and manage all registered housings.",
 };
 
 
