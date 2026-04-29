@@ -118,9 +118,14 @@ export default function RegisterPage() {
         className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
         onSubmit={step === 3 ? handleRegister : e => { e.preventDefault(); setStep(step + 1); }}
         autoComplete="off"
+        method="POST"
       >
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Sign up</h2>
-        {error && <div className="text-red-400 text-center">{error}</div>}
+        {error && (
+          <div className="bg-red-900/30 text-red-400 text-center p-3 rounded-xl border border-red-800/50">
+            {error}
+          </div>
+        )}
 
         {step === 1 && (
           <>
