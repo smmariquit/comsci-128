@@ -36,12 +36,17 @@ export default function ForgotPasswordPage() {
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
       <form className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg" autoComplete="off"
+        method="POST"
         onSubmit={
           step === 1 ? handleEmailSubmit : step === 2 ? handleCodeSubmit : handlePasswordSubmit
         }
       >
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Forgot Password</h2>
-        {status && <div className="text-green-400 text-center">{status}</div>}
+        {status && (
+          <div className={`text-center p-3 rounded-xl ${status.includes("Demo") || status.includes("successful") ? "bg-green-900/30 text-green-400" : "bg-blue-900/30 text-blue-400"}`}>
+            {status}
+          </div>
+        )}
         {step === 1 && (
           <>
             <input
