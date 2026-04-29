@@ -12,6 +12,7 @@ import Image from "next/image";
 
 export const metadata: Metadata = {
     title: "Student Dashboard",
+    description: "View your housing statis, billing, and accommodation details.s",
 };
 
 

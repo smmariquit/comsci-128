@@ -5,6 +5,7 @@ import { housingService } from "@/app/lib/services/housing-service";
 
 export const metadata: Metadata = {
   title: "Unit Details",
+  description: "View details and occupancy information for this room unit.",
 };
 import { accommodationHistoryService } from "@/app/lib/services/accommodation-history-service";
 import UnitClient from "./_components/UnitClient";
