@@ -5,8 +5,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
 	title: "Apply for Housing",
-	description: "Subit a housing application for your chosen accommodation.",
-}
+	description: "Submit a housing application for your chosen accommodation.",
+};
 
 export default function ApplyPage() {
 	return (
