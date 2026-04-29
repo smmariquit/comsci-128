@@ -5,7 +5,7 @@ import type {
 } from "./reportsmock";
 import { Download } from "lucide-react";
 
-// ── StatCard (exact design from user) ────────────────────────────────────────
+
 
 interface StatCardProps {
   label:    string;
@@ -64,7 +64,7 @@ export function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
   );
 }
 
-// ── Action button ─────────────────────────────────────────────────────────────
+
 
 type BtnVariant = "ghost" | "primary" | "danger";
 
@@ -90,7 +90,7 @@ export function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
   );
 }
 
-// ── Table shell ───────────────────────────────────────────────────────────────
+
 
 export function TableShell({ title, count, children }: {
   title: string; count: number; children: React.ReactNode;
@@ -152,7 +152,7 @@ export function EmptyRow({ cols }: { cols: number }) {
   );
 }
 
-// ── Badges ────────────────────────────────────────────────────────────────────
+
 
 export function DotBadge({ label, bg, dot, text }: { label:string; bg:string; dot:string; text:string }) {
   return (
@@ -179,7 +179,7 @@ export function Tag({ label, bg, text }: { label:string; bg:string; text:string 
   );
 }
 
-// ── Typed badge helpers ───────────────────────────────────────────────────────
+
 
 const OCC_S: Record<OccupancyStatus, { bg:string; dot:string; text:string }> = {
   Empty:              { bg:"rgba(86,115,117,0.12)",  dot:C.teal,   text:C.teal },
@@ -236,7 +236,7 @@ export function BillTypeTag({ type }: { type: BillType }) {
   return <Tag label={type} {...s} />;
 }
 
-// ── Export button ─────────────────────────────────────────────────────────────
+
 
 export function ExportButton({ onExportCSV, onExportPDF }: {
   onExportCSV: () => void;
