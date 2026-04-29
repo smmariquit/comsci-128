@@ -11,9 +11,9 @@ import { validateAction, validateOwnership } from "./authorization-service";
 import App from "next/app";
 import { AppAction } from "../models/permissions";
 
-const getDashboardStats = async () => {
+const getDashboardStats = async (managerAccountNumber: number) => {
   try {
-    const stats = await applicationData.getApplicationStats()
+    const stats = await applicationData.getApplicationStats(managerAccountNumber)
     return stats
   } catch (error) {
     console.error("Error: ", error)

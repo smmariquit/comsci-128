@@ -4,6 +4,7 @@ import { housingService } from "@/app/lib/services/housing-service";
 import { getRoomStats } from "@/app/lib/services/room-service";
 import { billingService } from "@/app/lib/services/billing-service";
 import { getManagerAccountNumber } from "@/app/lib/auth";
+import { redirect } from "next/navigation";
 import { auditLogService } from "@/app/lib/services/audit-log-service";
 import DormsSection from "./DormsSection";
 import Link from "next/link";
@@ -89,9 +90,13 @@ function ActivityItem({ text }: { text: string }) {
 export default async function MgrDashboardPage() {
   const managerAccountNumber = await getManagerAccountNumber()
 
+  if (!managerAccountNumber) {
+    redirect("/unauthorized")
+  }
+  console.log(managerAccountNumber)
 
   const [stats, roomStats, dorms, grossRevenue, logs] = await Promise.all([
-    applicationService.getDashboardStats(),
+    applicationService.getDashboardStats(managerAccountNumber),
     getRoomStats(),
     housingService.getAllHousing(),
     billingService.getGrossRevenue(managerAccountNumber ?? undefined),
