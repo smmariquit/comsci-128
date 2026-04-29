@@ -1,10 +1,9 @@
-
-
 "use client";
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Search, SlidersHorizontal } from "lucide-react";
+import { Users, Bed, DoorOpen } from "lucide-react";
 
 function UnitCard({
   id,
@@ -23,12 +22,33 @@ function UnitCard({
 }) {
   return (
     <Link href={`/manage/accommodations/${housingId}/${id}`} className="block">
-      <div className="rounded-lg p-4 bg-[var(--dark-blue)] flex flex-col justify-between min-h-[150px] hover:brightness-90 transition cursor-pointer">
-        <h3 className="text-lg text-[var(--dark-orange)] font-semibold mb-1">{name}</h3>
-        <div className="text-sm text-[var(--cream)] flex flex-col gap-1">
-          <span>Occupants: {occupants}</span>
-          <span>Free Slots: {freeSlots}</span>
-          <span>Bed Type: {bedType}</span>
+      <div className="rounded-xl p-5 bg-[var(--dark-blue)] hover:brightness-110 transition cursor-pointer border border-[var(--dark-orange)]/20">
+        <h3 className="text-3xl text-[var(--dark-orange)] font-bold mb-4">{name}</h3>
+        
+        <div className="grid grid-cols-2 gap-y-3 gap-x-2">
+          <div className="flex items-center gap-2 text-[var(--cream)] text-sm">
+            <Users size={16} className="text-[var(--dark-orange)] shrink-0" />
+            <span className="opacity-80">Occupants</span>
+          </div>
+          <div className="text-[var(--cream)] font-medium text-base text-right">
+            {occupants}
+          </div>
+
+          <div className="flex items-center gap-2 text-[var(--cream)] text-sm">
+            <Bed size={16} className="text-[var(--dark-orange)] shrink-0" />
+            <span className="opacity-80">Free Slots</span>
+          </div>
+          <div className="text-[var(--cream)] font-medium text-base text-right">
+            {freeSlots}
+          </div>
+
+          <div className="flex items-center gap-2 text-[var(--cream)] text-sm">
+            <DoorOpen size={16} className="text-[var(--dark-orange)] shrink-0" />
+            <span className="opacity-80">Bed Type</span>
+          </div>
+          <div className="text-[var(--cream)] font-medium text-base text-right capitalize">
+            {bedType}
+          </div>
         </div>
       </div>
     </Link>
@@ -60,9 +80,9 @@ export default function AccommodationClient({
   housingId: number;
 }) {
   const [unitSearch, setUnitSearch] = useState("");
-  const [unitSort, setUnitSort] = useState<"num-asc" | "num-desc" | "occupants-desc">("num-asc");
+  const [unitSort, setUnitSort] = useState<"num-asc" | "num-desc" | "occupants-desc" | "occupants-asc" | "free-asc" | "free-desc">("num-asc");
   const [tenantSearch, setTenantSearch] = useState("");
-  const [tenantSort, setTenantSort] = useState<"name-asc" | "name-desc" | "unit-asc">("name-asc");
+  const [tenantSort, setTenantSort] = useState<"name-asc" | "name-desc" | "unit-asc" | "unit-desc" | "start-asc" | "start-desc" | "end-asc" | "end-desc">("name-asc");
 
   const filteredUnits = useMemo(() => {
     let result = [...initialUnits];
@@ -82,6 +102,12 @@ export default function AccommodationClient({
           return b.name.localeCompare(a.name);
         case "occupants-desc":
           return b.occupants - a.occupants;
+        case "occupants-asc":
+          return a.occupants - b.occupants;
+        case "free-desc":
+          return b.freeSlots - a.freeSlots;
+        case "free-asc":
+          return a.freeSlots - b.freeSlots;
         default:
           return 0;
       }
@@ -119,6 +145,16 @@ export default function AccommodationClient({
           return getName(b).localeCompare(getName(a));
         case "unit-asc":
           return getUnitNum(a) - getUnitNum(b);
+        case "unit-desc":
+          return getUnitNum(b) - getUnitNum(a);
+        case "start-asc":
+          return new Date(a.movein_date).getTime() - new Date(b.movein_date).getTime();
+        case "start-desc":
+          return new Date(b.movein_date).getTime() - new Date(a.movein_date).getTime();
+        case "end-asc":
+          return new Date(a.moveout_date).getTime() - new Date(b.moveout_date).getTime();
+        case "end-desc":
+          return new Date(b.moveout_date).getTime() - new Date(a.moveout_date).getTime();
         default:
           return 0;
       }
@@ -158,7 +194,7 @@ export default function AccommodationClient({
                 value={unitSearch}
                 onChange={(e) => setUnitSearch(e.target.value)}
                 placeholder="Search units by name or bed type…"
-                className="w-full h-10 pl-9 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none "
+                className="w-full h-10 pl-9 pr-4 rounded-lg border border-gray-400 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
               />
             </div>
             <div className="relative">
@@ -166,11 +202,20 @@ export default function AccommodationClient({
               <select
                 value={unitSort}
                 onChange={(e) => setUnitSort(e.target.value as any)}
-                className="h-10 pl-9 pr-8 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--teal)] transition cursor-pointer"
+                className="h-10 pl-9 pr-8 rounded-lg border border-gray-400 bg-white text-sm text-gray-700 appearance-none focus:outline-none cursor-pointer"
               >
-                <option value="num-asc">Unit number: Low to High</option>
-                <option value="num-desc">Unit number: High to Low</option>
-                <option value="occupants-desc">Occupants: High to Low</option>
+                <optgroup label="Sort by Unit Number">
+                  <option value="num-desc">High to Low</option>
+                  <option value="num-asc">Low to High</option>
+                </optgroup>
+                <optgroup label="Sort by Occupants">
+                  <option value="occupants-desc">High to Low</option>
+                  <option value="occupants-asc">Low to High</option>
+                </optgroup>
+                <optgroup label="Sort by Free Slots">
+                  <option value="free-desc">High to Low</option>
+                  <option value="free-asc">Low to High</option>
+                </optgroup>
               </select>
               <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▾</span>
             </div>
@@ -201,7 +246,7 @@ export default function AccommodationClient({
                 value={tenantSearch}
                 onChange={(e) => setTenantSearch(e.target.value)}
                 placeholder="Search tenants by name or unit…"
-                className="w-full h-10 pl-9 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
+                className="w-full h-10 pl-9 pr-4 rounded-lg border border-gray-400 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
               />
             </div>
             <div className="relative">
@@ -209,11 +254,24 @@ export default function AccommodationClient({
               <select
                 value={tenantSort}
                 onChange={(e) => setTenantSort(e.target.value as any)}
-                className="h-10 pl-9 pr-8 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--teal)] transition cursor-pointer"
+                className="h-10 pl-9 pr-8 rounded-lg border border-gray-400 bg-white text-sm text-gray-700 appearance-none focus:outline-none transition cursor-pointer"
               >
-                <option value="name-asc">Name: A → Z</option>
-                <option value="name-desc">Name: Z → A</option>
-                <option value="unit-asc">Unit: Low to High</option>
+                <optgroup label="Sort by Name">
+                  <option value="name-asc">A → Z</option>
+                  <option value="name-desc">Z → A</option>
+                </optgroup>
+                <optgroup label="Sort by Unit">
+                  <option value="unit-asc">Low to High</option>
+                  <option value="unit-desc">High to Low</option>
+                </optgroup>
+                <optgroup label="Sort by Start of Stay">
+                  <option value="start-asc">Earliest First</option>
+                  <option value="start-desc">Latest First</option>
+                </optgroup>
+                <optgroup label="Sort by End of Stay">
+                  <option value="end-asc">Earliest First</option>
+                  <option value="end-desc">Latest First</option>
+                </optgroup>
               </select>
               <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▾</span>
             </div>
