@@ -255,9 +255,9 @@ async function updateStudentHousingStatus(accountNumber: number, status: string)
 async function getRoomStats(managerAccountNumber: number) {
   const { data, error } = await supabase
     .from("room")
-    .select("maximum_occupants, occupants_count, housing!inner(manager_account_number)")
+    .select("maximum_occupants, occupants_count, housing!inner(landlord_account_number)")
     .eq("is_deleted", false)
-    .eq("housing.manager_account_number", managerAccountNumber);
+    .eq("housing.landlord_account_number", managerAccountNumber);
 
   if (error) {
     throw new Error(error.message);

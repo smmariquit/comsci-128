@@ -97,7 +97,7 @@ export default async function MgrDashboardPage() {
   const [stats, roomStats, dorms, grossRevenue, logs] = await Promise.all([
     applicationService.getDashboardStats(managerAccountNumber),
     getRoomStats(managerAccountNumber),
-    housingService.getAllHousing(),
+    housingService.getAllHousingByManager(managerAccountNumber),
     billingService.getGrossRevenue(managerAccountNumber ?? undefined),
     auditLogService.getRecentLogs()
   ])
