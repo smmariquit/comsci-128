@@ -14,7 +14,7 @@ import {
     Home,
     LogOut,
 } from 'lucide-react'; // Icons
-import Image from 'next/image';
+import Logo from '@/app/components/Logo';
 
 // Footer - User info
 export interface SidebarUser {
@@ -48,7 +48,7 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
             <div className="flex items-center gap-3 px-6 py-7 border-b border-white/6">
                 {/* Logo - Home icon in a circle */}
                 <div className="w-10 h-10 bg-[#d4622a] rounded-xl flex items-center justify-center text-white shrink-0 overflow-hidden">    
-                    <Image src="/favicon.png" alt="Logo" width={32} height={32} />
+                    <Logo size={32} showText={false} href={null} />
                 </div>
                 {/* System Name and Tagline */}
                 <div className="flex flex-col">

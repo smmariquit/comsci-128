@@ -1,7 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import Logo from "@/app/components/Logo";
+import { getCookie } from "@/app/lib/utils";
 import { floatingAnimations } from "./animations";
 import CTASection from "./GSSection";
 import HowItWorks from "./HowItWorksSection";
@@ -19,12 +21,30 @@ const colors = {
 };
 
 export default function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dashboardUrl, setDashboardUrl] = useState("/login");
+
+  useEffect(() => {
+    const loggedIn = getCookie("is_logged_in") === "true";
+    setIsLoggedIn(loggedIn);
+
+    if (loggedIn) {
+      const role = getCookie("user_role")?.toLowerCase();
+      let target = "/login";
+      if (role === "student") target = "/student";
+      else if (role === "housing administrator" || role === "house admin")
+        target = "/admin";
+      else if (role === "system admin" || role === "admin") target = "/sys";
+      else if (role === "landlord") target = "/manage";
+      setDashboardUrl(target);
+    }
+  }, []);
   return (
     <div className="min-h-screen overflow-x-hidden font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
       <div className="bg-[#1C2632] text-[#EDE9DE] py-2 px-4 text-center text-[10px] md:text-xs font-medium tracking-wide uppercase">
         Testing UPLB CASA? Read the{" "}
         <a
-          href="https://github.com/smmariquit/comsci-128/blob/fix/README/betaTesting.md"
+          href="https://github.com/smmariquit/comsci-128/blob/staging/betaTesting.md"
           target="_blank"
           rel="noopener noreferrer"
           className="underline decoration-[#C9642A] underline-offset-2 hover:text-[#E3AF64] transition-colors"
@@ -38,28 +58,31 @@ export default function LandingPage() {
 
       {/* ── Navbar ── */}
       <nav className="flex justify-between items-center px-8 py-6 md:px-16">
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
-          <Image
-            src="/favicon.png"
-            alt="UPLB CASA Logo"
-            width={32}
-            height={32}
-          />
-          UPLB CASA
-        </div>
+        <Logo href={null} size={64} textClassName="text-[#1C2632]" />
         <div className="flex items-center gap-5">
-          <Link
-            href="/login"
-            className="font-medium text-[#C9642A] hover:underline transition-colors"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/register"
-            className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
-          >
-            Sign up
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href={dashboardUrl}
+              className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+            >
+              Continue to Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="font-medium text-[#C9642A] hover:underline transition-colors"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+              >
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
