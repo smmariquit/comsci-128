@@ -105,7 +105,7 @@ export default function LandingPage() {
                   href="/student/browse"
                   className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md"
                 >
-                  Find a Dorm
+                  Browse Accommodations
                 </Link>
                 <Link
                   href="#how"
