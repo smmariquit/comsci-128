@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Bell } from "lucide-react";
+import Breadcrumbs from "./components/Breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -60,8 +61,8 @@ export default function ManageLayout({
 
       {/* BREAD CRUMBS */}
       <div className="w-full bg-[#567375] font-[family-name:var(--font-geist-sans)]">
-        <div className="max-w-7xl mx-auto px-4 md:px-10 py-2 text-[#EDE9DE] text-[13px] font-sans font-regular">
-          Dashboard
+        <div className="flex items-center px-4 md:px-10 min-h-[44px] align-middle">
+          <Breadcrumbs />
         </div>
       </div>
 
