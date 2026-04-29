@@ -3,6 +3,8 @@ import { NewStudentProfile, StudentProfile } from "@/models/student";
 import { ManagerProfile, NewManagerProfile } from "../models/manager";
 import { managerData } from "../data/manager-data";
 import { userData } from "../data/user-data";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
 
 async function getStudentProfile(
 	userId: number,
@@ -45,6 +47,15 @@ async function updateStudentProfile(
 			...userUpdates
 		} = profileData;
 
+		// RBAC
+		await validateAction(AppAction.UPDATE_USER_DETAILS);
+
+		// OBAC
+		const user = await userData.findById(userId);
+		if (!user) throw new Error("User not found");
+
+		await validateOwnership(user.account_number);
+
 		const updatedUser = await userData.update(userId, userUpdates);
 		if (!updatedUser) return null;
 
@@ -85,6 +96,18 @@ async function updateManagerProfile(
 			manager,
 			...userUpdates
 		} = profileData;
+
+		// RBAC
+		await validateAction(AppAction.UPDATE_USER_DETAILS);
+
+		// USER CHECK
+		const user = await userData.findById(userId);
+		if (!user) {
+			throw new Error("User Not Found.");
+		}
+
+		// OBAC
+		await validateOwnership(user.account_number);
 
 		const updatedUser = await userData.update(userId, userUpdates);
 		if (!updatedUser) return null;

@@ -8,7 +8,7 @@ import RoomFilters, {
   TypeFilter,
 } from  "@/components/admin/rooms/roomfilters";
 import { roomData } from "@/app/lib/data/room-data";
-import { roomService } from "@/app/lib/services/room-service";
+import * as roomService from "@/app/lib/services/room-service";
 import { C } from "@/lib/palette";
 import { Receipt } from "lucide-react";
 

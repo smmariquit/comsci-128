@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { applicationService } from "@/app/lib/services/application-service";
 import { housingService } from "@/app/lib/services/housing-service";
-import { roomService } from "@/app/lib/services/room-service";
+import { getRoomStats } from "@/app/lib/services/room-service";
 import { billingService } from "@/app/lib/services/billing-service";
 import { getManagerAccountNumber } from "@/app/lib/auth";
 import { auditLogService } from "@/app/lib/services/audit-log-service";
@@ -12,6 +12,7 @@ import { Home, FileCheck, FileX, Bed, UserCheck, Armchair} from 'lucide-react';
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
+  description: "Overview of properties, applications, and tenant activity for managed properties",
 };
 
 function GrossRevenueCard({ value }: { value: number }) {
@@ -89,7 +90,7 @@ export default async function MgrDashboardPage() {
 
   const [stats, roomStats, dorms, grossRevenue, logs] = await Promise.all([
     applicationService.getDashboardStats(),
-    roomService.getRoomStats(),
+    getRoomStats(),
     housingService.getAllHousing(),
     billingService.getGrossRevenue(managerAccountNumber ?? undefined),
     auditLogService.getRecentLogs()

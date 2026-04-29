@@ -3,7 +3,7 @@
 "use client"
 
 import { useState } from "react"
-import { roomService } from "@/app/lib/services/room-service"
+import * as roomService from "@/app/lib/services/room-service";
 import { Room, RoomType } from "@/app/lib/models/room"
 import Link from "next/link"
 

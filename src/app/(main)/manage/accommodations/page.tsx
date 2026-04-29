@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { housingService } from "@/app/lib/services/housing-service";
 
 export const metadata: Metadata = {
   title: "Accommodations",
+  description: "View and manage all registered housings.",
 };
 
 
