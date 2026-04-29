@@ -1,8 +1,8 @@
 "use client";
 
-import Logo from "@/app/components/Logo";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Logo from "@/app/components/Logo";
 import { getCookie } from "@/app/lib/utils";
 import { floatingAnimations } from "./animations";
 import CTASection from "./GSSection";
@@ -32,7 +32,8 @@ export default function LandingPage() {
       const role = getCookie("user_role")?.toLowerCase();
       let target = "/login";
       if (role === "student") target = "/student";
-      else if (role === "housing administrator" || role === "house admin") target = "/admin";
+      else if (role === "housing administrator" || role === "house admin")
+        target = "/admin";
       else if (role === "system admin" || role === "admin") target = "/sys";
       else if (role === "landlord") target = "/manage";
       setDashboardUrl(target);
