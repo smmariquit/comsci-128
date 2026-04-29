@@ -18,8 +18,9 @@ import type {
   OccupancyReportRow, ApplicationReportRow,
   RevenueReportRow, AccommodationHistoryRow,
 } from "@/app/components/admin/reports/reportsmock";
+import { exportToCSV, exportToPDF } from "@/app/lib/export_utils";
 
-// ── Report type ───────────────────────────────────────────────────────────────
+
 
 export type ReportType = "occupancy" | "application" | "revenue" | "accommodation";
 
@@ -36,20 +37,20 @@ interface ReportsWrapperProps {
   liveAccommodationHistory: AccommodationHistoryRow[];
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+
 
 export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAccommodationHistory } : ReportsWrapperProps) {
-  // ── Active tab ──────────────────────────────────────────────────────────────
+  
   const [activeTab, setActiveTab] = useState<ReportType>("occupancy");
 
-  // ── Filter state ────────────────────────────────────────────────────────────
+  
   const [search,   setSearch]   = useState("");
   const [housing,  setHousing]  = useState("All");
   const [status,   setStatus]   = useState("All");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo,   setDateTo]   = useState("");
 
-  // ── Detail modal ────────────────────────────────────────────────────────────
+  
   const [detail, setDetail] = useState<DetailRow | null>(null);
 
   // Reset filters on tab change
@@ -59,7 +60,7 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
     setDateFrom(""); setDateTo("");
   }
 
-  // ── Filtered data ───────────────────────────────────────────────────────────
+  
 
   const filteredHousingOptions = useMemo(() => {
     const uniqueNames = new Set(liveOccupancy.map(row => row.housing_name));
@@ -111,7 +112,7 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
     );
   }), [liveAccommodationHistory, search, housing, status, dateFrom, dateTo]);
 
-  // ── Stat cards per tab ──────────────────────────────────────────────────────
+  
 
   function OccupancyStats() {
     const d = filteredOccupancy;
@@ -177,11 +178,60 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
     );
   }
 
-  // ── Export stubs ────────────────────────────────────────────────────────────
-  function handleExportCSV() { console.log("Export CSV:", activeTab); /* TODO */ }
-  function handleExportPDF() { console.log("Export PDF:", activeTab); /* TODO */ }
+  
+  function getExportData() {
+    let headers: string[] = [];
+    let rows: any[][] = [];
+    let title = "";
+    
+    switch (activeTab) {
+      case "occupancy":
+        title = "Occupancy Report";
+        headers = ["Room Code", "Property", "Type", "Capacity", "Occupied", "Status"];
+        rows = filteredOccupancy.map(r => [
+          r.room_code, r.housing_name, r.room_type,
+          r.capacity, r.current_occupancy, r.occupancy_status
+        ]);
+        break;
+      case "application":
+        title = "Applications Report";
+        headers = ["App ID", "Student Name", "Property", "Room Type", "Expected Move-in", "Status"];
+        rows = filteredApplications.map(r => [
+          r.application_id, r.student_name, r.housing_name, r.room_type,
+          new Date(r.expected_movein_date).toLocaleDateString(), r.application_status
+        ]);
+        break;
+      case "revenue":
+        title = "Financial Summary Report";
+        headers = ["Bill ID", "Student Name", "Property", "Type", "Due Date", "Amount", "Status"];
+        rows = filteredRevenue.map(r => [
+          r.bill_id, r.student_name, r.housing_name, r.bill_type,
+          new Date(r.due_date).toLocaleDateString(), formatPeso(r.amount), r.status
+        ]);
+        break;
+      case "accommodation":
+        title = "Accommodation History Report";
+        headers = ["Record ID", "Student Name", "Property", "Room", "Move-in Date", "Move-out Date"];
+        rows = filteredAccommodation.map(r => [
+          r.record_id, r.student_name, r.housing_name, r.room_code,
+          new Date(r.movein_date).toLocaleDateString(), new Date(r.moveout_date).toLocaleDateString()
+        ]);
+        break;
+    }
+    return { title, headers, rows };
+  }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  function handleExportCSV() {
+    const { title, headers, rows } = getExportData();
+    exportToCSV(title.replace(/\s+/g, '_').toLowerCase(), headers, rows);
+  }
+
+  function handleExportPDF() {
+    const { title, headers, rows } = getExportData();
+    exportToPDF(title, title.replace(/\s+/g, '_').toLowerCase(), headers, rows);
+  }
+
+  
   return (
     <div style={{
       display: "flex", flexDirection: "column", gap: 16,
@@ -189,31 +239,37 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
     }}>
     
 
-      {/* Tab bar */}
-      <div style={{
-        display: "flex", gap: 2,
-        background: C.cream, borderRadius: 10,
-        padding: 4, width: "fit-content",
-      }}>
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => switchTab(tab.key)}
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12, fontWeight: 600,
-              padding: "7px 16px", borderRadius: 7,
-              border: "none", cursor: "pointer",
-              background: activeTab === tab.key ? "#fff" : "transparent",
-              color: activeTab === tab.key ? C.navy : C.teal,
-              boxShadow: activeTab === tab.key ? "0 1px 4px rgba(28,38,50,0.10)" : "none",
-              transition: "all 0.15s",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Header Row */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+        {/* Tab bar */}
+        <div style={{
+          display: "flex", gap: 2,
+          background: C.cream, borderRadius: 10,
+          padding: 4, width: "fit-content",
+        }}>
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => switchTab(tab.key)}
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 12, fontWeight: 600,
+                padding: "7px 16px", borderRadius: 7,
+                border: "none", cursor: "pointer",
+                background: activeTab === tab.key ? "#fff" : "transparent",
+                color: activeTab === tab.key ? C.navy : C.teal,
+                boxShadow: activeTab === tab.key ? "0 1px 4px rgba(28,38,50,0.10)" : "none",
+                transition: "all 0.15s",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        
+        {/* Export Buttons */}
+        <ExportButton onExportCSV={handleExportCSV} onExportPDF={handleExportPDF} />
       </div>
 
       {/* Stat cards */}

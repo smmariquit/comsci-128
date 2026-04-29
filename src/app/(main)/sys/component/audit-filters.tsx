@@ -17,6 +17,7 @@ export interface AuditFiltersProps {
   moduleOptions?:  string[];
   statusOptions?:  string[];
   onExport?:       () => void;
+  onExportPDF?:    () => void;
 }
 
 export default function AuditFilters({
@@ -26,6 +27,7 @@ export default function AuditFilters({
   moduleOptions = ['All Modules', 'Auth', 'Dorms', 'Rooms', 'Occupancy', 'Users', 'Reports'],
   statusOptions = ['All Status', 'Success', 'Failed'],
   onExport,
+  onExportPDF,
 }: AuditFiltersProps) {
   const set = (key: keyof AuditFiltersState, val: string) =>
     onChange({ ...values, [key]: val });
@@ -87,14 +89,27 @@ export default function AuditFilters({
         <div className="w-px h-7 bg-[#1a2332]/10 mx-1" />
 
         {/* Export */}
-        {onExport && (
-          <button
-            onClick={onExport}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1a2332] text-white text-sm font-semibold hover:bg-[#253448] transition-colors shrink-0"
-          >
-            <Download size={14} />
-            Export CSV
-          </button>
+        {(onExport || onExportPDF) && (
+          <div className="flex items-center gap-2 shrink-0">
+            {onExport && (
+              <button
+                onClick={onExport}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1a2332]/15 text-[#1a2332] text-sm font-semibold hover:bg-[#eae8e1] transition-colors"
+              >
+                <Download size={14} />
+                CSV
+              </button>
+            )}
+            {onExportPDF && (
+              <button
+                onClick={onExportPDF}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#d4622a] text-white text-sm font-semibold hover:bg-[#b04a1b] transition-colors"
+              >
+                <Download size={14} />
+                PDF
+              </button>
+            )}
+          </div>
         )}
       </div>
 
