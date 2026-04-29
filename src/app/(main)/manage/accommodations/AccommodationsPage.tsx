@@ -6,20 +6,14 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 
-type SortOption = "name-asc" | "name-desc" | "address-asc" | "address-desc";
+import type { Database } from "@/app/types/database.types";
 
-type Room = {
-  maximum_occupants: number | null;
-  occupancy_status: string;
+type SortOption = "name-asc" | "name-desc" | "slots-asc" | "slots-desc" | "occupants-asc" | "occupants-desc";
+
+type Housing = Database["public"]["Tables"]["housing"]["Row"] & {
+  room: Database["public"]["Tables"]["room"]["Row"][];
 };
 
-type Housing = {
-  housing_id: number;
-  housing_name: string;
-  housing_address: string;
-  housing_image: string | null;
-  room: Room[];
-};
 
 function DetailItem({ label, value }: { label: string; value: string | number }) {
   return (
@@ -107,9 +101,13 @@ function FilterBar({
               <option value="name-asc">Name: A → Z</option>
               <option value="name-desc">Name: Z → A</option>
             </optgroup>
-            <optgroup label="Sort by Address">
-              <option value="address-asc">Address: A → Z</option>
-              <option value="address-desc">Address: Z → A</option>
+            <optgroup label="Sort by Free Slots">
+                <option value="slots-asc">Free Slots: Low → High</option>
+                <option value="slots-desc">Free Slots: High → Low</option>
+            </optgroup>
+            <optgroup label="Sort by Total Occupants">
+                <option value="occupants-asc">Total Occupants: Low → High</option>
+                <option value="occupants-desc">Total Occupants: High → Low</option>
             </optgroup>
           </select>
           <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▾</span>
@@ -133,15 +131,21 @@ export default function AccommodationsPage({ housings }: { housings: Housing[] }
     const q = search.trim().toLowerCase();
     if (q) result = result.filter((h) => h.housing_name.toLowerCase().includes(q));
     result.sort((a, b) => {
-      switch (sort) {
-        case "name-asc":     return a.housing_name.localeCompare(b.housing_name);
-        case "name-desc":    return b.housing_name.localeCompare(a.housing_name);
-        case "address-asc":  return a.housing_address.localeCompare(b.housing_address);
-        case "address-desc": return b.housing_address.localeCompare(a.housing_address);
-      }
-    });
-    return result;
-  }, [housings, search, sort]);
+        const aSlots = a.room.filter((r) => r.occupancy_status === "Empty").length;
+        const bSlots = b.room.filter((r) => r.occupancy_status === "Empty").length;
+        const aOccupants = a.room.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0);
+        const bOccupants = b.room.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0);
+        switch (sort) {
+        case "name-asc":        return a.housing_name.localeCompare(b.housing_name);
+        case "name-desc":       return b.housing_name.localeCompare(a.housing_name);
+        case "slots-asc":       return aSlots - bSlots;
+        case "slots-desc":      return bSlots - aSlots;
+        case "occupants-asc":   return aOccupants - bOccupants;
+        case "occupants-desc":  return bOccupants - aOccupants;
+        }
+     });
+        return result;
+    }, [housings, search, sort]);
 
   return (
     <main className="min-h-screen flex flex-col p-6 gap-6 bg-[var(--cream)]">
