@@ -120,7 +120,7 @@ export default async function MgrDashboardPage() {
             <StatCard label="Approved Applications" value={stats.approved} icon={FileCheck} />
             <StatCard label="Rejected Applications" value={stats.rejected} icon={FileX} />
             <StatCard label="Total Rooms" value={roomStats.totalRooms} icon={Bed} />
-            <StatCard label="Vacant Rooms" value={roomStats.totalFreeRooms} icon={Armchair}/>
+            <StatCard label="Rooms with vacancy" value={roomStats.totalFreeRooms} icon={Armchair}/>
           </div>
 
         </div>
