@@ -48,10 +48,21 @@ async function getByAccountNumber(account_number: number) {
 	return data;
 }
 
+async function getRecentByManager(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("audit_log")
+    .select("*")
+    .eq("assigned_manager", managerAccountNumber)
+    .order("timestamp", { ascending: false })
+    .limit(5);
+  if (error) throw error;
+  return data;
+}
 
 export const auditLogData = {
 	create,
 	getAll,
 	getByAccountNumber,
-	getRecent
+	getRecent,
+	getRecentByManager
 }
