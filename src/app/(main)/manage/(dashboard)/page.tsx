@@ -20,12 +20,12 @@ export const metadata: Metadata = {
 function GrossRevenueCard({ value }: { value: number }) {
   return (
     <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between h-full">
-      <p className="text-sm text-(--cream) uppercase tracking-widest">Gross Revenue</p>
+      <p className="text-3xl text-(--cream) uppercase tracking-widest">Gross Revenue</p>
       <div>
-        <p className="text-5xl font-bold text-[var(--dark-orange)]">
+        <p className="text-6xl font-bold text-[var(--dark-orange)]">
           ₱{value.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
         </p>
-        <p className="text-xs text-gray-400 mt-2">Total from paid bills</p>
+        <p className="text-sm text-gray-400 mt-2">Total from paid bills</p>
       </div>
     </div>
   );
@@ -93,7 +93,6 @@ export default async function MgrDashboardPage() {
   if (!managerAccountNumber) {
     redirect("/unauthorized")
   }
-  console.log(managerAccountNumber)
 
   const [stats, roomStats, dorms, grossRevenue, logs] = await Promise.all([
     applicationService.getDashboardStats(managerAccountNumber),
