@@ -23,18 +23,18 @@ export default function ManageLayout({
             </h1>
 
             <nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
-              <Link href="/manage" className="text-[#EDE9DE] hover:opacity-80 transition-opacity">
+              <Link href="/manage" className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3">
                 Dashboard
               </Link>
               <Link
                 href="/manage/accommodations"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
               >
                 Accommodations
               </Link>
               <Link
                 href="/manage/applications"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
               >
                 Applications
               </Link>
