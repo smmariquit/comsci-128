@@ -44,19 +44,20 @@ export default function LandingPage() {
             alt="UPLB CASA Logo"
             width={32}
             height={32}
+            className="flex items-center"
           />
-          UPLB CASA
+          <span className="flex items-center">UPLB CASA</span>
         </div>
         <div className="flex items-center gap-5">
           <Link
             href="/login"
-            className="font-medium text-[#C9642A] hover:underline transition-colors"
+            className="font-medium text-[#C9642A] hover:underline transition-colors flex items-center"
           >
             Log in
           </Link>
           <Link
             href="/register"
-            className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+            className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center"
           >
             Sign up
           </Link>
