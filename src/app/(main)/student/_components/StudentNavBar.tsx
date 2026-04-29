@@ -16,7 +16,6 @@ export default function StudentNavBar({ path, userId }: StudentNavbarProps) {
 					<div className="flex items-center gap-4 md:gap-8">
 						<Logo size={28} href="/" />
 
-
 						<nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
 							<a href="/student" className="text-[#EDE9DE] hover:opacity-80 transition-opacity">
 								Dashboard
