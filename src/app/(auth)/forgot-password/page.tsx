@@ -7,7 +7,6 @@ import { supabase } from "@/app/lib/supabase";
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [status, setStatus] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -81,6 +80,7 @@ export default function ForgotPasswordPage() {
       >
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Forgot Password</h2>
         {status && <div className="text-green-400 text-center">{status}</div>}
+        {error && <div className="text-red-400 text-center">{error}</div>}
         {step === 1 && (
           <>
             <input
