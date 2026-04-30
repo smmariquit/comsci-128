@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { supabase } from "@/app/lib/supabase";
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
@@ -8,29 +10,77 @@ export default function ForgotPasswordPage() {
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [status, setStatus] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const code = searchParams.get("code");
+    if (!code) return;
+
+    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      if (error) {
+        setError("Reset Link is Invalid or Expired.");
+      } else {
+        setStep(3);
+        router.replace("/forgot-password");
+      }
+    });
+  }, [searchParams, router]);
 
   // Step 1: Ask for email
   // Step 2: Ask for code
   // Step 3: Ask for new password
 
-  function handleEmailSubmit(e: React.FormEvent) {
+  async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
     setStatus("");
-    // Here you would trigger the email send (extensible for real backend)
-    setStep(2);
+
+    // Here you would trigger the email send
+    const res = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error ?? "Something went wrong.");
+    } else {
+      setStep(2);
+      setStatus("Check your email for a reset link.");
+    }
   }
 
-  function handleCodeSubmit(e: React.FormEvent) {
+  async function handleCodeSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("");
     // Here you would verify the code (extensible for real backend)
     setStep(3);
   }
 
-  function handlePasswordSubmit(e: React.FormEvent) {
+  async function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setStatus("Password changed! (Demo only)");
-    // Here you would actually change the password (extensible for real backend)
+    setError("");
+
+    if (newPassword !== confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    // Here you would actually change the password 
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setStatus("Password changed!");
+      router.push("/login");
+    }
   }
 
   return (
