@@ -1,12 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 
 export default function GoogleLoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const supabase = getSupabaseBrowserClient();
 
   useEffect(() => {
@@ -26,12 +25,15 @@ export default function GoogleLoginPage() {
           return;
         }
 
+        const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+        const intent = urlParams.get("intent") || "login";
+
         const response = await fetch("/api/auth/google-login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ intent: searchParams.get("intent") || "login" }),
+          body: JSON.stringify({ intent }),
         });
 
         const payload: { role?: string; redirectTo?: string; error?: string; googleData?: any } = await response.json();
@@ -55,7 +57,7 @@ export default function GoogleLoginPage() {
       }
     }
     handleLogin();
-  }, [router, searchParams, supabase]);
+  }, [router, supabase]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">
