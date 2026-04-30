@@ -53,6 +53,18 @@ async function findByEmail(userEmail: string): Promise<User | null> {
   return data && data.length > 0 ? data[0] : null;
 }
 
+async function findByGoogleIdentity(googleIdentity: string): Promise<User | null> {
+    const { data, error } = await supabase
+        .from("user")
+        .select()
+        .eq("google_identity", googleIdentity)
+        .eq("is_deleted", false);
+
+  if (error) throw new Error(`Find User by Google Identity Error: ${error.message}`);
+
+  return data && data.length > 0 ? data[0] : null;
+}
+
 async function update(
 	userId: number,
 	userDetails: UpdateUser,
@@ -278,6 +290,7 @@ export const userData = {
     findAll,
     findById,
     findByEmail,
+    findByGoogleIdentity,
     update,
     deactivate,
     countAllUser,
