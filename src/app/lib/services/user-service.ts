@@ -1,6 +1,6 @@
 import "server-only";
 
-import bcrypt from "bcrypt";
+import { supabaseAdmin } from "@/app/lib/supabase-admin";
 import { studentData } from "@/app/lib/data/student-data";
 import { userData } from "@/app/lib/data/user-data";
 import type { NewStudent } from "@/models/student";
@@ -28,28 +28,38 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
     if (!first_name) throw new Error("First name is required.");
     if (!last_name) throw new Error("Last name is required.");
     if (!password) throw new Error("Password is required");
-    // Student default
-    userDetails.user_type = "Student";
-    // Hash pw
-    const salt = await bcrypt.genSalt(12);
-    userDetails.password = await bcrypt.hash(password, salt);
 
-    // mock... replace once there's input for Student and StudentAcademic
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: account_email,
+      password: password,
+      email_confirm: true,
+    });
+
+    if (authError || !authData.user) {
+      throw new Error(`Auth creation failed: ${authError?.message || "Unknown error"}`);
+    }
+
+    // set user type to Student (default)
+    userDetails.user_type = "Student";
+    userDetails.password = "";
+
+    // create student details
+    // update when student_academic table is non-nullable
     const studentDetails: NewStudent = {
-      student_number: 0,
+      student_number: Math.floor(Math.random() * 1000000),
       housing_status: "Not Assigned",
-      emergency_contact_name: "Maria Santos",
-      emergency_contact_number: "09181234567",
-      emergency_contact_relationship: "Mother",
+      emergency_contact_name: null,
+      emergency_contact_number: null,
+      emergency_contact_relationship: null,
     } as NewStudent;
 
+    // updated by student later
     const studentAcademicDetails: NewStudentAcademic = {
-      degree_program: "BS Computer Science",
-      standing: "Freshman",
+      degree_program: "",
+      standing: undefined,
       status: "Active",
     };
 
-    // Insert user
     const createdUser = await userData.create(userDetails);
 
     await studentData.create(
@@ -65,7 +75,6 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
   }
 };
 
-// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 const getUser = async (userId: number): Promise<Public<User> | null> => {
   try {
     const userProfile = await userData.findById(userId);
@@ -104,8 +113,6 @@ const updateUser = async (
   updates: NewUser,
 ): Promise<ServiceResponse<Public<UpdateUser>>> => {
   try {
-    // To consider: separate update on password for stronger security
-    // e.g. email validation for changing password
     const { account_number, account_email, is_deleted, ...allowedUpdates } =
       updates;
 
