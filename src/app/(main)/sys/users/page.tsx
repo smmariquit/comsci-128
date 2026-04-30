@@ -426,18 +426,31 @@ export default function UserManagementPage({
 				if (!response.ok) throw new Error("Failed to update role");
 				console.log(dorm?.id);
 
-				// Assign dorm manager
+				// Assign dorm manager or landlord
 				if (dorm) {
-				const assignManager = await fetch(`/api/housing/${dorm.id}`, {
-					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-					housing_id: dorm.id,
-					manager_account_number: Number(userId),
-					}),
-				});
+					const payload =
+						role === "Landlord"
+						? {
+							housing_id: dorm.id,
+							landlord_account_number: Number(userId),
+							}
+						: role === "Housing Administrator"
+						? {
+							housing_id: dorm.id,
+							manager_account_number: Number(userId),
+							}
+						: null;
 
-				if (!assignManager.ok) throw new Error("Failed to assign housing");
+					if (payload) {
+						const assignManager = await fetch(`/api/housing/${dorm.id}`, {
+						method: "PATCH",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(payload),
+						});
+
+						if (!assignManager.ok)
+						throw new Error("Failed to assign housing");
+					}
 				}
 
 				// 3. Update UI
