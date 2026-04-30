@@ -49,9 +49,16 @@ export async function PATCH(
 
   } catch (error: any) {
     console.error("Error updating application status:", error)
+
+    const isAuthError = error.message.includes("Unauthorized") || 
+                        error.message.includes("Access Denied");
+    
+    const status = isAuthError ? 403 : 500;
+    const responseMessage = isAuthError? error.message : "Internal Server Error";
+
     return NextResponse.json(
-      { message: "Failed to update application status.", error: error.message },
-      { status: 500 }
+      { message: responseMessage, error: error.message },
+      { status: status }
     )
   }
 }

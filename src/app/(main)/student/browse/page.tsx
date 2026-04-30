@@ -4,6 +4,12 @@ import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";
 import HousingCards from "./_components/HousingCards";
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Browse Housing",
+    description: "Explore available dormitories and housing options.",
+};
 
 export default async function DormBrowsePage({
     searchParams,

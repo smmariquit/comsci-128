@@ -3,9 +3,13 @@
 import { applicationData } from "@/app/lib/data/application-data";
 import { Database } from "@/app/types/database.types";
 
+
 type ApplicationStatus = Database["public"]["Enums"]["ApplicationStatus"];
 
 import { accommodationHistoryData } from "@/lib/data/accommodation-history-data";
+import { validateAction, validateOwnership } from "./authorization-service";
+import App from "next/app";
+import { AppAction } from "../models/permissions";
 
 const getDashboardStats = async () => {
   try {
@@ -55,12 +59,21 @@ const updateApplicationStatus = async (
   status: ApplicationStatus
 ) => {
   try {
+    // rbac
+    await validateAction(AppAction.UPDATE_APPLICATION_STATUS);
+
+    // obac
+    const appDetail = await applicationData.getApplicationDetailById(applicationId);
+    if (appDetail?.landlord_account_number) {
+      await validateOwnership(appDetail.landlord_account_number);
+    }
+
     const updated = await applicationData.update(applicationId, { application_status: status })
     if (!updated) return null
     return updated
   } catch (error) {
     console.error("Error: ", error)
-    throw new Error("Failed to update application status")
+    throw error;
   }
 }
 
@@ -71,12 +84,11 @@ const assignApplicantToRoom = async (
   moveoutDate: string
 ) => {
   try {
-    const updated = await applicationData.update(applicationId, {
-        room_id: roomId,
-        application_status: "Approved"
-    });
+    // rbac
+    await validateAction(AppAction.ASSIGN_ROOM);
     
-    if (!updated) throw new Error("Failed to assign room and approve application.")
+    const updated = await applicationData.assignRoomToApplication(applicationId, roomId)
+    if (!updated) throw new Error("Failed to assign room to application.")
 
     await accommodationHistoryData.createTenantRecord(studentAccountNumber, roomId, moveoutDate)
 

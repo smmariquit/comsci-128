@@ -10,7 +10,7 @@ import  IssueBillModal, {ViewBillModal} from "@/app/components/admin/billings/bi
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
-import { billingService } from "@/app/lib/services/billing-service";
+import { billingClient } from "@/app/lib/client/billing-client";
 import BillingPageLoading from "./loading";
 import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
 
@@ -137,7 +137,7 @@ export default function BillingPage() {
     if (!isLoading) setIsLoading(true);
 
     try {
-      const data = await billingService.fetchAllBills(managedHousingIds);
+      const data = await billingClient.fetchAllBills(managedHousingIds);
       setBills(data);
     } catch (error) {
       console.error("Refresh Load Error: ", error);
@@ -200,7 +200,7 @@ export default function BillingPage() {
 
     try {
       setIsLoading(true);
-      await billingService.markAsPaid(row.transaction_id);
+      await billingClient.markAsPaid(row.transaction_id);
       await loadBills();
       setFeedback({
         open: true,
@@ -226,7 +226,7 @@ export default function BillingPage() {
 
     try {
       setIsLoading(true);
-      await billingService.removeBill(row.transaction_id);
+      await billingClient.removeBill(row.transaction_id);
       await loadBills();
       setFeedback({
         open: true,
@@ -267,7 +267,7 @@ export default function BillingPage() {
           // const studentId = form.student_account_number ?? 
           //   bills.find(b => b.student_name === form.student_name)?.student_account_number;
 
-          return billingService.createBill({
+          return billingClient.createBill({
             student_account_number: studentId,
             bill_type: dbType,
             amount: parseFloat(charge.amount),

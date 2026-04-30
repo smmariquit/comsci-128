@@ -5,12 +5,12 @@ import { PlusSquare } from "lucide-react";
 import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
 import { roomData } from "@/app/lib/data/room-data";
-import { roomService } from "@/app/lib/services/room-service";
 import RoomFilters, { OccupancyFilter, TypeFilter } from "@/components/admin/rooms/roomfilters";
 import RoomTable, { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
 import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
 import RoomsPageLoading from "./loading";
 import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
+import { assignRoom, unassignRoom } from "@/services/room-service";
 
 export default function Page() {
   const mockLandlordId = 179;
@@ -196,7 +196,7 @@ export default function Page() {
 
     try {
       setIsActionLoading(true);
-      await roomService.assignRoom(selectedRoom.room_id, studentId);
+      await assignRoom(selectedRoom.room_id, studentId);
       await refreshRooms();
       setShowAssignModal(false);
       setSelectedRoom(null);
@@ -223,7 +223,7 @@ export default function Page() {
 
     try {
       setIsActionLoading(true);
-      await roomService.unassignRoom(selectedRoom.room_id, studentId);
+      await unassignRoom(selectedRoom.room_id, studentId);
       await refreshRooms();
       setFeedback({
         open: true,

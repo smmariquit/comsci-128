@@ -4,7 +4,8 @@ import Sidebar from "@/app/components/admin/sidebar";
 import { createSupabaseServerClient } from "@/app/lib/server-client";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
+  title: "Housing Administrator",
+  description: "Housing Administrator Panel",
 };
 
 function buildInitials(name: string) {

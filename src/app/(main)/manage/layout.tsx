@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Logo from "@/app/components/Logo";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
+  description: "Manager panel for managing properties, applications, and tenants.",
 };
 
 export default function ManageLayout({
@@ -11,13 +13,13 @@ export default function ManageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="w-full">
+    <div className="h-screen flex flex-col overflow-hidden">
+      <header className="flex-shrink-0">
         {/*top navbar*/}
         <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-10">
-              <h1 className="text-lg font-bold">Manager</h1>
+              <Logo size={24} href="/manage" />
 
               <div className="flex items-center text-sm">
                 <Link
@@ -74,9 +76,11 @@ export default function ManageLayout({
         </nav>
       </header>
 
-      <main className="flex-1 px-6 bg-[var(--dark-blue)]">{children}</main>
+      <main className="flex-1 overflow-y-auto bg-[var(--dark-blue)]">
+        {children}
+      </main>
 
-      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
+      <footer className="flex-shrink-0 bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
         © 2026 CMSC 128 Project
       </footer>
     </div>

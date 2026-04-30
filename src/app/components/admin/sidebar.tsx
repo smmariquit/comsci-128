@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import NavItem from "@/app/components/admin/navitem";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import Logo from "@/app/components/Logo";
 
 // Home icon for logo
 function HomeIcon() {
@@ -118,7 +119,7 @@ export default function Sidebar({
             overflow: "hidden",
           }}
         >
-          <Image src="/favicon.png" alt="Logo" width={28} height={28} />
+          <Logo size={28} showText={false} href={null} />
         </div>
 
         {/* Brand name */}
