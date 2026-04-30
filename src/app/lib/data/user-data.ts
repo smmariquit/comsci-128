@@ -17,15 +17,28 @@ async function create(userDetails: NewUser): Promise<User> {
 }
 
 async function findAll(): Promise<User[]> {
-	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
+    const { data, error } = await supabase
+        .from('user')
+        .select(`
+            *,
+            student (
+                housing_status,
+                student_accommodation_history (
+                    room (
+                        room_code,
+                        room_type,
+                        housing (
+                            housing_name,
+                            housing_address
+                        )
+                    )
+                )
+            )
+        `);
 
-	const { data, error } = await supabase
-	.from('user')
-	.select()
+    if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
-  if (error) throw new Error(`Get All Users Error: ${error.message}`);
-
-  return data ?? [];
+    return data ?? [];
 }
 
 async function findById(userId: number): Promise<User | null> {

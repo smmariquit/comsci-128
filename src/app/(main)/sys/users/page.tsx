@@ -128,17 +128,23 @@ export default function UserManagementPage({
 				}
 				
 				// Transform the data to match User interface
-				const transformedUsers: User[] = rawUsers.map((user: any) => ({
-					id: user.account_number,
-					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-					gender: user.sex,
-					email: user.account_email,
-					role: user.user_type,
-					status: user.is_deleted ? 'Disabled' : 'Active',
-					dormitory: user.dormitory || user.dorm_name || '—',
-					room: user.room || user.room_number || '—',
-				}));
-				
+				const transformedUsers: User[] = rawUsers.map((user: any) => {
+					const history = user.student?.student_accommodation_history?.[0]; // most recent
+					const room = history?.room;
+					const housing = room?.housing;
+
+					return {
+						id:        user.account_number,
+						name:      `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+						gender:    user.sex,
+						email:     user.account_email,
+						role:      user.user_type,
+						status:    user.is_deleted ? 'Disabled' : 'Active',
+						dormitory: housing?.housing_name,
+						room:      room?.room_code
+					};
+				});
+								
 				console.log('Transformed users:', transformedUsers); 
 				
 				setUsers(transformedUsers);
@@ -151,7 +157,7 @@ export default function UserManagementPage({
 				setLoading(false);
 			}
 		};
-		
+
 		fetchUsers();
 	}, []);
 
