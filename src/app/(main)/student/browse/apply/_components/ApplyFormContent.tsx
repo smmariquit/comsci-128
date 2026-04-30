@@ -5,7 +5,6 @@ import { ChevronDown, ChevronLeft, FileText } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
-import { ChevronLeft, ChevronDown, FileText } from "lucide-react";
 
 export function ApplyFormContent() {
 	const dateNow = new Date(Date.now()).toISOString().split("T")[0];

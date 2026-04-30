@@ -4,6 +4,7 @@ import { applicationService } from "@/app/lib/services/application-service";
 
 export const metadata: Metadata = {
   title: "Applications",
+  description: "Review and process housing applications submitted by students.",
 };
 import Link from "next/link";
 import ApplicationsClient from "./_components/ApplicationsClient";

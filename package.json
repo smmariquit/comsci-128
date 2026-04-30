@@ -10,17 +10,17 @@
     "format": "biome format --write"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.9.0",
+    "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.1",
     "bcrypt": "^6.0.0",
     "lucide-react": "^1.7.0",
     "next": "16.2.4",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
     "swagger-ui-react": "^5.32.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.4.13",
     "@tailwindcss/postcss": "^4",
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^20.19.37",
@@ -30,6 +30,6 @@
     "babel-plugin-react-compiler": "1.0.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }

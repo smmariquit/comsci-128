@@ -1,5 +1,7 @@
 import { billData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
 
 function normalizeStatus(rawStatus: unknown): BillRow["status"] {
     const value = String(rawStatus ?? "").trim().toLowerCase();
@@ -23,7 +25,10 @@ function getEffectiveStatus(bill: any): BillRow["status"] {
 
 const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[]> => {
     try {
-        const { data, error } = await billData.getBillsOfLandlord(managedHousingIds);
+        // RBAC
+        await validateAction(AppAction.BILL_STATUS);
+        
+        const { data, error } = await billData.getAll();
         if (error) throw error;
 
         return (data || []).map((bill: any) => {
@@ -60,6 +65,8 @@ const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[
 
 const markAsPaid = async (txnId: number) => {
     try {
+        // RBAC
+        await validateAction(AppAction.UPDATE_BILL_STATUS);
         return await billData.markAsPaid(txnId);
     } catch (error) {
         console.error("Service Error (markAsPaid): ", error);
@@ -69,6 +76,9 @@ const markAsPaid = async (txnId: number) => {
 
 const removeBill = async (txnId: number) => {
     try {
+        // RBAC
+        await validateAction(AppAction.UPDATE_BILL_STATUS);
+
         await billData.remove(txnId);
         return { success: true };
     } catch (error) {
@@ -79,6 +89,9 @@ const removeBill = async (txnId: number) => {
 
 const createBill = async (billDetails: any) => {
     try {
+        // RBAC
+        await validateAction(AppAction.ASSIGN_BILL);
+
         return await billData.create(billDetails);
     } catch (error) {
         console.error("Service Error (createBill): ", error);

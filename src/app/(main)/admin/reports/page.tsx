@@ -3,12 +3,14 @@ import ReportsWrapper from "@/app/components/admin/reports/reports_wrapper";
 
 export const metadata: Metadata = {
   title: "Reports",
+  description:
+    "View and generate reports related to occupancy, applications, revenue, and accommodation history for managed properties.",
 };
+
 import { reportData } from "@/app/lib/data/report-data";
-import { report } from "process";
 
 export default async function ReportsPage() {
-  // TODO: Replace with the actual logged-in admin's managed IDs 
+  // TODO: Replace with the actual logged-in admin's managed IDs
   const managedHousingIds = [3, 12, 13, 14, 16, 18];
 
   // server-side fetch

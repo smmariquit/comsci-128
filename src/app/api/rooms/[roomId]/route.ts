@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { roomService } from "@/services/room-service";
+import * as roomService from "@/app/lib/services/room-service";
 
 export async function GET(
   _request: NextRequest,
