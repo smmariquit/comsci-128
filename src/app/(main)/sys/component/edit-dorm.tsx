@@ -21,7 +21,7 @@ export interface DormLandlord {
 }
 
 export interface EditDormData {
-  id: string | number;
+  housingId: number;
   name: string;
   dormAddress?: string;
   type?: DormType;
@@ -37,7 +37,7 @@ export interface EditDormModalProps {
   dorm: EditDormData;
   /** List of eligible managers to pick from */
   onClose: () => void;
-  onSave: (dormId: EditDormData["id"], updates: Partial<EditDormData>) => void;
+  onSave: (dormId: EditDormData["housingId"], updates: Partial<EditDormData>) => void;
   managers?: DormManager[];
   landlords?: DormLandlord[];
 }
@@ -143,21 +143,31 @@ export function EditDormModal({
   const managerDisplayValue = managerQuery !== "" ? managerQuery : (selectedManager?.name ?? "");
   const landlordDisplayValue = landlordQuery !== "" ? landlordQuery : (selectedLandlord?.name ?? "");
 
-  function handleSave() {
-    onSave(dorm.id, {
-      name:        name.trim() || dorm.name,
-      dormAddress: address.trim() || undefined,
-      type,
-      capacity:    capacity ? Number(capacity) : undefined,
-      monthlyRate: rate     ? Number(rate)     : undefined,
-      description: description.trim() || undefined,
-      status,
-      dormitory:   selectedManager?.name  ?? undefined,
+  async function handleSave() {
+    const res = await fetch(`/api/housing/${dorm.housingId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        housing_name: name.trim(),
+        housing_address: address.trim(),
+        housing_type: type,
+        rent_price: rate ? Number(rate) : null,
+
+        manager_account_number: selectedManager?.id ?? null,
+        landlord_account_number: selectedLandlord?.id ?? null,
+      }),
     });
+
+    if (!res.ok) {
+      console.error("Failed to update housing");
+      return;
+    }
+
     onClose();
   }
-
-  // Render
+    // Render
   return (
     <>
       {/* Backdrop */}

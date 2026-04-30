@@ -25,6 +25,7 @@ export interface Dorm {
 interface LandlordOption {
     id: string;
     name: string;
+    email: string;
 }
 
 // Sidebar + notifications
@@ -143,15 +144,15 @@ export default function DormManagementPage({
             // Transform dorms
             const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
             const transformed: Dorm[] = rawDorms.map((dorm: any) => ({
-              id:           String(dorm.housingId),
-              name:         dorm.name || 'Unknown',
-              status:       'Accepting',
-              dormitory:    'Unassigned',
-              dormAddress:  dorm.address || undefined,
+              id: String(dorm.housingId ?? dorm.housing_id ?? ''),
+              name: dorm.name ?? dorm.housing_name ?? 'Unknown',
+              status: 'Accepting',
+              dormitory: 'Unassigned',
+              dormAddress: dorm.address ?? dorm.housing_address ?? '',
               managerEmail: undefined,
-              capacity:     dorm.totalRooms || undefined,
-              rooms:        dorm.totalRooms || undefined,
-              occupied:     dorm.occupiedRooms || undefined,
+              capacity: dorm.totalRooms ?? 0,
+              rooms: dorm.totalRooms ?? 0,
+              occupied: dorm.occupiedRooms ?? 0,
             }));
             // Transform landlords
             const rawLandlords = Array.isArray(landlordData) ? landlordData : Array.isArray(landlordData.data) ? landlordData.data : [];
@@ -404,18 +405,24 @@ export default function DormManagementPage({
         />
       )}
       {editingDorm && (
-        <EditDormModal
-          dorm={editingDorm as any}
-          managers={managersList}
-          onClose={() => setEditingDorm(null)}
-          onSave={(id, updates) => {
-            setDormList((prev) =>
-                prev.map((d) => (d.id === id ? { ...d, ...updates, id: String(updates.id ?? d.id) } : d))
-            );
-            setEditingDorm(null);
-          }}
-        />
-      )}
+      <EditDormModal
+        dorm={editingDorm as any}
+        managers={managersList}
+        landlords={landlordList}
+        onClose={() => setEditingDorm(null)}
+        onSave={(id, updates) => {
+          setDormList((prev) =>
+            prev.map((d) =>
+              Number(d.id) === Number(id)
+                ? { ...d, ...updates }
+                : d
+            )
+          );
+
+          setEditingDorm(null);
+        }}
+      />
+    )}
     </div>
   );
 }
