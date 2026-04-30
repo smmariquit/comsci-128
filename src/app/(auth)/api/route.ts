@@ -5,6 +5,15 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    if (body.googleSignup) {
+      const newStudent = await userService.finalizeGoogleSignup(body.account_email, body);
+
+      return NextResponse.json(
+        { message: "User registered successfully.", user: newStudent },
+        { status: 201 },
+      );
+    }
+
     const newStudent = await userService.addUser(body);
 
     return NextResponse.json(

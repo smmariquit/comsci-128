@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import type { UserRole } from "@/models/permissions";
 import { createSupabaseServerClient } from "@/lib/server-client";
 import { getCurrentUserRole } from "@/services/authorization-service";
@@ -41,8 +41,23 @@ async function resolveManagerRole(accountNumber: number) {
   return "landlord" as UserRole;
 }
 
-export async function POST() {
+function buildRegisterData(
+  profile: { firstName: string; lastName: string; email: string },
+  error?: string,
+) {
+  return {
+    googleFirstName: profile.firstName,
+    googleLastName: profile.lastName,
+    googleEmail: profile.email,
+    ...(error && { googleError: error }),
+  };
+}
+
+export async function POST(request: NextRequest) {
   try {
+    const body = await request.json().catch(() => ({}));
+    const intent = body?.intent === "signup" ? "signup" : "login";
+
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
@@ -53,7 +68,43 @@ export async function POST() {
       return NextResponse.json({ error: "Authentication required." }, { status: 401 });
     }
 
-    const dbUser = await userService.findOrCreateGoogleUser(user);
+    const profile = {
+      email: user.email || user.user_metadata?.email || "",
+      firstName:
+        user.user_metadata?.full_name?.split(/\s+/).filter(Boolean)[0] ||
+        user.user_metadata?.name?.split(/\s+/).filter(Boolean)[0] ||
+        "",
+      lastName:
+        user.user_metadata?.full_name?.split(/\s+/).filter(Boolean).slice(1).join(" ") ||
+        user.user_metadata?.name?.split(/\s+/).filter(Boolean).slice(1).join(" ") ||
+        "",
+    };
+
+    const existingUser = await userService.findGoogleUser(user);
+
+    if (intent === "signup") {
+      if (existingUser) {
+        return NextResponse.json(
+          {
+            error: "account already exist",
+            redirectTo: "/register",
+            googleData: buildRegisterData(profile, "account already exist"),
+          },
+          { status: 409 },
+        );
+      }
+
+      const createdUser = await userService.createGooglePlaceholderUser(user);
+
+      return NextResponse.json({
+        role: "student",
+        redirectTo: "/register",
+        googleData: buildRegisterData(profile),
+        user: createdUser,
+      });
+    }
+
+    const dbUser = existingUser || (await userService.findOrCreateGoogleUser(user));
 
     let role = await getCurrentUserRole();
 
@@ -65,7 +116,7 @@ export async function POST() {
       }
     }
 
-    return NextResponse.json({ role, redirectTo: roleRedirects[role] });
+    return NextResponse.json({ role, redirectTo: roleRedirects[role], user: dbUser });
   } catch (error: any) {
     console.error("Google login post-auth error:", error);
     return NextResponse.json(
