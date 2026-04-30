@@ -33,6 +33,9 @@ async function findAll(): Promise<User[]> {
                         )
                     )
                 )
+            ),
+            manager (
+                manager_type
             )
         `);
 
