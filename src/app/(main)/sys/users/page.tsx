@@ -227,6 +227,7 @@ export default function UserManagementPage({
 					<UserFilters
 						values={filters}
 						onChange={(f) => { setFilters(f); setPage(1); }}
+						dormOptions={['All Dorm', ...dorms.map((d) => d.name)]}
 					/>
 					
 					<div className="bg-white rounded-2xl overflow-hidden">
