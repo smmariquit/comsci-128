@@ -129,21 +129,27 @@ export default function UserManagementPage({
 				
 				// Transform the data to match User interface
 				const transformedUsers: User[] = rawUsers.map((user: any) => {
-					const history = user.student?.student_accommodation_history?.[0]; // most recent
-					const room = history?.room;
-					const housing = room?.housing;
+				// Student housing
+				const history = user.student?.student_accommodation_history?.[0];
+				const room = history?.room;
+				const studentHousing = room?.housing;
 
-					return {
-						id:        user.account_number,
-						name:      `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-						gender:    user.sex,
-						email:     user.account_email,
-						role:      user.user_type,
-						status:    user.is_deleted ? 'Disabled' : 'Active',
-						dormitory: housing?.housing_name,
-						room:      room?.room_code
-					};
-				});
+				// Manager housing
+				const managerHousing = user.manager?.housing_admin?.housing?.[0];
+
+				const housing = studentHousing || managerHousing;
+
+				return {
+					id:        String(user.account_number),
+					name:      `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+					gender:    user.sex,
+					email:     user.account_email,
+					role:      user.user_type,
+					status:    user.is_deleted ? 'Disabled' : 'Active',
+					dormitory: housing?.housing_name || '—',
+					room:      room?.room_code ? String(room.room_code) : '—',
+				};
+			});
 								
 				console.log('Transformed users:', transformedUsers); 
 				
@@ -397,6 +403,7 @@ export default function UserManagementPage({
 				throw new Error(`No API route defined for role: ${role}`);
 				}
 
+				// insert the table of the role
 				const response = await fetch(`/api/${route}/${userId}`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -404,6 +411,16 @@ export default function UserManagementPage({
 					account_number: userId,
 					manager_type: role,
 				}),
+				});
+				
+				// update user type
+				const userResponse = await fetch(`/api/users/${userId}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						account_number: userId,
+						user_type: "Manager",
+					}),
 				});
 
 				if (!response.ok) throw new Error("Failed to update role");
