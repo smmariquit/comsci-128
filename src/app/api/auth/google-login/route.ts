@@ -82,18 +82,8 @@ export async function POST(request: NextRequest) {
 
     const existingUser = await userService.findGoogleUser(user);
 
-    if (intent === "signup") {
-      if (existingUser) {
-        return NextResponse.json(
-          {
-            error: "account already exist",
-            redirectTo: "/register",
-            googleData: buildRegisterData(profile, "account already exist"),
-          },
-          { status: 409 },
-        );
-      }
-
+    // signup and login: if user doesn't exist, create placeholder and go to register form
+    if (!existingUser) {
       const createdUser = await userService.createGooglePlaceholderUser(user);
 
       return NextResponse.json({
@@ -104,7 +94,19 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const dbUser = existingUser || (await userService.findOrCreateGoogleUser(user));
+    // user exists, proceed to dashboard
+    if (intent === "signup") {
+      return NextResponse.json(
+        {
+          error: "account already exist",
+          redirectTo: "/register",
+          googleData: buildRegisterData(profile, "account already exist"),
+        },
+        { status: 409 },
+      );
+    }
+
+    const dbUser = existingUser;
 
     let role = await getCurrentUserRole();
 
