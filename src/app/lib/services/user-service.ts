@@ -15,6 +15,28 @@ type Public<T> = Omit<T, "account_number" | "password">;
 
 const _allowedSex = ["Female", "Male", "Prefer not to say"];
 
+type GoogleProfile = {
+  email: string;
+  googleIdentity: string | null;
+  firstName: string;
+  lastName: string;
+};
+
+function normalizeGoogleProfile(googleUser: any): GoogleProfile {
+  const email = googleUser.email || googleUser.user_metadata?.email || "";
+  const googleIdentity = googleUser.identities?.[0]?.id || null;
+  const fullName =
+    googleUser.user_metadata?.full_name ||
+    googleUser.user_metadata?.name ||
+    googleUser.user_metadata?.display_name ||
+    "";
+  const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
+  const firstName = nameParts[0] || email.split("@")[0] || "";
+  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : firstName;
+
+  return { email, googleIdentity, firstName, lastName };
+}
+
 const addUser = async (userDetails: NewUser): Promise<User> => {
   try {
     const { account_email, first_name, last_name, password } = userDetails;
@@ -209,15 +231,12 @@ const _promoteUserType = async (
 };
 
 const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
-  const email = googleUser.email;
-  const googleId = googleUser.identities?.[0]?.id;
-
-  const fullName = googleUser.user_metadata?.full_name || "";
-  const nameParts = fullName.split(" ");
-  const firstName = nameParts[0] || "";
-  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-
-  const existingUser = await userData.findByEmail(email);
+  const profile = normalizeGoogleProfile(googleUser);
+  const existingUser =
+    (await userData.findByEmail(profile.email)) ||
+    (profile.googleIdentity
+      ? await userData.findByGoogleIdentity(profile.googleIdentity)
+      : null);
 
   if (existingUser) {
     return existingUser;
@@ -225,10 +244,10 @@ const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
 
   // create user
   const userDetails: NewUser = {
-    account_email: email,
-    contact_email: email,
-    first_name: firstName,
-    last_name: lastName,
+    account_email: profile.email,
+    contact_email: profile.email,
+    first_name: profile.firstName,
+    last_name: profile.lastName,
 
     middle_name: null,
     birthday: null,
@@ -238,7 +257,7 @@ const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
     sex: "Prefer not to say",
     password: "", // No password for OAuth users
     user_type: "Student",
-    google_identity: googleId,
+    google_identity: profile.googleIdentity,
     profile_picture: null,
     is_deleted: false,
   };
