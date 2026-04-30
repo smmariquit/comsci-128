@@ -266,6 +266,23 @@ const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
   return createdUser;
 };
 
+const findGoogleUser = async (googleUser: any): Promise<User | null> => {
+  const profile = normalizeGoogleProfile(googleUser);
+
+  if (profile.googleIdentity) {
+    const byGoogleIdentity = await userData.findByGoogleIdentity(profile.googleIdentity);
+    if (byGoogleIdentity) {
+      return byGoogleIdentity;
+    }
+  }
+
+  if (!profile.email) {
+    return null;
+  }
+
+  return await userData.findByEmail(profile.email);
+};
+
 export const userService = {
   addUser,
   getUser,
@@ -275,4 +292,5 @@ export const userService = {
   getUserCount,
   getActiveUserCount,
   findOrCreateGoogleUser,
+  findGoogleUser,
 };
