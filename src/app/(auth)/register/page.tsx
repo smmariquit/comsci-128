@@ -41,7 +41,6 @@ export default function RegisterPage() {
             first_name: data.googleFirstName || prev.first_name,
             last_name: data.googleLastName || prev.last_name,
             email: data.googleEmail || prev.email,
-            contact_email: data.googleEmail || prev.contact_email,
           }));
           setGoogleSignupPending(true);
         }
