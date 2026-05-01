@@ -72,7 +72,7 @@ export default function ReviewWrapper({
   return (
     <div className="flex gap-6 w-full">
 
-      <div className="w-2/3 bg-white rounded-xl shadow p-4 flex items-center justify-center text-black min-h-96">
+      <div className="w-2/3 bg-yellow-50 rounded-xl shadow p-4 flex items-center justify-center text-black min-h-96">
         {!selectedType ? (
           <p className="text-gray-400 text-sm">Select a document to preview</p>
         ) : !selectedDoc?.storage_link ? (
@@ -88,14 +88,14 @@ export default function ReviewWrapper({
 
       <div className="w-1/3 flex flex-col gap-4">
 
-        <div className="bg-white rounded-xl shadow p-6 text-black space-y-2">
+        <div className="bg-yellow-50 rounded-xl shadow p-6 text-black space-y-2">
           <h2 className="font-semibold mb-2 text-xl">Applicant Info</h2>
           <p><strong>Name:</strong> {fullName}</p>
           <p><strong>Housing Applied for:</strong> {housingName ?? "N/A"}</p>
           <p><strong>Status:</strong> <span className={`px-2 py-0.5 rounded text-sm font-semibold inline-block ${getStatusStyles(applicationStatus)}`}>{applicationStatus}</span></p>
         </div>
         
-        <div className="bg-white rounded-xl shadow p-4 text-black">
+        <div className="bg-yellow-50 rounded-xl shadow p-4 text-black">
           <h2 className="font-semibold mb-3">Submitted Files</h2>
           <div className="flex flex-col gap-2">
             {DOC_TYPES.map((type) => {
