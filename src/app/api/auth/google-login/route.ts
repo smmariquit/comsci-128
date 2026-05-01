@@ -84,14 +84,29 @@ export async function POST(request: NextRequest) {
 
     // signup and login: if user doesn't exist, create placeholder and go to register form
     if (!existingUser) {
-      const createdUser = await userService.createGooglePlaceholderUser(user);
+      try {
+        const createdUser = await userService.createGooglePlaceholderUser(user);
 
-      return NextResponse.json({
-        role: "student",
-        redirectTo: "/register",
-        googleData: buildRegisterData(profile),
-        user: createdUser,
-      });
+        return NextResponse.json({
+          role: "student",
+          redirectTo: "/register",
+          googleData: buildRegisterData(profile),
+          user: createdUser,
+        });
+      } catch (placeholderError: any) {
+        // attempt cleanup in case Auth user was already created
+        const cleanupResult = await userService.cleanupGooglePlaceholder(profile.email);
+        
+        return NextResponse.json(
+          {
+            error: "Failed to initialize registration. Please try again.",
+            redirectTo: "/register",
+            googleData: buildRegisterData(profile, "Registration initialization failed. Please try again."),
+            cleanup: cleanupResult,
+          },
+          { status: 500 },
+        );
+      }
     }
 
     // user exists, proceed to dashboard
