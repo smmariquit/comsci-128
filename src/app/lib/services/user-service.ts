@@ -346,6 +346,20 @@ const deleteFromSupabaseAuth = async (email: string): Promise<{ success: boolean
   }
 };
 
+const cleanupGooglePlaceholder = async (email: string): Promise<{ success: boolean; dbError?: string; authError?: string }> => {
+  
+  const dbCleanup = await deleteGooglePlaceholderUser(email);
+  
+  const authCleanup = await deleteFromSupabaseAuth(email);
+  
+  const result = {
+    success: dbCleanup.success && authCleanup.success,
+    ...(dbCleanup.error && { dbError: dbCleanup.error }),
+    ...(authCleanup.error && { authError: authCleanup.error }),
+  };
+
+  return result;
+};
 
 export const userService = {
   addUser,
@@ -358,6 +372,5 @@ export const userService = {
   findGoogleUser,
   createGooglePlaceholderUser,
   finalizeGoogleSignup,
-  deleteGooglePlaceholderUser,
-  deleteFromSupabaseAuth,
+  cleanupGooglePlaceholder,
 };
