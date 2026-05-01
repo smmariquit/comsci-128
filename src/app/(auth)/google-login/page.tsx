@@ -60,7 +60,7 @@ export default function GoogleLoginPage() {
   }, [router, supabase]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
       <p>Signing you in...</p>
     </div>
   );
