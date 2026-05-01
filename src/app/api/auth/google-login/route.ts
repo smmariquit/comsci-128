@@ -115,7 +115,11 @@ export async function POST(request: NextRequest) {
         {
           error: "account already exist",
           redirectTo: "/register",
-          googleData: buildRegisterData(profile, "account already exist"),
+          googleData: buildRegisterData({
+            email: "",
+            firstName: "",
+            lastName: "",
+          }, "account already exist"),
         },
         { status: 409 },
       );
