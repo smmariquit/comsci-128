@@ -47,10 +47,14 @@ export default function AssignmentClient({
   units,
   applicants,
   housingId,
+  setApplicants,
+  setUnits
 }: {
   units: Unit[]
   applicants: Applicant[]
   housingId: number
+  setApplicants: (fn: (prev: Applicant[]) => Applicant[]) => void
+  setUnits: (fn: (prev: Unit[]) => Unit[]) => void
 }) {
   const [selectedUnit, setSelectedUnit] = useState<number | null>(null)
   const [selectedApplicants, setSelectedApplicants] = useState<number[]>([])
@@ -69,7 +73,7 @@ export default function AssignmentClient({
           const applicant = applicants.find((a) => a.application_id === applicationId)
           if (!applicant) return
 
-          console.log("fetching:", `/api/applications/${applicationId}/assign`) // add here
+          console.log("fetching:", `/api/applications/${applicationId}/assign`) 
     console.log("applicant:", applicant)
 
           const res = await fetch(`/api/applications/${applicationId}/assign`, {
@@ -87,9 +91,21 @@ export default function AssignmentClient({
         })
       )
 
+      setApplicants(prev => prev.filter(app => !selectedApplicants.includes(app.application_id)))
+      setUnits(prev => prev.map(unit => 
+        unit.id === selectedUnit 
+          ? { 
+              ...unit, 
+              occupants: unit.occupants + selectedApplicants.length,
+              freeSlots: unit.freeSlots - selectedApplicants.length
+            }
+          : unit
+      ))
+
       setMessage(`Successfully assigned ${selectedApplicants.length} applicant(s) to Unit #${selectedUnit}.`)
       setSelectedUnit(null)
       setSelectedApplicants([])
+
     } catch (error: any) {
       setMessage(`Error: ${error.message}`)
     } finally {

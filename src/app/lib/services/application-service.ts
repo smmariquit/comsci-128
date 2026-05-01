@@ -10,6 +10,7 @@ import { accommodationHistoryData } from "@/lib/data/accommodation-history-data"
 import { validateAction, validateOwnership } from "./authorization-service";
 import App from "next/app";
 import { AppAction } from "../models/permissions";
+import { roomData } from "../data/room-data";
 
 const getDashboardStats = async (managerAccountNumber: number) => {
   try {
@@ -91,6 +92,8 @@ const assignApplicantToRoom = async (
     if (!updated) throw new Error("Failed to assign room to application.")
 
     await accommodationHistoryData.createTenantRecord(studentAccountNumber, roomId, moveoutDate)
+
+    await roomData.incrementOccupantsCount(roomId)
 
     return { success: true }
   } catch (error) {

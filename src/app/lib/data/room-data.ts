@@ -270,6 +270,45 @@ async function getRoomStats(managerAccountNumber: number) {
   return { totalRooms, totalOccupants, totalFreeRooms }
 }
 
+async function incrementOccupantsCount(roomId: number) {
+
+	const {data : room}  = await supabase
+		.from("room")
+		.select("occupants_count, maximum_occupants")
+		.eq("room_id", roomId)
+		.single()
+
+	
+	if (!room) throw new Error("Room not found")
+
+	const newCount = (room.occupants_count ?? 0) + 1
+	const maxOccupants = room.maximum_occupants ?? 0
+	
+	let newStatus = ""
+
+	if (newCount === 0) {
+
+		newStatus = "Empty"
+	} else if (newCount < maxOccupants) {
+		newStatus = "Partially Occupied"
+	} else if (newCount >= maxOccupants) {
+		newStatus = "Fully Occupied"
+	}
+
+	const { data, error } = await supabase
+		.from("room")
+		.update({
+			occupants_count: newCount,
+			occupancy_status: newStatus
+		})
+		.eq("room_id", roomId)
+		.select()
+		.single()
+
+	if (error) throw new Error(error.message)
+	return data
+}
+
 export const roomData = {
 	create,
 	findAll,
@@ -284,5 +323,6 @@ export const roomData = {
 	getOccupantCount,
 	getAccountbyStudentNumber,
 	updateStudentHousingStatus,
-	getRoomStats
+	getRoomStats,
+	incrementOccupantsCount
 };
