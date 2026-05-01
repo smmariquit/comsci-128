@@ -72,7 +72,6 @@ export default function RegisterPage() {
         phone_number: form.phone_number || null,
         contact_email: form.contact_email || null,
         sex: form.sex || "Prefer not to say",
-        googleSignup: googleSignupPending,
       };
       const response = await fetch("/api", {
         method: "POST",
