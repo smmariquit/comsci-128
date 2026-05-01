@@ -53,9 +53,20 @@ const createBill = async (billDetails: any) => {
     }
 };
 
+
+const getGrossRevenue = async (managerAccountNumber?: number): Promise<number> => {
+  try {
+    return await billData.getGrossRevenue(managerAccountNumber);
+  } catch (error) {
+    console.error("Service Error (getGrossRevenue): ", error);
+    throw new Error("Failed to fetch gross revenue");
+  }
+};
+
 export const billingService = {
     fetchAllBills,
     markAsPaid,
     removeBill,
     createBill,
+    getGrossRevenue
 };

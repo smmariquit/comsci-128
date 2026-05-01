@@ -6,6 +6,9 @@
 
 import type { NextRequest } from "next/server";
 import { supabase } from "./supabase";
+import { createSupabaseServerClient } from "./server-client";
+
+import { cookies } from "next/headers";
 
 export async function authenticate(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -23,4 +26,17 @@ export async function authenticate(req: NextRequest) {
   }
 
   return { user: data.user };
+}
+
+
+export async function getManagerAccountNumber(): Promise<number | null> {
+  const cookieStore = await cookies();
+  const accountNumberCookie = cookieStore.get("account_number");
+  
+  if (!accountNumberCookie) {
+    return null;
+  }
+  
+  const accountNumber = parseInt(accountNumberCookie.value, 10);
+  return isNaN(accountNumber) ? null : accountNumber;
 }
