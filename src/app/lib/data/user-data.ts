@@ -270,6 +270,24 @@ async function promote(
   return data && data.length > 0 ? data[0] : null;
 }
 
+async function deleteByEmail(email: string): Promise<{ deleted: boolean; error?: string }> {
+  // Hard delete user by email (used for incomplete Google OAuth placeholders)
+  try {
+    const { error } = await supabase
+      .from("user")
+      .delete()
+      .eq("account_email", email);
+
+    if (error) {
+      return { deleted: false, error: error.message };
+    }
+
+    return { deleted: true };
+  } catch (err: any) {
+    return { deleted: false, error: err.message };
+  }
+}
+
 export const userData = {
 	findStudents,
 	getUsersForHousingAdmin,
@@ -282,5 +300,6 @@ export const userData = {
     deactivate,
     countAllUser,
 	countActiveUsers,
-    promote
+    promote,
+    deleteByEmail
 };
