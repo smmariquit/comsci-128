@@ -1,12 +1,12 @@
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CircleAlert, CircleCheckBig } from "lucide-react";
 
 export default function NotAssignedDashboard(userName: String, dashboardData: Object) {
   const userHousingDetails = dashboardData as any;
   
   const hStyle = "justify-center text-white text-lg font-semibold font-[family-name:var(--font-DM_Sans)]";
   const tStyle = "text-black text-lg font-[family-name:var(--font-DM_Sans)]";
-  const checkIcon = <CheckCircle2 size={96} className="text-green-700" strokeWidth={1.5} />;
-  const crossIcon = <AlertCircle size={96} className="text-red-600" strokeWidth={1.5} />;
+  const checkIcon = <CircleCheckBig className="w-24 h-24 text-green-700" strokeWidth={2.2} />;
+  const crossIcon = <CircleAlert className="w-24 h-24 text-red-600" strokeWidth={2.2} />;
 
   function getApplicationStepStatus(stepIndex: number) {
     const stepStatus = userHousingDetails.steps[stepIndex].isDone

@@ -2,9 +2,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AlertCircle, ChevronDown, Trash2, X } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { BillRow, PaymentStatus, BillType } from "./billingtable";
-import { X, ChevronDown, Trash2, AlertCircle } from "lucide-react";
+import { housingData } from "@/app/lib/data/housing-data";
 
 type ExtendedBillType = BillType | "Other";
 
@@ -96,7 +97,7 @@ function CloseBtn({ onClose, light = false }: { onClose: () => void; light?: boo
         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
       }}
     >
-      <X size={13} strokeWidth={2.5} color={light ? "#f5f3ef" : T.teal} aria-hidden="true" />
+      <X size={13} color={light ? "#f5f3ef" : T.teal} strokeWidth={2.5} aria-hidden="true" />
     </button>
   );
 }
@@ -156,11 +157,11 @@ function SelectField({ id, label, value, onChange, children, flex }: {
           {children}
         </select>
         <ChevronDown
-          style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
           size={10}
-          strokeWidth={2.5}
           color={T.teal}
+          strokeWidth={2.5}
           aria-hidden="true"
+          style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
         />
       </div>
     </div>
@@ -172,23 +173,31 @@ function SelectField({ id, label, value, onChange, children, flex }: {
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface IssueBillModalProps {
-  open: boolean;
-  housingOptions: string[];          // list of housing_name strings
-  onClose: () => void;
-  onSubmit: (form: IssueBillForm) => void;
+  open:           boolean;
+  managedIds: number[];          // list of housing_name strings
+  onClose:        () => void;
+  onSubmit:       (form: IssueBillForm) => void;
+  isSubmitting?:  boolean;
 }
 
 export default function IssueBillModal({
-  open, housingOptions, onClose, onSubmit,
+  open, onClose, onSubmit, isSubmitting = false,
 }: IssueBillModalProps) {
 
   const today = new Date().toISOString().split("T")[0];
+  const mockLandlordId = 179;
 
-  // ── Form state ──────────────────────────────────────────────────────────────
-  const [housingName, setHousingName] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [roomCode, setRoomCode] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  // ── Form state (IDs) ──────────────────────────────────────────────────────────
+  const [selectedHousingId, setSelectedHousingId] = useState<number | "">("");
+  const [selectedRoomId,    setSelectedRoomId]    = useState<number | "">("");
+  const [selectedStudentId, setSelectedStudentId] = useState<number | "">("");
+  const [dueDate,           setDueDate]           = useState("");
+
+  // ── Options state (Fetched data) ──────────────────────────────────────────────
+  const [housingOptions, setHousingOptions] = useState<any[]>([]);
+  const [roomOptions,    setRoomOptions]    = useState<any[]>([]);
+  const [studentOptions, setStudentOptions] = useState<any[]>([]);
+
   const [charges, setCharges] = useState<ChargeItem[]>([
     { id: "1", type: "Rent", amount: "" },
     { id: "2", type: "Utility", amount: "" },
@@ -197,16 +206,38 @@ export default function IssueBillModal({
   // Reset when modal opens
   useEffect(() => {
     if (open) {
-      setHousingName("");
-      setStudentName("");
-      setRoomCode("");
-      setDueDate("");
-      setCharges([
-        { id: "1", type: "Rent", amount: "" },
-        { id: "2", type: "Utility", amount: "" },
-      ]);
+      housingData.findbyLandlord(mockLandlordId).then(setHousingOptions); // Use managedIds to filter if needed
+      // Reset all
+      setSelectedHousingId(""); setSelectedRoomId(""); setSelectedStudentId("");
     }
   }, [open]);
+
+  // Fetch rooms
+  useEffect(() => {
+    if (selectedHousingId) {
+      housingData.findWithRooms(Number(selectedHousingId)).then(data => {
+        setRoomOptions(data.room || []);
+      });
+    } else {
+      setRoomOptions([]);
+    }
+
+    setSelectedRoomId("");
+    setSelectedStudentId("");
+    setStudentOptions([]);
+  }, [selectedHousingId]);
+
+  // Fetch students
+  useEffect(() => {
+    if (selectedRoomId) {
+      housingData.getStudentsByRoom(Number(selectedRoomId))
+        .then(t => {
+          setStudentOptions(t);
+        });
+    } else {
+      setStudentOptions([]);
+    }
+  }, [selectedRoomId]);
 
   if (!open) return null;
 
@@ -224,21 +255,27 @@ export default function IssueBillModal({
   }
 
   const validCharges = charges.filter((c) => parseFloat(c.amount) > 0);
-  const totalAmount = charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
-  const isValid = !!housingName && !!studentName && !!dueDate && validCharges.length > 0;
+  const totalAmount  = charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+  const isValid      = !!selectedStudentId && !!dueDate && validCharges.length > 0;
 
   function handleSubmit() {
-    if (!isValid) return;
-    onSubmit({
-      student_name: studentName.trim(),
-      housing_name: housingName,
-      student_account_number: null,          // resolved server-side / Supabase
-      room_code: roomCode.trim(),
-      due_date: dueDate,
-      issue_date: today,
-      charges,
-    });
-  }
+  if (!isValid) return;
+
+  // Resolve names for the form artifact
+  const student = studentOptions.find(s => s.account_number === Number(selectedStudentId));
+  const housing = housingOptions.find(h => h.housing_id === Number(selectedHousingId));
+  const room    = roomOptions.find(r => r.room_id === Number(selectedRoomId));
+
+  onSubmit({
+    student_account_number: Number(selectedStudentId),
+    student_name: student?.full_name || "",
+    housing_name: housing?.housing_name || "",
+    room_code:    room?.room_code || "",
+    due_date:     dueDate,
+    issue_date:   today,
+    charges,
+  });
+}
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -301,13 +338,12 @@ export default function IssueBillModal({
           {/* Row: Housing + Due Date */}
           <div style={{ display: "flex", gap: 14 }}>
             <SelectField
-              id="bill-housing" label="Property" flex={3}
-              value={housingName} onChange={setHousingName}
+              id="bill-housing" label="Property"
+              value={String(selectedHousingId)} 
+              onChange={(v) => setSelectedHousingId(Number(v))}
             >
-              <option value="">Select a property…</option>
-              {housingOptions.map((h) => (
-                <option key={h} value={h}>{h}</option>
-              ))}
+              <option value="">Select Property...</option>
+              {housingOptions.map(h => <option key={h.housing_id} value={h.housing_id}>{h.housing_name}</option>)}
             </SelectField>
 
             <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
@@ -323,31 +359,25 @@ export default function IssueBillModal({
             </div>
           </div>
 
-          {/* Row: Student name + Room code */}
-          <div style={{ display: "flex", gap: 14 }}>
-            <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
-              <label htmlFor="bill-student" style={labelStyle}>Student Name</label>
-              <input
-                id="bill-student"
-                type="text"
-                placeholder="e.g. Santos, Maria"
-                value={studentName}
-                onChange={(e) => setStudentName(e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-            <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
-              <label htmlFor="bill-room" style={labelStyle}>Room / Unit Code</label>
-              <input
-                id="bill-room"
-                type="text"
-                placeholder="e.g. RM-0041"
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-          </div>
+          {/* Row: Room Select */}
+          <SelectField
+            id="bill-room" label="Room / Unit"
+            value={String(selectedRoomId)} 
+            onChange={(v) => setSelectedRoomId(Number(v))}
+          >
+            <option value="">{selectedHousingId ? "Select Room..." : "Select Property first"}</option>
+            {roomOptions.map(r => <option key={r.room_id} value={r.room_id}>{r.room_code}</option>)}
+          </SelectField>
+
+          {/* Row: Student Select */}
+          <SelectField
+            id="bill-student" label="Student"
+            value={String(selectedStudentId)} 
+            onChange={(v) => setSelectedStudentId(Number(v))}
+          >
+            <option value="">{selectedRoomId ? "Select Student..." : "Select Room first"}</option>
+            {studentOptions.map(s => <option key={s.account_number} value={s.account_number}>{s.full_name}</option>)}
+          </SelectField>
 
           {/* Issue date — read-only */}
           <div style={{ display: "flex", gap: 14 }}>
@@ -407,11 +437,11 @@ export default function IssueBillModal({
                     ))}
                   </select>
                   <ChevronDown
-                    style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
                     size={9}
-                    strokeWidth={2.5}
                     color={T.teal}
+                    strokeWidth={2.5}
                     aria-hidden="true"
+                    style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
                   />
                 </div>
 
@@ -455,7 +485,7 @@ export default function IssueBillModal({
                   onMouseEnter={(e) => (e.currentTarget.style.color = T.orange)}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "#bbb")}
                 >
-                  <Trash2 size={13} strokeWidth={2.5} aria-hidden="true" />
+                  <Trash2 size={13} color="currentColor" strokeWidth={2.5} aria-hidden="true" />
                 </button>
               </div>
             ))}
@@ -534,11 +564,12 @@ export default function IssueBillModal({
                 fontSize: 11, color: T.orange,
                 display: "flex", alignItems: "center", gap: 5, marginTop: 2,
               }}>
-                <AlertCircle size={12} strokeWidth={2.5} aria-hidden="true" />
-                {!housingName ? "Select a property to continue"
-                  : !studentName ? "Enter the student name"
-                    : !dueDate ? "Set a due date"
-                      : "Add at least one charge with an amount"}
+                <AlertCircle size={12} color="currentColor" strokeWidth={2.5} aria-hidden="true" />
+                {!selectedHousingId ? "Select a property to continue"
+                  : !selectedRoomId ? "Select a room"
+                  : !selectedStudentId ? "Select a student"
+                  : !dueDate ? "Set a due date"
+                  : "Add at least one charge with an amount"}
               </div>
             )}
           </div>
@@ -553,13 +584,19 @@ export default function IssueBillModal({
           flexShrink: 0, background: "#faf9f7",
         }}>
           <span style={{ fontSize: 11, color: T.teal }}>
-            {validCharges.length > 0
+            {isSubmitting
+              ? "Issuing bills..."
+              : validCharges.length > 0
               ? `${validCharges.length} bill${validCharges.length > 1 ? "s" : ""} will be created`
               : "No charges added yet"}
           </span>
           <div style={{ display: "flex", gap: 10 }}>
             <CancelBtn onClose={onClose} />
-            <PrimaryBtn label="Issue Bill ✓" disabled={!isValid} onClick={handleSubmit} />
+            <PrimaryBtn
+              label={isSubmitting ? "Issuing..." : "Issue Bill ✓"}
+              disabled={!isValid || isSubmitting}
+              onClick={handleSubmit}
+            />
           </div>
         </div>
 
@@ -640,7 +677,7 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
             display: "flex", alignItems: "center", justifyContent: "center",
             color: "#f5f3ef",
           }}>
-            <X size={14} strokeWidth={2.5} />
+            <X size={13} color="#f5f3ef" strokeWidth={2.5} aria-hidden="true" />
           </button>
         </div>
 
