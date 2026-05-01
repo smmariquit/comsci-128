@@ -6,12 +6,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     if (body.googleSignup) {
-      const newStudent = await userService.finalizeGoogleSignup(body.account_email, body);
+      try {
+        const newStudent = await userService.finalizeGoogleSignup(body.account_email, body);
 
-      return NextResponse.json(
-        { message: "User registered successfully.", user: newStudent },
-        { status: 201 },
-      );
+        return NextResponse.json(
+          { message: "User registered successfully.", user: newStudent },
+          { status: 201 },
+        );
+      } catch (finalizationError: any) {
+          
+        const cleanupResult = await userService.cleanupGooglePlaceholder(body.account_email);
+        return NextResponse.json(
+          {
+            message: "Registration failed. Please try signing up again.",
+            error: finalizationError.message || "An error occurred during registration.",
+            cleanup: cleanupResult,
+          },
+          { status: 500 },
+        );
+      }
     }
 
     const newStudent = await userService.addUser(body);
