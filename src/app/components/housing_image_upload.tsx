@@ -3,6 +3,7 @@
 "use client";
 
 import { useState } from "react";
+import { ImagePlus } from "lucide-react";
 import { C } from "@/lib/palette";
 import { Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
@@ -244,11 +245,7 @@ export default function HousingImageUpload() {
 								}}
 							>
 								{/* Decorative Icon */}
-								<ImageIcon
-									size={24}
-									color={C.teal}
-									strokeWidth={2}
-								/>
+								<ImagePlus size={24} color={C.teal} strokeWidth={2} />
 
 								<label
 									style={{

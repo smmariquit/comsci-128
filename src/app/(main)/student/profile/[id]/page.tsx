@@ -345,13 +345,7 @@ function ProfileSelect({ label, value, options, onChange }: any) {
 			<select
 				value={value || ""}
 				onChange={(e) => onChange(e.target.value)}
-				className="w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] font-[family-name:var(--font-geist-mono)] appearance-none cursor-pointer"
-				style={{
-					backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C2632' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-					backgroundRepeat: "no-repeat",
-					backgroundPosition: "right 1rem center",
-					backgroundSize: "1.5em",
-				}}
+				className="w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] font-[family-name:var(--font-geist-mono)] appearance-auto cursor-pointer"
 			>
 				<option value="" disabled>
 					Select {label}

@@ -29,13 +29,10 @@ export default function StudentNavBar({ path, userId }: StudentNavbarProps) {
 						</nav>
 					</div>
 
-					<div className="flex items-center gap-4 md:gap-6">
-						{/* Mobile Nav Link */}
-						<a href="/student" className="md:hidden text-[#EDE9DE] text-xs font-medium">Dashboard</a>
-						
-						<button className="text-[#EDE9DE] hover:opacity-80 transition-opacity">
-							<Bell size={22} strokeWidth={2} />
-						</button>
+				<div className="flex items-center gap-6">
+					<button className="text-[#EDE9DE]">
+						<Bell className="h-6 w-6" strokeWidth={2} />
+					</button>
 
 						<Link href={`/student/profile/${userId}`}>
 							<div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all"></div>

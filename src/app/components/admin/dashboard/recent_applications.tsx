@@ -1,6 +1,14 @@
+"use client";
+
+import { useState } from "react";
 import { C } from "@/lib/palette";
 
-export type ApplicationStatus = "Pending" | "Approved" | "Rejected" | "Cancelled";
+export type ApplicationStatus =
+  | "Pending Manager Approval"
+  | "Pending Admin Approval"
+  | "Approved"
+  | "Rejected"
+  | "Cancelled";
 
 export interface ApplicationRow {
   application_id: number;
@@ -12,7 +20,8 @@ export interface ApplicationRow {
 }
 
 const STATUS_STYLES: Record<ApplicationStatus, { bg: string; text: string }> = {
-  Pending:   C.statusPending,
+  "Pending Manager Approval": C.statusPendingManager,
+  "Pending Admin Approval":   C.statusPendingAdmin,
   Approved:  C.statusApproved,
   Rejected:  C.statusRejected,
   Cancelled: C.statusCancelled,
@@ -23,8 +32,43 @@ interface Props {
 }
 
 export default function RecentApplications({ data }: Props) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const [hoveredCard, setHoveredCard] = useState(false);
+
+  if (data.length === 0) {
+    return (
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          outline: `1px solid ${C.cream}`,
+          outlineOffset: -1,
+          fontFamily: "'DM Sans', sans-serif",
+          overflow: "hidden",
+          paddingBottom: 18,
+        }}
+      >
+        <div style={{ padding: "18px 24px 14px", borderBottom: `1px solid ${C.dividerLight}` }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Recent Applications</div>
+          <div style={{ fontSize: 11, color: C.teal, marginTop: 2, fontFamily: "'DM Mono', monospace" }}>
+            Latest housing application requests
+          </div>
+        </div>
+        <div style={{ padding: "28px 24px", textAlign: "center", color: C.teal }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: C.navy, marginBottom: 4 }}>No applications yet</div>
+          <div style={{ fontSize: 11 }}>Applications will appear here once students submit them.</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
+      onMouseEnter={() => setHoveredCard(true)}
+      onMouseLeave={() => {
+        setHoveredCard(false);
+        setHoveredRow(null);
+      }}
       style={{
         background: "#fff",
         borderRadius: 12,
@@ -32,6 +76,10 @@ export default function RecentApplications({ data }: Props) {
         outlineOffset: -1,
         fontFamily: "'DM Sans', sans-serif",
         overflow: "hidden",
+        transform: hoveredCard ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hoveredCard ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
+        transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+        outlineColor: hoveredCard ? C.amber : C.cream,
       }}
     >
       {/* Header */}
@@ -44,7 +92,7 @@ export default function RecentApplications({ data }: Props) {
 
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, tableLayout: "auto" }}>
           <thead>
             <tr style={{ background: C.cream }}>
               {["Student", "Housing", "Room Type", "Expected Move-out", "Status"].map((h) => (
@@ -76,12 +124,22 @@ export default function RecentApplications({ data }: Props) {
               return (
                 <tr
                   key={row.application_id}
-                  style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}` }}
+                  onMouseEnter={() => setHoveredRow(i)}
+                  onMouseLeave={() => setHoveredRow(null)}
+                  style={{
+                    borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
+                    background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent",
+                    transition: "background 0.15s ease",
+                  }}
                 >
-                  <td style={{ padding: "12px 24px", color: C.navy, fontWeight: 500 }}>{row.student_name}</td>
+                  <td style={{ padding: "12px 24px", color: C.navy, fontWeight: 500, whiteSpace: "nowrap" }}>
+                    {row.student_name}
+                  </td>
                   <td style={{ padding: "12px 24px", color: C.teal }}>{row.housing_name}</td>
-                  <td style={{ padding: "12px 24px", color: C.teal }}>{row.preferred_room_type}</td>
-                  <td style={{ padding: "12px 24px", color: C.teal, fontFamily: "'DM Mono', monospace", fontSize: 12 }}>
+                  <td style={{ padding: "12px 24px", color: C.teal, whiteSpace: "nowrap" }}>
+                    {row.preferred_room_type}
+                  </td>
+                  <td style={{ padding: "12px 24px", color: C.teal, fontFamily: "'DM Mono', monospace", fontSize: 12, whiteSpace: "nowrap" }}>
                     {row.expected_moveout_date}
                   </td>
                   <td style={{ padding: "12px 24px" }}>
@@ -96,6 +154,8 @@ export default function RecentApplications({ data }: Props) {
                         fontFamily: "'DM Mono', monospace",
                         letterSpacing: "0.04em",
                         textTransform: "uppercase",
+                        whiteSpace: "nowrap",   // ← KEY FIX: prevents badge text from wrapping
+                        display: "inline-block",
                       }}
                     >
                       {row.application_status}
