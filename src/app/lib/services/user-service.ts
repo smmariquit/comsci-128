@@ -221,29 +221,6 @@ const findGoogleUser = async (googleUser: any): Promise<User | null> => {
   return await userData.findByEmail(profile.email);
 };
 
-const createGooglePlaceholderUser = async (googleUser: any): Promise<User> => {
-  const profile = normalizeGoogleProfile(googleUser);
-
-  const userDetails: NewUser = {
-    account_email: profile.email,
-    contact_email: null,
-    first_name: profile.firstName,
-    last_name: profile.lastName,
-    middle_name: null,
-    birthday: null,
-    home_address: null,
-    phone_number: null,
-    sex: "Prefer not to say",
-    password: "",
-    user_type: "Student",
-    google_identity: profile.googleIdentity,
-    profile_picture: null,
-    is_deleted: false,
-  };
-
-  return await addUser(userDetails);
-};
-
 const finalizeGoogleSignup = async (googleUser: any, updates: UpdateUser): Promise<User> => {
   const profile = normalizeGoogleProfile(googleUser);
   const accountEmail = updates.account_email || profile.email;
@@ -377,7 +354,6 @@ export const userService = {
   getUserCount,
   getActiveUserCount,
   findGoogleUser,
-  createGooglePlaceholderUser,
   finalizeGoogleSignup,
   cleanupGooglePlaceholder,
 };
