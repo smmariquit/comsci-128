@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import StudentNavBar from "../../_components/StudentNavBar";
 import { StudentProfile } from "@/app/lib/models/student";
 
@@ -14,7 +13,7 @@ type StudentPayload = Omit<StudentProfile, "student"> & {
 };
 
 export default function StudentProfilePage() {
-	const { id } = useParams();
+	const [accountNumber, setAccountNumber] = useState<string | null>(null);
 	const [student, setStudent] = useState<StudentPayload | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("Personal Information");
@@ -24,9 +23,21 @@ export default function StudentProfilePage() {
 	}>({ message: "", type: null });
 
 	useEffect(() => {
+		// read account_number from cookies on mount
+		const getCookie = (name: string) => {
+			const match = document.cookie.split("; ").find((c) => c.startsWith(name + "="));
+			return match ? decodeURIComponent(match.split("=")[1]) : null;
+		};
+		const acc = getCookie("account_number");
+		setAccountNumber(acc);
+	}, []);
+
+	useEffect(() => {
+		if (!accountNumber) return;
+
 		async function fetchProfile() {
 			try {
-				const res = await fetch(`/api/student/profile/${id}`);
+				const res = await fetch(`/api/student/profile/${accountNumber}`);
 				const data = await res.json();
 
 				const studentObj = Array.isArray(data.student)
@@ -54,12 +65,12 @@ export default function StudentProfilePage() {
 			}
 		}
 		fetchProfile();
-	}, [id]);
+	}, [accountNumber]);
 
 	const handleSave = async () => {
 		setSaveStatus({ message: "Saving...", type: null });
 		try {
-			const res = await fetch(`/api/student/profile/${id}`, {
+			const res = await fetch(`/api/student/profile/${accountNumber}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 
@@ -141,7 +152,7 @@ export default function StudentProfilePage() {
 
 	return (
 		<div className="flex flex-col min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
-			<StudentNavBar path="Student Profile" userId={Number(id)} />
+			<StudentNavBar path="Student Profile" userId={Number(accountNumber)} />
 
 			{/* Main Content*/}
 			<div className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner">
