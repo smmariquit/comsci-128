@@ -112,6 +112,16 @@ const getApprovedUnassignedByHousingName = async (housingName: string) => {
   }
 }
 
+const getApplicationsByLandlord = async (landlordAccountNumber: number) => {
+  try {
+    const applications = await applicationData.getByLandlord(landlordAccountNumber)
+    if (!applications) return []
+    return applications
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch applications")
+  }
+}
 export const applicationService = {
   getDashboardStats,
   getApplications,
@@ -119,5 +129,6 @@ export const applicationService = {
   getApplicationDocuments, 
   updateApplicationStatus,
   assignApplicantToRoom,
-  getApprovedUnassignedByHousingName
+  getApprovedUnassignedByHousingName,
+  getApplicationsByLandlord
 }

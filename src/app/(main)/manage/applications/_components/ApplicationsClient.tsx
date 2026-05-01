@@ -4,16 +4,32 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { Constants, Database } from "@/app/types/database.types"
 
-type Application = {
-  application_id: number
-  housing_name: string | null
-  application_status: string
-  expected_moveout_date: string | null
-  student: any
+type Application = Database["public"]["Tables"]["application"]["Row"] & {
+  student: {
+    user: Database["public"]["Tables"]["user"]["Row"] | null
+  } | null
 }
 
-const STATUSES = ["All Status", "Pending", "Approved", "Rejected", "Cancelled"]
+const STATUSES = ["All Status", ...Constants.public.Enums.ApplicationStatus]
+
+const getStatusStyles = (status: string) => {
+  switch (status) {
+    case "Pending Manager Approval":
+      return "bg-yellow-200 text-yellow-800"
+    case "Pending Admin Approval":
+      return "bg-orange-200 text-orange-800"
+    case "Approved":
+      return "bg-green-200 text-green-800"
+    case "Rejected":
+      return "bg-red-200 text-red-800"
+    case "Cancelled":
+      return "bg-gray-200 text-gray-700"
+    default:
+      return "bg-gray-100 text-gray-600"
+  }
+}
 
 export default function ApplicationsClient({
   applications,
@@ -79,12 +95,7 @@ export default function ApplicationsClient({
                     <td className="p-3">{app.housing_name ?? "N/A"}</td>
                     <td className="p-3">{app.expected_moveout_date ?? "N/A"}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-1 rounded text-sm font-semibold
-                        ${app.application_status === "Approved" ? "bg-green-200 text-green-800" : ""}
-                        ${app.application_status === "Pending" ? "bg-yellow-200 text-yellow-800" : ""}
-                        ${app.application_status === "Rejected" ? "bg-red-200 text-red-800" : ""}
-                        ${app.application_status === "Cancelled" ? "bg-gray-200 text-gray-700" : ""}
-                      `}>
+                        <span className={`px-2 py-1 rounded text-sm font-semibold ${getStatusStyles(app.application_status)}`}>
                         {app.application_status}
                       </span>
                     </td>
