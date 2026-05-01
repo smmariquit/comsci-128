@@ -61,6 +61,7 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
+      const endpoint = googleSignupPending ? "/api" : "/api/student";
       const payload = {
         account_email: form.email,
         first_name: form.first_name,
@@ -72,8 +73,9 @@ export default function RegisterPage() {
         phone_number: form.phone_number || null,
         contact_email: form.contact_email || null,
         sex: form.sex || "Prefer not to say",
+        ...(googleSignupPending ? { googleSignup: true } : {}),
       };
-      const response = await fetch("/api", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
