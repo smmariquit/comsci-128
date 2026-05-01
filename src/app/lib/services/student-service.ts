@@ -46,3 +46,24 @@ export const addStudent = async (
         throw error;
     }
 };
+
+export const createStudentProfile = async (
+    accountNumber: number,
+    studentDetails?: NewStudent,
+    studentAcademicDetails?: NewStudentAcademic,
+): Promise<Student> => {
+    const mergeStudentDetails = {
+        ...buildDefaultStudentDetails(),
+        ...(studentDetails ?? {}),
+    } as NewStudent;
+    const mergeStudentAcademicDetails = {
+        ...buildDefaultStudentAcademicDetails(),
+        ...(studentAcademicDetails ?? {}),
+    } as NewStudentAcademic;
+
+    return await studentData.create(
+        accountNumber,
+        mergeStudentDetails,
+        mergeStudentAcademicDetails,
+    );
+};
