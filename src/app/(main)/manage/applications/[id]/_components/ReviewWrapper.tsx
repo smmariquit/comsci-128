@@ -1,5 +1,3 @@
-
-
 "use client"
 
 import { useState } from "react"
@@ -16,12 +14,14 @@ export default function ReviewWrapper({
   applicationId,
   documents,
   fullName,
-  housingName
+  housingName,
+  applicationStatus
 }: {
   applicationId: number
   documents: Document[]
   fullName: string
   housingName: string | null
+  applicationStatus: string
 }) {
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -29,7 +29,28 @@ export default function ReviewWrapper({
 
   const selectedDoc = documents.find((d) => d.type === selectedType)
 
+  const canAct = applicationStatus === "Pending Manager Approval"
+  const isApprovedOrRejected = ["Approved", "Rejected", "Cancelled"].includes(applicationStatus)
+
+  const getStatusStyles = (status: string) => {
+    switch (status) {
+      case "Pending Manager Approval":
+        return "bg-yellow-200 text-yellow-800"
+      case "Pending Admin Approval":
+        return "bg-orange-200 text-orange-800"
+      case "Approved":
+        return "bg-green-200 text-green-800"
+      case "Rejected":
+        return "bg-red-200 text-red-800"
+      case "Cancelled":
+        return "bg-gray-200 text-gray-700"
+      default:
+        return "bg-gray-100 text-gray-600"
+    }
+  }
+
   const handleDecision = async (status: "Pending Admin Approval" | "Rejected") => {
+    if (!canAct) return
     setLoading(true)
     setMessage(null)
     try {
@@ -67,15 +88,13 @@ export default function ReviewWrapper({
 
       <div className="w-1/3 flex flex-col gap-4">
 
-
-        {/* Applicant Info */}
-        <div className="bg-white rounded-xl shadow p-4 text-black">
-          <h2 className="font-semibold mb-2">Applicant Info</h2>
+        <div className="bg-white rounded-xl shadow p-6 text-black space-y-2">
+          <h2 className="font-semibold mb-2 text-xl">Applicant Info</h2>
           <p><strong>Name:</strong> {fullName}</p>
           <p><strong>Housing Applied for:</strong> {housingName ?? "N/A"}</p>
+          <p><strong>Status:</strong> <span className={`px-2 py-0.5 rounded text-sm font-semibold inline-block ${getStatusStyles(applicationStatus)}`}>{applicationStatus}</span></p>
         </div>
         
-        {/* Submitted Files */}
         <div className="bg-white rounded-xl shadow p-4 text-black">
           <h2 className="font-semibold mb-3">Submitted Files</h2>
           <div className="flex flex-col gap-2">
@@ -102,15 +121,23 @@ export default function ReviewWrapper({
         <div className="flex flex-col gap-2">
           <button
             onClick={() => handleDecision("Pending Admin Approval")}
-            disabled={loading}
-            className="px-4 py-2 bg-green-500 text-white rounded font-semibold hover:bg-green-600 disabled:opacity-50"
+            disabled={loading || !canAct || isApprovedOrRejected}
+            className={`px-4 py-2 rounded font-semibold disabled:opacity-50 ${
+              canAct && !isApprovedOrRejected
+                ? "bg-green-500 hover:bg-green-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           >
             Approve
           </button>
           <button
             onClick={() => handleDecision("Rejected")}
-            disabled={loading}
-            className="px-4 py-2 bg-red-500 text-white rounded font-semibold hover:bg-red-600 disabled:opacity-50"
+            disabled={loading || !canAct || isApprovedOrRejected}
+            className={`px-4 py-2 rounded font-semibold disabled:opacity-50 ${
+              canAct && !isApprovedOrRejected
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           >
             Reject
           </button>
