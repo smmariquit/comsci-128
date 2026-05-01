@@ -63,6 +63,15 @@ export default function AssignmentClient({
 
   const handleConfirm = async () => {
     if (!selectedUnit || selectedApplicants.length === 0) return
+
+    const unit = units.find(u => u.id === selectedUnit)
+    if(!unit) return
+
+    if (selectedApplicants.length > unit.freeSlots) {
+      setMessage(`Cannot assign ${selectedApplicants.length} applicants. Only ${unit.freeSlots} free slot(s) available.`)
+      return
+    }
+
     setLoading(true)
     setMessage(null)
 
@@ -178,6 +187,12 @@ export default function AssignmentClient({
                 key={unit.id}
                 unit={unit}
                 onClick={() => {
+                  
+                  if (unit.freeSlots === 0) {
+                    setMessage(`Unit #${unit.id} is full. Cannot assign more tenants.`)
+                    return
+                  }
+
                   setSelectedUnit(unit.id)
                   setSelectedApplicants([])
                 }}
@@ -190,7 +205,7 @@ export default function AssignmentClient({
       {/* Modal */}
       {selectedUnit !== null && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-[400px] flex flex-col gap-4">
+          <div className="bg-orange-100 rounded-lg p-6 w-[400px] flex flex-col gap-4">
             <h2 className="text-lg font-semibold">
               Assign to Unit #{selectedUnit}
             </h2>
@@ -207,6 +222,7 @@ export default function AssignmentClient({
                     <label key={app.application_id} className="flex items-center gap-2">
                       <input
                         type="checkbox"
+                        className= "scale-60"
                         checked={selectedApplicants.includes(app.application_id)}
                         onChange={() => {
                           setSelectedApplicants((prev) =>
@@ -231,7 +247,7 @@ export default function AssignmentClient({
               </button>
               <button
                 onClick={handleConfirm}
-                disabled={loading || selectedApplicants.length === 0}
+                disabled={loading || selectedApplicants.length === 0 || !!(selectedUnit && selectedApplicants.length > (units.find(u => u.id === selectedUnit)?.freeSlots ?? 0))}
                 className="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50"
               >
                 {loading ? "Assigning..." : "Confirm"}
