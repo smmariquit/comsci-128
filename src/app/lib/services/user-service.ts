@@ -269,29 +269,14 @@ const createGooglePlaceholderUser = async (googleUser: any): Promise<User> => {
   return await userData.create(userDetails);
 };
 
-const finalizeGoogleSignup = async (accountEmail: string, updates: NewUser): Promise<User> => {
+const finalizeGoogleSignup = async (accountEmail: string, updates: UpdateUser): Promise<User> => {
   const existingUser = await userData.findByEmail(accountEmail);
 
   if (!existingUser) {
     throw new Error("Google account not found.");
   }
 
-  const updatedUser = await userData.update(existingUser.account_number, {
-    first_name: updates.first_name,
-    middle_name: updates.middle_name || null,
-    last_name: updates.last_name,
-    birthday: updates.birthday || null,
-    home_address: updates.home_address || null,
-    phone_number: updates.phone_number || null,
-    contact_email: updates.contact_email || accountEmail,
-    sex: updates.sex || "Prefer not to say",
-    password: existingUser.password || "",
-    user_type: existingUser.user_type,
-    google_identity: existingUser.google_identity,
-    profile_picture: existingUser.profile_picture,
-    is_deleted: existingUser.is_deleted,
-    account_email: existingUser.account_email,
-  });
+  const updatedUser = await userData.update(existingUser.account_number, updates);
 
   if (!updatedUser) {
     throw new Error("Failed to finalize Google signup.");
