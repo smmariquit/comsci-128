@@ -42,7 +42,7 @@ export default function ManageLayout({
             </nav>
           </div>
 
-          <div className="flex items-center gap-4 md:gap-6">
+          <div className="flex items-between gap-4 md:gap-2">
             {/* Mobile Nav Link */}
             <Link href="/manage" className="md:hidden text-[#EDE9DE] text-xs font-medium">
               Dashboard
@@ -52,7 +52,7 @@ export default function ManageLayout({
               <Bell size={22} strokeWidth={2} />
             </button>
 
-            <Link href="/manage/profile/21">
+            <Link href="/manage/profile/21" className="py-2">
               <div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all items-center justify-center" ></div>
             </Link>
           </div>
