@@ -28,7 +28,6 @@ function normalizeGoogleProfile(googleUser: any): GoogleProfile {
   const fullName =
     googleUser.user_metadata?.full_name ||
     googleUser.user_metadata?.name ||
-    googleUser.user_metadata?.display_name ||
     "";
   const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
   const firstName = nameParts[0] || email.split("@")[0] || "";
@@ -230,42 +229,6 @@ const _promoteUserType = async (
   }
 };
 
-const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
-  const profile = normalizeGoogleProfile(googleUser);
-  const existingUser =
-    (await userData.findByEmail(profile.email)) ||
-    (profile.googleIdentity
-      ? await userData.findByGoogleIdentity(profile.googleIdentity)
-      : null);
-
-  if (existingUser) {
-    return existingUser;
-  }
-
-  // create user
-  const userDetails: NewUser = {
-    account_email: profile.email,
-    contact_email: profile.email,
-    first_name: profile.firstName,
-    last_name: profile.lastName,
-
-    middle_name: null,
-    birthday: null,
-    home_address: null,
-    phone_number: null,
-
-    sex: "Prefer not to say",
-    password: "", // No password for OAuth users
-    user_type: "Student",
-    google_identity: profile.googleIdentity,
-    profile_picture: null,
-    is_deleted: false,
-  };
-
-  const createdUser = await userData.create(userDetails);
-  return createdUser;
-};
-
 const findGoogleUser = async (googleUser: any): Promise<User | null> => {
   const profile = normalizeGoogleProfile(googleUser);
 
@@ -288,7 +251,7 @@ const createGooglePlaceholderUser = async (googleUser: any): Promise<User> => {
 
   const userDetails: NewUser = {
     account_email: profile.email,
-    contact_email: profile.email,
+    contact_email: null,
     first_name: profile.firstName,
     last_name: profile.lastName,
     middle_name: null,
