@@ -3,11 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import { setCookie } from "@/app/lib/utils";
 
 export default function GoogleLoginPage() {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
   const [error, setError] = useState<string>("");
+
+  function setAuthCookies(accountNumber: number, role: string) {
+    setCookie("account_number", String(accountNumber), 1);
+    setCookie("user_role", role.toLowerCase(), 1);
+    setCookie("is_logged_in", "true", 1);
+  }
 
   useEffect(() => {
     async function handleLogin() {
@@ -37,7 +44,7 @@ export default function GoogleLoginPage() {
           body: JSON.stringify({ intent }),
         });
 
-        const payload: { role?: string; redirectTo?: string; error?: string; googleData?: any; cleanup?: any } = await response.json();
+        const payload: { role?: string; redirectTo?: string; error?: string; googleData?: any; cleanup?: any; user?: any } = await response.json();
 
         if (!response.ok) {
           if (payload.cleanup?.success || payload.cleanup?.dbError || payload.cleanup?.authError) {
@@ -60,6 +67,17 @@ export default function GoogleLoginPage() {
         if (payload.googleData) {
           sessionStorage.setItem("googleSignupData", JSON.stringify(payload.googleData));
         }
+
+        if (payload.redirectTo !== "/register" && payload.role && payload.user) {
+          if (payload.user.account_number) {
+            await supabase.auth.updateUser({
+              data: { account_number: payload.user.account_number },
+            });
+
+            setAuthCookies(payload.user.account_number, payload.role);
+          }
+        }
+
         router.push(payload.redirectTo || "/login");
 
       } catch (error) {
