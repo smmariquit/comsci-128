@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Logo from "@/app/components/Logo";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -18,7 +19,7 @@ export default function ManageLayout({
         <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-10">
-              <h1 className="text-lg font-bold">Manager</h1>
+              <Logo size={24} href="/manage" />
 
               <div className="flex items-center text-sm">
                 <Link

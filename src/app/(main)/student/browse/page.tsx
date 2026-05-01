@@ -8,8 +8,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Browse Housing",
-    description: "Explore avaialble dormitories and hosuing options.",
-}
+    description: "Explore available dormitories and housing options.",
+};
 
 export default async function DormBrowsePage({
     searchParams,

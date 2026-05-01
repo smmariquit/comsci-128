@@ -9,7 +9,17 @@ const create = async (billData: Bill) => {
 const getAll = async () => {
 	return await supabase
 		.from("bill")
-		.select("*, manager!inner(*), student!inner(*)")
+		.select(`
+            *,
+            student (
+                user ( first_name, last_name ),
+                application (
+                    room (
+                        housing ( housing_name )
+                    )
+                )
+            )
+        `)
 		.eq("is_deleted", false);
 };
 
@@ -108,6 +118,25 @@ const getTotalBalance = async (accountNumber: number) => {
 	return total ?? 0;
 };
 
+const getBillsOfLandlord = async (managedHousingIds: number[] = []) => {
+	return await supabase
+		.from("bill")
+		.select(`
+            *,
+            student (
+                user ( first_name, last_name ),
+                student_accommodation_history (
+					room!inner (
+						housing!inner ( 
+							housing_id, housing_name 
+						)
+					)
+				)
+            )
+        `)
+		.eq("is_deleted", false)
+};
+
 export const billData = {
 	create,
 	getAll,
@@ -119,5 +148,6 @@ export const billData = {
 	getBillsOfStudent,
 	getBillsByStatus,
 	getOverdueBills,
-	getTotalBalance
+	getTotalBalance,
+	getBillsOfLandlord,
 };

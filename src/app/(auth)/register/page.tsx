@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
 
@@ -25,6 +25,31 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleSignupPending, setGoogleSignupPending] = useState(false);
+
+  useEffect(() => {
+    const googleData = sessionStorage.getItem("googleSignupData");
+    if (googleData) {
+      try {
+        const data = JSON.parse(googleData);
+        if (data.googleError) {
+          setError(data.googleError);
+        }
+        if (data.googleFirstName || data.googleLastName || data.googleEmail) {
+          setForm(prev => ({
+            ...prev,
+            first_name: data.googleFirstName || prev.first_name,
+            last_name: data.googleLastName || prev.last_name,
+            email: data.googleEmail || prev.email,
+          }));
+          setGoogleSignupPending(true);
+        }
+        sessionStorage.removeItem("googleSignupData");
+      } catch (err) {
+        console.error("Failed to parse Google signup data:", err);
+      }
+    }
+  }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
@@ -36,6 +61,7 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
+      const endpoint = googleSignupPending ? "/api" : "/api/student";
       const payload = {
         account_email: form.email,
         first_name: form.first_name,
@@ -47,8 +73,9 @@ export default function RegisterPage() {
         phone_number: form.phone_number || null,
         contact_email: form.contact_email || null,
         sex: form.sex || "Prefer not to say",
+        ...(googleSignupPending ? { googleSignup: true } : {}),
       };
-      const response = await fetch("/api", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -277,7 +304,15 @@ export default function RegisterPage() {
         <button
           type="button"
           className="bg-stone-50 text-black rounded-lg py-3 mt-2 flex items-center justify-center gap-2 font-normal"
-          // onClick={handleGoogleSignUp} // Implement Google sign up if needed
+          onClick={async () => {
+            await supabase.auth.signInWithOAuth({
+              provider: "google",
+              options: {
+                redirectTo: `${window.location.origin}/google-login?intent=signup`,
+                skipBrowserRedirect: false,
+              },
+            });
+          }}
         >
           Sign up using Google
         </button>
