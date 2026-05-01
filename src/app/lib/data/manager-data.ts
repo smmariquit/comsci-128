@@ -4,6 +4,32 @@ import type { NewUser } from "@/models/user";
 import { Housing } from "@/models/housing";
 import { userData } from "./user-data";
 
+// ============================================
+// Define safe fields to NEVER select from user table
+// ============================================
+const SAFE_USER_FIELDS = `
+  account_number,
+  account_email,
+  first_name,
+  middle_name,
+  last_name,
+  sex,
+  birthday,
+  home_address,
+  phone_number,
+  contact_email,
+  profile_picture,
+  user_type,
+  is_deleted
+` as const;
+
+// Helper function to sanitize user data (kept for defense-in-depth)
+function sanitizeUserData(userData: any) {
+  if (!userData) return null;
+  const { password, google_identity, ...safeUser } = userData;
+  return safeUser;
+}
+
 const create = async (
 	userDetails: NewUser,
 	managerDetails: NewManager,
@@ -26,33 +52,53 @@ const create = async (
 
 // READ managers
 const getAll = async () => {
-	return await supabase
+	const { data, error } = await supabase
 		.from("manager")
-		.select(`*, user!inner(*)`)
+		.select(`
+			*, 
+			user!inner(
+				${SAFE_USER_FIELDS}
+			)
+		`)
 		.eq("is_deleted", false);
-};
-
-// GET manager count
-const getCount = async (): Promise<number | null> => {
-	const { count, error } = await supabase
-		.from("manager")
-		.select("*", { count: "exact", head: true });
-
-	if (error) throw new Error(error.message);
-
-	return count;
+	
+	// Sanitize the returned data
+	if (data) {
+		const sanitizedData = data.map((item: any) => ({
+			...item,
+			user: sanitizeUserData(item.user)
+		}));
+		return { data: sanitizedData, error };
+	}
+	
+	return { data, error };
 };
 
 // FIND manager by ID
 const findById = async (account_number: number) => {
 	const { data, error } = await supabase
 		.from("manager")
-		.select(`*, user!inner(*)`)
+		.select(`
+			*, 
+			user!inner(
+				${SAFE_USER_FIELDS}
+			)
+		`)
 		.eq("account_number", account_number)
 		.eq("is_deleted", false);
 
 	if (error) return null;
-	return data[0];
+	
+	// Sanitize the returned data
+	if (data && data[0]) {
+		const sanitizedItem = {
+			...data[0],
+			user: sanitizeUserData(data[0].user)
+		};
+		return sanitizedItem;
+	}
+	
+	return data?.[0] || null;
 };
 
 const findManagerProfileById = async (
@@ -62,19 +108,7 @@ const findManagerProfileById = async (
 		.from("user")
 		.select(
 			`
-            account_number,
-            account_email,
-            first_name,
-            middle_name,
-            last_name,
-            sex,
-            birthday,
-            home_address,
-            phone_number,
-            contact_email,
-            profile_picture,
-            user_type,
-            google_identity,
+            ${SAFE_USER_FIELDS},
             manager:manager_account_number_fkey(
                 account_number,
                 manager_type,
@@ -95,14 +129,17 @@ const findManagerProfileById = async (
 		return null;
 	}
 
-	const manager = Array.isArray(data.manager)
-		? data.manager[0]
-		: data.manager;
+	// Sanitize the data
+	const sanitizedData = sanitizeUserData(data);
+
+	const manager = Array.isArray(sanitizedData.manager)
+		? sanitizedData.manager[0]
+		: sanitizedData.manager;
 
 	if (!manager) return null;
 
 	return {
-		...data,
+		...sanitizedData,
 		manager: {
 			...manager,
 			manager_payment_details: Array.isArray(
@@ -138,7 +175,10 @@ const deactivate = async (account_number: number) => {
 
 // CREATE manager bank
 const createBankDetails = async (bankData: any) => {
-	return await supabase.from("manager_bank").insert([bankData]).select();
+	return await supabase
+		.from("manager_bank")
+		.insert([bankData])
+		.select();
 };
 
 // READ banks using manager
@@ -167,8 +207,6 @@ const deleteBankDetails = async (bank_number: number) => {
 		.eq("bank_number", bank_number)
 		.select();
 };
-
-// manager_payment_details
 
 // CREATE manager_payment
 const addPaymentDetails = async (paymentData: any) => {
@@ -249,17 +287,14 @@ async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
           account_number,
           student_number,
           user!inner (
-            first_name,
-            middle_name,
-            last_name,
-            account_email
+            ${SAFE_USER_FIELDS}
           )
         ),
       )
     `,
 		)
 		.eq("application_status", "Approved")
-		.is("room_id", null) // unassigned — no room yet
+		.is("room_id", null)
 		.eq("manager_account_number", managerAccountNumber)
 		.eq("is_deleted", false);
 
@@ -269,6 +304,21 @@ async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
 			error.message,
 		);
 		return { data: null, error };
+	}
+
+	// Sanitize user data in the response
+	if (data) {
+		const sanitizedData = data.map((item: any) => ({
+			...item,
+			manager: {
+				...item.manager,
+				student: {
+					...item.manager.student,
+					user: sanitizeUserData(item.manager.student.user)
+				}
+			}
+		}));
+		return { data: sanitizedData, error: null };
 	}
 
 	return { data, error: null };
@@ -417,7 +467,7 @@ async function getOverallOccupancyRate(managerAccountNumber: number) {
 		data,
 		totalOccupants,
 		totalMaxOccupants,
-		occupancyRate, // e.g. "75.0%"
+		occupancyRate,
 		error: null,
 	};
 }
@@ -515,8 +565,7 @@ const getStudentBalance = async (student_account_number: number) => {
       status,
       student!inner (
         user!inner(
-          first_name,
-          last_name,
+          ${SAFE_USER_FIELDS},
           manager!inner(
             *
           )
@@ -530,14 +579,26 @@ const getStudentBalance = async (student_account_number: number) => {
 
 	if (error) throw error;
 
-	const total = data?.reduce((sum, bill) => {
+	// Sanitize user data in the response
+	let sanitizedData = data;
+	if (data) {
+		sanitizedData = data.map((item: any) => ({
+			...item,
+			student: {
+				...item.student,
+				user: sanitizeUserData(item.student.user)
+			}
+		}));
+	}
+
+	const total = sanitizedData?.reduce((sum, bill) => {
 		return sum + Number(bill.amount);
 	}, 0);
 
 	return {
-		student: data?.[0]?.student || null,
+		student: sanitizedData?.[0]?.student || null,
 		totalBalance: total ?? 0,
-		bills: data,
+		bills: sanitizedData,
 	};
 };
 
@@ -553,10 +614,8 @@ const getAllBillings = async () => {
       student!inner (
         account_number,
         user!inner(
-          first_name,
-          last_name,
-          account_email,
-            student_accommodation_history!inner(
+          ${SAFE_USER_FIELDS},
+          student_accommodation_history!inner(
             room!inner (
               room_id,
               housing!inner (
@@ -577,13 +636,24 @@ const getAllBillings = async () => {
 
 	if (error) throw error;
 
-	return data;
+	// Sanitize user data in the response
+	let sanitizedData = data;
+	if (data) {
+		sanitizedData = data.map((item: any) => ({
+			...item,
+			student: {
+				...item.student,
+				user: sanitizeUserData(item.student.user)
+			}
+		}));
+	}
+
+	return sanitizedData;
 };
 
 export const managerData = {
 	create,
 	getAll,
-	getCount,
 	findById,
 	update,
 	findManagerProfileById,
