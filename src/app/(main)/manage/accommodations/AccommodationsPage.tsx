@@ -177,12 +177,13 @@ export default function AccommodationsPage({ housings }: { housings: Housing[] }
         ) : (
           <div className="grid grid-cols-1 gap-4 bg-[var(--cream)] p-6 rounded-xl">
             {filtered.map((housing) => {
+
               const totalOccupants = housing.room.reduce(
                 (sum, r) => sum + (r.occupants_count ?? 0), 0
               );
-              const freeSlots = housing.room.filter(
-                (r) => r.occupancy_status === "Empty"
-              ).length;
+              const freeSlots = housing.room.reduce((sum,r) => sum + ((r.maximum_occupants ?? 0) - (r.occupants_count ?? 0)), 0);
+
+
               return (
                 <AccommodationCard
                   key={housing.housing_id}
