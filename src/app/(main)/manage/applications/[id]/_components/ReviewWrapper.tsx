@@ -15,7 +15,7 @@ export default function ReviewWrapper({
   documents,
   fullName,
   housingName,
-  applicationStatus
+  applicationStatus: initialStatus
 }: {
   applicationId: number
   documents: Document[]
@@ -26,11 +26,12 @@ export default function ReviewWrapper({
   const [selectedType, setSelectedType] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [currentStatus, setCurrentStatus] = useState(initialStatus)
 
   const selectedDoc = documents.find((d) => d.type === selectedType)
 
-  const canAct = applicationStatus === "Pending Manager Approval"
-  const isApprovedOrRejected = ["Approved", "Rejected", "Cancelled"].includes(applicationStatus)
+  const canAct = currentStatus === "Pending Manager Approval"
+  const isApprovedOrRejected = ["Approved", "Rejected", "Cancelled"].includes(currentStatus)
 
   const getStatusStyles = (status: string) => {
     switch (status) {
@@ -61,6 +62,8 @@ export default function ReviewWrapper({
       })
       const result = await res.json()
       if (!res.ok) throw new Error(result.message)
+      
+      setCurrentStatus(status)
       setMessage(`Application processed successfully.`)
     } catch (error: any) {
       setMessage(`Error: ${error.message}`)
@@ -92,7 +95,7 @@ export default function ReviewWrapper({
           <h2 className="font-semibold mb-2 text-xl">Applicant Info</h2>
           <p><strong>Name:</strong> {fullName}</p>
           <p><strong>Housing Applied for:</strong> {housingName ?? "N/A"}</p>
-          <p><strong>Status:</strong> <span className={`px-2 py-0.5 rounded text-sm font-semibold inline-block ${getStatusStyles(applicationStatus)}`}>{applicationStatus}</span></p>
+          <p><strong>Status:</strong> <span className={`px-2 py-0.5 rounded text-sm font-semibold inline-block ${getStatusStyles(currentStatus)}`}>{currentStatus}</span></p>
         </div>
         
         <div className="bg-yellow-50 rounded-xl shadow p-4 text-black">
