@@ -220,9 +220,9 @@ export const getEligibleStudents = async (roomType: string) => {
 	}
 }
 
-export const getRoomStats = async () => {
+export const getRoomStats = async (managerAccountNumber: number) => {
 	try {
-		return await roomData.getRoomStats();
+		return await roomData.getRoomStats(managerAccountNumber);
 	} catch (error: any) {
 		console.error("Service Error (getRoomStats): ", error.message);
 		throw new Error(error.message || "Failed to fetch room stats.");

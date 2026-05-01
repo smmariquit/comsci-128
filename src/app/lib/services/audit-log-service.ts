@@ -39,7 +39,25 @@ async function getRecentLogs(): Promise<AuditLog[]> {
     }
 }
 
+async function getRecentLogsByManager(managerAccountNumber: number) {
+
+  try {
+        
+        const recentLogs = await auditLogData.getRecentByManager(managerAccountNumber);
+
+        if (!recentLogs || recentLogs.length === 0) {
+            return [];
+        }
+
+        return recentLogs;
+    } catch (error) {
+        console.error("Error: ", error);
+        throw new Error("Failed to fetch recent audit logs.");
+    }
+}
+
 export const auditLogService = {
     getAuditLogs,
-    getRecentLogs
+    getRecentLogs,
+    getRecentLogsByManager
 }

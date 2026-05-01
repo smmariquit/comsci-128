@@ -46,7 +46,8 @@ const getCurrentTenantsByRoomId = async (roomId: number) => {
         user:user!account_number (
           first_name,
           middle_name,
-          last_name
+          last_name,
+          profile_picture
         )
       )
     `)

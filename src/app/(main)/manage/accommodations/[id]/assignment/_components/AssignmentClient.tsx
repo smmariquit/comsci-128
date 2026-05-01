@@ -47,10 +47,14 @@ export default function AssignmentClient({
   units,
   applicants,
   housingId,
+  setApplicants,
+  setUnits
 }: {
   units: Unit[]
   applicants: Applicant[]
   housingId: number
+  setApplicants: (fn: (prev: Applicant[]) => Applicant[]) => void
+  setUnits: (fn: (prev: Unit[]) => Unit[]) => void
 }) {
   const [selectedUnit, setSelectedUnit] = useState<number | null>(null)
   const [selectedApplicants, setSelectedApplicants] = useState<number[]>([])
@@ -59,6 +63,15 @@ export default function AssignmentClient({
 
   const handleConfirm = async () => {
     if (!selectedUnit || selectedApplicants.length === 0) return
+
+    const unit = units.find(u => u.id === selectedUnit)
+    if(!unit) return
+
+    if (selectedApplicants.length > unit.freeSlots) {
+      setMessage(`Cannot assign ${selectedApplicants.length} applicants. Only ${unit.freeSlots} free slot(s) available.`)
+      return
+    }
+
     setLoading(true)
     setMessage(null)
 
@@ -69,7 +82,7 @@ export default function AssignmentClient({
           const applicant = applicants.find((a) => a.application_id === applicationId)
           if (!applicant) return
 
-          console.log("fetching:", `/api/applications/${applicationId}/assign`) // add here
+          console.log("fetching:", `/api/applications/${applicationId}/assign`) 
     console.log("applicant:", applicant)
 
           const res = await fetch(`/api/applications/${applicationId}/assign`, {
@@ -87,9 +100,21 @@ export default function AssignmentClient({
         })
       )
 
+      setApplicants(prev => prev.filter(app => !selectedApplicants.includes(app.application_id)))
+      setUnits(prev => prev.map(unit => 
+        unit.id === selectedUnit 
+          ? { 
+              ...unit, 
+              occupants: unit.occupants + selectedApplicants.length,
+              freeSlots: unit.freeSlots - selectedApplicants.length
+            }
+          : unit
+      ))
+
       setMessage(`Successfully assigned ${selectedApplicants.length} applicant(s) to Unit #${selectedUnit}.`)
       setSelectedUnit(null)
       setSelectedApplicants([])
+
     } catch (error: any) {
       setMessage(`Error: ${error.message}`)
     } finally {
@@ -162,6 +187,12 @@ export default function AssignmentClient({
                 key={unit.id}
                 unit={unit}
                 onClick={() => {
+                  
+                  if (unit.freeSlots === 0) {
+                    setMessage(`Unit #${unit.id} is full. Cannot assign more tenants.`)
+                    return
+                  }
+
                   setSelectedUnit(unit.id)
                   setSelectedApplicants([])
                 }}
@@ -174,7 +205,7 @@ export default function AssignmentClient({
       {/* Modal */}
       {selectedUnit !== null && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-[400px] flex flex-col gap-4">
+          <div className="bg-orange-100 rounded-lg p-6 w-[400px] flex flex-col gap-4">
             <h2 className="text-lg font-semibold">
               Assign to Unit #{selectedUnit}
             </h2>
@@ -191,6 +222,7 @@ export default function AssignmentClient({
                     <label key={app.application_id} className="flex items-center gap-2">
                       <input
                         type="checkbox"
+                        className= "scale-60"
                         checked={selectedApplicants.includes(app.application_id)}
                         onChange={() => {
                           setSelectedApplicants((prev) =>
@@ -215,7 +247,7 @@ export default function AssignmentClient({
               </button>
               <button
                 onClick={handleConfirm}
-                disabled={loading || selectedApplicants.length === 0}
+                disabled={loading || selectedApplicants.length === 0 || !!(selectedUnit && selectedApplicants.length > (units.find(u => u.id === selectedUnit)?.freeSlots ?? 0))}
                 className="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50"
               >
                 {loading ? "Assigning..." : "Confirm"}

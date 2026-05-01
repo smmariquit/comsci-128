@@ -190,6 +190,28 @@ const getOccupancyRate = async () => {
 	}
 }
 
+const getAllHousingByManager = async (managerAccountNumber: number): Promise<Housing[] | null> => {
+  try {
+    const housingDetail = await housingData.findAllByManager(managerAccountNumber);
+    if (!housingDetail) return null;
+    return housingDetail;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Error");
+  }
+};
+
+const getAllHousingWithRoomsByManager = async (managerAccountNumber: number): Promise<HousingWithRooms[] | null> => {
+  try {
+    const housings = await housingData.findAllWithRoomsByManager(managerAccountNumber);
+    if (!housings) return null;
+    return housings;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Failed to fetch housing with rooms");
+  }
+};
+
 export const housingService = {
 	addHousing,
 	getHousing,
@@ -200,5 +222,7 @@ export const housingService = {
 	uploadHousingImage,
 	updateHousing,
 	deactivateHousing,
-	getOccupancyRate
+	getOccupancyRate,
+	getAllHousingByManager,
+	getAllHousingWithRoomsByManager
 };

@@ -346,6 +346,36 @@ async function getStudentsHoused(managerId: number, housingId: number) {
   return data;
 }
 
+async function findAllByManager(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select("*")
+    .eq("is_deleted", false)
+    .eq("landlord_account_number", managerAccountNumber);
+
+  if (error) {
+    console.error("Error fetching housing by manager: ", error);
+    throw new Error("Failed to fetch housing");
+  }
+
+  return data;
+}
+
+async function findAllWithRoomsByManager(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select("*, room(*)")
+    .eq("is_deleted", false)
+    .eq("landlord_account_number", managerAccountNumber);
+
+  if (error) {
+    console.error("Error fetching housing with rooms by manager: ", error);
+    throw new Error("Failed to fetch housing with rooms");
+  }
+
+  return data;
+}
+
 export const housingData = {
   create,
   findAll,
@@ -363,4 +393,6 @@ export const housingData = {
   findbyLandlord,
   getOccupancyRate,
   getStudentsHoused,
+  findAllByManager,
+  findAllWithRoomsByManager
 };

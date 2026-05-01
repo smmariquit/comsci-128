@@ -282,21 +282,61 @@ async function updateStudentHousingStatus(accountNumber: number, status: string)
 
 
 
-async function getRoomStats() {
+async function getRoomStats(managerAccountNumber: number) {
   const { data, error } = await supabase
     .from("room")
-    .select("maximum_occupants, occupancy_status")
+    .select("maximum_occupants, occupants_count, housing!inner(landlord_account_number)")
     .eq("is_deleted", false)
+    .eq("housing.landlord_account_number", managerAccountNumber);
 
   if (error) {
     throw new Error(error.message);
   }
 
   const totalRooms = data?.length ?? 0
-  const totalOccupants = data?.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0) ?? 0
-  const totalFreeRooms = data?.filter(r => r.occupancy_status === "Empty").length ?? 0
+  const totalOccupants = data?.reduce((sum, r) => sum + (r.occupants_count ?? 0), 0) ?? 0
+  const totalFreeRooms = data?.filter(r => r.occupants_count < r.maximum_occupants).length ?? 0
 
   return { totalRooms, totalOccupants, totalFreeRooms }
+}
+
+async function incrementOccupantsCount(roomId: number) {
+
+	const {data : room}  = await supabase
+		.from("room")
+		.select("occupants_count, maximum_occupants")
+		.eq("room_id", roomId)
+		.single()
+
+	
+	if (!room) throw new Error("Room not found")
+
+	const newCount = (room.occupants_count ?? 0) + 1
+	const maxOccupants = room.maximum_occupants ?? 0
+	
+	let newStatus = ""
+
+	if (newCount === 0) {
+
+		newStatus = "Empty"
+	} else if (newCount < maxOccupants) {
+		newStatus = "Partially Occupied"
+	} else if (newCount >= maxOccupants) {
+		newStatus = "Fully Occupied"
+	}
+
+	const { data, error } = await supabase
+		.from("room")
+		.update({
+			occupants_count: newCount,
+			occupancy_status: newStatus
+		})
+		.eq("room_id", roomId)
+		.select()
+		.single()
+
+	if (error) throw new Error(error.message)
+	return data
 }
 
 export const roomData = {
@@ -313,5 +353,6 @@ export const roomData = {
 	getOccupantCount,
 	getAccountbyStudentNumber,
 	updateStudentHousingStatus,
-	getRoomStats
+	getRoomStats,
+	incrementOccupantsCount
 };

@@ -63,6 +63,29 @@ async function getByManager(
 	return data ?? [];
 }
 
+async function getByLandlord(
+	landlordAccountNumber: number,
+): Promise<Application[]> {
+	const { data, error } = await supabase
+		.from("application")
+		.select(`
+			*,
+			student:student_account_number (
+				account_number,
+				user:user!account_number(
+				first_name,
+				middle_name,
+				last_name
+				)
+			)
+		`)
+		.eq("landlord_account_number", landlordAccountNumber)
+		.eq("is_deleted", false)
+
+	if (error) throw error;
+	return data ?? [];
+}
+
 async function getByHousing(housingId: number) {
 	const { data, error } = await supabase
 		.from("application")
@@ -114,29 +137,30 @@ async function getDocuments(applicationId: number) {
 }
 
 // GET SELECTED STATS FOR MANAGER DASHBOARD
-async function getApplicationStats() {
-	const { data, error } = await supabase
-		.from("application")
-		.select("application_status")
-		.eq("is_deleted", false);
+async function getApplicationStats(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select("application_status")
+    .eq("is_deleted", false)
+    .eq("landlord_account_number", managerAccountNumber);
 
-	if (error) {
-		console.error("Error fetching applications stats: ", error);
-		throw new Error("Failed to fetch application stats");
-	}
+  if (error) {
+    console.error("Error fetching applications stats: ", error);
+    throw new Error("Failed to fetch application stats");
+  }
 
-	const total = data.length;
-	const pending = data.filter(
-		(a) => a.application_status === "Pending",
-	).length;
-	const approved = data.filter(
-		(a) => a.application_status === "Approved",
-	).length;
-	const rejected = data.filter(
-		(a) => a.application_status === "Rejected",
-	).length;
+  const total = data.length;
+  const pending = data.filter(
+    (a) => a.application_status === "Pending",
+  ).length;
+  const approved = data.filter(
+    (a) => a.application_status === "Approved",
+  ).length;
+  const rejected = data.filter(
+    (a) => a.application_status === "Rejected",
+  ).length;
 
-	return { total, pending, approved, rejected };
+  return { total, pending, approved, rejected };
 }
 
 // APPLICATION DATA JOINED WITH STUDENT ACCOUNT NUMBER
@@ -311,6 +335,7 @@ export const applicationData = {
 	getAll,
 	getById,
 	getByManager,
+	getByLandlord,
 	getByHousing,
 	update,
 	remove,
