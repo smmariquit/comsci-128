@@ -7,10 +7,10 @@ export async function POST(request: NextRequest) {
 
     if (body.googleSignup) {
       try {
-        const newStudent = await userService.finalizeGoogleSignup(body.account_email, body);
+        const updatedUser = await userService.finalizeGoogleSignup(body.account_email, body);
 
         return NextResponse.json(
-          { message: "User registered successfully.", user: newStudent },
+          { message: "User registered successfully.", user: updatedUser },
           { status: 201 },
         );
       } catch (finalizationError: any) {
@@ -27,12 +27,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const newStudent = await userService.addUser(body);
-
-    return NextResponse.json(
-      { message: "User registered successfully.", user: newStudent },
-      { status: 201 },
-    );
   } catch (error: any) {
     console.error("Error during registration:", error);
     return NextResponse.json(
