@@ -7,9 +7,9 @@ import { userService } from "@/services/user-service";
 const roleRedirects: Record<UserRole, string> = {
   public: "/login",
   student: "/student",
-  landlord: "/manager",
-  housing_admin: "/manager",
-  system_admin: "/admin",
+  landlord: "/manage",
+  housing_admin: "/admin",
+  system_admin: "/sys",
 };
 
 function toRole(userType?: string | null): UserRole {
