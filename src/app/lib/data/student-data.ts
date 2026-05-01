@@ -433,6 +433,33 @@ const getUnpaidBills = async (accountNumber: number) => {
 	return data;
 };
 
+async function deleteByAccountNumber(accountNumber: number): Promise<{ deleted: boolean; error?: string }> {
+	// Hard delete student and student_academic records for incomplete Google OAuth placeholders
+	try {
+		const { error: academicError } = await supabase
+			.from("student_academic")
+			.delete()
+			.eq("account_number", accountNumber);
+
+		if (academicError) {
+			return { deleted: false, error: `Failed to delete academic record: ${academicError.message}` };
+		}
+        
+		const { error: studentError } = await supabase
+			.from("student")
+			.delete()
+			.eq("account_number", accountNumber);
+
+		if (studentError) {
+			return { deleted: false, error: `Failed to delete student record: ${studentError.message}` };
+		}
+
+		return { deleted: true };
+	} catch (err: any) {
+		return { deleted: false, error: err.message };
+	}
+}
+
 export const studentData = {
 	create,
 	createAcademic,
@@ -451,4 +478,5 @@ export const studentData = {
 	getBillingSummary,
 	getBillingHistory,
 	getUnpaidBills,
+	deleteByAccountNumber,
 };

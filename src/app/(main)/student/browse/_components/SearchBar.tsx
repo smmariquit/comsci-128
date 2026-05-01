@@ -1,7 +1,7 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Filter, Search, ArrowDownNarrowWide } from "lucide-react";
+import { ArrowDownUp, Filter, Search } from "lucide-react";
 
 
 //SEARCHBAR FOR STUDENT BROWSE
@@ -32,7 +32,7 @@ export default function SearchBar() {
                     onClick={() => { setIsFilterOpen(!isFilterOpen); setIsSortOpen(false); }}
                     className="flex items-center justify-center text-[#C9642A]"
                 >
-                    <Filter size={20} fill="currentColor" />
+                    <Filter className="h-5 w-5" />
                 </button>
 
                 {isFilterOpen && (
@@ -52,11 +52,7 @@ export default function SearchBar() {
             <div className="relative flex-1 group">
                 {/* Search Icon (Left) */}
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search 
-                        size={16}
-                        className="text-[#567375] group-focus-within:text-[#C9642A] transition-colors" 
-                        strokeWidth={2}
-                    />
+                    <Search className="h-4 w-4 text-[#567375] group-focus-within:text-[#C9642A] transition-colors" />
                 </div>
 
                 <input 
@@ -73,7 +69,8 @@ export default function SearchBar() {
                     onClick={() => { setIsSortOpen(!isSortOpen); setIsFilterOpen(false); }}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-black/5 transition-colors text-sm font-semibold text-[#C9642A]"
                 >
-                    <ArrowDownNarrowWide size={20} strokeWidth={2} />
+                    {/* Sort Icon: Three bars with a descending arrow */}
+                    <ArrowDownUp width="20" height="20" />
                     
                     <span>
                         {searchParams.get('sort') === 'asc' ? 'Price: Low-High' : 

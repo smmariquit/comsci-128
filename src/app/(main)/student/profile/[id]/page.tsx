@@ -1,20 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import StudentNavBar from "../../_components/StudentNavBar";
 import { StudentProfile } from "@/app/lib/models/student";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
-	| (StudentProfile["student"][number] & {
-		student_academic: StudentProfile["student"][number]["student_academic"][number];
-	})
-	| null;
+		| (StudentProfile["student"][number] & {
+				student_academic: StudentProfile["student"][number]["student_academic"][number];
+		  })
+		| null;
 };
 
 export default function StudentProfilePage() {
-	const { id } = useParams();
+	const [accountNumber, setAccountNumber] = useState<string | null>(null);
 	const [student, setStudent] = useState<StudentPayload | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("Personal Information");
@@ -24,9 +23,21 @@ export default function StudentProfilePage() {
 	}>({ message: "", type: null });
 
 	useEffect(() => {
+		// read account_number from cookies on mount
+		const getCookie = (name: string) => {
+			const match = document.cookie.split("; ").find((c) => c.startsWith(name + "="));
+			return match ? decodeURIComponent(match.split("=")[1]) : null;
+		};
+		const acc = getCookie("account_number");
+		setAccountNumber(acc);
+	}, []);
+
+	useEffect(() => {
+		if (!accountNumber) return;
+
 		async function fetchProfile() {
 			try {
-				const res = await fetch(`/api/student/profile/${id}`);
+				const res = await fetch(`/api/student/profile/${accountNumber}`);
 				const data = await res.json();
 
 				const studentObj = Array.isArray(data.student)
@@ -42,9 +53,9 @@ export default function StudentProfilePage() {
 					...data,
 					student: studentObj
 						? {
-							...studentObj,
-							student_academic: academicObj,
-						}
+								...studentObj,
+								student_academic: academicObj,
+							}
 						: null,
 				} as StudentPayload);
 			} catch (err) {
@@ -54,12 +65,12 @@ export default function StudentProfilePage() {
 			}
 		}
 		fetchProfile();
-	}, [id]);
+	}, [accountNumber]);
 
 	const handleSave = async () => {
 		setSaveStatus({ message: "Saving...", type: null });
 		try {
-			const res = await fetch(`/api/student/profile/${id}`, {
+			const res = await fetch(`/api/student/profile/${accountNumber}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 
@@ -141,7 +152,7 @@ export default function StudentProfilePage() {
 
 	return (
 		<div className="flex flex-col min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
-			<StudentNavBar path="Student Profile" userId={Number(id)} />
+			<StudentNavBar path="Student Profile" userId={Number(accountNumber)} />
 
 			{/* Main Content*/}
 			<div className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner">
@@ -172,10 +183,11 @@ export default function StudentProfilePage() {
 							<button
 								key={tab}
 								onClick={() => setActiveTab(tab)}
-								className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${activeTab === tab
-									? "bg-[#567375] text-white shadow-md"
-									: "text-[#1C2632] hover:bg-[#E3AF64]/20"
-									}`}
+								className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${
+									activeTab === tab
+										? "bg-[#567375] text-white shadow-md"
+										: "text-[#1C2632] hover:bg-[#E3AF64]/20"
+								}`}
 							>
 								{tab}
 							</button>
@@ -191,12 +203,13 @@ export default function StudentProfilePage() {
 					</button>
 
 					{saveStatus.message && (
-						<div className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all ${saveStatus.type === "success"
-							? "bg-green-100 text-green-700"
-							: saveStatus.type === "error"
+						<div className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all ${
+							saveStatus.type === "success" 
+								? "bg-green-100 text-green-700" 
+								: saveStatus.type === "error"
 								? "bg-red-100 text-red-700"
 								: "bg-blue-100 text-blue-700"
-							}`}>
+						}`}>
 							{saveStatus.message}
 						</div>
 					)}
@@ -326,8 +339,9 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
 				disabled={disabled}
 				value={value || ""}
 				onChange={(e) => onChange && onChange(e.target.value)}
-				className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
-					}`}
+				className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
+					disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
+				}`}
 			/>
 		</div>
 	);
@@ -342,13 +356,7 @@ function ProfileSelect({ label, value, options, onChange }: any) {
 			<select
 				value={value || ""}
 				onChange={(e) => onChange(e.target.value)}
-				className="w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] font-[family-name:var(--font-geist-mono)] appearance-none cursor-pointer"
-				style={{
-					backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C2632' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-					backgroundRepeat: "no-repeat",
-					backgroundPosition: "right 1rem center",
-					backgroundSize: "1.5em",
-				}}
+				className="w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] font-[family-name:var(--font-geist-mono)] appearance-auto cursor-pointer"
 			>
 				<option value="" disabled>
 					Select {label}

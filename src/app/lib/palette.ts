@@ -21,6 +21,8 @@ export const C = {
   statusApproved: { bg: "rgba(86,115,117,0.15)",  text: "#567375" },
   statusRejected: { bg: "rgba(28,38,50,0.10)",    text: "#1C2632" },
   statusCancelled:{ bg: "rgba(237,233,222,0.50)", text: "#567375" },
+  statusPendingManager: { bg: "rgba(227,175,100,0.22)", text: "#8A5A14" },
+  statusPendingAdmin:   { bg: "rgba(201,100,42,0.18)",  text: "#5B3414" },
  
   // Audit action badges — derived from palette
   actionCreate: { bg: "rgba(86,115,117,0.15)",   text: "#567375" },

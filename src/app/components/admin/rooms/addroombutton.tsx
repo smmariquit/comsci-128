@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { C } from "@/lib/palette";
 type BtnVariant = "ghost" | "primary" | "danger" | "warn";
 
@@ -16,17 +17,25 @@ function addRoomButton({ label, onClick, variant = "primary", disabled }: {
   variant?: BtnVariant;
   disabled?: boolean;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       disabled={disabled}
       style={{
         ...BTN_STYLE[variant],
+        fontFamily: "'DM Sans', sans-serif",
         fontSize: 11,
         padding: "4px 10px",
         borderRadius: 6,
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.4 : 1,
+        transform: hovered && !disabled ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered && !disabled ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease",
       }}
     >
       {label}
