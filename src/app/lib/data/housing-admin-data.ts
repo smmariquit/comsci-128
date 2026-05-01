@@ -49,6 +49,8 @@ async function getAll() {
           phone_number,
           contact_email,
           user_type,
+          profile_picture,
+          google_identity
         )
       )
     `);

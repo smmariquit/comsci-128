@@ -26,7 +26,22 @@ async function getById(accountNumber: number): Promise<any | null> {
 		.select(
 			`
       account_number,
-      user!inner(*)
+      user!inner(
+			account_number,
+			account_email,
+			first_name,
+			middle_name,
+			last_name,
+			birthday,
+			home_address,
+			phone_number,
+			contact_email,
+			user_type,
+			sex,
+			is_deleted,
+			profile_picture,
+			google_identity
+	  )
     `,
 		)
 		.eq("account_number", accountNumber);
