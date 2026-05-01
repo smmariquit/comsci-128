@@ -3,11 +3,9 @@ import "server-only";
 import { supabaseAdmin } from "@/app/lib/supabase-admin";
 import { studentData } from "@/app/lib/data/student-data";
 import { userData } from "@/app/lib/data/user-data";
-import type { NewStudent } from "@/models/student";
 import type { NewUser, UpdateUser, User } from "@/models/user";
 import type { Role } from "../models/audit_log";
 import { AppAction } from "../models/permissions";
-import type { NewStudentAcademic } from "../models/student_academic";
 import { validateAction } from "./authorization-service";
 
 type ServiceResponse<T> = { data?: T; error?: string };
@@ -64,30 +62,7 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
     userDetails.user_type = "Student";
     userDetails.password = "";
 
-    // create student details
-    // update when student_academic table is non-nullable
-    const studentDetails: NewStudent = {
-      student_number: Math.floor(Math.random() * 1000000),
-      housing_status: "Not Assigned",
-      emergency_contact_name: null,
-      emergency_contact_number: null,
-      emergency_contact_relationship: null,
-    } as NewStudent;
-
-    // updated by student later
-    const studentAcademicDetails: NewStudentAcademic = {
-      degree_program: "",
-      standing: undefined,
-      status: "Active",
-    };
-
     const createdUser = await userData.create(userDetails);
-
-    await studentData.create(
-      createdUser.account_number,
-      studentDetails,
-      studentAcademicDetails,
-    );
 
     return createdUser;
   } catch (error) {
@@ -266,7 +241,7 @@ const createGooglePlaceholderUser = async (googleUser: any): Promise<User> => {
     is_deleted: false,
   };
 
-  return await userData.create(userDetails);
+  return await addUser(userDetails);
 };
 
 const finalizeGoogleSignup = async (accountEmail: string, updates: UpdateUser): Promise<User> => {
