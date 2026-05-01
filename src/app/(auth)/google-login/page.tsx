@@ -25,19 +25,30 @@ export default function GoogleLoginPage() {
           return;
         }
 
+        const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+        const intent = urlParams.get("intent") || "login";
+
         const response = await fetch("/api/auth/google-login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({ intent }),
         });
 
+        const payload: { role?: string; redirectTo?: string; error?: string; googleData?: any } = await response.json();
+
         if (!response.ok) {
-          throw new Error("Google login API request failed.");
+          if (payload.googleData) {
+            sessionStorage.setItem("googleSignupData", JSON.stringify(payload.googleData));
+          }
+          router.push(payload.redirectTo || "/register");
+          return;
         }
 
-        const payload: { role?: string; redirectTo?: string } = await response.json();
-
+        if (payload.googleData) {
+          sessionStorage.setItem("googleSignupData", JSON.stringify(payload.googleData));
+        }
         router.push(payload.redirectTo || "/login");
 
       } catch (error) {

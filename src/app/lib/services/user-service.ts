@@ -1,6 +1,6 @@
 import "server-only";
 
-import bcrypt from "bcrypt";
+import { supabaseAdmin } from "@/app/lib/supabase-admin";
 import { studentData } from "@/app/lib/data/student-data";
 import { userData } from "@/app/lib/data/user-data";
 import type { NewStudent } from "@/models/student";
@@ -15,6 +15,28 @@ type Public<T> = Omit<T, "account_number" | "password">;
 
 const _allowedSex = ["Female", "Male", "Prefer not to say"];
 
+type GoogleProfile = {
+  email: string;
+  googleIdentity: string | null;
+  firstName: string;
+  lastName: string;
+};
+
+function normalizeGoogleProfile(googleUser: any): GoogleProfile {
+  const email = googleUser.email || googleUser.user_metadata?.email || "";
+  const googleIdentity = googleUser.identities?.[0]?.id || null;
+  const fullName =
+    googleUser.user_metadata?.full_name ||
+    googleUser.user_metadata?.name ||
+    googleUser.user_metadata?.display_name ||
+    "";
+  const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
+  const firstName = nameParts[0] || email.split("@")[0] || "";
+  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : firstName;
+
+  return { email, googleIdentity, firstName, lastName };
+}
+
 const addUser = async (userDetails: NewUser): Promise<User> => {
   try {
     const { account_email, first_name, last_name, password } = userDetails;
@@ -28,28 +50,38 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
     if (!first_name) throw new Error("First name is required.");
     if (!last_name) throw new Error("Last name is required.");
     if (!password) throw new Error("Password is required");
-    // Student default
-    userDetails.user_type = "Student";
-    // Hash pw
-    const salt = await bcrypt.genSalt(12);
-    userDetails.password = await bcrypt.hash(password, salt);
 
-    // mock... replace once there's input for Student and StudentAcademic
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: account_email,
+      password: password,
+      email_confirm: true,
+    });
+
+    if (authError || !authData.user) {
+      throw new Error(`Auth creation failed: ${authError?.message || "Unknown error"}`);
+    }
+
+    // set user type to Student (default)
+    userDetails.user_type = "Student";
+    userDetails.password = "";
+
+    // create student details
+    // update when student_academic table is non-nullable
     const studentDetails: NewStudent = {
-      student_number: 0,
+      student_number: Math.floor(Math.random() * 1000000),
       housing_status: "Not Assigned",
-      emergency_contact_name: "Maria Santos",
-      emergency_contact_number: "09181234567",
-      emergency_contact_relationship: "Mother",
+      emergency_contact_name: null,
+      emergency_contact_number: null,
+      emergency_contact_relationship: null,
     } as NewStudent;
 
+    // updated by student later
     const studentAcademicDetails: NewStudentAcademic = {
-      degree_program: "BS Computer Science",
-      standing: "Freshman",
+      degree_program: "",
+      standing: undefined,
       status: "Active",
     };
 
-    // Insert user
     const createdUser = await userData.create(userDetails);
 
     await studentData.create(
@@ -65,7 +97,6 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
   }
 };
 
-// getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 const getUser = async (userId: number): Promise<Public<User> | null> => {
   try {
     const userProfile = await userData.findById(userId);
@@ -104,8 +135,6 @@ const updateUser = async (
   updates: NewUser,
 ): Promise<ServiceResponse<Public<UpdateUser>>> => {
   try {
-    // To consider: separate update on password for stronger security
-    // e.g. email validation for changing password
     const { account_number, account_email, is_deleted, ...allowedUpdates } =
       updates;
 
@@ -202,15 +231,12 @@ const _promoteUserType = async (
 };
 
 const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
-  const email = googleUser.email;
-  const googleId = googleUser.identities?.[0]?.id;
-
-  const fullName = googleUser.user_metadata?.full_name || "";
-  const nameParts = fullName.split(" ");
-  const firstName = nameParts[0] || "";
-  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-
-  const existingUser = await userData.findByEmail(email);
+  const profile = normalizeGoogleProfile(googleUser);
+  const existingUser =
+    (await userData.findByEmail(profile.email)) ||
+    (profile.googleIdentity
+      ? await userData.findByGoogleIdentity(profile.googleIdentity)
+      : null);
 
   if (existingUser) {
     return existingUser;
@@ -218,10 +244,10 @@ const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
 
   // create user
   const userDetails: NewUser = {
-    account_email: email,
-    contact_email: email,
-    first_name: firstName,
-    last_name: lastName,
+    account_email: profile.email,
+    contact_email: profile.email,
+    first_name: profile.firstName,
+    last_name: profile.lastName,
 
     middle_name: null,
     birthday: null,
@@ -231,13 +257,84 @@ const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
     sex: "Prefer not to say",
     password: "", // No password for OAuth users
     user_type: "Student",
-    google_identity: googleId,
+    google_identity: profile.googleIdentity,
     profile_picture: null,
     is_deleted: false,
   };
 
   const createdUser = await userData.create(userDetails);
   return createdUser;
+};
+
+const findGoogleUser = async (googleUser: any): Promise<User | null> => {
+  const profile = normalizeGoogleProfile(googleUser);
+
+  if (profile.googleIdentity) {
+    const byGoogleIdentity = await userData.findByGoogleIdentity(profile.googleIdentity);
+    if (byGoogleIdentity) {
+      return byGoogleIdentity;
+    }
+  }
+
+  if (!profile.email) {
+    return null;
+  }
+
+  return await userData.findByEmail(profile.email);
+};
+
+const createGooglePlaceholderUser = async (googleUser: any): Promise<User> => {
+  const profile = normalizeGoogleProfile(googleUser);
+
+  const userDetails: NewUser = {
+    account_email: profile.email,
+    contact_email: profile.email,
+    first_name: profile.firstName,
+    last_name: profile.lastName,
+    middle_name: null,
+    birthday: null,
+    home_address: null,
+    phone_number: null,
+    sex: "Prefer not to say",
+    password: "",
+    user_type: "Student",
+    google_identity: profile.googleIdentity,
+    profile_picture: null,
+    is_deleted: false,
+  };
+
+  return await userData.create(userDetails);
+};
+
+const finalizeGoogleSignup = async (accountEmail: string, updates: NewUser): Promise<User> => {
+  const existingUser = await userData.findByEmail(accountEmail);
+
+  if (!existingUser) {
+    throw new Error("Google account not found.");
+  }
+
+  const updatedUser = await userData.update(existingUser.account_number, {
+    first_name: updates.first_name,
+    middle_name: updates.middle_name || null,
+    last_name: updates.last_name,
+    birthday: updates.birthday || null,
+    home_address: updates.home_address || null,
+    phone_number: updates.phone_number || null,
+    contact_email: updates.contact_email || accountEmail,
+    sex: updates.sex || "Prefer not to say",
+    password: existingUser.password || "",
+    user_type: existingUser.user_type,
+    google_identity: existingUser.google_identity,
+    profile_picture: existingUser.profile_picture,
+    is_deleted: existingUser.is_deleted,
+    account_email: existingUser.account_email,
+  });
+
+  if (!updatedUser) {
+    throw new Error("Failed to finalize Google signup.");
+  }
+
+  return updatedUser as User;
 };
 
 export const userService = {
@@ -249,4 +346,7 @@ export const userService = {
   getUserCount,
   getActiveUserCount,
   findOrCreateGoogleUser,
+  findGoogleUser,
+  createGooglePlaceholderUser,
+  finalizeGoogleSignup,
 };
