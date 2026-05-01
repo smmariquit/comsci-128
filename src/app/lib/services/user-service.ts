@@ -300,6 +300,26 @@ const finalizeGoogleSignup = async (accountEmail: string, updates: NewUser): Pro
   return updatedUser as User;
 };
 
+const deleteGooglePlaceholderUser = async (email: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const existingUser = await userData.findByEmail(email);
+    
+    if (existingUser) {
+      await studentData.deleteByAccountNumber(existingUser.account_number);
+    }
+
+    const userDeleteResult = await userData.deleteByEmail(email);
+    
+    if (!userDeleteResult.deleted) {
+      return { success: false, error: `Database cleanup failed: ${userDeleteResult.error}` };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+};
+
 export const userService = {
   addUser,
   getUser,
@@ -311,4 +331,5 @@ export const userService = {
   findGoogleUser,
   createGooglePlaceholderUser,
   finalizeGoogleSignup,
+  deleteGooglePlaceholderUser,
 };
