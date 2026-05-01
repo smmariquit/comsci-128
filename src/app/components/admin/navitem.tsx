@@ -2,20 +2,24 @@
  
 import Link from "next/link";
 import { useState } from "react";
-import { GridIcon } from "./gridicon";
+import { ChevronRight, type LucideIcon } from "lucide-react";
  
 interface NavItemProps {
   label: string;
   href: string;
   isActive: boolean;
+  icon: LucideIcon;
 }
  
-export default function NavItem({ label, href, isActive }: NavItemProps) {
+export default function NavItem({ label, href, isActive, icon: Icon }: NavItemProps) {
   const [hovered, setHovered] = useState(false);
  
   let background = "transparent";
   if (isActive) background = "#A03A00";
   else if (hovered) background = "rgba(237,233,222,0.07)";
+
+  const isHighlighted = isActive || hovered;
+  const iconColor = isHighlighted ? "#EDE9DE" : "rgba(237,233,222,0.55)";
  
   return (
     <Link
@@ -28,30 +32,40 @@ export default function NavItem({ label, href, isActive }: NavItemProps) {
         borderRadius: 9,
         display: "flex",
         alignItems: "center",
+        justifyContent: "space-between",
         textDecoration: "none",
         background,
-        transition: "background 0.15s ease",
+        paddingRight: 12,
+        transform: hovered && !isActive ? "translateX(2px)" : "translateX(0)",
+        boxShadow: hovered && !isActive ? "inset 0 0 0 1px rgba(237,233,222,0.08)" : "none",
+        transition: "all 0.15s ease",
         cursor: "pointer",
       }}
     >
-      {/* Icon */}
-      <span style={{ position: "relative", left: 20, display: "flex", opacity: isActive || hovered ? 1 : 0.5 }}>
-        <GridIcon active={isActive || hovered} />
-      </span>
- 
-      {/* Label */}
-      <span
-        style={{
-          position: "relative",
-          left: 28,
-          color: isActive ? "#EDE9DE" : hovered ? "rgba(237,233,222,0.85)" : "rgba(237,233,222,0.55)",
-          fontSize: 13,
-          fontWeight: isActive ? 500 : 400,
-          transition: "color 0.15s ease",
-        }}
-      >
-        {label}
-      </span>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <span style={{ position: "relative", left: 20, display: "flex" }}>
+          <Icon size={17} color={iconColor} strokeWidth={2} />
+        </span>
+
+        <span
+          style={{
+            position: "relative",
+            left: 28,
+            color: isActive ? "#EDE9DE" : hovered ? "rgba(237,233,222,0.85)" : "rgba(237,233,222,0.55)",
+            fontSize: 13,
+            fontWeight: isActive ? 500 : 400,
+            transition: "color 0.15s ease",
+          }}
+        >
+          {label}
+        </span>
+      </div>
+
+      <ChevronRight
+        size={14}
+        color={isHighlighted ? "rgba(237,233,222,0.5)" : "rgba(237,233,222,0.22)"}
+        strokeWidth={1.8}
+      />
     </Link>
   );
 }

@@ -3,11 +3,9 @@ import "server-only";
 import { supabaseAdmin } from "@/app/lib/supabase-admin";
 import { studentData } from "@/app/lib/data/student-data";
 import { userData } from "@/app/lib/data/user-data";
-import type { NewStudent } from "@/models/student";
 import type { NewUser, UpdateUser, User } from "@/models/user";
 import type { Role } from "../models/audit_log";
 import { AppAction } from "../models/permissions";
-import type { NewStudentAcademic } from "../models/student_academic";
 import { validateAction } from "./authorization-service";
 
 type ServiceResponse<T> = { data?: T; error?: string };
@@ -28,7 +26,6 @@ function normalizeGoogleProfile(googleUser: any): GoogleProfile {
   const fullName =
     googleUser.user_metadata?.full_name ||
     googleUser.user_metadata?.name ||
-    googleUser.user_metadata?.display_name ||
     "";
   const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
   const firstName = nameParts[0] || email.split("@")[0] || "";
@@ -65,30 +62,7 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
     userDetails.user_type = "Student";
     userDetails.password = "";
 
-    // create student details
-    // update when student_academic table is non-nullable
-    const studentDetails: NewStudent = {
-      student_number: Math.floor(Math.random() * 1000000),
-      housing_status: "Not Assigned",
-      emergency_contact_name: null,
-      emergency_contact_number: null,
-      emergency_contact_relationship: null,
-    } as NewStudent;
-
-    // updated by student later
-    const studentAcademicDetails: NewStudentAcademic = {
-      degree_program: "",
-      standing: undefined,
-      status: "Active",
-    };
-
     const createdUser = await userData.create(userDetails);
-
-    await studentData.create(
-      createdUser.account_number,
-      studentDetails,
-      studentAcademicDetails,
-    );
 
     return createdUser;
   } catch (error) {
@@ -230,42 +204,6 @@ const _promoteUserType = async (
   }
 };
 
-const findOrCreateGoogleUser = async (googleUser: any): Promise<User> => {
-  const profile = normalizeGoogleProfile(googleUser);
-  const existingUser =
-    (await userData.findByEmail(profile.email)) ||
-    (profile.googleIdentity
-      ? await userData.findByGoogleIdentity(profile.googleIdentity)
-      : null);
-
-  if (existingUser) {
-    return existingUser;
-  }
-
-  // create user
-  const userDetails: NewUser = {
-    account_email: profile.email,
-    contact_email: profile.email,
-    first_name: profile.firstName,
-    last_name: profile.lastName,
-
-    middle_name: null,
-    birthday: null,
-    home_address: null,
-    phone_number: null,
-
-    sex: "Prefer not to say",
-    password: "", // No password for OAuth users
-    user_type: "Student",
-    google_identity: profile.googleIdentity,
-    profile_picture: null,
-    is_deleted: false,
-  };
-
-  const createdUser = await userData.create(userDetails);
-  return createdUser;
-};
-
 const findGoogleUser = async (googleUser: any): Promise<User | null> => {
   const profile = normalizeGoogleProfile(googleUser);
 
@@ -283,58 +221,128 @@ const findGoogleUser = async (googleUser: any): Promise<User | null> => {
   return await userData.findByEmail(profile.email);
 };
 
-const createGooglePlaceholderUser = async (googleUser: any): Promise<User> => {
+const finalizeGoogleSignup = async (googleUser: any, updates: UpdateUser): Promise<User> => {
   const profile = normalizeGoogleProfile(googleUser);
+  const accountEmail = updates.account_email || profile.email;
+
+  if (!accountEmail) {
+    throw new Error("Email is required.");
+  }
+
+  const existingUser = await userData.findByEmail(accountEmail);
+  if (existingUser) {
+    throw new Error("Email already in use.");
+  }
+
+  if (!updates.password) {
+    throw new Error("Password is required.");
+  }
+
+  if (!updates.first_name) throw new Error("First name is required.");
+  if (!updates.last_name) throw new Error("Last name is required.");
+
+  let authUserId = googleUser?.id as string | undefined;
+  if (!authUserId) {
+    const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    if (listError) {
+      throw new Error(`Failed to list Auth users: ${listError.message}`);
+    }
+
+    const authUser = authUsers?.users?.find(u => u.email === accountEmail);
+    if (!authUser) {
+      throw new Error("Auth user not found.");
+    }
+    authUserId = authUser.id;
+  }
+
+  const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+    password: updates.password,
+    email_confirm: true,
+  });
+
+  if (updateError) {
+    throw new Error(`Auth update failed: ${updateError.message}`);
+  }
 
   const userDetails: NewUser = {
-    account_email: profile.email,
-    contact_email: profile.email,
-    first_name: profile.firstName,
-    last_name: profile.lastName,
-    middle_name: null,
-    birthday: null,
-    home_address: null,
-    phone_number: null,
-    sex: "Prefer not to say",
+    account_email: accountEmail,
+    contact_email: updates.contact_email ?? null,
+    first_name: updates.first_name,
+    last_name: updates.last_name,
+    middle_name: updates.middle_name ?? null,
+    birthday: updates.birthday ?? null,
+    home_address: updates.home_address ?? null,
+    phone_number: updates.phone_number ?? null,
+    sex: updates.sex ?? "Prefer not to say",
     password: "",
     user_type: "Student",
     google_identity: profile.googleIdentity,
-    profile_picture: null,
+    profile_picture: updates.profile_picture ?? null,
     is_deleted: false,
   };
 
   return await userData.create(userDetails);
 };
 
-const finalizeGoogleSignup = async (accountEmail: string, updates: NewUser): Promise<User> => {
-  const existingUser = await userData.findByEmail(accountEmail);
+const deleteGooglePlaceholderUser = async (email: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const existingUser = await userData.findByEmail(email);
+    
+    if (existingUser) {
+      await studentData.deleteByAccountNumber(existingUser.account_number);
+    }
 
-  if (!existingUser) {
-    throw new Error("Google account not found.");
+    const userDeleteResult = await userData.deleteByEmail(email);
+    
+    if (!userDeleteResult.deleted) {
+      return { success: false, error: `Database cleanup failed: ${userDeleteResult.error}` };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
+};
 
-  const updatedUser = await userData.update(existingUser.account_number, {
-    first_name: updates.first_name,
-    middle_name: updates.middle_name || null,
-    last_name: updates.last_name,
-    birthday: updates.birthday || null,
-    home_address: updates.home_address || null,
-    phone_number: updates.phone_number || null,
-    contact_email: updates.contact_email || accountEmail,
-    sex: updates.sex || "Prefer not to say",
-    password: existingUser.password || "",
-    user_type: existingUser.user_type,
-    google_identity: existingUser.google_identity,
-    profile_picture: existingUser.profile_picture,
-    is_deleted: existingUser.is_deleted,
-    account_email: existingUser.account_email,
-  });
+const deleteFromSupabaseAuth = async (email: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (listError) {
+      return { success: false, error: `Failed to list Auth users: ${listError.message}` };
+    }
 
-  if (!updatedUser) {
-    throw new Error("Failed to finalize Google signup.");
+    const authUser = authUsers?.users?.find(u => u.email === email);
+    
+    if (!authUser) {
+      return { success: true };
+    }
+
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(authUser.id);
+    
+    if (deleteError) {
+      return { success: false, error: `Failed to delete from Auth: ${deleteError.message}` };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
+};
 
-  return updatedUser as User;
+const cleanupGooglePlaceholder = async (email: string): Promise<{ success: boolean; dbError?: string; authError?: string }> => {
+  
+  const dbCleanup = await deleteGooglePlaceholderUser(email);
+  
+  const authCleanup = await deleteFromSupabaseAuth(email);
+  
+  const result = {
+    success: dbCleanup.success && authCleanup.success,
+    ...(dbCleanup.error && { dbError: dbCleanup.error }),
+    ...(authCleanup.error && { authError: authCleanup.error }),
+  };
+
+  return result;
 };
 
 export const userService = {
@@ -345,8 +353,7 @@ export const userService = {
   deactivateUser,
   getUserCount,
   getActiveUserCount,
-  findOrCreateGoogleUser,
   findGoogleUser,
-  createGooglePlaceholderUser,
   finalizeGoogleSignup,
+  cleanupGooglePlaceholder,
 };

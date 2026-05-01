@@ -2,8 +2,8 @@
 "use client";
 
 import { useState } from "react";
-import { C } from "@/lib/palette";
 import { X } from "lucide-react";
+import { C } from "@/lib/palette";
 
 function Backdrop({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
@@ -52,7 +52,6 @@ function ModalShell({
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
         >
-          {/* ✅ aria-hidden hides decorative SVG from screen readers */}
           <X size={14} color={C.teal} strokeWidth={2.5} aria-hidden="true" />
         </button>
       </div>

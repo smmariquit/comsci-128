@@ -129,7 +129,7 @@ async function getHousingCardsData() {
             *,
             room!inner(*)
         `)
-    .eq("is_deleted", false)
+  .eq("is_deleted", false)
     .order("housing_name", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -156,6 +156,7 @@ async function getHousingCardsData() {
       vacantRooms,
       occupancyRate,
       minRent: housing.rent_price,
+      imageUrl: housing.housing_image ?? undefined,
     };
   });
 }
@@ -260,6 +261,40 @@ async function countAllHousing(): Promise<number | null> {
   return count;
 }
 
+async function getStudentsByRoom(roomId: number) {
+  const { data, error } = await supabase
+    .from("student_accommodation_history")
+    .select(`
+      account_number,
+      moveout_date,
+      student!inner (
+        user!inner ( first_name, last_name )
+      )
+    `)
+    .eq("room_id", roomId)
+    //.eq("application_status", "Approved")
+    .is("moveout_date", null);
+
+  if (error) throw new Error(`failed to fetch students: ${error.message}`);
+
+  return (data || []).map((app: any) => ({
+    account_number: app.account_number,
+    full_name: `${app.student.user.first_name} ${app.student.user.last_name}`
+  }));
+}
+
+async function findbyLandlord(landlordId: number): Promise<Housing[] | []> {
+  const { data, error } = await supabase
+    .from("housing")
+    .select("*")
+    .eq("landlord_account_number", landlordId)
+    .eq("is_deleted", false);
+
+  if (error) throw new Error ("Failed to fetch housing by landlord: " + error.message);
+
+  return data ?? [];
+}
+
 // Get occupancy rate of 1 housing
 // Returns a ratio = total current tenants / total maximum occupants
 async function getOccupancyRate(housingId: number): Promise<number> {
@@ -354,6 +389,8 @@ export const housingData = {
   getRoomDetails,
   getOverallUnpaidFees,
   findAllWithRooms,
+  getStudentsByRoom,
+  findbyLandlord,
   getOccupancyRate,
   getStudentsHoused,
   findAllByManager,
