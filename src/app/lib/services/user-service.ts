@@ -320,6 +320,33 @@ const deleteGooglePlaceholderUser = async (email: string): Promise<{ success: bo
   }
 };
 
+const deleteFromSupabaseAuth = async (email: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (listError) {
+      return { success: false, error: `Failed to list Auth users: ${listError.message}` };
+    }
+
+    const authUser = authUsers?.users?.find(u => u.email === email);
+    
+    if (!authUser) {
+      return { success: true };
+    }
+
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(authUser.id);
+    
+    if (deleteError) {
+      return { success: false, error: `Failed to delete from Auth: ${deleteError.message}` };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+};
+
+
 export const userService = {
   addUser,
   getUser,
@@ -332,4 +359,5 @@ export const userService = {
   createGooglePlaceholderUser,
   finalizeGoogleSignup,
   deleteGooglePlaceholderUser,
+  deleteFromSupabaseAuth,
 };
