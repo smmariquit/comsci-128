@@ -244,20 +244,67 @@ const createGooglePlaceholderUser = async (googleUser: any): Promise<User> => {
   return await addUser(userDetails);
 };
 
-const finalizeGoogleSignup = async (accountEmail: string, updates: UpdateUser): Promise<User> => {
+const finalizeGoogleSignup = async (googleUser: any, updates: UpdateUser): Promise<User> => {
+  const profile = normalizeGoogleProfile(googleUser);
+  const accountEmail = updates.account_email || profile.email;
+
+  if (!accountEmail) {
+    throw new Error("Email is required.");
+  }
+
   const existingUser = await userData.findByEmail(accountEmail);
-
-  if (!existingUser) {
-    throw new Error("Google account not found.");
+  if (existingUser) {
+    throw new Error("Email already in use.");
   }
 
-  const updatedUser = await userData.update(existingUser.account_number, updates);
-
-  if (!updatedUser) {
-    throw new Error("Failed to finalize Google signup.");
+  if (!updates.password) {
+    throw new Error("Password is required.");
   }
 
-  return updatedUser as User;
+  if (!updates.first_name) throw new Error("First name is required.");
+  if (!updates.last_name) throw new Error("Last name is required.");
+
+  let authUserId = googleUser?.id as string | undefined;
+  if (!authUserId) {
+    const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    if (listError) {
+      throw new Error(`Failed to list Auth users: ${listError.message}`);
+    }
+
+    const authUser = authUsers?.users?.find(u => u.email === accountEmail);
+    if (!authUser) {
+      throw new Error("Auth user not found.");
+    }
+    authUserId = authUser.id;
+  }
+
+  const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+    password: updates.password,
+    email_confirm: true,
+  });
+
+  if (updateError) {
+    throw new Error(`Auth update failed: ${updateError.message}`);
+  }
+
+  const userDetails: NewUser = {
+    account_email: accountEmail,
+    contact_email: updates.contact_email ?? null,
+    first_name: updates.first_name,
+    last_name: updates.last_name,
+    middle_name: updates.middle_name ?? null,
+    birthday: updates.birthday ?? null,
+    home_address: updates.home_address ?? null,
+    phone_number: updates.phone_number ?? null,
+    sex: updates.sex ?? "Prefer not to say",
+    password: "",
+    user_type: "Student",
+    google_identity: profile.googleIdentity,
+    profile_picture: updates.profile_picture ?? null,
+    is_deleted: false,
+  };
+
+  return await userData.create(userDetails);
 };
 
 const deleteGooglePlaceholderUser = async (email: string): Promise<{ success: boolean; error?: string }> => {
