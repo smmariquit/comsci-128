@@ -308,7 +308,6 @@ export const userService = {
   deactivateUser,
   getUserCount,
   getActiveUserCount,
-  findOrCreateGoogleUser,
   findGoogleUser,
   createGooglePlaceholderUser,
   finalizeGoogleSignup,
