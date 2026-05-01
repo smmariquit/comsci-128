@@ -92,9 +92,9 @@ export default function ApplicationsClient({
           : `Showing ${filtered.length} application${filtered.length !== 1 ? "s" : ""}`}
       </p>
 
-      <div className="bg-white rounded-xl text-black shadow overflow-x-auto">
+      <div className="bg-yellow-50 rounded-xl text-black shadow overflow-x-auto">
         <table className="w-full text-left border-collapse">
-          <thead className="bg-gray-100">
+          <thead className="bg-slate-800 text-[var(--dark-orange)]">
             <tr>
               <th className="p-3">Name</th>
               <th className="p-3">Housing</th>
@@ -118,7 +118,7 @@ export default function ApplicationsClient({
                   : "Unknown"
 
                 return (
-                  <tr key={app.application_id} className="border-t hover:bg-gray-50">
+                  <tr key={app.application_id} className="border-t hover:bg-yellow-100">
                     <td className="p-3">{fullName}</td>
                     <td className="p-3">{app.housing_name ?? "N/A"}</td>
                     <td className="p-3">{app.expected_moveout_date ?? "N/A"}</td>
