@@ -1,3 +1,4 @@
+import { ApplicationReportRow } from "@/app/components/admin/user/approval_table_wrapper";
 import { supabase } from "@/app/lib/supabase";
 import {
 	Application,
@@ -166,22 +167,22 @@ async function getApplicationStats(managerAccountNumber: number) {
 async function getApplicationsWithStudentDetails() {
 	const { data, error } = await supabase
 		.from("application")
-		.select(
-			`
-      application_id,
-      housing_name,
-      application_status,
-      expected_moveout_date,
-      preferred_room_type,
-      student:student_account_number (
-        account_number,
-        user:user!account_number (
-          first_name,
-          middle_name,
-          last_name
-        )
-      )
-    `,
+		.select(`
+			application_id,
+			housing_name,
+			application_status,
+			expected_moveout_date,
+			preferred_room_type,
+			landlord_account_number,
+			student:student_account_number (
+				account_number,
+				user:user!account_number (
+				first_name,
+				middle_name,
+				last_name
+				)
+			)
+			`,
 		)
 		.eq("is_deleted", false)
 		.order("application_id", { ascending: false });
@@ -278,6 +279,57 @@ async function getApprovedUnassignedByHousingName(housingName: string) {
 	return data ?? [];
 }
 
+async function getApplicationsForApproval(managedHousingIds: number[]): Promise<ApplicationReportRow[]> {
+    const { data: applications, error } = await supabase
+        .from("application")
+        .select(`
+            application_id,
+            housing_name,
+            preferred_room_type,
+            application_status,
+            expected_moveout_date,
+            actual_moveout_date,
+            student_account_number, 
+            room_id,                
+            student!inner (
+                student_number,
+                user!inner (
+                    first_name,
+                    last_name
+                )
+            ),
+            room!inner ( housing_id, room_code )
+        `)
+        .in("room.housing_id", managedHousingIds)
+        .eq("is_deleted", false);
+
+    if (error) throw new Error("Failed to fetch applications for approval: " + error.message);
+
+    return (applications || []).map((app: any) => {
+        const studentObj = Array.isArray(app.student) ? app.student[0] : app.student;
+        const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
+        const roomObj = Array.isArray(app.room) ? app.room[0] : app.room;
+
+        const firstName = userObj?.first_name || "";
+        const lastName = userObj?.last_name || "";
+
+        return {
+            application_id: app.application_id,
+            account_number: app.student_account_number, 
+            housing_id: roomObj?.housing_id,            
+            room_id: app.room_id,
+			room_code: roomObj?.room_code,                       
+            student_name: `${firstName} ${lastName}`.trim() || "Unknown Student",
+            student_number: studentObj?.student_number?.toString() || "N/A",
+            housing_name: app.housing_name || "Unknown Property",
+            preferred_room_type: app.preferred_room_type,
+            application_status: app.application_status,
+            expected_moveout_date: app.expected_moveout_date,
+            actual_moveout_date: app.actual_moveout_date || undefined,
+        };
+    });
+}
+
 export const applicationData = {
 	create,
 	getAll,
@@ -294,4 +346,5 @@ export const applicationData = {
 	getDocumentsByApplicationId,
 	assignRoomToApplication,
 	getApprovedUnassignedByHousingName,
+	getApplicationsForApproval
 };

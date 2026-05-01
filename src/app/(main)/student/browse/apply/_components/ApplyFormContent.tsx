@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronDown, ChevronLeft, FileText } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
-import { ChevronLeft, ChevronDown, FileText } from "lucide-react";
 
 export function ApplyFormContent() {
 	const dateNow = new Date(Date.now()).toISOString().split("T")[0];
@@ -99,8 +99,7 @@ export function ApplyFormContent() {
 				onClick={() => router.back()}
 				className="mb-6 flex items-center gap-2 rounded-lg border border-[#1C2632]/20 bg-white px-4 py-2 text-sm font-semibold text-[#1C2632] shadow-sm transition-all hover:bg-[#1C2632] hover:text-white active:scale-95"
 			>
-				<ChevronLeft size={18} strokeWidth={3} />
-				<span>Back to Browser</span>
+				<ChevronLeft width="24" height="24" strokeWidth={3} />
 			</button>
 
 			{status.message && (
@@ -159,7 +158,7 @@ export function ApplyFormContent() {
 
 								{/* Optional: Custom Arrow Icon */}
 								<div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[#73716D]">
-									<ChevronDown size={16} strokeWidth={2} />
+									<ChevronDown className="h-4 w-4" />
 								</div>
 							</div>
 						</div>
@@ -186,7 +185,7 @@ export function ApplyFormContent() {
 							{fileName ? (
 								<div className="flex flex-col items-center gap-2">
 									{/* File Icon */}
-									<FileText size={40} className="text-[#C9642A]" strokeWidth={2} />
+									<FileText className="h-10 w-10 text-[#C9642A]" strokeWidth={2} />
 									<span className="text-sm font-medium text-[#1C2632] truncate max-w-[200px]">
 										{fileName}
 									</span>

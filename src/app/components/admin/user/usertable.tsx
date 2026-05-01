@@ -1,10 +1,15 @@
+"use client";
+
 import { C } from "@/lib/palette";
+import { useState } from "react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type UserType        = "Student" | "Landlord" | "Housing Admin" | "Guest";
+export type UserType        = "Student" | "Landlord" | "Housing Admin" | "Guest" | "Manager";
 export type HousingStatus   = "Assigned" | "Not Assigned" | "Pending";
 export type Sex             = "Male" | "Female" | "Prefer not to say";
+
+
 
 export interface UserRow {
   account_number:  number;
@@ -93,6 +98,7 @@ const USER_TYPE_STYLE: Record<UserType, { bg: string; text: string }> = {
   Student:       { bg: "rgba(86,115,117,0.13)",  text: C.teal },
   Landlord:      { bg: "rgba(201,100,42,0.13)",  text: C.orange },
   "Housing Admin": { bg: "rgba(28,38,50,0.09)",  text: C.navy },
+  Manager:       { bg: "rgba(28,38,50,0.09)",  text: C.navy },
   Guest:         { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
 };
 
@@ -182,9 +188,13 @@ function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
   variant?: BtnVariant;
   disabled?: boolean;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       disabled={disabled}
       style={{
         ...BTN_STYLE[variant],
@@ -194,6 +204,9 @@ function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
         borderRadius: 6,
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.4 : 1,
+        transform: hovered && !disabled ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered && !disabled ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+        transition: "all 0.15s ease",
       }}
     >
       {label}
@@ -219,12 +232,13 @@ const COLUMNS = [
 interface Props {
   data:     UserRow[];
   onView:   (row: UserRow) => void;
-  onRemove: (row: UserRow) => void;
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────────
 
-export default function UserTable({ data, onView, onRemove }: Props) {
+export default function UserTable({ data, onView }: Props) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
   return (
     <div style={{
       background: "#fff",
@@ -289,10 +303,16 @@ export default function UserTable({ data, onView, onRemove }: Props) {
                 </td>
               </tr>
             ) : data.map((row, i) => (
-              <tr key={row.account_number} style={{
-                borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
-                opacity: row.is_deleted ? 0.55 : 1,
-              }}>
+              <tr
+                key={row.account_number}
+                onMouseEnter={() => setHoveredRow(i)}
+                onMouseLeave={() => setHoveredRow(null)}
+                style={{
+                  borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
+                  opacity: row.is_deleted ? 0.55 : 1,
+                  background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent",
+                  transition: "background 0.15s ease",
+                }}>
                 {/* Name */}
                 <td style={{ padding: "8px 14px", color: C.navy, fontWeight: 600, whiteSpace: "nowrap" }}>
                   {row.full_name}
@@ -335,12 +355,6 @@ export default function UserTable({ data, onView, onRemove }: Props) {
                 <td style={{ padding: "8px 14px" }}>
                   <div style={{ display: "flex", gap: 4 }}>
                     <ActionBtn label="View" onClick={() => onView(row)} />
-                    <ActionBtn
-                      label="Remove"
-                      onClick={() => onRemove(row)}
-                      variant="danger"
-                      disabled={row.is_deleted}
-                    />
                   </div>
                 </td>
               </tr>

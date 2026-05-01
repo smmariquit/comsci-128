@@ -29,7 +29,13 @@ export async function PATCH(
       return NextResponse.json({ message: "application_status is required." }, { status: 400 })
     }
 
-    const validStatuses = ["Approved", "Rejected", "Pending", "Cancelled", "Pending Manager Approval", "Pending Admin Approval"]
+    const validStatuses = [
+      "Pending Manager Approval",
+      "Pending Admin Approval",
+      "Approved",
+      "Rejected",
+      "Cancelled",
+    ]
     if (!validStatuses.includes(application_status)) {
       return NextResponse.json({ message: "Invalid status value." }, { status: 400 })
     }

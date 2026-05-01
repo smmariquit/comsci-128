@@ -7,9 +7,9 @@ import { userService } from "@/services/user-service";
 const roleRedirects: Record<UserRole, string> = {
   public: "/login",
   student: "/student",
-  landlord: "/manager",
-  housing_admin: "/manager",
-  system_admin: "/admin",
+  landlord: "/manage",
+  housing_admin: "/admin",
+  system_admin: "/sys",
 };
 
 function toRole(userType?: string | null): UserRole {
@@ -82,16 +82,16 @@ export async function POST(request: NextRequest) {
 
     const existingUser = await userService.findGoogleUser(user);
 
-    // signup and login: if user doesn't exist, create placeholder and go to register form
+    // signup and login: if user doesn't exist, go to register form for full details + password
     if (!existingUser) {
-      const createdUser = await userService.createGooglePlaceholderUser(user);
-
-      return NextResponse.json({
-        role: "student",
-        redirectTo: "/register",
-        googleData: buildRegisterData(profile),
-        user: createdUser,
-      });
+      return NextResponse.json(
+        {
+          error: "Account not found. Please complete registration.",
+          redirectTo: "/register",
+          googleData: buildRegisterData(profile),
+        },
+        { status: 404 },
+      );
     }
 
     // user exists, proceed to dashboard
@@ -100,7 +100,11 @@ export async function POST(request: NextRequest) {
         {
           error: "account already exist",
           redirectTo: "/register",
-          googleData: buildRegisterData(profile, "account already exist"),
+          googleData: buildRegisterData({
+            email: "",
+            firstName: "",
+            lastName: "",
+          }, "account already exist"),
         },
         { status: 409 },
       );

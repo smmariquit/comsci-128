@@ -203,9 +203,9 @@ export const unassignRoom = async (roomId: number, studentIdOrAccount: string | 
 	}
 };
 
-export const getEligibleStudents = async () => {
+export const getEligibleStudents = async (roomType: string) => {
 	try {
-		const allStudents = await roomData.findUnassignedStudents();
+		const allStudents = await roomData.findUnassignedStudents(roomType);
 
 		const rooms = await roomData.findAllRoomDetailed();
 		const assignedIds = new Set(
@@ -228,3 +228,24 @@ export const getRoomStats = async (managerAccountNumber: number) => {
 		throw new Error(error.message || "Failed to fetch room stats.");
 	}
 };
+
+/*
+ * Fetches rooms for a specific housing facility and filters them
+ * by the student's preferred room type and available bed space.
+ */
+export async function getAvailableRoomsForAssignment(housingId: number, roomType: string) {
+    const allRooms = await roomData.findAllRoomDetailed([housingId]);
+
+    const availableRooms = allRooms
+        .filter(room => 
+            room.room_type === roomType && 
+            room.current_occupants < room.maximum_occupants
+        )
+        .map(room => ({
+            room_id: room.room_id,
+            room_code: room.room_code,
+            available_beds: room.maximum_occupants - room.current_occupants
+        }));
+
+    return availableRooms;
+}
