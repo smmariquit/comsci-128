@@ -170,20 +170,20 @@ export default function AccommodationClient({
           className="w-full h-full object-cover"
           alt={housingName}
         />
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute bottom-0 w-full flex justify-between items-center p-4 text-[var(--dark-orange)]">
-          <h2 className="text-2xl font-semibold">{housingName}</h2>
+        <div className="absolute inset-0 bg-black/20" />
+        <div className=" bg-neutral-800/80 absolute bottom-0 w-full flex justify-between items-center p-4 text-[var(--dark-orange)]">
+          <h2 className="text-4xl font-extrabold px-6">{housingName}</h2>
           <Link
             href={`/manage/accommodations/${housingId}/assignment`}
-            className="bg-[var(--dark-orange)] text-[var(--dark-blue)] px-4 py-2 rounded text-sm font-medium hover:brightness-90 hover:shadow-md transition"
+            className="bg-amber-600 text-mauve-800 px-4 py-3 rounded text-md font-bold hover:brightness-90 hover:shadow-md transition"
           >
             Assign Rooms
           </Link>
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 py-20 px-10 rounded-lg">
-        <h1 className="text-2xl font-semibold text-[var(--dark-blue)]">Units</h1>
+      <div className="flex flex-col gap-6 py-13 px-10 rounded-lg">
+        <h1 className="text-3xl font-semibold text-[var(--dark-blue)]">Units</h1>
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col sm:flex-row gap-3">

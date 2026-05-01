@@ -6,8 +6,9 @@ export const metadata: Metadata = {
   description: "Assign students to rooms in this accommodation.",
 };
 import { applicationService } from "@/app/lib/services/application-service";
-import AssignmentClient from "./_components/AssignmentClient";
+
 import { accommodationHistoryService } from "@/app/lib/services/accommodation-history-service";
+import AssignmentWrapper from "./_components/AssignmentWrapper";
 
 export default async function RoomAssignmentPage({
   params,
@@ -54,10 +55,12 @@ const units = housing.room.map((room) => {
 })
 
   return (
-    <AssignmentClient
+
+    <AssignmentWrapper
       units={units}
-      applicants={applicants}
+      initialApplicants={applicants}
       housingId={housingId}
     />
+
   )
 }

@@ -17,6 +17,6 @@ export default async function Page() {
   }
 
   const housings = await housingService.getAllHousingWithRoomsByManager(managerAccountNumber);
-  console.log(housings[1].room ?? [])
+
   return <AccommodationsPage housings={housings ?? []} />;
 }
