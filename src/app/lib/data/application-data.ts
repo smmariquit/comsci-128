@@ -79,7 +79,7 @@ async function getByLandlord(
 			)
 		`)
 		.eq("landlord_account_number", landlordAccountNumber)
-		.eq("is_deleted", false);
+		.eq("is_deleted", false)
 
 	if (error) throw error;
 	return data ?? [];

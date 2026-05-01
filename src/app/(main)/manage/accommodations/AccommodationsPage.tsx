@@ -37,7 +37,7 @@ function AccommodationCard({
 }) {
   return (
     <Link href={`/manage/accommodations/${id}`}>
-      <div className="min-w-[600px] flex items-center gap-6 rounded-xl p-3 bg-[#f5ede1] text-[var(--dark-orange)] shadow-xl border-l-8 border-[var(--teal)] hover:shadow-md transition">
+      <div className="min-w-[600px] flex items-center gap-6 rounded-xl p-3 bg-[#f5ede1] text-[var(--dark-orange)] shadow-xl border-2 border-l-8 border-[var(--teal)] hover:shadow-md transition">
         <div className="w-80 h-40 bg-gray-300 rounded-lg overflow-hidden flex-shrink-0">
           <img
             src={image || "/assets/placeholders/housing-card.svg"}
@@ -84,7 +84,7 @@ function FilterBar({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by name…"
-            className="w-full h-10 pl-9 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--teal)] transition"
+            className="w-full h-10 pl-9 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
           />
         </div>
         <div className="relative">

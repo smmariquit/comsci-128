@@ -22,7 +22,7 @@ export default async function ApplicationsPage() {
   }
 
 
-  const applications = await applicationService.getApplicationsByLandlord(managerAccountNumber)
+  const applications: any = await applicationService.getApplicationsByLandlord(managerAccountNumber)
 
   return (
     <div className="flex flex-col gap-8 p-8 bg-(--cream) text-(--dark-orange)">
