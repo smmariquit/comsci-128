@@ -13,10 +13,6 @@ async function getPermissions(): Promise<Permission[]> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.from("permissions").select("*");
 
-  // console.log("DB Fetch - Error:", error);
-  // console.log("DB Fetch - Row Count:", data?.length);
-  // console.log("DB Fetch - First Row:", data?.[0]);
-
   if (error) {
     console.error("Authorization: Error Fetching Permissions", error);
     return [];
@@ -76,10 +72,6 @@ export async function validateOwnership(ownerAccountNumber: number | string) {
   if (Number(accountNumber) !== Number(ownerAccountNumber)) {
     throw new Error("Access Denied: You do not own this resource.");
   }
-
-  console.log(
-    `Ownership Verified: Account ${accountNumber} owns resource ${ownerAccountNumber}`,
-  );
 }
 
 export async function getCurrentUserRole(): Promise<UserRole> {
