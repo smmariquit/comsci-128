@@ -11,9 +11,7 @@ import { roomData } from "@/app/lib/data/room-data";
 import { roomService } from "@/app/lib/services/room-service";
 import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
-import { supabase } from "@/app/lib/supabase";
 import { PlusSquare } from "lucide-react";
-import { refresh } from "next/cache";
 
 export default function Page() {
 
@@ -38,10 +36,7 @@ export default function Page() {
     const [housing, setHousing] = useState("All");
 
     // ── Derived Options ───────────────────────────────────
-    const housingOptions = Array.from(
-      new Set(rooms.map((r) => r.housing_name))
-    );
-
+    const housingOptions = Array.from(new Set(rooms.map((r) => r.housing_name)));
     const allHousingOptions = managedHousings.map(h => h.housing_name);
 
   // ── Filtering Logic ───────────────────────────────────
@@ -58,10 +53,8 @@ export default function Page() {
 
     const matchesOccupancy =
       occupancy === "All" || room.occupancy_status === occupancy;
-
     const matchesType =
       roomType === "All" || room.room_type === roomType;
-
     const matchesHousing =
       housing === "All" || room.housing_name === housing;
 
@@ -74,16 +67,16 @@ export default function Page() {
   });
 
   const handleView = (room: RoomRow) => {
-          setSelectedRoom(room);
-          setShowViewModal(true);
+    setSelectedRoom(room);
+    setShowViewModal(true);
   };
   const handleEdit = (room: RoomRow) => {
-  setSelectedRoom(room);
-  setShowFormModal(true);
+    setSelectedRoom(room);
+    setShowFormModal(true);
   };
   const handleAssign = (room: RoomRow) => {
-  setSelectedRoom(room);
-  setShowAssignModal(true);
+    setSelectedRoom(room);
+    setShowAssignModal(true);
   };
 
   // ── Handlers ──────────────────────────────────────────
