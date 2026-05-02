@@ -2,6 +2,7 @@ import "server-only";
 
 import type { AppAction, Permission, UserRole } from "@/models/permissions";
 import { createSupabaseServerClient } from "../server-client";
+import { cookies } from "next/headers";
 
 // memory caching to prevent multiple db calls
 let permissionsCache: Permission[] | null = null;
@@ -40,7 +41,7 @@ export async function validateAction(action: AppAction) {
 
   if (!allowed) {
     throw new Error(
-      `Unauthorized: Role "${role} does not have permission to perform "${action}}".`,
+      `Unauthorized: Role "${role}" does not have permission to perform "${action}}".`,
     );
   }
 
@@ -87,7 +88,12 @@ export async function getCurrentUserRole(): Promise<UserRole> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const accountNumber = user?.user_metadata?.account_number;
+  let accountNumber = user?.user_metadata?.account_number;
+  if (!accountNumber) {
+    const storedCookie = await cookies();
+    accountNumber = storedCookie.get("account_number")?.value;
+  };
+
   if (!accountNumber) return "public";
 
   const { data: userData } = await supabase
