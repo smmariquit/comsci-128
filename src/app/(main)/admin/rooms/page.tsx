@@ -13,10 +13,10 @@ import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
 import { supabase } from "@/app/lib/supabase";
 import { PlusSquare } from "lucide-react";
+import { refresh } from "next/cache";
 
 export default function Page() {
 
-  const mockLandlordId = 179;
   const [hoveredAddRoom, setHoveredAddRoom] = useState(false);
 
     const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
@@ -29,6 +29,7 @@ export default function Page() {
     const [rooms, setRooms] = useState<RoomRow[]>([]);
     const [managedHousings, setManagedHousings] = useState<{housing_id: number, housing_name: string}[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [adminId, setAdminId] = useState<number>(0);
 
     // ── Filter State ──────────────────────────────────────
     const [search, setSearch] = useState("");
@@ -72,18 +73,18 @@ export default function Page() {
     );
   });
 
-    const handleView = (room: RoomRow) => {
-            setSelectedRoom(room);
-            setShowViewModal(true);
-    };
-    const handleEdit = (room: RoomRow) => {
-    setSelectedRoom(room);
-    setShowFormModal(true);
-    };
-    const handleAssign = (room: RoomRow) => {
-    setSelectedRoom(room);
-    setShowAssignModal(true);
-    };
+  const handleView = (room: RoomRow) => {
+          setSelectedRoom(room);
+          setShowViewModal(true);
+  };
+  const handleEdit = (room: RoomRow) => {
+  setSelectedRoom(room);
+  setShowFormModal(true);
+  };
+  const handleAssign = (room: RoomRow) => {
+  setSelectedRoom(room);
+  setShowAssignModal(true);
+  };
 
   // ── Handlers ──────────────────────────────────────────
   const handleDelete = async (row: RoomRow) => {
@@ -200,7 +201,7 @@ export default function Page() {
 
   const refreshRooms = async () => {
     try {
-      const housings = await housingData.findbyLandlord(mockLandlordId);
+      const housings = await housingData.findbyLandlord(adminId);
       setManagedHousings(housings);
 
       const managedIds = housings.map(h => h.housing_id);
@@ -213,9 +214,15 @@ export default function Page() {
 
   // ── Fetch Data ────────────────────────────────────────
   useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setAdminId(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
+
+  useEffect(() => {
+    if (!adminId) return;
     setIsLoading(true);
     refreshRooms().finally(() => setIsLoading(false));
-  }, [mockLandlordId]);
+  }, [adminId]);
 
   if (isLoading) return <div className="p-6">Syncing with the database...</div>;
 
