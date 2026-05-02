@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import StudentNavBar from "../../_components/StudentNavBar";
 import { StudentProfile } from "@/app/lib/models/student";
+import { LogOut } from "lucide-react";
+import LogoutModal from "../../../../components/LogoutModal";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
@@ -16,6 +18,7 @@ export default function StudentProfilePage() {
 	const [accountNumber, setAccountNumber] = useState<string | null>(null);
 	const [student, setStudent] = useState<StudentPayload | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [activeTab, setActiveTab] = useState("Personal Information");
 	const [saveStatus, setSaveStatus] = useState<{
 		message: string;
@@ -202,6 +205,14 @@ export default function StudentProfilePage() {
 						Save changes
 					</button>
 
+					<button
+						onClick={() => setShowLogoutModal(true)}
+						className="w-full flex items-center justify-center gap-3 border-2 border-[#C9642A] text-[#C9642A] py-4 rounded-xl font-bold text-lg hover:bg-[#C9642A] hover:text-white transition-all shadow-sm active:scale-[0.98]"
+					>
+						<LogOut size={20} />
+						Logout
+					</button>
+
 					{saveStatus.message && (
 						<div className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all ${
 							saveStatus.type === "success" 
@@ -324,6 +335,16 @@ export default function StudentProfilePage() {
 					)}
 				</div>
 			</div>
+
+		<LogoutModal
+			isOpen={showLogoutModal}
+			onClose={() => setShowLogoutModal(false)}
+			onConfirm={() => {
+				setShowLogoutModal(false);
+				console.log("Confirmed logout"); // place logout backend code here
+			}}
+		/>
+
 		</div>
 	);
 }
@@ -370,3 +391,5 @@ function ProfileSelect({ label, value, options, onChange }: any) {
 		</div>
 	);
 }
+
+
