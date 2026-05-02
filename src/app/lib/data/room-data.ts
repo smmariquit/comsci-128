@@ -131,7 +131,7 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 
 	return (data || []).map((room) => {
 		const today = new Date().toISOString().split('T')[0];
-		const activeTenants = (room.tenants || []).filter((t: any) => t.moveout_date >= today);
+		const activeTenants = (room.tenants || []).filter((t: any) => t.moveout_date > today);
 
 		const occupantCount = activeTenants.length;
 		const max = room.maximum_occupants;
@@ -228,7 +228,7 @@ async function findUnassignedStudents(roomType: string, adminId: number) {
 			);
 
 			const today = new Date().toISOString().split('T')[0];
-            const isCurrentlyUnassigned = !item.history?.some(h => h.moveout_date >= today);
+            const isCurrentlyUnassigned = !item.history?.some(h => h.moveout_date > today);
 
             const matchesSex = !targetSex || userObj?.sex === targetSex;
 

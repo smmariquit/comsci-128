@@ -261,7 +261,7 @@ async function getStudentsByRoom(roomId: number) {
     `)
     .eq("room_id", roomId)
     //.eq("application_status", "Approved")
-    .gte("moveout_date", new Date().toISOString().split('T')[0])
+    .gt("moveout_date", new Date().toISOString().split('T')[0])
 
   if (error) throw new Error ("failed to fetch students: " + error.message);
 
