@@ -11,6 +11,7 @@ import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
 import { billingService } from "@/app/lib/services/billing-service";
+import { housingData } from "@/app/lib/data/housing-data";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
@@ -113,21 +114,33 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
 // PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Issue Bill button ─────────────────────────────────────────────────────────
+
 export default function BillingPage() {
   
   const [bills, setBills] = useState<BillRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [managedHousingIds, setManagedHousingIds] = useState<number[]>([]);
 
-  // fetch actual ids
-  const managedHousingIds = [3, 12, 13, 14, 16, 18];
+  // ── Fetch Data ─────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    const accountNumber = match ? Number(decodeURIComponent(match[1])) : 0;
+
+    if (!accountNumber) return;
+    housingData.findbyLandlord(accountNumber).then((housings) => {
+      setManagedHousingIds(housings.map(h => h.housing_id));
+    });
+  },[]);
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    loadBills();
-  }, []);
+    if (managedHousingIds.length > 0) loadBills();
+  }, [managedHousingIds]);
 
   async function loadBills() {
     if (!isLoading) setIsLoading(true);
