@@ -5,13 +5,14 @@ import { addStudent } from "@/services/student-service";
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
+        const userDetails = body?.userDetails ?? body;
+        const studentDetails = body?.studentDetails;
+        const studentAcademicDetails = body?.studentAcademicDetails;
 
-        // Call student service
-        const newStudent = await addStudent(body, body.password, body.student_number);
+        const result = await addStudent(userDetails, studentDetails, studentAcademicDetails);
 
-        // OK Response upon successful creation
         return NextResponse.json(
-            { message: "Student created successfully.", student: newStudent },
+            { message: "Student created successfully.", user: result.user, student: result.student },
             { status: 201 }
         );
 

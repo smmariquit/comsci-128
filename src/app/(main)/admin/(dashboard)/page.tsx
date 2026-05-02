@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import ActiveUsers from "@/app/components/admin/dashboard/activeusers";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
+  title: "Housing Administrator Dashboard",
+  description:
+    "Overview of occupancy, users, rooms, billings, and reports for managed properties",
 };
+
 import OccupancyChart from "@/app/components/admin/dashboard/occupancy_chart";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 import RecentAuditLog from "@/app/components/admin/dashboard/recent_audit";
@@ -51,7 +54,10 @@ const activeUserData = [
   { label: "Admins", count: 5 },
 ];
 
-const totalActiveUsers = activeUserData.reduce((sum, row) => sum + row.count, 0);
+const totalActiveUsers = activeUserData.reduce(
+  (sum, row) => sum + row.count,
+  0,
+);
 
 export default async function Page() {
   const storedCookie = await cookies();
@@ -60,10 +66,18 @@ export default async function Page() {
   const liveData = await getHousingAdmingDashboardData(adminId);
 
   const housingStatusData = [
-    { label: "Assigned", count: liveData.housingStatusCounts.assigned, color: "#1D9E75" },
-    { label: "Unassigned", count: liveData.housingStatusCounts.unassigned, color: "#6B7280"},
+    {
+      label: "Assigned",
+      count: liveData.housingStatusCounts.assigned,
+      color: "#1D9E75",
+    },
+    {
+      label: "Unassigned",
+      count: liveData.housingStatusCounts.unassigned,
+      color: "#6B7280",
+    },
   ];
-  
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <section
@@ -89,14 +103,20 @@ export default async function Page() {
       >
         <OccupancyChart data={liveData.occupancyData} />
         <StudentHousingStatus data={housingStatusData} />
-        <ActiveUsers 
-          data={[
-            { label: "Students", count: liveData.totalStudents },
-          ]} 
-          total={totalActiveUsers} />
+        <ActiveUsers
+          data={[{ label: "Students", count: liveData.totalStudents }]}
+          total={totalActiveUsers}
+        />
       </section>
 
-      <section style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, alignItems: "start" }}>
+      <section
+        style={{
+          display: "grid",
+          gridTemplateColumns: "2fr 1fr",
+          gap: 16,
+          alignItems: "start",
+        }}
+      >
         <RecentApplications data={liveData.recentApplications} />
         <RecentAuditLog data={recentAuditData} />
       </section>

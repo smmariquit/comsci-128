@@ -1,8 +1,12 @@
 import { housingData } from "@/app/lib/data/housing-data";
 import { Housing, HousingWithRooms } from "@/models/housing";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
 
 const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 	try {
+		await validateAction(AppAction.CREATE_HOUSING);
+
 		const housingDetail = await housingData.create(HousingDetail);
 
 		if (!housingDetail) return null;
@@ -46,6 +50,15 @@ const updateHousing = async (
 	housingDetail: Partial<Housing>,
 ): Promise<Housing | null> => {
 	try {
+		// rbac
+		await validateAction(AppAction.UPDATE_HOUSING);
+
+		// obac
+		const currentHousing = await housingData.findById(housingId);
+		if (currentHousing) {
+			await validateOwnership(currentHousing.landlord_account_number);
+		}
+
 		const { housing_id, ...allowedUpdates } = housingDetail;
 		allowedUpdates;
 
@@ -68,10 +81,16 @@ const deactivateHousing = async (
 	housingId: number,
 ): Promise<Housing | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.UPDATE_HOUSING);
+
 		const housing = await housingData.findById(housingId);
 		if (!housing) {
 			throw new Error("Housing record not found or already deactivated.");
 		}
+
+		// OBAC
+		await validateOwnership(housing.landlord_account_number);
 
 		/**
 		 * TODO: Integration Task
@@ -121,12 +140,20 @@ const getHousingWithRooms = async (
 	housingId: number,
 ): Promise<HousingWithRooms | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.UPDATE_HOUSING);
+
+		// Housing Check
 		const housing = await housingData.findWithRooms(housingId);
 		if (!housing) return null;
+
+		// OBAC
+		await validateOwnership(housing.landlord_account_number);
+
 		return housing;
 	} catch (error) {
 		console.error("Error: ", error);
-		throw new Error("Failed to fetch housing with rooms");
+		throw error;
 	}
 };
 
@@ -135,12 +162,33 @@ const uploadHousingImage = async (
 	file: File,
 ): Promise<Housing | null> => {
 	try {
+		// RBAC
+		await validateAction(AppAction.UPDATE_HOUSING);
+
+		// Housing Check
+		const housing = await housingData.findById(housingId);
+		if (!housing) {
+			throw new Error("Housing Not Found.");
+		}
+
+		// OBAC
+		await validateOwnership(housing.landlord_account_number);
+
 		return await housingData.uploadHousingImage(housingId, file);
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Failed to upload housing image");
 	}
 };
+
+const getOccupancyRate = async () => {
+	try {
+		return await housingData.getHousingCardsData();
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to fetch Housing Cards");
+	}
+}
 
 export const housingService = {
 	addHousing,
@@ -152,4 +200,5 @@ export const housingService = {
 	uploadHousingImage,
 	updateHousing,
 	deactivateHousing,
+	getOccupancyRate
 };

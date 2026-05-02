@@ -232,12 +232,11 @@ const COLUMNS = [
 interface Props {
   data:     UserRow[];
   onView:   (row: UserRow) => void;
-  onRemove: (row: UserRow) => void;
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────────
 
-export default function UserTable({ data, onView, onRemove }: Props) {
+export default function UserTable({ data, onView }: Props) {
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
   return (
@@ -356,12 +355,6 @@ export default function UserTable({ data, onView, onRemove }: Props) {
                 <td style={{ padding: "8px 14px" }}>
                   <div style={{ display: "flex", gap: 4 }}>
                     <ActionBtn label="View" onClick={() => onView(row)} />
-                    <ActionBtn
-                      label="Remove"
-                      onClick={() => onRemove(row)}
-                      variant="danger"
-                      disabled={row.is_deleted}
-                    />
                   </div>
                 </td>
               </tr>

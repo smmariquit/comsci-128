@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   BarChart3,
   BedDouble,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import NavItem from "@/app/components/admin/navitem";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import Logo from "@/app/components/Logo";
 
 // Home icon for logo
 function HomeIcon() {
@@ -114,9 +116,10 @@ export default function Sidebar({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            overflow: "hidden",
           }}
         >
-          <HomeIcon />
+          <Logo size={28} showText={false} href={null} />
         </div>
 
         {/* Brand name */}
@@ -132,7 +135,7 @@ export default function Sidebar({
             letterSpacing: 0.10,
           }}
         >
-          HousingAdmin
+          UPLB CASA
         </div>
 
         {/* Subtitle */}

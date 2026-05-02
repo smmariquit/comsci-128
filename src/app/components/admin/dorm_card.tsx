@@ -841,7 +841,7 @@ export default function DormCard({
             />
 
             {/* ── SCROLLABLE BODY ── */}
-            <div style={{ flex: 1, overflow: "hidden" }}>
+            <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
               <div
                 style={{
                   padding: "18px 24px",

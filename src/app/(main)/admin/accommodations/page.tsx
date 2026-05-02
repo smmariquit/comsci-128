@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Accommodations Management",
+  description: "View and manage all housings for managed properties",
 };
+
 import DormCard from "@/app/components/admin/dorm_card";
 import { housingData } from "@/lib/data/housing-data";
 
