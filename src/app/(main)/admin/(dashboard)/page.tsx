@@ -55,12 +55,10 @@ const totalActiveUsers = activeUserData.reduce((sum, row) => sum + row.count, 0)
 
 export default async function Page() {
   const storedCookie = await cookies();
-  console.log(storedCookie);
 
   const adminId = Number(storedCookie.get("account_number")?.value ?? "0");
   const liveData = await getHousingAdmingDashboardData(adminId);
-  // <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
-  console.log(liveData.occupancyData);
+
   const housingStatusData = [
     { label: "Assigned", count: liveData.housingStatusCounts.assigned, color: "#1D9E75" },
     { label: "Unassigned", count: liveData.housingStatusCounts.unassigned, color: "#6B7280"},
