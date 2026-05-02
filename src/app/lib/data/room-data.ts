@@ -203,7 +203,7 @@ async function endAccommodation(roomId: number, studentId: number) {
 	if (error) throw new Error(error.message);
 }
 
-async function findUnassignedStudents(roomType: string) {
+async function findUnassignedStudents(roomType: string, adminId: number) {
 	let targetSex: string | null = null;
 
 	if (roomType === "Men Only") targetSex = "Male";
@@ -215,7 +215,7 @@ async function findUnassignedStudents(roomType: string) {
             account_number,
             user:user!account_number (first_name, last_name, sex), 
             history:student_accommodation_history!account_number (moveout_date), 
-            applications:application!account_number (application_status)
+            applications:application!account_number (application_status, landlord_account_number)
         `);
 
 	if (error) throw new Error(error.message);
@@ -224,7 +224,7 @@ async function findUnassignedStudents(roomType: string) {
             const userObj = Array.isArray(item.user) ? item.user[0] : item.user;
 
             const isApproved = item.applications?.some(
-				(app: any) => app.application_status === "Approved"
+				(app: any) => app.application_status === "Approved" && app.landlord_account_number == adminId
 			);
 
 			const today = new Date().toISOString().split('T')[0];
