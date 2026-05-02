@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 
 import { useState, useMemo, useEffect } from "react";
 import { AlertTriangle, Check, Clock3, DollarSign, ReceiptText } from "lucide-react";
@@ -10,6 +9,7 @@ import  IssueBillModal, {ViewBillModal} from "@/app/components/admin/billings/bi
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
+import { housingData } from "@/app/lib/data/housing-data";
 import { billingClient } from "@/app/lib/client/billing-client";
 import BillingPageLoading from "./loading";
 import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
@@ -117,21 +117,35 @@ function IssueBillButton({ onClick, isLoading = false }: { onClick: () => void; 
 // PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Issue Bill button ─────────────────────────────────────────────────────────
+
 export default function BillingPage() {
   
   const [bills, setBills] = useState<BillRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [managedHousingIds, setManagedHousingIds] = useState<number[]>([]);
+  const [managedHousings, setManagedHousings] = useState<{housing_id: number, housing_name: string}[]>([]);
 
-  // fetch actual ids
-  const managedHousingIds = [3, 12, 13, 14, 16, 18];
+  // ── Fetch Data ─────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    const accountNumber = match ? Number(decodeURIComponent(match[1])) : 0;
+
+    if (!accountNumber) return;
+    housingData.findbyLandlord(accountNumber).then((housings) => {
+      setManagedHousings(housings);
+      setManagedHousingIds(housings.map(h => h.housing_id));
+    });
+  },[]);
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    loadBills();
-  }, []);
+    if (managedHousingIds.length > 0) loadBills();
+  }, [managedHousingIds]);
 
   async function loadBills() {
     if (!isLoading) setIsLoading(true);
@@ -374,7 +388,7 @@ export default function BillingPage() {
       {/* ── Issue Bill Modal ───────────────────────────────────────────────── */}
       <IssueBillModal
         open={issueOpen}
-        managedIds={managedHousingIds}
+        managedIds={managedHousings}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
         isSubmitting={isIssueSubmitting}
