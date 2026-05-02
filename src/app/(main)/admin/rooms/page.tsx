@@ -329,7 +329,7 @@ export default function Page() {
       {showAssignModal && selectedRoom && (
         <OverrideAssignModal
           room={selectedRoom}
-          onFetchEligibleStudents={() => roomData.findUnassignedStudents(selectedRoom.room_type)}
+          onFetchEligibleStudents={() => roomData.findUnassignedStudents(selectedRoom.room_type, adminId)}
           onClose={() => {
             setShowAssignModal(false);
             setSelectedRoom(null);
