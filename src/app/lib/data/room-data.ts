@@ -167,13 +167,23 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 }
 
 async function insertAccommodation(roomId: number, studentId: number) {
+	const { data: appData } = await supabase
+		.from("application")
+		.select("expected_moveout_date")
+		.eq("student_account_number", studentId)
+		.eq("application_status", "Approved")
+		.limit(1)
+		.maybeSingle();
+
+	const moveoutDate = appData?.expected_moveout_date ?? "9999-12-31";
+
 	const { data, error } = await supabase
 		.from("student_accommodation_history")
 		.insert({
 			room_id: roomId,
 			account_number: studentId,
 			movein_date: new Date().toISOString().split('T')[0],
-			moveout_date: 9999-12-31,
+			moveout_date: moveoutDate,
 		})
 		.select()
 		.single();
