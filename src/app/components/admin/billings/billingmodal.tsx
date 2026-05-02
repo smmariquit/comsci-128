@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,16 +12,16 @@ type ExtendedBillType = BillType | "Other";
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
 const T = {
-  navy:    C.navy,
-  teal:    C.teal,
-  orange:  C.orange,
-  cream:   C.cream,
+  navy: C.navy,
+  teal: C.teal,
+  orange: C.orange,
+  cream: C.cream,
   divider: C.dividerLight,
-  bg:      "#f5f3ef",
+  bg: "#f5f3ef",
   bgInput: "#fff",
   readonly: "#f7f6f3",
-  amber:   "#A07820",
-  green:   "#2a7d4f",
+  amber: "#A07820",
+  green: "#2a7d4f",
 };
 
 // ── Shared style constants ────────────────────────────────────────────────────
@@ -66,20 +67,20 @@ const readonlyStyle: React.CSSProperties = {
 // ── Exported types ────────────────────────────────────────────────────────────
 
 export interface ChargeItem {
-  id:     string;
-  type:   BillType | "Other";
+  id: string;
+  type: BillType | "Other";
   amount: string;
 }
 
 /** Matches the `bill` schema: one row per charge item */
 export interface IssueBillForm {
-  student_name:           string;
-  housing_name:           string;
+  student_name: string;
+  housing_name: string;
   student_account_number: number | null; // null until Supabase join available
-  room_code:              string;
-  due_date:               string;   // "YYYY-MM-DD"
-  issue_date:             string;   // auto-set to today
-  charges:                ChargeItem[];
+  room_code: string;
+  due_date: string;   // "YYYY-MM-DD"
+  issue_date: string;   // auto-set to today
+  charges: ChargeItem[];
 }
 
 // ── Shared UI helpers ─────────────────────────────────────────────────────────
@@ -176,10 +177,11 @@ interface IssueBillModalProps {
   managedIds: number[];          // list of housing_name strings
   onClose:        () => void;
   onSubmit:       (form: IssueBillForm) => void;
+  isSubmitting?:  boolean;
 }
 
 export default function IssueBillModal({
-  open, onClose, onSubmit,
+  open, onClose, onSubmit, isSubmitting = false,
 }: IssueBillModalProps) {
 
   const today = new Date().toISOString().split("T")[0];
@@ -197,7 +199,7 @@ export default function IssueBillModal({
   const [studentOptions, setStudentOptions] = useState<any[]>([]);
 
   const [charges, setCharges] = useState<ChargeItem[]>([
-    { id: "1", type: "Rent",    amount: "" },
+    { id: "1", type: "Rent", amount: "" },
     { id: "2", type: "Utility", amount: "" },
   ]);
 
@@ -500,12 +502,12 @@ export default function IssueBillModal({
                 transition: "border-color 0.15s, background 0.15s",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background    = T.bg;
-                e.currentTarget.style.borderColor   = T.teal;
+                e.currentTarget.style.background = T.bg;
+                e.currentTarget.style.borderColor = T.teal;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background    = "transparent";
-                e.currentTarget.style.borderColor   = "#d4cfc6";
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = "#d4cfc6";
               }}
             >
               + Add Charge
@@ -519,7 +521,7 @@ export default function IssueBillModal({
             background: T.bg,
             border: "1px solid #e8e4db",
             borderRadius: 10,
-            padding: "14px 16px",
+            padding: "14px 166px",
             display: "flex", flexDirection: "column", gap: 8,
           }}>
             {/* Per-charge lines */}
@@ -582,13 +584,19 @@ export default function IssueBillModal({
           flexShrink: 0, background: "#faf9f7",
         }}>
           <span style={{ fontSize: 11, color: T.teal }}>
-            {validCharges.length > 0
+            {isSubmitting
+              ? "Issuing bills..."
+              : validCharges.length > 0
               ? `${validCharges.length} bill${validCharges.length > 1 ? "s" : ""} will be created`
               : "No charges added yet"}
           </span>
           <div style={{ display: "flex", gap: 10 }}>
             <CancelBtn onClose={onClose} />
-            <PrimaryBtn label="Issue Bill ✓" disabled={!isValid} onClick={handleSubmit} />
+            <PrimaryBtn
+              label={isSubmitting ? "Issuing..." : "Issue Bill ✓"}
+              disabled={!isValid || isSubmitting}
+              onClick={handleSubmit}
+            />
           </div>
         </div>
 
@@ -602,9 +610,9 @@ export default function IssueBillModal({
 // ─────────────────────────────────────────────────────────────────────────────
 
 const STATUS_COLOR: Record<PaymentStatus, { text: string; bg: string; dot: string }> = {
-  Paid:    { text: "#2a7d4f", bg: "rgba(42,125,79,0.10)",   dot: "#2a7d4f"  },
-  Pending: { text: "#A07820", bg: "rgba(227,175,100,0.18)", dot: "#c8960a"  },
-  Overdue: { text: C.orange,  bg: "rgba(201,100,42,0.13)",  dot: C.orange   },
+  Paid: { text: "#2a7d4f", bg: "rgba(42,125,79,0.10)", dot: "#2a7d4f" },
+  Pending: { text: "#A07820", bg: "rgba(227,175,100,0.18)", dot: "#c8960a" },
+  Overdue: { text: C.orange, bg: "rgba(201,100,42,0.13)", dot: C.orange },
 };
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -667,6 +675,7 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
             background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8,
             width: 30, height: 30, cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#f5f3ef",
           }}>
             <X size={13} color="#f5f3ef" strokeWidth={2.5} aria-hidden="true" />
           </button>
@@ -690,15 +699,15 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
 
         {/* Detail rows */}
         <div style={{ padding: "4px 24px 10px" }}>
-          <DetailRow label="Student"   value={bill.student_name} />
-          <DetailRow label="Property"  value={bill.housing_name} />
+          <DetailRow label="Student" value={bill.student_name} />
+          <DetailRow label="Property" value={bill.housing_name} />
           <DetailRow label="Bill Type" value={bill.bill_type} />
-          <DetailRow label="Amount"    value={
+          <DetailRow label="Amount" value={
             <strong style={{ fontSize: 15, color: T.navy }}>
               ₱{bill.amount.toLocaleString("en-PH")}
             </strong>
           } />
-          <DetailRow label="Due Date"  value={fmtDate(bill.due_date)} />
+          <DetailRow label="Due Date" value={fmtDate(bill.due_date)} />
           <DetailRow label="Date Paid" value={fmtDate(bill.date_paid)} />
         </div>
 

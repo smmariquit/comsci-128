@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { roomService } from "@/lib/services/room-service"; 
+import { getAvailableRoomsForAssignment } from "@/lib/services/room-service"; 
 
 export async function GET(request: NextRequest) {
     try {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
             );
         }
         
-        const availableRooms = await roomService.getAvailableRoomsForAssignment(housingId, roomType);
+        const availableRooms = await getAvailableRoomsForAssignment(housingId, roomType);
 
         return NextResponse.json({ availableRooms }, { status: 200 });
 

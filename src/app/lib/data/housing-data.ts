@@ -38,7 +38,7 @@ async function findWithRooms(id: number): Promise<HousingWithRooms> {
     .select(
       `
 			*,
-			room:room(*)
+			room!inner(*)
 		`,
     )
     .eq("housing_id", id)
@@ -103,18 +103,18 @@ async function deactivate(housingId: number): Promise<Housing | null> {
   return data;
 }
 
-// List all rooms 
+// List all rooms
 async function findAllWithRooms(): Promise<HousingWithRooms[]> {
   const { data, error } = await supabase
     .from("housing")
     .select(`
       *,
-      room:room(*)
+      room!inner(*)
     `)
     .eq("is_deleted", false);
 
   if (error) throw new Error(`findAllWithRooms Error: ${error.message}`);
-  
+
   return data.map((h: any) => ({
     ...h,
     room: h.room?.filter((r: any) => !r.is_deleted) ?? [],
@@ -122,78 +122,86 @@ async function findAllWithRooms(): Promise<HousingWithRooms[]> {
 }
 
 async function getHousingCardsData() {
-    // fetch housing and associated rooms
-    const { data: housings, error } = await supabase
-        .from("housing")
-        .select(`
+  // fetch housing and associated rooms
+  const { data: housings, error } = await supabase
+    .from("housing")
+    .select(`
             *,
-            room (*)
+            room!inner(*)
         `)
-        .eq("is_deleted", false)
-        .order("housing_name", { ascending: true });
+  .eq("is_deleted", false)
+    .order("housing_name", { ascending: true });
 
-    if (error) throw new Error(error.message);
+  if (error) throw new Error(error.message);
 
-    // map and calculate the exact props needed for the DormCard
-    return housings.map((housing) => {
-        const activeRooms = housing.room?.filter((r: any) => !r.is_deleted) || [];
-        
-        const totalRooms = activeRooms.length;
-        const vacantRooms = activeRooms.filter((r: any) => r.occupancy_status === "Empty").length;
-        const occupiedRooms = totalRooms - vacantRooms;
-        
-        const occupancyRate = totalRooms > 0 
-            ? Math.round((occupiedRooms / totalRooms) * 100) 
-            : 0;
+  // map and calculate the exact props needed for the DormCard
+  return housings.map((housing) => {
+    const activeRooms = housing.room?.filter((r: any) => !r.is_deleted) || [];
 
-        return {
-    housingId: housing.housing_id.toString(),
-    name: housing.housing_name,
-    address: housing.housing_address,
-    totalRooms,
-    occupiedRooms,
-    vacantRooms,
-    occupancyRate,
-    minRent: housing.rent_price,
-    imageUrl: housing.housing_image ?? undefined,  // ← add this
-};
+    const totalRooms = activeRooms.length;
+    const vacantRooms = activeRooms.filter(
+      (r: any) => r.occupancy_status === "Empty",
+    ).length;
+    const occupiedRooms = totalRooms - vacantRooms;
+
+    const occupancyRate =
+      totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
+
+    return {
+      housingId: housing.housing_id.toString(),
+      name: housing.housing_name,
+      address: housing.housing_address,
+      totalRooms,
+      occupiedRooms,
+      vacantRooms,
+      occupancyRate,
+      minRent: housing.rent_price,
+      imageUrl: housing.housing_image ?? undefined,
+    };
+  });
+}
+
+async function uploadHousingImage(
+  housingId: number,
+  file: File,
+): Promise<Housing | null> {
+  const fileExt = file.name.split(".").pop();
+  const fileName = `housing-${housingId}-${Date.now()}.${fileExt}`;
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from("dorm_images")
+    .upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false,
     });
+
+  if (uploadError)
+    throw new Error(`Storage Upload Error: ${uploadError.message}`);
+
+  const { data: publicUrlData } = supabase.storage
+    .from("dorm_images")
+    .getPublicUrl(uploadData.path);
+
+  const imageUrl = publicUrlData.publicUrl;
+
+  return await update(housingId, {
+    housing_image: imageUrl,
+  } as Partial<HousingUpdate>);
 }
 
-async function uploadHousingImage(housingId: number, file: File): Promise<Housing | null> {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `housing-${housingId}-${Date.now()}.${fileExt}`;
-    
-    const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("dorm_images")
-        .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false 
-        });
-
-    if (uploadError) throw new Error("Storage Upload Error: " + uploadError.message);
-
-    const { data: publicUrlData } = supabase.storage
-        .from("dorm_images")
-        .getPublicUrl(uploadData.path);
-
-    const imageUrl = publicUrlData.publicUrl;
-
-    return await update(housingId, { housing_image: imageUrl } as Partial<HousingUpdate>);
-}
 const getRoomDetails = async (housingId: number, roomId: number) => {
   const { data, error } = await supabase
-    .from('room')
+    .from("room")
     .select(`
       room_id,
       room_type,
       maximum_occupants,
 
-      student_accommodation_history (
+      student_accommodation_history!inner(
         movein_date,
         moveout_date,
 
-        student_academic (
+        student_academic!inner(
           account_number,
           standing,
           status,
@@ -201,42 +209,46 @@ const getRoomDetails = async (housingId: number, roomId: number) => {
         )
       )
     `)
-    .eq('housing_id', housingId)
-    .eq('room_id', roomId)
-    .eq('is_deleted', false)
+    .eq("housing_id", housingId)
+    .eq("room_id", roomId)
+    .eq("is_deleted", false)
     .single();
 
   if (error) throw error;
 
-
   return {
     room_id: data.room_id,
     room_type: data.room_type,
-    
   };
 };
 
 // overdue or unpaid bills per student
 const getOverallUnpaidFees = async (student_account_number: number) => {
   return await supabase
-    .from('bill')
+    .from("bill")
     .select(`
       *,
-      student:student_account_number(
-        user:account_number(first_name, last_name),
-        student_accommodation_history (
-          room:room_id (room_id, housing:housing_id (housing_name))
+      manager!inner(
+        user!inner(
+          first_name,
+          last_name,
+          student!inner(
+            *,
+            student_accommodation_history!inner(
+              room!inner(
+                room_id,
+                housing!inner(housing_name
+              )
+            )
+          )
         )
-      ),
-      manager:manager_account_number(user:account_number (first_name, last_name))
+      )
     `)
-    .eq('student_account_number', student_account_number)
-    .in('status', ['Pending', 'Overdue'])
-    .lt('due_date', TODAY)
-    .eq('is_deleted', false);
+    .eq("student_account_number", student_account_number)
+    .in("status", ["Pending", "Overdue"])
+    .lt("due_date", TODAY)
+    .eq("is_deleted", false);
 };
-
-
 
 async function countAllHousing(): Promise<number | null> {
   const { count, error } = await supabase
@@ -263,7 +275,7 @@ async function getStudentsByRoom(roomId: number) {
     //.eq("application_status", "Approved")
     .gt("moveout_date", new Date().toISOString().split('T')[0])
 
-  if (error) throw new Error ("failed to fetch students: " + error.message);
+  if (error) throw new Error(`failed to fetch students: ${error.message}`);
 
   return (data || []).map((app: any) => ({
     account_number: app.account_number,
@@ -283,14 +295,65 @@ async function findbyLandlord(landlordId: number): Promise<Housing[] | []> {
   return data ?? [];
 }
 
+// Get occupancy rate of 1 housing
+// Returns a ratio = total current tenants / total maximum occupants
+async function getOccupancyRate(housingId: number): Promise<number> {
+  const { data, error } = await supabase
+    .from("room")
+    .select(`
+      occupants_count,
+      maximum_occupants,
+      housing!inner(housing_id)
+		`)
+    .eq("housing.housing_id", housingId)
+    .eq("housing.is_deleted", false);
+
+  if (error)
+    throw new Error(`getOccupancyRateOfHousing Error: ${error.message}`);
+  if (!data || data.length === 0) return 0;
+
+  const totalCurrent = data.reduce(
+    (sum, room) => sum + (room.occupants_count ?? 0),
+    0,
+  );
+  const totalMaximum = data.reduce(
+    (sum, room) => sum + (room.maximum_occupants ?? 0),
+    0,
+  );
+
+  if (totalMaximum === 0) return 0;
+
+  return (totalCurrent / totalMaximum) * 100;
+}
+
+async function getStudentsHoused(managerId: number, housingId: number) {
+  // get details of list of students housed per housing
+
+  const { data, error } = await supabase
+    .from("housing")
+    .select(`
+      *,
+      room!inner(*),
+      student_accommodation_history!inner(*),
+      student!inner(*),
+      user!inner(*)
+    `)
+    .eq("housing.housing_id", housingId)
+    .eq("housing.manager_account_number", managerId);
+
+  if (error)
+    throw new Error(`getStudentsHousedPerHousing Error: ${error.message}`);
+  return data;
+}
+
 export const housingData = {
-	create,
-	findAll,
-	findById,
-	findWithRooms,
-	update,
-	deactivate,
-	getHousingCardsData,
+  create,
+  findAll,
+  findById,
+  findWithRooms,
+  update,
+  deactivate,
+  getHousingCardsData,
   uploadHousingImage,
   countAllHousing,
   getRoomDetails,
@@ -298,4 +361,6 @@ export const housingData = {
   findAllWithRooms,
   getStudentsByRoom,
   findbyLandlord,
+  getOccupancyRate,
+  getStudentsHoused,
 };

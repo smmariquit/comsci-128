@@ -28,21 +28,31 @@ const create = async (
 const getAll = async () => {
 	return await supabase
 		.from("manager")
-		.select(`*, "user" (*)`)
+		.select(`*, user!inner(*)`)
 		.eq("is_deleted", false);
+};
+
+// GET manager count
+const getCount = async (): Promise<number | null> => {
+	const { count, error } = await supabase
+		.from("manager")
+		.select("*", { count: "exact", head: true });
+
+	if (error) throw new Error(error.message);
+
+	return count;
 };
 
 // FIND manager by ID
 const findById = async (account_number: number) => {
 	const { data, error } = await supabase
 		.from("manager")
-		.select(`*, "user" (*)`)
+		.select(`*, user!inner(*)`)
 		.eq("account_number", account_number)
-		.eq("is_deleted", false)
-		.single();
+		.eq("is_deleted", false);
 
 	if (error) return null;
-	return data;
+	return data[0];
 };
 
 const findManagerProfileById = async (
@@ -64,6 +74,7 @@ const findManagerProfileById = async (
             contact_email,
             profile_picture,
             user_type,
+            google_identity,
             manager:manager_account_number_fkey(
                 account_number,
                 manager_type,
@@ -111,8 +122,7 @@ const update = async (account_number: number, updates: any) => {
 		.from("manager")
 		.update(updates)
 		.eq("account_number", account_number)
-		.select()
-		.single();
+		.select();
 };
 
 // DELETE manager (soft delete only)
@@ -121,19 +131,14 @@ const deactivate = async (account_number: number) => {
 		.from("manager")
 		.update({ is_deleted: true })
 		.eq("account_number", account_number)
-		.select()
-		.single();
+		.select();
 };
 
 // manager_bank
 
 // CREATE manager bank
 const createBankDetails = async (bankData: any) => {
-	return await supabase
-		.from("manager_bank")
-		.insert([bankData])
-		.select()
-		.single();
+	return await supabase.from("manager_bank").insert([bankData]).select();
 };
 
 // READ banks using manager
@@ -151,8 +156,7 @@ const updateBankDetails = async (bank_number: number, updates: any) => {
 		.from("manager_bank")
 		.update(updates)
 		.eq("bank_number", bank_number)
-		.select()
-		.single();
+		.select();
 };
 
 // DELETE bank (soft Delete)
@@ -161,9 +165,10 @@ const deleteBankDetails = async (bank_number: number) => {
 		.from("manager_bank")
 		.update({ is_deleted: true })
 		.eq("bank_number", bank_number)
-		.select()
-		.single();
+		.select();
 };
+
+// manager_payment_details
 
 // CREATE manager_payment
 const addPaymentDetails = async (paymentData: any) => {
@@ -172,8 +177,7 @@ const addPaymentDetails = async (paymentData: any) => {
 	const { data: res, error } = await supabase
 		.from("manager_payment_details")
 		.insert([paymentData])
-		.select()
-		.single();
+		.select();
 
 	// UPDATE bills after payment
 	const { error: billError } = await supabase
@@ -193,7 +197,7 @@ const addPaymentDetails = async (paymentData: any) => {
 const getPaymentDetails = async () => {
 	return await supabase
 		.from("manager_payment_details")
-		.select(`*, manager (*), bill (*)`)
+		.select(`*, manager!inner(*), bill!inner(*)`)
 		.eq("is_deleted", false);
 };
 
@@ -203,8 +207,7 @@ const updatePaymentDetails = async (id: number, updates: any) => {
 		.from("manager_payment_details")
 		.update(updates)
 		.eq("id", id)
-		.select()
-		.single();
+		.select();
 };
 
 // DELETE payments
@@ -213,8 +216,7 @@ const deletePaymentDetails = async (id: number) => {
 		.from("manager_payment_details")
 		.update({ is_deleted: true })
 		.eq("id", id)
-		.select()
-		.single();
+		.select();
 };
 
 const countAllManager = async (): Promise<number | null> => {
@@ -240,19 +242,19 @@ async function getUnassignedApprovedApplicants(managerAccountNumber: number) {
       actual_moveout_date,
       housing_name,
       preferred_room_type,
-      room_id,
-      student:student_account_number (
+      room_id
+      manager!inner (
         account_number,
-        student_number,
-        user:account_number (
-          first_name,
-          middle_name,
-          last_name,
-          account_email
-        )
-      ),
-      manager:manager_account_number (
-        account_number
+        student!inner (
+          account_number,
+          student_number,
+          user!inner (
+            first_name,
+            middle_name,
+            last_name,
+            account_email
+          )
+        ),
       )
     `,
 		)
@@ -284,7 +286,7 @@ async function getTotalRoomsManaged(managerAccountNumber: number) {
       housing_address,
       housing_type,
       rent_price,
-      room:room (
+      room!inner (
         room_id,
         room_type,
         occupancy_status,
@@ -319,12 +321,12 @@ async function getTotalTenantsManaged(managerAccountNumber: number) {
 			`
       housing_id,
       housing_name,
-      room:room (
+      room!inner (
         room_id,
         room_type,
         occupancy_status,
         maximum_occupants,
-        student_accommodation_history:student_accommodation_history (
+        student_accommodation_history!inner (
           account_number,
           movein_date,
           moveout_date
@@ -369,11 +371,11 @@ async function getOverallOccupancyRate(managerAccountNumber: number) {
 			`
       housing_id,
       housing_name,
-      room:room (
+      room!inner (
         room_id,
         maximum_occupants,
         occupancy_status,
-        student_accommodation_history:student_accommodation_history (
+        student_accommodation_history!inner (
           account_number,
           movein_date,
           moveout_date
@@ -436,16 +438,16 @@ const getManagedHousings = async (managerAccountNumber: number) => {
       housing_id,
       housing_name,
 
-      room (
+      room!inner(
         room_id,
         room_type,
         maximum_occupants,
 
-        student_accommodation_history (
+        student_accommodation_history!inner(
           movein_date,
           moveout_date,
 
-          student_academic (
+          student_academic!inner(
             account_number,
             degree_program,
             standing,
@@ -480,17 +482,17 @@ const getAllTenants = async (managerAccountNumber: number) => {
       move_in_date,
       expected_move_out_date,
 
-      student_academic (
+      student_academic!inner(
         account_number,
         degree_program,
         standing,
         status
       ),
 
-      room (
+      room!inner(
         room_id,
         room_type,
-        housing (
+        housing!inner(
           housing_name
         )
       )
@@ -511,11 +513,14 @@ const getStudentBalance = async (student_account_number: number) => {
       transaction_id,
       amount, 
       status,
-      student:student_account_number (
-        user:account_number (first_name, last_name)
-      ),
-      manager:manager_account_number (
-        user:account_number (last_name)
+      student!inner (
+        user!inner(
+          first_name,
+          last_name,
+          manager!inner(
+            *
+          )
+        )
       )
     `,
 		)
@@ -545,29 +550,25 @@ const getAllBillings = async () => {
       amount,
       status,
       due_date,
-      is_deleted,
-      student:student_account_number (
+      student!inner (
         account_number,
-        user:account_number (
+        user!inner(
           first_name,
           last_name,
-          account_email
-        ),
-        student_accommodation_history (
-          room:room_id (
-            room_id,
-            housing:housing_id (
-              housing_name,
-              manager:manager_account_number (
-                account_number,
-                user:account_number (
-                  first_name, 
-                  last_name
+          account_email,
+            student_accommodation_history!inner(
+            room!inner (
+              room_id,
+              housing!inner (
+                housing_name,
+                manager!inner (
+                  account_number,
+                  manager_type
                 )
               )
             )
           )
-        )
+        ),
       )
     `,
 		)
@@ -582,6 +583,7 @@ const getAllBillings = async () => {
 export const managerData = {
 	create,
 	getAll,
+	getCount,
 	findById,
 	update,
 	findManagerProfileById,

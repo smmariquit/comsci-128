@@ -3,7 +3,7 @@
 "use client"
 
 import { useState } from "react"
-import { roomService } from "@/app/lib/services/room-service"
+import * as roomService from "@/app/lib/services/room-service";
 import { Room, RoomType } from "@/app/lib/models/room"
 import Link from "next/link"
 
@@ -73,8 +73,9 @@ export default function UnitClient({
           {isEditing ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm mb-1">Room Type</label>
+                <label htmlFor="roomType" className="block text-sm mb-1">Room Type</label>
                 <select
+                  id="roomType"
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value as RoomType)}
                   className="w-full p-2 bg-slate-700 rounded text-white"
@@ -85,8 +86,9 @@ export default function UnitClient({
                 </select>
               </div>
               <div>
-                <label className="block text-sm mb-1">Max Occupants</label>
+                <label htmlFor="maxOccupants" className="block text-sm mb-1">Max Occupants</label>
                 <input
+                  id="maxOccupants"
                   type="number"
                   value={maxOccupants}
                   onChange={(e) => setMaxOccupants(Number(e.target.value))}
@@ -94,10 +96,10 @@ export default function UnitClient({
                 />
               </div>
               <div className="flex gap-2">
-                <button onClick={handleSave} className="bg-green-600 px-4 py-2 rounded font-bold flex-1">
+                <button type="button" onClick={handleSave} className="bg-green-600 px-4 py-2 rounded font-bold flex-1">
                   Save
                 </button>
-                <button onClick={() => setIsEditing(false)} className="bg-gray-600 px-4 py-2 rounded flex-1">
+                <button type="button" onClick={() => setIsEditing(false)} className="bg-gray-600 px-4 py-2 rounded flex-1">
                   Cancel
                 </button>
               </div>
@@ -109,6 +111,7 @@ export default function UnitClient({
               <p><strong>Occupants:</strong> {tenants.length}/{currentRoom.maximum_occupants}</p>
               <p><strong>Status:</strong> {currentRoom.occupancy_status}</p>
               <button
+                type="button"
                 onClick={() => setIsEditing(true)}
                 className="w-full mt-4 bg-blue-600 py-2 rounded font-bold"
               >

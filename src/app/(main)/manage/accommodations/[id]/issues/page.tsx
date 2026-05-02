@@ -3,6 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Issues",
+  description: "View and resolve reported issues for this accommodation.",
 };
 
 export default function Page() {

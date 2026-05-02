@@ -6,13 +6,15 @@ import {
 	UpdateApplication,
 } from "@/models/application";
 
-async function create(application: NewApplication) {
+async function create(application: NewApplication): Promise<Application> {
 	const { data, error } = await supabase
 		.from("application")
 		.insert([application])
-		.select();
+		.select("*");
+
 	if (error) throw error;
-	return data;
+
+	return data[0];
 }
 
 // READ ALL APPLICATIONS
@@ -38,32 +40,33 @@ async function getAll() {
 		.eq("is_deleted", false);
 }
 
-async function getById(applicationId: number) {
+async function getById(applicationId: number): Promise<Application | null> {
 	const { data, error } = await supabase
 		.from("application")
 		.select("*")
 		.eq("application_id", applicationId);
 	if (error) throw error;
-	return data;
+
+	return data && data.length > 0 ? data[0] : null;
 }
 
-async function getByManager(managerAccountNumber: number) {
+async function getByManager(
+	managerAccountNumber: number,
+): Promise<Application[]> {
 	const { data, error } = await supabase
 		.from("application")
-		.select(
-			`application_id, housing_name, preferred_room_type, application_status, expected_moveout_date, actual_moveout_date, room_id, student_account_number, is_deleted, manager:manager_account_number(account_number)`,
-		)
+		.select("*")
 		.eq("manager.account_number", managerAccountNumber)
-		.eq("is_deleted", false);
+		.eq("application.is_deleted", false);
 
 	if (error) throw error;
-	return data;
+	return data ?? [];
 }
 
 async function getByHousing(housingId: number) {
 	const { data, error } = await supabase
 		.from("application")
-		.select(`*, room:room_id(housing_id)`)
+		.select(`*, room!inner(housing_id)`)
 		.eq("room.housing_id", housingId);
 	if (error) throw error;
 	return data;
@@ -179,6 +182,7 @@ async function getApplicationDetailById(applicationId: number) {
       application_status,
       expected_moveout_date,
       preferred_room_type,
+	  landlord_account_number,
       student:student_account_number (
         account_number,
         user:user!account_number (

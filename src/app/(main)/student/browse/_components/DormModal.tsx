@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { X } from "lucide-react";
 
 interface DormModalProps {
   dorm: {
@@ -45,9 +46,9 @@ export default function DormModal({ dorm, onClose }: DormModalProps) {
           {/* Close Button */}
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
+            className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors shadow-lg"
           >
-            ✕
+            <X size={20} strokeWidth={2.5} />
           </button>
         </div>
 

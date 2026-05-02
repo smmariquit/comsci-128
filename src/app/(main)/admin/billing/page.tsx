@@ -12,6 +12,9 @@ import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billin
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
 import { billingService } from "@/app/lib/services/billing-service";
 import { housingData } from "@/app/lib/data/housing-data";
+import { billingClient } from "@/app/lib/client/billing-client";
+import BillingPageLoading from "./loading";
+import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
@@ -73,12 +76,13 @@ function SummaryCard({
 
 // ── Issue Bill button ─────────────────────────────────────────────────────────
 
-function IssueBillButton({ onClick }: { onClick: () => void }) {
+function IssueBillButton({ onClick, isLoading = false }: { onClick: () => void; isLoading?: boolean }) {
   const [hovered, setHovered] = useState(false);
 
   return (
     <button
       onClick={onClick}
+      disabled={isLoading}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -94,18 +98,19 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
         borderRadius: 10,
         padding: "0 20px",
         height: 40,
-        cursor: "pointer",
+        cursor: isLoading ? "not-allowed" : "pointer",
+        opacity: isLoading ? 0.7 : 1,
         whiteSpace: "nowrap",
         flexShrink: 0,
         width: "fit-content",
-        transform: hovered ? "translateY(-1px)" : "translateY(0)",
-        boxShadow: hovered ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
+        transform: hovered && !isLoading ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered && !isLoading ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
         transition: "transform 0.15s ease, box-shadow 0.15s ease",
         
       }}
     >
       <ReceiptText size={14} color="#fff" strokeWidth={2.2} aria-hidden="true" />
-      Issue New Bill
+      {isLoading ? "Issuing..." : "Issue New Bill"}
     </button>
   );
 }
@@ -146,7 +151,7 @@ export default function BillingPage() {
     if (!isLoading) setIsLoading(true);
 
     try {
-      const data = await billingService.fetchAllBills(managedHousingIds);
+      const data = await billingClient.fetchAllBills(managedHousingIds);
       setBills(data);
     } catch (error) {
       console.error("Refresh Load Error: ", error);
@@ -165,6 +170,8 @@ export default function BillingPage() {
 
   // ── Modal state ─────────────────────────────────────────────────────────────
   const [issueOpen, setIssueOpen] = useState(false);
+  const [isIssueSubmitting, setIsIssueSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<ActionFeedbackState | null>(null);
 
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -206,10 +213,25 @@ export default function BillingPage() {
     if (!confirm(`Mark transaction #${row.transaction_id} as paid?`)) return;
 
     try {
-      await billingService.markAsPaid(row.transaction_id);
+      setIsLoading(true);
+      await billingClient.markAsPaid(row.transaction_id);
       await loadBills();
+      setFeedback({
+        open: true,
+        kind: "success",
+        title: "Bill updated",
+        message: `Transaction #${row.transaction_id} was marked as paid successfully.`,
+      });
     } catch (error) {
       console.error ("Error handleMarkPaid: ", error);
+      setFeedback({
+        open: true,
+        kind: "error",
+        title: "Could not update bill",
+        message: error instanceof Error ? error.message : "The bill could not be marked as paid.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -217,10 +239,25 @@ export default function BillingPage() {
     if (!confirm(`Mark transaction #${row.transaction_id} as deleted?`)) return;
 
     try {
-      await billingService.removeBill(row.transaction_id);
+      setIsLoading(true);
+      await billingClient.removeBill(row.transaction_id);
       await loadBills();
+      setFeedback({
+        open: true,
+        kind: "success",
+        title: "Bill removed",
+        message: `Transaction #${row.transaction_id} was deleted successfully.`,
+      });
     } catch (error) {
       console.error ("Error handleDelete: ", error);
+      setFeedback({
+        open: true,
+        kind: "error",
+        title: "Could not delete bill",
+        message: error instanceof Error ? error.message : "The bill could not be deleted.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -228,7 +265,7 @@ export default function BillingPage() {
   // ── Issue Bill submit ───────────────────────────────────────────────────────
   async function handleIssue(form: IssueBillForm) {
     try {
-      setIsLoading(true);
+      setIsIssueSubmitting(true);
 
       const studentId = form.student_account_number
 
@@ -244,7 +281,7 @@ export default function BillingPage() {
           // const studentId = form.student_account_number ?? 
           //   bills.find(b => b.student_name === form.student_name)?.student_account_number;
 
-          return billingService.createBill({
+          return billingClient.createBill({
             student_account_number: studentId,
             bill_type: dbType,
             amount: parseFloat(charge.amount),
@@ -258,14 +295,26 @@ export default function BillingPage() {
 
         setIssueOpen(false);
         await loadBills();
+        setFeedback({
+          open: true,
+          kind: "success",
+          title: "Bills issued",
+          message: `${issuePromises.length} bill${issuePromises.length === 1 ? "" : "s"} were created successfully for ${form.student_name}.`,
+        });
     } catch (error) {
       console.error("Failed to handleIssue: ", error);
+      setFeedback({
+        open: true,
+        kind: "error",
+        title: "Issue bill failed",
+        message: error instanceof Error ? error.message : "The bill could not be issued.",
+      });
     } finally {
-      setIsLoading(false);
+      setIsIssueSubmitting(false);
     }
   }
 
-  if (!isMounted) return <div style={{ padding: 28 }}>Initializing...</div>;
+  if (!isMounted || (isLoading && bills.length === 0)) return <BillingPageLoading />;
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -331,7 +380,7 @@ export default function BillingPage() {
         onDelete={handleDelete}
       />
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <IssueBillButton onClick={() => setIssueOpen(true)} />
+          <IssueBillButton onClick={() => setIssueOpen(true)} isLoading={isIssueSubmitting} />
       </div>
       
 
@@ -342,6 +391,7 @@ export default function BillingPage() {
         managedIds={managedHousingIds}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
+        isSubmitting={isIssueSubmitting}
       />
 
       {selectedBill && (
@@ -350,6 +400,11 @@ export default function BillingPage() {
           onClose={() => setSelectedBill(null)} 
         />
       )}
+
+      <ActionFeedbackModal
+        state={feedback}
+        onClose={() => setFeedback(null)}
+      />
 
     </div>
   );

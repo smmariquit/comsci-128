@@ -220,8 +220,8 @@ export function RoomTypeTag({ type }: { type: RoomType }) {
 
 const APP_S: Record<ApplicationStatus, { bg:string; dot:string; text:string }> = {
   Approved:  { bg:"rgba(86,115,117,0.12)",  dot:C.teal,   text:C.teal },
-  "Pending Manager Approval":   { bg:"rgba(227,175,100,0.18)", dot:"#D4A017",text:"#A07820" },
-  "Pending Admin Approval":   { bg:"rgba(227,175,100,0.18)", dot:"#D4A017",text:"#A07820" },
+  "Pending Manager Approval":   { bg:C.statusPendingManager.bg, dot:C.amber, text:C.statusPendingManager.text },
+  "Pending Admin Approval":   { bg:C.statusPendingAdmin.bg, dot:C.orange, text:C.statusPendingAdmin.text },
   Rejected:  { bg:"rgba(201,100,42,0.13)",  dot:C.orange, text:C.orange },
   Cancelled: { bg:"rgba(28,38,50,0.08)",    dot:C.navy,   text:C.navy },
 };

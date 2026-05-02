@@ -26,7 +26,7 @@ async function findAll(): Promise<User[]> {
 
   if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
-	return data ?? [];
+  return data ?? [];
 }
 
 async function findById(userId: number): Promise<User | null> {
@@ -53,6 +53,18 @@ async function findByEmail(userEmail: string): Promise<User | null> {
   return data && data.length > 0 ? data[0] : null;
 }
 
+async function findByGoogleIdentity(googleIdentity: string): Promise<User | null> {
+    const { data, error } = await supabase
+        .from("user")
+        .select()
+        .eq("google_identity", googleIdentity)
+        .eq("is_deleted", false);
+
+  if (error) throw new Error(`Find User by Google Identity Error: ${error.message}`);
+
+  return data && data.length > 0 ? data[0] : null;
+}
+
 async function update(
 	userId: number,
 	userDetails: UpdateUser,
@@ -64,21 +76,21 @@ async function update(
     .from("user")
     .update(userDetails)
     .eq("account_number", Number(userId))
-    .select();
+    .select("*");
 
   if (error) throw new Error(`Update User Error: ${error.message}`);
 
   return data && data.length > 0 ? data[0] : null;
 }
 
-async function deactivate(userId: number): Promise<UpdateUser | null> {
+async function deactivate(email: string): Promise<UpdateUser | null> {
 	// This function takes a USERID of type STRING.
 	// CHANGES is_deleted field to true if user is found, otherwise return null.
 
   const { data, error } = await supabase
     .from("user")
     .update({ is_deleted: true })
-    .eq("account_number", userId)
+    .eq("account_email", email)
     .select();
 
   if (error) throw new Error(`Deactivate User Error: ${error.message}`);
@@ -241,6 +253,41 @@ async function countActiveUsers():Promise<number | null> {
 	return count;
 }
 
+// For changing user role
+async function promote(
+	account_email: string,
+	userDetails: UpdateUser,
+): Promise<UpdateUser | null> {
+
+  const { data, error } = await supabase
+    .from("user")
+    .update(userDetails)
+    .eq("account_email", account_email)
+    .select("*");
+
+  if (error) throw new Error(`Update User Error: ${error.message}`);
+
+  return data && data.length > 0 ? data[0] : null;
+}
+
+async function deleteByEmail(email: string): Promise<{ deleted: boolean; error?: string }> {
+  // Hard delete user by email (used for incomplete Google OAuth placeholders)
+  try {
+    const { error } = await supabase
+      .from("user")
+      .delete()
+      .eq("account_email", email);
+
+    if (error) {
+      return { deleted: false, error: error.message };
+    }
+
+    return { deleted: true };
+  } catch (err: any) {
+    return { deleted: false, error: err.message };
+  }
+}
+
 export const userData = {
 	findStudents,
 	getUsersForHousingAdmin,
@@ -248,8 +295,11 @@ export const userData = {
     findAll,
     findById,
     findByEmail,
+    findByGoogleIdentity,
     update,
     deactivate,
     countAllUser,
 	countActiveUsers,
+    promote,
+    deleteByEmail
 };

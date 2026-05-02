@@ -250,7 +250,7 @@ export type Database = {
           housing_name: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
-          landlord_account_number?: number
+          landlord_account_number: number
           manager_account_number?: number | null
           rent_price: number
           start_application_date?: string | null
@@ -280,7 +280,7 @@ export type Database = {
             foreignKeyName: "housing_manager_account_number_fkey"
             columns: ["manager_account_number"]
             isOneToOne: false
-            referencedRelation: "housing_admin"
+            referencedRelation: "user"
             referencedColumns: ["account_number"]
           },
         ]
@@ -479,6 +479,7 @@ export type Database = {
           emergency_contact_number: string | null
           emergency_contact_relationship: string | null
           housing_status: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted: boolean
           student_number: number
         }
         Insert: {
@@ -487,6 +488,7 @@ export type Database = {
           emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
           housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted?: boolean
           student_number: number
         }
         Update: {
@@ -495,6 +497,7 @@ export type Database = {
           emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
           housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted?: boolean
           student_number?: number
         }
         Relationships: [
@@ -540,19 +543,19 @@ export type Database = {
         Row: {
           account_number: number
           movein_date: string
-          moveout_date: string | null
+          moveout_date: string
           room_id: number
         }
         Insert: {
           account_number: number
           movein_date: string
-          moveout_date?: string | null
+          moveout_date: string
           room_id: number
         }
         Update: {
           account_number?: number
           movein_date?: string
-          moveout_date?: string | null
+          moveout_date?: string
           room_id?: number
         }
         Relationships: [
@@ -599,11 +602,12 @@ export type Database = {
           birthday: string | null
           contact_email: string | null
           first_name: string
+          google_identity: string | null
           home_address: string | null
           is_deleted: boolean | null
           last_name: string
           middle_name: string | null
-          password: string
+          password: string | null
           phone_number: string | null
           profile_picture: string | null
           sex: Database["public"]["Enums"]["Sex"]
@@ -611,15 +615,16 @@ export type Database = {
         }
         Insert: {
           account_email: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name: string
+          google_identity?: string | null
           home_address?: string | null
           is_deleted?: boolean | null
           last_name: string
           middle_name?: string | null
-          password: string
+          password?: string | null
           phone_number?: string | null
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
@@ -627,15 +632,16 @@ export type Database = {
         }
         Update: {
           account_email?: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name?: string
+          google_identity?: string | null
           home_address?: string | null
           is_deleted?: boolean | null
           last_name?: string
           middle_name?: string | null
-          password?: string
+          password?: string | null
           phone_number?: string | null
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]

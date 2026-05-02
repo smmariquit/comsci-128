@@ -14,6 +14,7 @@ import {
     Home,
     LogOut,
 } from 'lucide-react'; // Icons
+import Logo from '@/app/components/Logo';
 
 // Footer - User info
 export interface SidebarUser {
@@ -46,12 +47,12 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
             {/* Logo, System Name, Tagline */}
             <div className="flex items-center gap-3 px-6 py-7 border-b border-white/6">
                 {/* Logo - Home icon in a circle */}
-                <div className="w-10 h-10 bg-[#d4622a] rounded-xl flex items-center justify-center text-white shrink-0">    
-                    <Home size={18} />
+                <div className="w-10 h-10 bg-[#d4622a] rounded-xl flex items-center justify-center text-white shrink-0 overflow-hidden">    
+                    <Logo size={32} showText={false} href={null} />
                 </div>
                 {/* System Name and Tagline */}
                 <div className="flex flex-col">
-                    <span className="text-white text-[15px] font-bold tracking-wide">System Admin</span>
+                    <span className="text-white text-[15px] font-bold tracking-wide">UPLB CASA</span>
                     <span className="text-white/40 text-[11px] mt-0.5">Property Management</span>
                 </div>
             </div> 
