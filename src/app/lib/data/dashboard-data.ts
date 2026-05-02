@@ -59,10 +59,9 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
         }
     });
 
-    const totalAssigned = totalAcceptedApplication;
-    const totalUnassigned = totalPendingApplication;
-
     const totalLiveStudents = filteredRooms.reduce((sum, room) => sum + room.current_occupants, 0);
+    const totalAssigned = totalLiveStudents;
+    const totalUnassigned = totalAcceptedApplication;
 
     return {
         totalStudents: totalLiveStudents,
@@ -73,7 +72,8 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
         occupancyRate: `${occupancyRate}`,
         totalPendingApplication,
         occupancyData: occupancyData,
-        recentApplications: formattedApps
+        recentApplications: formattedApps,
+        activeAccommodations: totalLiveStudents
     }
 }
    
