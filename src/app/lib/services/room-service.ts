@@ -203,16 +203,16 @@ export const unassignRoom = async (roomId: number, studentIdOrAccount: string | 
 	}
 };
 
-export const getEligibleStudents = async (roomType: string) => {
+export const getEligibleStudents = async (roomType: string, adminId: number) => {
 	try {
-		const allStudents = await roomData.findUnassignedStudents(roomType);
+		const allStudents = await roomData.findUnassignedStudents(roomType, adminId);
 
 		const rooms = await roomData.findAllRoomDetailed();
 		const assignedIds = new Set(
 			rooms.flatMap(r => r.assigned_tenants?.map((t: any) => t.id))	
 		);
 
-		return allStudents.filter(s => !assignedIds.has(s.id));
+		return allStudents;
 	} catch (error: any) {
 		console.error("Service Error (getElligibleStudents): ", error.message);
 		//throw new Error(error.message || "Failed to fetch unassigned students.");
