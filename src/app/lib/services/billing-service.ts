@@ -1,8 +1,6 @@
-"use server"
-
 import { billData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
-import { validateAction, validateOwnership } from "./authorization-service";
+import { validateAction } from "./authorization-service";
 import { AppAction } from "../models/permissions";
 
 function normalizeStatus(rawStatus: unknown): BillRow["status"] {
@@ -98,9 +96,9 @@ const createBill = async (billDetails: any) => {
         await validateAction(AppAction.ASSIGN_BILL);
 
         return await billData.create(billDetails);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Service Error (createBill): ", error);
-        throw new Error("Failed to create billing");
+        throw new Error(error?.message || "Failed to create billing");
     }
 };
 
