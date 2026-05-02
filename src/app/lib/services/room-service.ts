@@ -151,7 +151,7 @@ export const assignRoom = async (roomId: number, studentId: string) => {
     await validateOwnership(housing.landlord_account_number);
 
     // room assignment 
-		const account_number = await roomData.getAccountbyStudentNumber(studentId);
+		const account_number = parseInt(studentId);
 
 		await roomData.insertAccommodation(roomId, account_number);
 		await roomData.getOccupantCount(roomId, 1);
