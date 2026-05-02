@@ -41,7 +41,7 @@ export async function validateAction(action: AppAction) {
 
   if (!allowed) {
     throw new Error(
-      `Unauthorized: Role "${role} does not have permission to perform "${action}}".`,
+      `Unauthorized: Role "${role}" does not have permission to perform "${action}}".`,
     );
   }
 

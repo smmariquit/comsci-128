@@ -201,7 +201,7 @@ export default function Page() {
       const liveRooms = await roomData.findAllRoomDetailed(managedIds);
       setRooms(liveRooms);
     } catch (err) {
-      console.error ("Refrash failed: ", err);
+      console.error ("Refresh failed: ", err);
     }
   };
 
