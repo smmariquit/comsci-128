@@ -46,6 +46,15 @@ export default function ManageLayout({
                 >
                   Applications
                 </Link>
+
+                <span className="mx-2 opacity-60">|</span>
+
+                <Link
+                  href="/manage/complaints"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                >
+                  Complaints
+                </Link>
               </div>
             </div>
 

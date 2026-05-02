@@ -26,6 +26,12 @@ export default function StudentNavBar({ path, userId }: StudentNavbarProps) {
 							>
 								Browse
 							</a>
+							<a
+								href="/student/complaints"
+								className="text-[#EDE9DE] hover:opacity-80 transition-opacity"
+							>
+								Complaints
+							</a>
 						</nav>
 					</div>
 
