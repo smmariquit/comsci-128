@@ -10,7 +10,6 @@ import  IssueBillModal, {ViewBillModal} from "@/app/components/admin/billings/bi
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
-import { billingService } from "@/app/lib/services/billing-service";
 import { housingData } from "@/app/lib/data/housing-data";
 import { billingClient } from "@/app/lib/client/billing-client";
 import BillingPageLoading from "./loading";
@@ -127,6 +126,7 @@ export default function BillingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [managedHousingIds, setManagedHousingIds] = useState<number[]>([]);
+  const [managedHousings, setManagedHousings] = useState<{housing_id: number, housing_name: string}[]>([]);
 
   // ── Fetch Data ─────────────────────────────────────────────────────────
 
@@ -136,6 +136,7 @@ export default function BillingPage() {
 
     if (!accountNumber) return;
     housingData.findbyLandlord(accountNumber).then((housings) => {
+      setManagedHousings(housings);
       setManagedHousingIds(housings.map(h => h.housing_id));
     });
   },[]);
@@ -388,7 +389,7 @@ export default function BillingPage() {
       {/* ── Issue Bill Modal ───────────────────────────────────────────────── */}
       <IssueBillModal
         open={issueOpen}
-        managedIds={managedHousingIds}
+        managedIds={managedHousings}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
         isSubmitting={isIssueSubmitting}
