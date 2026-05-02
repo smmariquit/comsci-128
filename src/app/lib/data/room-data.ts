@@ -130,7 +130,8 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 	if (error) throw new Error(error.message);
 
 	return (data || []).map((room) => {
-		const activeTenants = (room.tenants || []).filter((t: any) => t.moveout_date === null);
+		const today = new Date().toISOString().split('T')[0];
+		const activeTenants = (room.tenants || []).filter((t: any) => t.moveout_date > today);
 
 		const occupantCount = activeTenants.length;
 		const max = room.maximum_occupants;
@@ -166,13 +167,23 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 }
 
 async function insertAccommodation(roomId: number, studentId: number) {
+	const { data: appData } = await supabase
+		.from("application")
+		.select("expected_moveout_date")
+		.eq("student_account_number", studentId)
+		.eq("application_status", "Approved")
+		.limit(1)
+		.maybeSingle();
+
+	const moveoutDate = appData?.expected_moveout_date ?? "9999-12-31";
+
 	const { data, error } = await supabase
 		.from("student_accommodation_history")
 		.insert({
 			room_id: roomId,
 			account_number: studentId,
 			movein_date: new Date().toISOString().split('T')[0],
-			moveout_date: null,
+			moveout_date: moveoutDate,
 		})
 		.select();
 
@@ -186,12 +197,12 @@ async function endAccommodation(roomId: number, studentId: number) {
 		.update({ moveout_date: new Date().toISOString().split('T')[0]})
 		.eq("room_id", roomId)
 		.eq("account_number", studentId)
-		.is("moveout_date", null)
+		.gte("moveout_date", new Date().toISOString().split('T')[0])
 	
 	if (error) throw new Error(error.message);
 }
 
-async function findUnassignedStudents(roomType: string) {
+async function findUnassignedStudents(roomType: string, adminId: number) {
 	let targetSex: string | null = null;
 
 	if (roomType === "Men Only") targetSex = "Male";
@@ -203,7 +214,7 @@ async function findUnassignedStudents(roomType: string) {
             account_number,
             user:user!account_number (first_name, last_name, sex), 
             history:student_accommodation_history!account_number (moveout_date), 
-            applications:application!account_number (application_status)
+            applications:application!account_number (application_status, landlord_account_number)
         `);
 
 	if (error) throw new Error(error.message);
@@ -212,10 +223,11 @@ async function findUnassignedStudents(roomType: string) {
             const userObj = Array.isArray(item.user) ? item.user[0] : item.user;
 
             const isApproved = item.applications?.some(
-				(app: any) => app.application_status === "Approved"
+				(app: any) => app.application_status === "Approved" && app.landlord_account_number == adminId
 			);
 
-            const isCurrentlyUnassigned = !item.history?.some(h => h.moveout_date === null);
+			const today = new Date().toISOString().split('T')[0];
+            const isCurrentlyUnassigned = !item.history?.some(h => h.moveout_date > today);
 
             const matchesSex = !targetSex || userObj?.sex === targetSex;
 

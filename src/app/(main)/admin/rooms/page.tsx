@@ -4,23 +4,23 @@ import { useEffect, useState } from "react";
 import { PlusSquare } from "lucide-react";
 import { C } from "@/lib/palette";
 import { housingData } from "@/app/lib/data/housing-data";
-import { roomData } from "@/app/lib/data/room-data";
-import RoomFilters, { OccupancyFilter, TypeFilter } from "@/components/admin/rooms/roomfilters";
-import RoomTable, { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
-import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
-import RoomsPageLoading from "./loading";
-import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
-import { assignRoom, unassignRoom } from "@/services/room-service";
+import { PlusSquare } from "lucide-react";
 
 export default function Page() {
-  const mockLandlordId = 179;
+
   const [hoveredAddRoom, setHoveredAddRoom] = useState(false);
 
-  const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [showFormModal, setShowFormModal] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
+    const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [showFormModal, setShowFormModal] = useState(false);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+
+    // ── Raw Data ──────────────────────────────────────────
+    const [rooms, setRooms] = useState<RoomRow[]>([]);
+    const [managedHousings, setManagedHousings] = useState<{housing_id: number, housing_name: string}[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [adminId, setAdminId] = useState<number>(0);
 
   const [rooms, setRooms] = useState<RoomRow[]>([]);
   const [managedHousings, setManagedHousings] = useState<{ housing_id: number; housing_name: string }[]>([]);
@@ -72,11 +72,14 @@ export default function Page() {
     setShowViewModal(true);
   };
 
+  const handleView = (room: RoomRow) => {
+    setSelectedRoom(room);
+    setShowViewModal(true);
+  };
   const handleEdit = (room: RoomRow) => {
     setSelectedRoom(room);
     setShowFormModal(true);
   };
-
   const handleAssign = (room: RoomRow) => {
     setSelectedRoom(room);
     setShowAssignModal(true);
@@ -239,11 +242,34 @@ export default function Page() {
         message: err instanceof Error ? err.message : "The tenant could not be unassigned.",
       });
     } finally {
-      setIsActionLoading(false);
+      setIsLoading(false);
     }
   };
 
-  if (isPageLoading) return <RoomsPageLoading />;
+  const refreshRooms = async () => {
+    try {
+      const housings = await housingData.findbyLandlord(adminId);
+      setManagedHousings(housings);
+
+      const managedIds = housings.map(h => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
+      setRooms(liveRooms);
+    } catch (err) {
+      console.error ("Refrash failed: ", err);
+    }
+  };
+
+  // ── Fetch Data ────────────────────────────────────────
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setAdminId(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
+
+  useEffect(() => {
+    if (!adminId) return;
+    setIsLoading(true);
+    refreshRooms().finally(() => setIsLoading(false));
+  }, [adminId]);
 
   return (
     <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -350,7 +376,7 @@ export default function Page() {
       {showAssignModal && selectedRoom && (
         <OverrideAssignModal
           room={selectedRoom}
-          onFetchEligibleStudents={() => roomData.findUnassignedStudents(selectedRoom.room_type)}
+          onFetchEligibleStudents={() => roomData.findUnassignedStudents(selectedRoom.room_type, adminId)}
           onClose={() => {
             setShowAssignModal(false);
             setSelectedRoom(null);
