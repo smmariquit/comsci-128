@@ -141,38 +141,55 @@ async function getRevenueReport(managedHousingIds: number[]): Promise<RevenueRep
             issue_date,
             student!inner (
                 user!inner ( first_name, last_name ),
-                application!inner (
+                student_accommodation_history (
                     room!inner (
                         housing!inner ( housing_name, housing_id )
                     )
                 )
             )
         `)
-        .in("student.application.room.housing_id", managedHousingIds)
         .eq("is_deleted", false);
-    
-    if (error) throw new Error("Failed to fetch revenue report: " + error.message);
-    
-    return (bills || []).map((bill: any) => {
-        const studentObj = Array.isArray(bill.student) ? bill.student[0] : bill.student;
-        const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
-        const appObj = Array.isArray(studentObj?.application) ? studentObj.application[0] : studentObj?.application;
-        const roomObj = Array.isArray(appObj?.room) ? appObj.room[0] : appObj?.room;
-        const housingObj = Array.isArray(roomObj?.housing) ? roomObj.housing[0] : roomObj?.housing;
 
-        return {
-            transaction_id: bill.transaction_id,
-            student_name: `${userObj?.first_name || ""} ${userObj?.last_name || ""}`.trim() || "Unknown Student",
-            housing_name: housingObj?.housing_name || "Unknown Property",
-            amount: Number(bill.amount) || 0,
-            status: bill.status,
-            due_date: bill.due_date,
-            date_paid: bill.date_paid || undefined,
-            bill_type: bill.bill_type || "N/A",
-            issue_date: bill.issue_date,
-        };
-    });
-}
+    if (error) throw new Error("Failed to fetch revenue report: " + error.message);
+
+    return (bills || [])
+        .map((bill: any) => {
+            const studentObj = Array.isArray(bill.student) ? bill.student[0] : bill.student;
+            const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
+            const histories = studentObj?.student_accommodation_history || [];
+
+            const relevantHistory = histories.find((h: any) => {
+                const room = Array.isArray(h.room) ? h.room[0] : h.room;
+                const housing = Array.isArray(room?.housing) ? room.housing[0] : room?.housing;
+                return managedHousingIds.includes(Number(housing?.housing_id));
+            });
+
+            if (!relevantHistory) return null;
+
+            const room = Array.isArray(relevantHistory.room) ? relevantHistory.room[0] : relevantHistory.room;
+            const housing = Array.isArray(room?.housing) ? room.housing[0] : room?.housing;
+
+            const rawStatus = String(bill.status ?? "").trim().toLowerCase();
+            let effectiveStatus: "Paid" | "Pending" | "Overdue" =
+                rawStatus === "paid" ? "Paid" : rawStatus === "overdue" ? "Overdue" : "Pending";
+            if (effectiveStatus !== "Paid") {
+                const due = new Date(bill.due_date);
+                if (!isNaN(due.getTime()) && due < new Date()) effectiveStatus = "Overdue";
+            }
+
+            return {
+                transaction_id: bill.transaction_id,
+                student_name: `${userObj?.first_name || ""} ${userObj?.last_name || ""}`.trim() || "Unknown Student",
+                housing_name: housing?.housing_name || "Unknown Property",
+                amount: Number(bill.amount) || 0,
+                status: effectiveStatus,
+                due_date: bill.due_date,
+                date_paid: bill.date_paid || undefined,
+                bill_type: bill.bill_type || "N/A",
+                issue_date: bill.issue_date,
+            };
+        }).filter(Boolean) as RevenueReportRow[];
+};
 
 export const reportData = {
     getOccupancyReport,
