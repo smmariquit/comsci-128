@@ -223,7 +223,7 @@ async function findUnassignedStudents(roomType: string, adminId: number) {
             const userObj = Array.isArray(item.user) ? item.user[0] : item.user;
 
             const isApproved = item.applications?.some(
-				(app: any) => app.application_status === "Approved" && app.landlord_account_number == adminId
+				(app: any) => app.application_status === "Approved" && app.landlord_account_number === adminId
 			);
 
 			const today = new Date().toISOString().split('T')[0];
