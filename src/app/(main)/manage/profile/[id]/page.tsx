@@ -3,11 +3,14 @@
 import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import LogoutModal from "../../../../components/LogoutModal";
+import { LogOut } from "lucide-react";
 
 export default function ManagerProfilePage() {
 	const { id } = useParams();
 	const [profile, setProfile] = useState<ManagerProfile | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [activeTab, setActiveTab] = useState("Personal Information");
 
 	useEffect(() => {
@@ -100,6 +103,14 @@ export default function ManagerProfilePage() {
 					>
 						Save changes
 					</button>
+
+					<button
+						onClick={() => setShowLogoutModal(true)}
+						className="w-full flex items-center justify-center gap-3 border-2 border-[#C9642A] text-[#C9642A] py-4 rounded-xl font-bold text-lg hover:bg-[#C9642A] hover:text-white transition-all shadow-sm active:scale-[0.98]"
+					>
+						<LogOut size={20} />
+						Logout
+					</button>
 				</div>
 
 				{/* RIGHT FORM AREA */}
@@ -175,6 +186,15 @@ export default function ManagerProfilePage() {
 					)}
 				</div>
 			</div>
+
+			<LogoutModal
+				isOpen={showLogoutModal}
+				onClose={() => setShowLogoutModal(false)}
+				onConfirm={() => {
+					setShowLogoutModal(false);
+					console.log("Confirmed logout"); // place logout backend code here
+				}}
+			/>
 		</div>
 	);
 }
