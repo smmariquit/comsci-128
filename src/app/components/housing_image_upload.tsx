@@ -14,6 +14,9 @@ export default function HousingImageUpload() {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
+	const [statusMessage, setStatusMessage] = useState<
+		{ type: "success" | "error"; text: string } | null
+	>(null);
 
 	const getSafePreviewUrl = (url: string | null): string => {
 		if (!url) return "";
@@ -25,20 +28,26 @@ export default function HousingImageUpload() {
 		if (file) {
 			setSelectedFile(file);
 			setPreviewUrl(URL.createObjectURL(file));
+			setStatusMessage(null);
 		}
 	};
 
 	const handleRemove = () => {
 		setSelectedFile(null);
 		setPreviewUrl(null);
+		setStatusMessage(null);
 	};
 
 	const handleUpload = async () => {
 		if (!selectedFile) return;
+		setStatusMessage(null);
 
 		const numericId = parseInt(housingIdInput, 10);
 		if (!housingIdInput || isNaN(numericId)) {
-			alert("Please enter a valid numeric Housing ID.");
+			setStatusMessage({
+				type: "error",
+				text: "Please enter a valid numeric Housing ID.",
+			});
 			return;
 		}
 
@@ -58,14 +67,20 @@ export default function HousingImageUpload() {
 				throw new Error(payload?.error ?? "Upload request failed.");
 			}
 
-			alert(`Success! Image uploaded for Housing ID: ${numericId}`);
+			setStatusMessage({
+				type: "success",
+				text: `Success! Image uploaded for Housing ID: ${numericId}`,
+			});
 
 			setSelectedFile(null);
 			setPreviewUrl(null);
 			setHousingIdInput("");
 		} catch (error) {
 			console.error("Upload failed:", error);
-			alert("Failed to upload image. Please check the console.");
+			setStatusMessage({
+				type: "error",
+				text: "Failed to upload image. Please check the console.",
+			});
 		} finally {
 			setIsUploading(false);
 		}
@@ -102,6 +117,27 @@ export default function HousingImageUpload() {
 					gap: 18,
 				}}
 			>
+				{statusMessage && (
+					<div
+						role={statusMessage.type === "error" ? "alert" : "status"}
+						style={{
+							background:
+								statusMessage.type === "error"
+									? "#FEE2E2"
+									: "#DCFCE7",
+							color:
+								statusMessage.type === "error"
+									? "#991B1B"
+									: "#166534",
+							borderRadius: 8,
+							padding: "10px 12px",
+							fontSize: 12,
+							fontWeight: 600,
+						}}
+					>
+						{statusMessage.text}
+					</div>
+				)}
 				{/* ID Input */}
 				<div>
 					<label

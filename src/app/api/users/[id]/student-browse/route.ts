@@ -31,10 +31,7 @@ export async function GET(
         const dorms = await getAllAvailableDorms(filters);
 
         if (!dorms || dorms.length === 0) {
-            return NextResponse.json(
-                { message: "No dorms found" }, 
-                { status: 404 }
-            );
+            return NextResponse.json([], { status: 200 });
         }
         return NextResponse.json(dorms, { status: 200 });
     } catch (error: any) {

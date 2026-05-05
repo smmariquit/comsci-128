@@ -33,10 +33,57 @@ export async function GET(
   }
 }
 
-/*
-    TODO:
-    PATCH api call for updating room
-*/
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ roomId: string }> },
+) {
+  try {
+    const { roomId } = await params;
+    const parsedId = Number(roomId);
+
+    if (Number.isNaN(parsedId)) {
+      return NextResponse.json(
+        { message: "Invalid room ID." },
+        { status: 400 },
+      );
+    }
+
+    let updates: unknown;
+    try {
+      updates = await request.json();
+    } catch {
+      return NextResponse.json(
+        { message: "Malformed JSON body." },
+        { status: 400 },
+      );
+    }
+
+    if (!updates || typeof updates !== "object" || Array.isArray(updates)) {
+      return NextResponse.json(
+        { message: "Room update data is required." },
+        { status: 400 },
+      );
+    }
+
+    const result = await roomService.updateRoom(
+      parsedId,
+      updates as Parameters<typeof roomService.updateRoom>[1],
+    );
+
+    if (result.error) {
+      const status = result.error.includes("Not Found") ? 404 : 400;
+      return NextResponse.json({ message: result.error }, { status });
+    }
+
+    return NextResponse.json(result.data, { status: 200 });
+  } catch (error: any) {
+    console.error("Error updating room", error);
+    return NextResponse.json(
+      { message: "Failed to update room.", error: error.message },
+      { status: 500 },
+    );
+  }
+}
 
 export async function DELETE(
   _req: NextRequest,

@@ -6,7 +6,22 @@ import { userService } from "@/services/user-service";
 export async function POST(request: NextRequest) {
   try {
     // Get request body
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { message: "Malformed JSON body." },
+        { status: 400 },
+      );
+    }
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json(
+        { message: "User data is required." },
+        { status: 400 },
+      );
+    }
 
     // Call user service
     const newUser = await userService.addUser(body);

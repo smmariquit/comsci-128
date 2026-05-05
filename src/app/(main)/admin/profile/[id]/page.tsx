@@ -9,6 +9,9 @@ export default function AdminProfilePage() {
 	const [profile, setProfile] = useState<ManagerProfile | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("Personal Information");
+	const [saveStatus, setSaveStatus] = useState<
+		{ type: "success" | "error"; text: string } | null
+	>(null);
 
 	useEffect(() => {
 		async function fetchAdmin() {
@@ -29,6 +32,7 @@ export default function AdminProfilePage() {
 	const handleSave = async () => {
 		try {
 			if (!profile) return;
+			setSaveStatus(null);
 
 			const payload = {
 				...profile,
@@ -44,9 +48,22 @@ export default function AdminProfilePage() {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
 			});
-			if (res.ok) alert("Profile updated successfully!");
+			if (res.ok) {
+				setSaveStatus({
+					type: "success",
+					text: "Profile updated successfully!",
+				});
+			} else {
+				setSaveStatus({
+					type: "error",
+					text: "Failed to update the profile.",
+				});
+			}
 		} catch (err) {
-			alert("Error saving changes.");
+			setSaveStatus({
+				type: "error",
+				text: "Error saving changes.",
+			});
 		}
 	};
 
@@ -189,6 +206,18 @@ export default function AdminProfilePage() {
 							>
 								Save changes
 							</button>
+							{saveStatus && (
+								<div
+									role={saveStatus.type === "error" ? "alert" : "status"}
+									className={`ml-4 rounded-lg px-4 py-2 text-sm font-semibold ${
+										saveStatus.type === "error"
+											? "bg-red-100 text-red-800"
+											: "bg-emerald-100 text-emerald-800"
+									}`}
+								>
+									{saveStatus.text}
+								</div>
+							)}
 						</div>
 					</div>
 				</section>

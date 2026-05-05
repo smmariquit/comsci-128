@@ -24,6 +24,14 @@ export async function PATCH(
       )
     }
 
+    const existing = await applicationService.getApplicationDetail(applicationId)
+    if (!existing) {
+      return NextResponse.json(
+        { message: "Application not found." },
+        { status: 404 }
+      )
+    }
+
     const result = await applicationService.assignApplicantToRoom(
       applicationId,
       roomId,

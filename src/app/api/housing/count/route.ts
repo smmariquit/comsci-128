@@ -7,7 +7,7 @@ export async function GET() {
         const count = await housingService.getHousingCount();
 
         // Fail
-        if (!count) {
+        if (count === null || count === undefined) {
             return NextResponse.json(
                 { message: "Housing count not found." },
                 { status: 404 },

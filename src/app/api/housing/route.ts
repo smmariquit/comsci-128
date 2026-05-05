@@ -5,7 +5,22 @@ import { housingService } from "@/app/lib/services/housing-service";
 // Provide a list of all available housing/dorms
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Malformed JSON body." },
+        { status: 400 },
+      );
+    }
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json(
+        { error: "Housing data is required." },
+        { status: 400 },
+      );
+    }
     const result = await housingService.addHousing(body);
     return NextResponse.json({ data: result }, { status: 201 });
   } catch (error: any) {

@@ -38,19 +38,23 @@ export default function UnitClient({
   const [isEditing, setIsEditing] = useState(false)
   const [selectedType, setSelectedType] = useState<RoomType>(room.room_type)
   const [maxOccupants, setMaxOccupants] = useState<number>(room.maximum_occupants ?? 1)
+  const [saveStatus, setSaveStatus] = useState<
+    { type: "success" | "error"; text: string } | null
+  >(null)
 
   const handleSave = async () => {
+    setSaveStatus(null)
     const result = await roomService.updateRoom(room.room_id, {
       room_type: selectedType,
       maximum_occupants: maxOccupants,
     })
 
     if (result.error) {
-      alert(result.error)
+      setSaveStatus({ type: "error", text: result.error })
     } else {
       setCurrentRoom(result.data!)
       setIsEditing(false)
-      alert("Room updated successfully!")
+      setSaveStatus({ type: "success", text: "Room updated successfully!" })
     }
   }
 
@@ -70,6 +74,18 @@ export default function UnitClient({
 
         {/* Room Details */}
         <div className="bg-[var(--dark-blue)] text-[var(--dark-yellow)] p-6 rounded-lg border border-slate-700 w-full text-left">
+          {saveStatus && (
+            <div
+              role={saveStatus.type === "error" ? "alert" : "status"}
+              className={`mb-4 rounded-lg px-4 py-2 text-sm font-semibold ${
+                saveStatus.type === "error"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-emerald-100 text-emerald-800"
+              }`}
+            >
+              {saveStatus.text}
+            </div>
+          )}
           {isEditing ? (
             <div className="space-y-4">
               <div>

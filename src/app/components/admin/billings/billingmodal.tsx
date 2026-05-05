@@ -173,15 +173,21 @@ function SelectField({ id, label, value, onChange, children, flex }: {
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface IssueBillModalProps {
-  open:           boolean;
+  open: boolean;
   managedIds: number[];          // list of housing_name strings
-  onClose:        () => void;
-  onSubmit:       (form: IssueBillForm) => void;
-  isSubmitting?:  boolean;
+  onClose: () => void;
+  onSubmit: (form: IssueBillForm) => void;
+  isSubmitting?: boolean;
+  errorMessage?: string | null;
 }
 
 export default function IssueBillModal({
-  open, onClose, onSubmit, isSubmitting = false,
+  open,
+  managedIds,
+  onClose,
+  onSubmit,
+  isSubmitting = false,
+  errorMessage,
 }: IssueBillModalProps) {
 
   const today = new Date().toISOString().split("T")[0];
@@ -331,6 +337,26 @@ export default function IssueBillModal({
           padding: "22px 24px",
           display: "flex", flexDirection: "column", gap: 18,
         }}>
+
+          {errorMessage && (
+            <div
+              role="alert"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                background: "#FEE2E2",
+                color: "#991B1B",
+                borderRadius: 10,
+                padding: "10px 12px",
+                fontSize: 12,
+                fontWeight: 600,
+              }}
+            >
+              <AlertCircle size={14} strokeWidth={2.4} aria-hidden="true" />
+              {errorMessage}
+            </div>
+          )}
 
           {/* Section 1 — Billing Target */}
           <SectionDivider label="Billing Target" />

@@ -158,6 +158,11 @@ export default function BillingPage() {
   const [issueOpen, setIssueOpen] = useState(false);
   const [isIssueSubmitting, setIsIssueSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedbackState | null>(null);
+  const [issueError, setIssueError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (issueOpen) setIssueError(null);
+  }, [issueOpen]);
 
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -252,11 +257,12 @@ export default function BillingPage() {
   async function handleIssue(form: IssueBillForm) {
     try {
       setIsIssueSubmitting(true);
+      setIssueError(null);
 
       const studentId = form.student_account_number
 
       if (!studentId) {
-        alert('Student not found (handleIssue)!');
+        setIssueError("Student not found. Double-check the name or select the correct record.");
         return;
       }
   
@@ -289,12 +295,7 @@ export default function BillingPage() {
         });
     } catch (error) {
       console.error("Failed to handleIssue: ", error);
-      setFeedback({
-        open: true,
-        kind: "error",
-        title: "Issue bill failed",
-        message: error instanceof Error ? error.message : "The bill could not be issued.",
-      });
+      setIssueError("Failed to issue the bill. Please try again.");
     } finally {
       setIsIssueSubmitting(false);
     }
@@ -378,6 +379,7 @@ export default function BillingPage() {
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
         isSubmitting={isIssueSubmitting}
+        errorMessage={issueError}
       />
 
       {selectedBill && (

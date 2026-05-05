@@ -7,9 +7,9 @@ export async function GET() {
         const count = await managerService.getManagerCount();
 
         // Fail
-        if (!count) {
+        if (count === null || count === undefined) {
             return NextResponse.json(
-                { message: "Manger count not found." },
+                { message: "Manager count not found." },
                 { status: 404 },
             );
         }

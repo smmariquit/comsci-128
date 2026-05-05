@@ -4,7 +4,22 @@ import { housingAdminService } from "@/app/lib/services/housing-admin";
 // POST /api/housing-admin
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
+        let body: unknown;
+        try {
+            body = await request.json();
+        } catch {
+            return NextResponse.json(
+                { message: "Malformed JSON body." },
+                { status: 400 }
+            );
+        }
+
+        if (!body || typeof body !== "object" || Array.isArray(body)) {
+            return NextResponse.json(
+                { message: "Housing admin data is required." },
+                { status: 400 }
+            );
+        }
 
         // Call housing admin service
         const newHousingAdmin = await housingAdminService.addHousingAdmin(body, body.managerDetails || body);
