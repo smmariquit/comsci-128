@@ -3,8 +3,12 @@
 import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+<<<<<<< HEAD
 import LogoutModal from "../../../../components/LogoutModal";
 import { LogOut } from "lucide-react";
+=======
+import StateMessage from "@/app/components/ui/state-message";
+>>>>>>> 765f7c4 (feat: add loading, empty, and error states)
 
 export default function ManagerProfilePage() {
 	const { id } = useParams();
@@ -12,6 +16,10 @@ export default function ManagerProfilePage() {
 	const [loading, setLoading] = useState(true);
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [activeTab, setActiveTab] = useState("Personal Information");
+	const [loadError, setLoadError] = useState<string | null>(null);
+	const [saveStatus, setSaveStatus] = useState<
+		{ type: "success" | "error"; text: string } | null
+	>(null);
 
 	useEffect(() => {
 		async function fetchManager() {
@@ -22,6 +30,7 @@ export default function ManagerProfilePage() {
 				setProfile(data);
 			} catch (err) {
 				console.error("Failed to load profile", err);
+				setLoadError("Unable to load manager profile.");
 			} finally {
 				setLoading(false);
 			}
@@ -32,6 +41,7 @@ export default function ManagerProfilePage() {
 	const handleSave = async () => {
 		try {
 			if (!profile) return;
+			setSaveStatus(null);
 
 			const payload = {
 				...profile,
@@ -48,9 +58,22 @@ export default function ManagerProfilePage() {
 				body: JSON.stringify(payload),
 			});
 
-			if (res.ok) alert("Manager profile updated successfully!");
+			if (res.ok) {
+				setSaveStatus({
+					type: "success",
+					text: "Manager profile updated successfully!",
+				});
+			} else {
+				setSaveStatus({
+					type: "error",
+					text: "Failed to update the profile.",
+				});
+			}
 		} catch (err) {
-			alert("Error saving changes.");
+			setSaveStatus({
+				type: "error",
+				text: "Error saving changes.",
+			});
 		}
 	};
 
@@ -60,6 +83,25 @@ export default function ManagerProfilePage() {
 				<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
 			</div>
 		);
+
+	if (loadError) {
+		return (
+			<StateMessage
+				variant="error"
+				title="Unable to load profile"
+				description={loadError}
+			/>
+		);
+	}
+
+	if (!profile) {
+		return (
+			<StateMessage
+				title="No profile data"
+				description="We could not find this profile yet."
+			/>
+		);
+	}
 
 	return (
 		<div className="flex flex-col min-h-screen bg-[#1C2632] font-[family-name:var(--font-geist-sans)]">
@@ -103,6 +145,7 @@ export default function ManagerProfilePage() {
 					>
 						Save changes
 					</button>
+<<<<<<< HEAD
 
 					<button
 						onClick={() => setShowLogoutModal(true)}
@@ -111,6 +154,20 @@ export default function ManagerProfilePage() {
 						<LogOut size={20} />
 						Logout
 					</button>
+=======
+					{saveStatus && (
+						<div
+							role={saveStatus.type === "error" ? "alert" : "status"}
+							className={`mt-3 rounded-lg px-4 py-2 text-sm font-semibold ${
+								saveStatus.type === "error"
+									? "bg-red-100 text-red-800"
+									: "bg-emerald-100 text-emerald-800"
+							}`}
+						>
+							{saveStatus.text}
+						</div>
+					)}
+>>>>>>> 765f7c4 (feat: add loading, empty, and error states)
 				</div>
 
 				{/* RIGHT FORM AREA */}

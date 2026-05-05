@@ -3,8 +3,12 @@
 import { useEffect, useState } from "react";
 import StudentNavBar from "../../_components/StudentNavBar";
 import { StudentProfile } from "@/app/lib/models/student";
+<<<<<<< HEAD
 import { LogOut } from "lucide-react";
 import LogoutModal from "../../../../components/LogoutModal";
+=======
+import StateMessage from "@/app/components/ui/state-message";
+>>>>>>> 765f7c4 (feat: add loading, empty, and error states)
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
@@ -20,6 +24,7 @@ export default function StudentProfilePage() {
 	const [loading, setLoading] = useState(true);
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [activeTab, setActiveTab] = useState("Personal Information");
+	const [loadError, setLoadError] = useState<string | null>(null);
 	const [saveStatus, setSaveStatus] = useState<{
 		message: string;
 		type: "success" | "error" | null;
@@ -63,6 +68,7 @@ export default function StudentProfilePage() {
 				} as StudentPayload);
 			} catch (err) {
 				console.error("Failed to load profile", err);
+				setLoadError("Unable to load the student profile.");
 			} finally {
 				setLoading(false);
 			}
@@ -149,6 +155,25 @@ export default function StudentProfilePage() {
 				<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
 			</div>
 		);
+
+	if (loadError) {
+		return (
+			<StateMessage
+				variant="error"
+				title="Unable to load profile"
+				description={loadError}
+			/>
+		);
+	}
+
+	if (!student) {
+		return (
+			<StateMessage
+				title="No profile data yet"
+				description="We could not find your student details."
+			/>
+		);
+	}
 
 	const studentDetails = student?.student;
 	const studentAcademic = studentDetails?.student_academic;

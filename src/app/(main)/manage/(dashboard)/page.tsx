@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 import { housingService } from "@/app/lib/services/housing-service";
 import * as roomService from "@/app/lib/services/room-service";
 import Link from "next/link";
+import StateMessage from "@/app/components/ui/state-message";
 
 
 function MainStatCard({ label, value }: { label: string; value: string | number }) {
@@ -89,13 +90,25 @@ function ActivityItem({ text }: { text: string }) {
 
 
 export default async function MgrDashboardPage() {
+  let stats: Awaited<ReturnType<typeof applicationService.getDashboardStats>>;
+  let roomStats: Awaited<ReturnType<typeof roomService.getRoomStats>>;
+  let dorms: Awaited<ReturnType<typeof housingService.getAllHousing>>;
 
-  const [stats, roomStats, dorms] = await Promise.all([
-    applicationService.getDashboardStats(),
-    roomService.getRoomStats(),
-    housingService.getAllHousing(),
-
-  ])
+  try {
+    [stats, roomStats, dorms] = await Promise.all([
+      applicationService.getDashboardStats(),
+      roomService.getRoomStats(),
+      housingService.getAllHousing(),
+    ]);
+  } catch (error) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load dashboard"
+        description="Please try again in a moment."
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-10 text-[var(--dark-orange)] bg-[var(--cream)]">

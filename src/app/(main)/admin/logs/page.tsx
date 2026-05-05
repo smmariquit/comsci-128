@@ -5,6 +5,7 @@ import AuditStatCard from "@/components/admin/audits/stat_card";
 import AuditLogFilters from "@/components/admin/audits/filters";
 import AuditLogTable from "@/components/admin/audits/auditlogtable";
 import { MOCK_AUDIT_LOGS } from "@/components/admin/audits/audit";
+import StateMessage from "@/app/components/ui/state-message";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 import Link from "next/link";
@@ -66,6 +67,18 @@ export default function Page() {
 
   // ── UI ──────────────────────────────────────────────────────────────────────
 
+  if (!Array.isArray(MOCK_AUDIT_LOGS)) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load audit logs"
+        description="Audit logs are unavailable right now."
+      />
+    );
+  }
+
+  const isEmpty = filteredData.length === 0;
+
   return (
     <main
       style={{
@@ -95,10 +108,17 @@ export default function Page() {
       />
 
       {/* ── Table ───────────────────────────────────────────────────────────── */}
-      <AuditLogTable
-        data={filteredData}
-        onView={handleView}
-      />
+      {isEmpty ? (
+        <StateMessage
+          title="No audit logs found"
+          description="Try adjusting the filters or check back later."
+        />
+      ) : (
+        <AuditLogTable
+          data={filteredData}
+          onView={handleView}
+        />
+      )}
     </main>
   );
 }

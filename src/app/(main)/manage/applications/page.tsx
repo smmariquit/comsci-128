@@ -1,6 +1,7 @@
 
 import type { Metadata } from "next";
 import { applicationService } from "@/app/lib/services/application-service";
+import StateMessage from "@/app/components/ui/state-message";
 
 export const metadata: Metadata = {
   title: "Applications",
@@ -11,8 +12,18 @@ import ApplicationsClient from "./_components/ApplicationsClient";
 
 
 export default async function ApplicationsPage() {
-
-  const applications = await applicationService.getApplications()
+  let applications: Awaited<ReturnType<typeof applicationService.getApplications>> = [];
+  try {
+    applications = await applicationService.getApplications();
+  } catch (error) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load applications"
+        description="Please try again in a moment."
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 p-8 bg-(--cream) text-(--dark-orange)">
