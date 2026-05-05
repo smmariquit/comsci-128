@@ -5,6 +5,7 @@ import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { setCookie } from "@/app/lib/utils";
+import { useTranslations } from "next-intl";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
+  const t = useTranslations("auth.login");
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -32,7 +34,7 @@ export default function LoginPage() {
     if (error) {
       setStatus(error.message);
     } else {
-      setStatus("Signed in successfully");
+      setStatus(t("success"));
       setCurrentUser(data.user);
 
       const { data: profile } = await supabase
@@ -107,13 +109,15 @@ export default function LoginPage() {
       onSubmit={handleSubmit}
       autoComplete="off"
     >
-      <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Login</h2>
+      <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
+        {t("title")}
+      </h2>
       {status && <div className="text-red-400 text-center">{status}</div>}
       <input
         className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
         type="email"
         name="email"
-        placeholder="Email"
+        placeholder={t("email")}
         value={form.email}
         onChange={handleChange}
         required
@@ -122,7 +126,7 @@ export default function LoginPage() {
         className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
         type="password"
         name="password"
-        placeholder="Password"
+        placeholder={t("password")}
         value={form.password}
         onChange={handleChange}
         required
@@ -131,15 +135,17 @@ export default function LoginPage() {
         type="submit"
         className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"
       >
-        Login
+        {t("submit")}
       </button>
       <div className="text-center text-stone-200 mt-2">
-        Don’t have an account?{' '}
-        <a href="/register" className="font-bold underline">Sign up</a>
+        {t("noAccount")} {" "}
+        <a href="/register" className="font-bold underline">
+          {t("signUp")}
+        </a>
       </div>
       <div className="flex items-center gap-2 mt-4">
         <div className="flex-grow h-px bg-stone-400" />
-        <span className="text-stone-400 text-xs">or</span>
+        <span className="text-stone-400 text-xs">{t("or")}</span>
         <div className="flex-grow h-px bg-stone-400" />
       </div>
       <button
@@ -147,10 +153,12 @@ export default function LoginPage() {
         className="bg-stone-50 text-black rounded-lg py-3 mt-2 flex items-center justify-center gap-2 font-normal"
         onClick={handleGoogleSignIn}
       >
-        Sign in using Google
+        {t("google")}
       </button>
       <div className="text-center text-stone-200 mt-2">
-        <a href="/forgot-password" className="font-bold underline">Forgot password?</a>
+        <a href="/forgot-password" className="font-bold underline">
+          {t("forgotPassword")}
+        </a>
       </div>
     </form>
   </div>

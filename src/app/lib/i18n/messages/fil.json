@@ -1,0 +1,21 @@
+{
+  "common": {
+    "language": "Wika",
+    "english": "Ingles",
+    "filipino": "Filipino"
+  },
+  "auth": {
+    "login": {
+      "title": "Mag-log in",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Mag-log in",
+      "noAccount": "Wala pang account?",
+      "signUp": "Mag-sign up",
+      "or": "o",
+      "google": "Mag-sign in gamit ang Google",
+      "forgotPassword": "Nakalimutan ang password?",
+      "success": "Matagumpay na naka-sign in"
+    }
+  }
+}

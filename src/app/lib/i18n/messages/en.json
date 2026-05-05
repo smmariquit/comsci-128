@@ -1,0 +1,21 @@
+{
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "filipino": "Filipino"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Login",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "or": "or",
+      "google": "Sign in using Google",
+      "forgotPassword": "Forgot password?",
+      "success": "Signed in successfully"
+    }
+  }
+}
