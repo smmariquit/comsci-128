@@ -16,8 +16,8 @@ export default function ManageLayout({
     <div className="h-screen flex flex-col overflow-hidden">
       <header className="flex-shrink-0">
         {/*top navbar*/}
-        <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
-          <div className="flex items-center justify-between">
+        <nav className="px-4 md:px-10 h-16 md:h-20 flex items-center bg-[var(--dark-blue)] text-[var(--cream)]">
+          <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-10">
               <Logo size={24} href="/manage" />
 
@@ -78,10 +78,12 @@ export default function ManageLayout({
         </nav>
 
         {/*breadcrumbs to be implemented*/}
-        <nav className="px-6 py-1 bg-[var(--teal)] text-[var(--dark-blue)] text-sm">
-          <Link href="/manage" className="font-medium hover:font-bold">
-            Dashboard
-          </Link>
+        <nav className="w-full bg-[var(--teal)] text-[var(--dark-blue)] text-sm">
+          <div className="max-w-7xl mx-auto px-4 md:px-10 py-2">
+            <Link href="/manage" className="font-medium hover:font-bold">
+              Dashboard
+            </Link>
+          </div>
         </nav>
       </header>
 
