@@ -80,6 +80,7 @@ export default function RegisterPage() {
         phone_number: form.phone_number || null,
         contact_email: form.contact_email || null,
         sex: form.sex || "Prefer not to say",
+        captchaToken: turnstileToken,
         ...(googleSignupPending ? { googleSignup: true } : {}),
       };
       const response = await fetch(endpoint, {
