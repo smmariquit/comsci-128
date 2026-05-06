@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers"; 
 import { userData } from "@/app/lib/data/user-data";
 import { getHousingStatus } from "@/app/lib/data/student-dashboard";
 import { getCompleteDashboardData } from "@/app/lib/services/student-dashboard.service";
@@ -11,12 +12,16 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-    const currUser = await userData.findById(30);
+    const awaitCookie = await cookies();
+    const getValue = awaitCookie.get('account_number')?.value;
+    
+    if(!getValue) return;
+    const account_number = parseInt(getValue, 10);
+    const currUser = await userData.findById(account_number);
     const userHousingStatus = await getHousingStatus(currUser!.account_number);
     const userHousingDetails = await getCompleteDashboardData(
         currUser!.account_number,
     );
-    console.log(userHousingDetails);
     const userName = `${currUser?.first_name} ${currUser?.last_name}`;
 
     function DashboardContent(housing_status: String) {
