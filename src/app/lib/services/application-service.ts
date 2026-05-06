@@ -10,10 +10,11 @@ import { accommodationHistoryData } from "@/lib/data/accommodation-history-data"
 import { validateAction, validateOwnership } from "./authorization-service";
 import App from "next/app";
 import { AppAction } from "../models/permissions";
+import { roomData } from "../data/room-data";
 
-const getDashboardStats = async () => {
+const getDashboardStats = async (managerAccountNumber: number) => {
   try {
-    const stats = await applicationData.getApplicationStats()
+    const stats = await applicationData.getApplicationStats(managerAccountNumber)
     return stats
   } catch (error) {
     console.error("Error: ", error)
@@ -92,6 +93,8 @@ const assignApplicantToRoom = async (
 
     await accommodationHistoryData.createTenantRecord(studentAccountNumber, roomId, moveoutDate)
 
+    await roomData.incrementOccupantsCount(roomId)
+
     return { success: true }
   } catch (error) {
     console.error("Error: ", error)
@@ -109,6 +112,16 @@ const getApprovedUnassignedByHousingName = async (housingName: string) => {
   }
 }
 
+const getApplicationsByLandlord = async (landlordAccountNumber: number) => {
+  try {
+    const applications = await applicationData.getByLandlord(landlordAccountNumber)
+    if (!applications) return []
+    return applications
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch applications")
+  }
+}
 export const applicationService = {
   getDashboardStats,
   getApplications,
@@ -116,5 +129,6 @@ export const applicationService = {
   getApplicationDocuments, 
   updateApplicationStatus,
   assignApplicantToRoom,
-  getApprovedUnassignedByHousingName
+  getApprovedUnassignedByHousingName,
+  getApplicationsByLandlord
 }
