@@ -17,6 +17,8 @@ import {
 import NavItem from "@/app/components/admin/navitem";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import Logo from "@/app/components/Logo";
+import { useI18n } from "@/app/lib/i18n";
+import LanguageSwitcher from "@/app/components/ui/language-switcher";
 
 // Home icon for logo
 function HomeIcon() {
@@ -24,13 +26,13 @@ function HomeIcon() {
 }
 
 const navItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Properties and Dorms", href: "/admin/accommodations", icon: Building2 },
-  { label: "Rooms", href: "/admin/rooms", icon: BedDouble },
-  { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Billings", href: "/admin/billing", icon: ReceiptText },
-  { label: "Reports", href: "/admin/reports", icon: BarChart3 },
-  { label: "Audit Logs", href: "/admin/logs", icon: ScrollText },
+  { labelKey: "nav.dashboard", href: "/admin", icon: LayoutDashboard },
+  { labelKey: "nav.properties", href: "/admin/accommodations", icon: Building2 },
+  { labelKey: "nav.rooms", href: "/admin/rooms", icon: BedDouble },
+  { labelKey: "nav.users", href: "/admin/users", icon: Users },
+  { labelKey: "nav.billings", href: "/admin/billing", icon: ReceiptText },
+  { labelKey: "nav.reports", href: "/admin/reports", icon: BarChart3 },
+  { labelKey: "nav.auditLogs", href: "/admin/logs", icon: ScrollText },
 ];
 
 interface SidebarProps {
@@ -45,6 +47,7 @@ export default function Sidebar({
   userRole = "System Admin",
 }: SidebarProps) {
   const pathname = usePathname();
+  const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -170,12 +173,17 @@ export default function Sidebar({
             <NavItem
               key={item.href}
               href={item.href}
-              label={item.label}
+              label={t(item.labelKey)}
               isActive={isActive}
               icon={item.icon}
             />
           );
         })}
+
+        {/* language switcher */}
+        <div style={{ marginTop: 16, paddingLeft: 8 }}>
+          <LanguageSwitcher />
+        </div>
       </nav>
 
       {/* ── User footer ── */}
@@ -335,9 +343,9 @@ export default function Sidebar({
               fontFamily: "'DM Sans', sans-serif",
             }}
           >
-            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>Confirm Logout</div>
+            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{t("auth.confirmLogout")}</div>
             <div style={{ fontSize: 13, color: "#567375", lineHeight: 1.5, marginBottom: 16 }}>
-              Are you sure you want to log out of your Housing Admin session?
+              {t("auth.confirmLogoutDesc")}
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
@@ -373,7 +381,7 @@ export default function Sidebar({
                   opacity: isLoggingOut ? 0.7 : 1,
                 }}
               >
-                {isLoggingOut ? "Logging out..." : "Logout"}
+                {isLoggingOut ? t("common.loggingOut") : t("common.logout")}
               </button>
             </div>
           </div>
