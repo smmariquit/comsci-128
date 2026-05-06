@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
+import { Turnstile } from '@marsidev/react-turnstile';
 
 
 
@@ -25,6 +26,7 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
 
   useEffect(() => {
@@ -59,7 +61,12 @@ export default function RegisterPage() {
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
-    setLoading(true);
+    if (!turnstileToken) {
+      setError("Please complete the CAPTCHA to register");
+      setLoading(false);
+      return;
+    }
+
     try {
       const endpoint = googleSignupPending ? "/api" : "/api/student";
       const payload = {
@@ -257,6 +264,14 @@ export default function RegisterPage() {
             <div><b>Phone number:</b> {form.phone_number}</div>
             <div><b>Contact email:</b> {form.contact_email}</div>
             <div><b>Sex:</b> {form.sex || "Prefer not to say"}</div>
+            
+            <div className="flex justify-center mt-4">
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                onSuccess={(token) => setTurnstileToken(token)}
+                options={{ theme: "dark" }}
+              />
+            </div>
           </div>
         )}
 

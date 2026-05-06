@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import { Turnstile } from '@marsidev/react-turnstile';
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { setCookie } from "@/app/lib/utils";
@@ -12,6 +13,7 @@ export default function LoginPage() {
     password: "",
   });
   const [status, setStatus] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
@@ -24,9 +26,15 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("");
+    if (!turnstileToken) {
+      setStatus("Please complete the CAPTCHA");
+      return;
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.password,
+      options: { captchaToken: turnstileToken }
     });
 
     if (error) {
@@ -127,6 +135,13 @@ export default function LoginPage() {
         onChange={handleChange}
         required
       />
+      <div className="flex justify-center my-2">
+        <Turnstile
+          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+          onSuccess={(token) => setTurnstileToken(token)}
+          options={{ theme: "dark" }}
+        />
+      </div>
       <button
         type="submit"
         className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"

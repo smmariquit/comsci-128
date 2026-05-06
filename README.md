@@ -108,11 +108,15 @@ Create a `.env.local` file in the root of the project:
 | ------------------------------- | ----------------------------- | :------: |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Your Supabase project URL     |    ✔     |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key |    ✔     |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`| Cloudflare Turnstile site key |    ✔     |
+| `TURNSTILE_SECRET_KEY`          | Cloudflare Turnstile secret   |    ✔     |
 
 For example:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=[url]
-NEXT_PUBLIC_SUPABASE_ANON_KEY= [key]
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[key]
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=[site-key]
+TURNSTILE_SECRET_KEY=[secret-key]
 ```
 
 ### Running Locally
