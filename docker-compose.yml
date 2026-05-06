@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  uplb-casa-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uplb-casa-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # In an on-premise airgapped deployment, you would point this to your
+      # self-hosted Supabase instance (e.g. running on another Docker node).
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+    restart: unless-stopped
+    networks:
+      - casa-network
+
+  # Note: A full on-premise deployment would also include the Supabase 
+  # self-hosted stack (PostgreSQL, GoTrue for Auth, PostgREST for APIs, 
+  # Storage, and Realtime). You can easily link them to this network.
+
+networks:
+  casa-network:
+    driver: bridge
