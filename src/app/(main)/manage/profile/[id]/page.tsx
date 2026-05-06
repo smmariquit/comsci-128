@@ -3,12 +3,9 @@
 import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-<<<<<<< HEAD
 import LogoutModal from "../../../../components/LogoutModal";
 import { LogOut } from "lucide-react";
-=======
 import StateMessage from "@/app/components/ui/state-message";
->>>>>>> 765f7c4 (feat: add loading, empty, and error states)
 
 export default function ManagerProfilePage() {
 	const { id } = useParams();
@@ -79,8 +76,36 @@ export default function ManagerProfilePage() {
 
 	if (loading)
 		return (
-			<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20">
-				<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
+			<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+				<div className="flex flex-col items-center gap-4 bg-white/90 p-8 rounded-2xl shadow-xl">
+					<div className="relative w-12 h-12">
+						<div
+							className="absolute inset-0 rounded-full border-2 border-transparent"
+							style={{
+								borderTopColor: "#C9642A",
+								borderRightColor: "#C9642A",
+								animation: "profile-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite",
+							}}
+						/>
+						<div
+							className="absolute inset-[5px] rounded-full border-2 border-transparent"
+							style={{
+								borderBottomColor: "#567375",
+								borderLeftColor: "#567375",
+								animation: "profile-spin 1.6s cubic-bezier(0.5, 0, 0.5, 1) infinite reverse",
+							}}
+						/>
+						<div
+							className="absolute inset-[14px] rounded-full bg-[#C9642A]"
+							style={{ animation: "profile-pulse 1.2s ease-in-out infinite" }}
+						/>
+					</div>
+					<span className="text-sm font-semibold text-[#567375] tracking-wide">Loading profile…</span>
+					<style>{`
+						@keyframes profile-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+						@keyframes profile-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.5); opacity: 0.4; } }
+					`}</style>
+				</div>
 			</div>
 		);
 
@@ -145,7 +170,6 @@ export default function ManagerProfilePage() {
 					>
 						Save changes
 					</button>
-<<<<<<< HEAD
 
 					<button
 						onClick={() => setShowLogoutModal(true)}
@@ -154,7 +178,7 @@ export default function ManagerProfilePage() {
 						<LogOut size={20} />
 						Logout
 					</button>
-=======
+
 					{saveStatus && (
 						<div
 							role={saveStatus.type === "error" ? "alert" : "status"}
@@ -167,7 +191,6 @@ export default function ManagerProfilePage() {
 							{saveStatus.text}
 						</div>
 					)}
->>>>>>> 765f7c4 (feat: add loading, empty, and error states)
 				</div>
 
 				{/* RIGHT FORM AREA */}

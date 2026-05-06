@@ -71,9 +71,9 @@ export default async function DashboardPage() {
   function DashboardContent(housing_status: string) {
     if (housing_status === "Assigned") {
       // user with assigned housing
-      return AssignedDashboard(userName, userHousingDetails);
+      return AssignedDashboard(userName, userHousingDetails!);
     }
-    return NotAssignedDashboard(userName, userHousingDetails);
+    return NotAssignedDashboard(userName, userHousingDetails!);
   }
 
   return (
