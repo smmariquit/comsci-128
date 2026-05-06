@@ -80,7 +80,7 @@ export default async function DashboardPage() {
     // MAIN PAGE
     <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
       {/* NAVBAR */}
-      <StudentNavBar path={"Dashboard"} userId={currUser.account_number} />
+      <StudentNavBar path={"Dashboard"} userId={currUser.account_number} userName={userName} />
 
       {/* BODY */}
       <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col justify-start items-center gap-4 overflow-hidden">
