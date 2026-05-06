@@ -12,6 +12,7 @@ import RecentApplications from "@/app/components/admin/dashboard/recent_applicat
 import RecentAuditLog from "@/app/components/admin/dashboard/recent_audit";
 import StatCard from "@/app/components/admin/dashboard/stat_card";
 import StudentHousingStatus from "@/app/components/admin/dashboard/student_housing_status";
+import StateMessage from "@/app/components/ui/state-message";
 
 import { getHousingAdmingDashboardData } from "@/app/lib/data/dashboard-data";
 
@@ -60,9 +61,20 @@ const totalActiveUsers = activeUserData.reduce(
 
 export default async function Page() {
   // sample landlord id for testing
-  const landlordIds = 179
+  const landlordIds = 179;
 
-  const liveData = await getHousingAdmingDashboardData(landlordIds);
+  let liveData: Awaited<ReturnType<typeof getHousingAdmingDashboardData>>;
+  try {
+    liveData = await getHousingAdmingDashboardData(landlordIds);
+  } catch (error) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load dashboard"
+        description="Please try again in a moment."
+      />
+    );
+  }
   // <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
   console.log(liveData.occupancyData);
   const housingStatusData = [
@@ -77,6 +89,18 @@ export default async function Page() {
       color: "#6B7280",
     },
   ];
+
+  const isEmpty =
+    liveData.totalStudents === 0 && liveData.recentApplications.length === 0;
+
+  if (isEmpty) {
+    return (
+      <StateMessage
+        title="No dashboard data yet"
+        description="Once students and applications come in, metrics will appear here."
+      />
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

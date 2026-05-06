@@ -11,6 +11,7 @@ import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/c
 import RoomsPageLoading from "./loading";
 import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
 import { assignRoom, unassignRoom } from "@/services/room-service";
+import StateMessage from "@/app/components/ui/state-message";
 
 export default function Page() {
   const mockLandlordId = 179;
@@ -27,6 +28,7 @@ export default function Page() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [feedback, setFeedback] = useState<ActionFeedbackState | null>(null);
+  const [pageError, setPageError] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
   const [occupancy, setOccupancy] = useState<OccupancyFilter>("All");
@@ -54,12 +56,21 @@ export default function Page() {
   });
 
   const refreshRooms = async () => {
-    const housings = await housingData.findbyLandlord(mockLandlordId);
-    setManagedHousings(housings);
+    try {
+      setPageError(null);
+      const housings = await housingData.findbyLandlord(mockLandlordId);
+      setManagedHousings(housings);
 
-    const managedIds = housings.map((h) => h.housing_id);
-    const liveRooms = await roomData.findAllRoomDetailed(managedIds);
-    setRooms(liveRooms);
+      const managedIds = housings.map((h) => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
+      setRooms(liveRooms);
+    } catch (error) {
+      setRooms([]);
+      setManagedHousings([]);
+      setPageError(
+        error instanceof Error ? error.message : "Failed to load rooms.",
+      );
+    }
   };
 
   useEffect(() => {
@@ -244,6 +255,17 @@ export default function Page() {
   };
 
   if (isPageLoading) return <RoomsPageLoading />;
+  if (pageError) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load rooms"
+        description={pageError}
+      />
+    );
+  }
+
+  const isEmpty = filteredRooms.length === 0;
 
   return (
     <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -259,14 +281,21 @@ export default function Page() {
         onHousing={setHousing}
       />
 
-      <RoomTable
-        data={filteredRooms}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onOverrideAssign={handleAssign}
-        onToggleOccupancy={handleToggle}
-      />
+      {isEmpty ? (
+        <StateMessage
+          title="No rooms found"
+          description="Try adjusting the filters or add a new room."
+        />
+      ) : (
+        <RoomTable
+          data={filteredRooms}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onOverrideAssign={handleAssign}
+          onToggleOccupancy={handleToggle}
+        />
+      )}
 
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <button

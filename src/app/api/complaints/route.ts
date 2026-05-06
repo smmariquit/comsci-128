@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/app/lib/server-client";
-import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
   let screenshotUrl = null;
   if (screenshot) {
     const fileExt = screenshot.name.split(".").pop();
-    const fileName = `complaints/${userId}/${uuidv4()}.${fileExt}`;
+    const fileName = `complaints/${userId}/${crypto.randomUUID()}.${fileExt}`;
     const { data, error } = await supabase.storage
       .from("complaints")
       .upload(fileName, screenshot, { contentType: screenshot.type });
