@@ -7,7 +7,12 @@ interface StatCardProps {
   deltaSub?: string;
 }
 
-export default function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
+export default function StatCard({
+  label,
+  value,
+  delta,
+  deltaSub,
+}: StatCardProps) {
   const isPositive = delta === undefined || delta >= 0;
   // Up = amber, down = orange (both from palette)
   const deltaColor = isPositive ? C.amber : C.orange;

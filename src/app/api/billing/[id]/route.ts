@@ -8,7 +8,8 @@ export async function PUT(request: Request, context: any) {
     await validateAction(AppAction.UPDATE_BILL_STATUS);
 
     const rawParams = context?.params;
-    const params = typeof rawParams?.then === "function" ? await rawParams : rawParams;
+    const params =
+      typeof rawParams?.then === "function" ? await rawParams : rawParams;
     const id = Number(params?.id);
     const supabase = await createSupabaseServerClient();
 
@@ -19,10 +20,14 @@ export async function PUT(request: Request, context: any) {
       .select()
       .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -31,7 +36,8 @@ export async function DELETE(request: Request, context: any) {
     await validateAction(AppAction.UPDATE_BILL_STATUS);
 
     const rawParams = context?.params;
-    const params = typeof rawParams?.then === "function" ? await rawParams : rawParams;
+    const params =
+      typeof rawParams?.then === "function" ? await rawParams : rawParams;
     const id = Number(params?.id);
     const supabase = await createSupabaseServerClient();
 
@@ -40,9 +46,13 @@ export async function DELETE(request: Request, context: any) {
       .update({ is_deleted: true })
       .eq("transaction_id", id);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || String(error) },
+      { status: 500 },
+    );
   }
 }

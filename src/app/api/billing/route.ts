@@ -13,10 +13,14 @@ export async function GET() {
       .select("*, manager!inner(*), student!inner(*)")
       .eq("is_deleted", false);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || String(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -33,9 +37,13 @@ export async function POST(request: Request) {
       .select()
       .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || String(error) },
+      { status: 500 },
+    );
   }
 }

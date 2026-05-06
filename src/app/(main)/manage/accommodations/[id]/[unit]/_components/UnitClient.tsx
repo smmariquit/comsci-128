@@ -1,17 +1,15 @@
+"use client";
 
-
-"use client"
-
-import { useState } from "react"
+import { useState } from "react";
 import * as roomService from "@/app/lib/services/room-service";
-import { Room, RoomType } from "@/app/lib/models/room"
-import Link from "next/link"
+import { Room, RoomType } from "@/app/lib/models/room";
+import Link from "next/link";
 
 function TenantCard({ tenant }: { tenant: any }) {
-  const user = tenant.student?.user
+  const user = tenant.student?.user;
   const fullName = user
     ? `${user.first_name} ${user.middle_name ? user.middle_name + " " : ""}${user.last_name}`
-    : "Unknown"
+    : "Unknown";
 
   return (
     <div className="flex flex-col items-center text-center gap-3 bg-[var(--teal)] p-4 rounded-lg border border-slate-700">
@@ -22,7 +20,7 @@ function TenantCard({ tenant }: { tenant: any }) {
         {tenant.movein_date} to {tenant.moveout_date}
       </p>
     </div>
-  )
+  );
 }
 
 export default function UnitClient({
@@ -30,29 +28,31 @@ export default function UnitClient({
   tenants,
   housingId,
 }: {
-  room: Room
-  tenants: any[]
-  housingId: number
+  room: Room;
+  tenants: any[];
+  housingId: number;
 }) {
-  const [currentRoom, setCurrentRoom] = useState<Room>(room)
-  const [isEditing, setIsEditing] = useState(false)
-  const [selectedType, setSelectedType] = useState<RoomType>(room.room_type)
-  const [maxOccupants, setMaxOccupants] = useState<number>(room.maximum_occupants ?? 1)
+  const [currentRoom, setCurrentRoom] = useState<Room>(room);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedType, setSelectedType] = useState<RoomType>(room.room_type);
+  const [maxOccupants, setMaxOccupants] = useState<number>(
+    room.maximum_occupants ?? 1,
+  );
 
   const handleSave = async () => {
     const result = await roomService.updateRoom(room.room_id, {
       room_type: selectedType,
       maximum_occupants: maxOccupants,
-    })
+    });
 
     if (result.error) {
-      alert(result.error)
+      alert(result.error);
     } else {
-      setCurrentRoom(result.data!)
-      setIsEditing(false)
-      alert("Room updated successfully!")
+      setCurrentRoom(result.data!);
+      setIsEditing(false);
+      alert("Room updated successfully!");
     }
-  }
+  };
 
   return (
     <main className="min-h-screen bg-[var(--cream)] text-white px-6 py-10">
@@ -73,7 +73,9 @@ export default function UnitClient({
           {isEditing ? (
             <div className="space-y-4">
               <div>
-                <label htmlFor="roomType" className="block text-sm mb-1">Room Type</label>
+                <label htmlFor="roomType" className="block text-sm mb-1">
+                  Room Type
+                </label>
                 <select
                   id="roomType"
                   value={selectedType}
@@ -86,7 +88,9 @@ export default function UnitClient({
                 </select>
               </div>
               <div>
-                <label htmlFor="maxOccupants" className="block text-sm mb-1">Max Occupants</label>
+                <label htmlFor="maxOccupants" className="block text-sm mb-1">
+                  Max Occupants
+                </label>
                 <input
                   id="maxOccupants"
                   type="number"
@@ -96,20 +100,37 @@ export default function UnitClient({
                 />
               </div>
               <div className="flex gap-2">
-                <button type="button" onClick={handleSave} className="bg-green-600 px-4 py-2 rounded font-bold flex-1">
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="bg-green-600 px-4 py-2 rounded font-bold flex-1"
+                >
                   Save
                 </button>
-                <button type="button" onClick={() => setIsEditing(false)} className="bg-gray-600 px-4 py-2 rounded flex-1">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="bg-gray-600 px-4 py-2 rounded flex-1"
+                >
                   Cancel
                 </button>
               </div>
             </div>
           ) : (
             <div className="space-y-2">
-              <p><strong>Room ID:</strong> {currentRoom.room_id}</p>
-              <p><strong>Type:</strong> {currentRoom.room_type}</p>
-              <p><strong>Occupants:</strong> {tenants.length}/{currentRoom.maximum_occupants}</p>
-              <p><strong>Status:</strong> {currentRoom.occupancy_status}</p>
+              <p>
+                <strong>Room ID:</strong> {currentRoom.room_id}
+              </p>
+              <p>
+                <strong>Type:</strong> {currentRoom.room_type}
+              </p>
+              <p>
+                <strong>Occupants:</strong> {tenants.length}/
+                {currentRoom.maximum_occupants}
+              </p>
+              <p>
+                <strong>Status:</strong> {currentRoom.occupancy_status}
+              </p>
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
@@ -136,8 +157,7 @@ export default function UnitClient({
             </div>
           )}
         </div>
-
       </div>
     </main>
-  )
+  );
 }

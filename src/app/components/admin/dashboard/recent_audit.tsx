@@ -12,7 +12,7 @@ const ACTION_STYLES: Record<string, { bg: string; text: string }> = {
   Create: C.actionCreate,
   Update: C.actionUpdate,
   Delete: C.actionDelete,
-  Login:  C.actionLogin,
+  Login: C.actionLogin,
   Logout: C.actionLogout,
 };
 
@@ -35,9 +35,23 @@ export default function RecentAuditLog({ data }: Props) {
       }}
     >
       {/* Header */}
-      <div style={{ padding: "18px 24px 14px", borderBottom: `1px solid ${C.dividerLight}` }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Recent Audit Activity</div>
-        <div style={{ fontSize: 11, color: C.teal, marginTop: 2, fontFamily: "'DM Mono', monospace" }}>
+      <div
+        style={{
+          padding: "18px 24px 14px",
+          borderBottom: `1px solid ${C.dividerLight}`,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
+          Recent Audit Activity
+        </div>
+        <div
+          style={{
+            fontSize: 11,
+            color: C.teal,
+            marginTop: 2,
+            fontFamily: "'DM Mono', monospace",
+          }}
+        >
           Latest system actions
         </div>
       </div>
@@ -82,9 +96,18 @@ export default function RecentAuditLog({ data }: Props) {
                 <div style={{ fontSize: 12, color: C.navy, fontWeight: 500 }}>
                   {entry.audit_description}
                 </div>
-                <div style={{ fontSize: 11, color: C.teal, marginTop: 3, fontFamily: "'DM Mono', monospace" }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: C.teal,
+                    marginTop: 3,
+                    fontFamily: "'DM Mono', monospace",
+                  }}
+                >
                   by{" "}
-                  <span style={{ color: C.orange, fontWeight: 600 }}>{entry.user_name}</span>
+                  <span style={{ color: C.orange, fontWeight: 600 }}>
+                    {entry.user_name}
+                  </span>
                   {" · "}
                   {entry.timestamp}
                 </div>

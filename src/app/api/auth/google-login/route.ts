@@ -35,7 +35,7 @@ async function resolveManagerRole(accountNumber: number) {
   }
 
   const managerType = managerData?.manager_type?.toLowerCase();
-  if (managerType === "housing administrator") 
+  if (managerType === "housing administrator")
     return "housing_admin" as UserRole;
 
   return "landlord" as UserRole;
@@ -50,7 +50,10 @@ export async function POST() {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+      return NextResponse.json(
+        { error: "Authentication required." },
+        { status: 401 },
+      );
     }
 
     const dbUser = await userService.findOrCreateGoogleUser(user);

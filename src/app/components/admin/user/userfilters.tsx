@@ -4,19 +4,19 @@ import { C } from "@/lib/palette";
 import type { UserType, HousingStatus } from "./usertable";
 import { Search } from "lucide-react";
 
-export type UserTypeFilter    = "All" | UserType;
-export type HousingFilter     = "All" | HousingStatus;
+export type UserTypeFilter = "All" | UserType;
+export type HousingFilter = "All" | HousingStatus;
 export type AccountStatusFilter = "All" | "Active" | "Removed";
 
 interface Props {
-  search:         string;
-  userType:       UserTypeFilter;
-  housingStatus:  HousingFilter;
-  accountStatus:  AccountStatusFilter;
-  onSearch:       (v: string)               => void;
-  onUserType:     (v: UserTypeFilter)       => void;
-  onHousingStatus:(v: HousingFilter)        => void;
-  onAccountStatus:(v: AccountStatusFilter)  => void;
+  search: string;
+  userType: UserTypeFilter;
+  housingStatus: HousingFilter;
+  accountStatus: AccountStatusFilter;
+  onSearch: (v: string) => void;
+  onUserType: (v: UserTypeFilter) => void;
+  onHousingStatus: (v: HousingFilter) => void;
+  onAccountStatus: (v: AccountStatusFilter) => void;
 }
 
 const inputBase: React.CSSProperties = {
@@ -53,12 +53,24 @@ export default function UserFilters({
   onAccountStatus,
 }: Props) {
   return (
-    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
       {/* Search */}
       <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
         <Search
-          style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+          style={{
+            position: "absolute",
+            left: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+            pointerEvents: "none",
+          }}
           size={14}
           color={C.teal}
         />
@@ -79,8 +91,18 @@ export default function UserFilters({
         onChange={(e) => onUserType(e.target.value as UserTypeFilter)}
         style={{ ...selectBase, minWidth: 150 }}
       >
-        {(["All", "Student", "Landlord", "Housing Admin", "Guest"] as UserTypeFilter[]).map((t) => (
-          <option key={t} value={t}>{t === "All" ? "All Roles" : t}</option>
+        {(
+          [
+            "All",
+            "Student",
+            "Landlord",
+            "Housing Admin",
+            "Guest",
+          ] as UserTypeFilter[]
+        ).map((t) => (
+          <option key={t} value={t}>
+            {t === "All" ? "All Roles" : t}
+          </option>
         ))}
       </select>
 
@@ -92,8 +114,12 @@ export default function UserFilters({
         onChange={(e) => onHousingStatus(e.target.value as HousingFilter)}
         style={{ ...selectBase, minWidth: 170 }}
       >
-        {(["All", "Assigned", "Not Assigned", "Pending"] as HousingFilter[]).map((s) => (
-          <option key={s} value={s}>{s === "All" ? "All Housing Status" : s}</option>
+        {(
+          ["All", "Assigned", "Not Assigned", "Pending"] as HousingFilter[]
+        ).map((s) => (
+          <option key={s} value={s}>
+            {s === "All" ? "All Housing Status" : s}
+          </option>
         ))}
       </select>
 
@@ -106,10 +132,11 @@ export default function UserFilters({
         style={{ ...selectBase, minWidth: 140 }}
       >
         {(["All", "Active", "Removed"] as AccountStatusFilter[]).map((s) => (
-          <option key={s} value={s}>{s === "All" ? "All Accounts" : s}</option>
+          <option key={s} value={s}>
+            {s === "All" ? "All Accounts" : s}
+          </option>
         ))}
       </select>
-
     </div>
   );
 }

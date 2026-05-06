@@ -5,8 +5,6 @@ import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
 
-
-
 export default function RegisterPage() {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
@@ -26,9 +24,11 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
@@ -65,7 +65,7 @@ export default function RegisterPage() {
         const userType = profile.user_type?.toLowerCase();
 
         await supabase.auth.updateUser({
-          data: { account_number: profile.account_number }
+          data: { account_number: profile.account_number },
         });
 
         setCookie("account_number", String(profile.account_number), 1);
@@ -112,14 +112,22 @@ export default function RegisterPage() {
   }
 
   return (
-
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
       <form
         className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
-        onSubmit={step === 3 ? handleRegister : e => { e.preventDefault(); setStep(step + 1); }}
+        onSubmit={
+          step === 3
+            ? handleRegister
+            : (e) => {
+                e.preventDefault();
+                setStep(step + 1);
+              }
+        }
         autoComplete="off"
       >
-        <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Sign up</h2>
+        <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
+          Sign up
+        </h2>
         {error && <div className="text-red-400 text-center">{error}</div>}
 
         {step === 1 && (
@@ -221,15 +229,35 @@ export default function RegisterPage() {
 
         {step === 3 && (
           <div className="text-stone-200 space-y-2">
-            <div><b>First name:</b> {form.first_name}</div>
-            {form.middle_name && <div><b>Middle name:</b> {form.middle_name}</div>}
-            <div><b>Last name:</b> {form.last_name}</div>
-            <div><b>Email:</b> {form.email}</div>
-            <div><b>Birthday:</b> {form.birthday}</div>
-            <div><b>Home address:</b> {form.home_address}</div>
-            <div><b>Phone number:</b> {form.phone_number}</div>
-            <div><b>Contact email:</b> {form.contact_email}</div>
-            <div><b>Sex:</b> {form.sex || "Prefer not to say"}</div>
+            <div>
+              <b>First name:</b> {form.first_name}
+            </div>
+            {form.middle_name && (
+              <div>
+                <b>Middle name:</b> {form.middle_name}
+              </div>
+            )}
+            <div>
+              <b>Last name:</b> {form.last_name}
+            </div>
+            <div>
+              <b>Email:</b> {form.email}
+            </div>
+            <div>
+              <b>Birthday:</b> {form.birthday}
+            </div>
+            <div>
+              <b>Home address:</b> {form.home_address}
+            </div>
+            <div>
+              <b>Phone number:</b> {form.phone_number}
+            </div>
+            <div>
+              <b>Contact email:</b> {form.contact_email}
+            </div>
+            <div>
+              <b>Sex:</b> {form.sex || "Prefer not to say"}
+            </div>
           </div>
         )}
 
@@ -266,8 +294,10 @@ export default function RegisterPage() {
         </div>
 
         <div className="text-center text-stone-200 mt-2">
-          Already have an account?{' '}
-          <a href="/login" className="font-bold underline">Login</a>
+          Already have an account?{" "}
+          <a href="/login" className="font-bold underline">
+            Login
+          </a>
         </div>
         <div className="flex items-center gap-2 mt-4">
           <div className="flex-grow h-px bg-stone-400" />

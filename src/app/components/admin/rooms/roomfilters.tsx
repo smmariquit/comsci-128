@@ -1,22 +1,22 @@
 "use client";
 
 import { C } from "@/lib/palette";
-import type { OccupancyStatus,  RoomType } from "./roomtable.tsx";
+import type { OccupancyStatus, RoomType } from "./roomtable.tsx";
 import { Search } from "lucide-react";
 
 export type OccupancyFilter = "All" | OccupancyStatus;
-export type TypeFilter      = "All" | RoomType;
+export type TypeFilter = "All" | RoomType;
 
 interface Props {
-  search:         string;
-  occupancy:      OccupancyFilter;
-  roomType:       TypeFilter;
-  housing:        string;
+  search: string;
+  occupancy: OccupancyFilter;
+  roomType: TypeFilter;
+  housing: string;
   housingOptions: string[];
-  onSearch:       (v: string)           => void;
-  onOccupancy:    (v: OccupancyFilter)  => void;
-  onRoomType:     (v: TypeFilter)       => void;
-  onHousing:      (v: string)           => void;
+  onSearch: (v: string) => void;
+  onOccupancy: (v: OccupancyFilter) => void;
+  onRoomType: (v: TypeFilter) => void;
+  onHousing: (v: string) => void;
 }
 
 const inputBase: React.CSSProperties = {
@@ -42,17 +42,46 @@ const selectBase: React.CSSProperties = {
   backgroundPosition: "right 10px center",
 };
 
-export default function RoomFilters({ search, occupancy, roomType, housing, housingOptions, onSearch, onOccupancy, onRoomType, onHousing }: Props) {
+export default function RoomFilters({
+  search,
+  occupancy,
+  roomType,
+  housing,
+  housingOptions,
+  onSearch,
+  onOccupancy,
+  onRoomType,
+  onHousing,
+}: Props) {
   return (
-    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
       {/* Search */}
       <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
-        <Search 
-          style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} 
-          size={14} 
-          color={C.teal} 
+        <Search
+          style={{
+            position: "absolute",
+            left: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+            pointerEvents: "none",
+          }}
+          size={14}
+          color={C.teal}
         />
-        <input type="text" placeholder="Search room, tenant..." value={search} onChange={(e) => onSearch(e.target.value)} style={{ ...inputBase, width: "100%", paddingLeft: 32 }} />
+        <input
+          type="text"
+          placeholder="Search room, tenant..."
+          value={search}
+          onChange={(e) => onSearch(e.target.value)}
+          style={{ ...inputBase, width: "100%", paddingLeft: 32 }}
+        />
       </div>
 
       {/* Property / Housing */}
@@ -64,7 +93,11 @@ export default function RoomFilters({ search, occupancy, roomType, housing, hous
         style={{ ...selectBase, minWidth: 170 }}
       >
         <option value="All">All Properties</option>
-        {housingOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+        {housingOptions.map((h) => (
+          <option key={h} value={h}>
+            {h}
+          </option>
+        ))}
       </select>
 
       {/* Room type */}
@@ -75,9 +108,13 @@ export default function RoomFilters({ search, occupancy, roomType, housing, hous
         onChange={(e) => onRoomType(e.target.value as TypeFilter)}
         style={{ ...selectBase, minWidth: 130 }}
       >
-        {(["All", "Co-ed", "Women Only", "Men Only"] as TypeFilter[]).map((t) => (
-          <option key={t} value={t}>{t === "All" ? "All Types" : t}</option>
-        ))}
+        {(["All", "Co-ed", "Women Only", "Men Only"] as TypeFilter[]).map(
+          (t) => (
+            <option key={t} value={t}>
+              {t === "All" ? "All Types" : t}
+            </option>
+          ),
+        )}
       </select>
 
       {/* Occupancy */}
@@ -88,11 +125,19 @@ export default function RoomFilters({ search, occupancy, roomType, housing, hous
         onChange={(e) => onOccupancy(e.target.value as OccupancyFilter)}
         style={{ ...selectBase, minWidth: 160 }}
       >
-        {(["All", "Empty", "Partially Occupied", "Fully Occupied"] as OccupancyFilter[]).map((s) => (
-          <option key={s} value={s}>{s === "All" ? "All Occupancy" : s}</option>
+        {(
+          [
+            "All",
+            "Empty",
+            "Partially Occupied",
+            "Fully Occupied",
+          ] as OccupancyFilter[]
+        ).map((s) => (
+          <option key={s} value={s}>
+            {s === "All" ? "All Occupancy" : s}
+          </option>
         ))}
       </select>
-    
     </div>
   );
 }

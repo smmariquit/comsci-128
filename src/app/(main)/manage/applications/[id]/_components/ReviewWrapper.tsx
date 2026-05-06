@@ -1,61 +1,60 @@
+"use client";
 
-
-"use client"
-
-import { useState } from "react"
+import { useState } from "react";
 
 type Document = {
-  document_id: number
-  type: string
-  storage_link: string | null
-}
+  document_id: number;
+  type: string;
+  storage_link: string | null;
+};
 
-const DOC_TYPES = ["Form 5", "Payment Receipt", "Contract", "Waiver"]
+const DOC_TYPES = ["Form 5", "Payment Receipt", "Contract", "Waiver"];
 
 export default function ReviewWrapper({
   applicationId,
   documents,
   fullName,
-  housingName
+  housingName,
 }: {
-  applicationId: number
-  documents: Document[]
-  fullName: string
-  housingName: string | null
+  applicationId: number;
+  documents: Document[];
+  fullName: string;
+  housingName: string | null;
 }) {
-  const [selectedType, setSelectedType] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const selectedDoc = documents.find((d) => d.type === selectedType)
+  const selectedDoc = documents.find((d) => d.type === selectedType);
 
   const handleDecision = async (status: "Approved" | "Rejected") => {
-    setLoading(true)
-    setMessage(null)
+    setLoading(true);
+    setMessage(null);
     try {
       const res = await fetch(`/api/applications/${applicationId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ application_status: status }),
-      })
-      const result = await res.json()
-      if (!res.ok) throw new Error(result.message)
-      setMessage(`Application ${status} successfully.`)
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message);
+      setMessage(`Application ${status} successfully.`);
     } catch (error: any) {
-      setMessage(`Error: ${error.message}`)
+      setMessage(`Error: ${error.message}`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex gap-6 w-full">
-
       <div className="w-2/3 bg-white rounded-xl shadow p-4 flex items-center justify-center text-black min-h-96">
         {!selectedType ? (
           <p className="text-gray-400 text-sm">Select a document to preview</p>
         ) : !selectedDoc?.storage_link ? (
-          <p className="text-gray-400 text-sm">No file uploaded for this document.</p>
+          <p className="text-gray-400 text-sm">
+            No file uploaded for this document.
+          </p>
         ) : (
           <iframe
             src={selectedDoc.storage_link}
@@ -66,21 +65,23 @@ export default function ReviewWrapper({
       </div>
 
       <div className="w-1/3 flex flex-col gap-4">
-
-
         {/* Applicant Info */}
         <div className="bg-white rounded-xl shadow p-4 text-black">
           <h2 className="font-semibold mb-2">Applicant Info</h2>
-          <p><strong>Name:</strong> {fullName}</p>
-          <p><strong>Housing Applied for:</strong> {housingName ?? "N/A"}</p>
+          <p>
+            <strong>Name:</strong> {fullName}
+          </p>
+          <p>
+            <strong>Housing Applied for:</strong> {housingName ?? "N/A"}
+          </p>
         </div>
-        
+
         {/* Submitted Files */}
         <div className="bg-white rounded-xl shadow p-4 text-black">
           <h2 className="font-semibold mb-3">Submitted Files</h2>
           <div className="flex flex-col gap-2">
             {DOC_TYPES.map((type) => {
-              const exists = documents.some((d) => d.type === type)
+              const exists = documents.some((d) => d.type === type);
               return (
                 <button
                   key={type}
@@ -94,7 +95,7 @@ export default function ReviewWrapper({
                   {type}
                   {!exists && <span className="text-xs ml-2">(missing)</span>}
                 </button>
-              )
+              );
             })}
           </div>
         </div>
@@ -114,9 +115,11 @@ export default function ReviewWrapper({
           >
             Reject
           </button>
-          {message && <p className="text-sm text-center text-gray-600">{message}</p>}
+          {message && (
+            <p className="text-sm text-center text-gray-600">{message}</p>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -14,14 +14,16 @@ const ACTION_STYLE: Record<ActionType, { bg: string; text: string }> = {
 function ActionBadge({ type }: { type: ActionType }) {
   const s = ACTION_STYLE[type];
   return (
-    <span style={{
-      background: s.bg,
-      color: s.text,
-      fontSize: 10,
-      fontWeight: 600,
-      padding: "2px 8px",
-      borderRadius: 6,
-    }}>
+    <span
+      style={{
+        background: s.bg,
+        color: s.text,
+        fontSize: 10,
+        fontWeight: 600,
+        padding: "2px 8px",
+        borderRadius: 6,
+      }}
+    >
       {type.replaceAll("_", " ")}
     </span>
   );
@@ -46,55 +48,61 @@ interface Props {
 
 export default function AuditLogTable({ data, onView }: Props) {
   return (
-    <div style={{
-      background: "#fff",
-      borderRadius: 12,
-      outline: `1px solid ${C.cream}`,
-      overflow: "hidden",
-    }}>
-      
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: 12,
+        outline: `1px solid ${C.cream}`,
+        overflow: "hidden",
+      }}
+    >
       {/* Header */}
-      <div style={{
-        padding: "12px 18px",
-        borderBottom: `1px solid ${C.dividerLight}`,
-      }}>
+      <div
+        style={{
+          padding: "12px 18px",
+          borderBottom: `1px solid ${C.dividerLight}`,
+        }}
+      >
         <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
           Audit Logs
         </div>
-        <div style={{ fontSize: 11, color: C.teal }}>
-          {data.length} total
-        </div>
+        <div style={{ fontSize: 11, color: C.teal }}>{data.length} total</div>
       </div>
 
       {/* Table */}
       <table style={{ width: "100%", fontSize: 12 }}>
         <thead>
-            <tr style={{ background: C.cream }}>
-                {COLUMNS.map((col) => (
-                <th
-                    key={col.key}
-                    style={{
-                    padding: "8px 14px",
-                    textAlign: "left",
-                    fontSize: 10,
-                    color: C.teal,
-                    textTransform: "uppercase",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontWeight: 600,
-                    }}
-                >
-                    {col.label}
-                </th>
-                ))}
-            </tr>
-            </thead>
+          <tr style={{ background: C.cream }}>
+            {COLUMNS.map((col) => (
+              <th
+                key={col.key}
+                style={{
+                  padding: "8px 14px",
+                  textAlign: "left",
+                  fontSize: 10,
+                  color: C.teal,
+                  textTransform: "uppercase",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
 
         <tbody>
           {data.map((row) => (
             <tr key={row.audit_id}>
-              
               {/* Timestamp */}
-              <td style={{ padding: "8px 14px", fontFamily: "monospace", color: C.navy }}>
+              <td
+                style={{
+                  padding: "8px 14px",
+                  fontFamily: "monospace",
+                  color: C.navy,
+                }}
+              >
                 {new Date(row.timestamp).toLocaleString()}
               </td>
 
@@ -107,7 +115,7 @@ export default function AuditLogTable({ data, onView }: Props) {
               </td>
 
               {/* Action */}
-              <td style={{ padding: "8px 14px", color: C.navy   }}>
+              <td style={{ padding: "8px 14px", color: C.navy }}>
                 <ActionBadge type={row.action_type} />
               </td>
 
@@ -115,9 +123,6 @@ export default function AuditLogTable({ data, onView }: Props) {
               <td style={{ padding: "8px 14px", color: C.navy }}>
                 {row.audit_description}
               </td>
-
-           
-
             </tr>
           ))}
         </tbody>

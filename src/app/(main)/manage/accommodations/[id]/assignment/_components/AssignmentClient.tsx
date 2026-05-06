@@ -1,31 +1,29 @@
+"use client";
 
-
-"use client"
-
-import { useState } from "react"
-import Link from "next/link"
+import { useState } from "react";
+import Link from "next/link";
 
 type Unit = {
-  id: number
-  name: string
-  occupants: number
-  freeSlots: number
-  bedType: string
-}
+  id: number;
+  name: string;
+  occupants: number;
+  freeSlots: number;
+  bedType: string;
+};
 
 type Applicant = {
-  application_id: number
-  expected_moveout_date: string
-  student_account_number: number | null
-  student: any
-}
+  application_id: number;
+  expected_moveout_date: string;
+  student_account_number: number | null;
+  student: any;
+};
 
 function UnitCard({ unit, onClick }: { unit: Unit; onClick: () => void }) {
   return (
     <div
       onClick={onClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === "Enter" || e.key === " ") {
           onClick();
         }
       }}
@@ -33,14 +31,16 @@ function UnitCard({ unit, onClick }: { unit: Unit; onClick: () => void }) {
       tabIndex={0}
       className="cursor-pointer border rounded-xl p-6 bg-[var(--dark-blue)] flex flex-col gap-3 w-full min-h-[180px] hover:shadow-md transition"
     >
-      <h3 className="text-lg font-semibold text-[var(--dark-orange)]">{unit.name}</h3>
+      <h3 className="text-lg font-semibold text-[var(--dark-orange)]">
+        {unit.name}
+      </h3>
       <div className="text-sm text-[var(--cream)] flex flex-col gap-2">
         <span>Occupants: {unit.occupants}</span>
         <span>Free Slots: {unit.freeSlots}</span>
         <span>Bed Type: {unit.bedType}</span>
       </div>
     </div>
-  )
+  );
 }
 
 export default function AssignmentClient({
@@ -48,29 +48,30 @@ export default function AssignmentClient({
   applicants,
   housingId,
 }: {
-  units: Unit[]
-  applicants: Applicant[]
-  housingId: number
+  units: Unit[];
+  applicants: Applicant[];
+  housingId: number;
 }) {
-  const [selectedUnit, setSelectedUnit] = useState<number | null>(null)
-  const [selectedApplicants, setSelectedApplicants] = useState<number[]>([])
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
+  const [selectedUnit, setSelectedUnit] = useState<number | null>(null);
+  const [selectedApplicants, setSelectedApplicants] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   const handleConfirm = async () => {
-    if (!selectedUnit || selectedApplicants.length === 0) return
-    setLoading(true)
-    setMessage(null)
+    if (!selectedUnit || selectedApplicants.length === 0) return;
+    setLoading(true);
+    setMessage(null);
 
     try {
-     
       await Promise.all(
         selectedApplicants.map(async (applicationId) => {
-          const applicant = applicants.find((a) => a.application_id === applicationId)
-          if (!applicant) return
+          const applicant = applicants.find(
+            (a) => a.application_id === applicationId,
+          );
+          if (!applicant) return;
 
-          console.log("fetching:", `/api/applications/${applicationId}/assign`) // add here
-    console.log("applicant:", applicant)
+          console.log("fetching:", `/api/applications/${applicationId}/assign`); // add here
+          console.log("applicant:", applicant);
 
           const res = await fetch(`/api/applications/${applicationId}/assign`, {
             method: "PATCH",
@@ -80,22 +81,24 @@ export default function AssignmentClient({
               studentAccountNumber: applicant.student_account_number,
               moveoutDate: applicant.expected_moveout_date,
             }),
-          })
-      
-          const result = await res.json()
-          if (!res.ok) throw new Error(result.message)
-        })
-      )
+          });
 
-      setMessage(`Successfully assigned ${selectedApplicants.length} applicant(s) to Unit #${selectedUnit}.`)
-      setSelectedUnit(null)
-      setSelectedApplicants([])
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.message);
+        }),
+      );
+
+      setMessage(
+        `Successfully assigned ${selectedApplicants.length} applicant(s) to Unit #${selectedUnit}.`,
+      );
+      setSelectedUnit(null);
+      setSelectedApplicants([]);
     } catch (error: any) {
-      setMessage(`Error: ${error.message}`)
+      setMessage(`Error: ${error.message}`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <main className="min-h-screen bg-[var(--cream)] text-[var(--dark-blue)] flex flex-col gap-6 p-6">
@@ -103,20 +106,26 @@ export default function AssignmentClient({
         <h1 className="text-2xl text-[var(--dark-orange)] font-semibold">
           Manage Accommodation Assignment
         </h1>
-        <Link href={`/manage/accommodations/${housingId}`} className="text-sm text-gray-500 hover:underline">
+        <Link
+          href={`/manage/accommodations/${housingId}`}
+          className="text-sm text-gray-500 hover:underline"
+        >
           ← Back to Housing
         </Link>
       </div>
 
       {message && (
-        <p className="text-sm text-center text-green-600 font-semibold">{message}</p>
+        <p className="text-sm text-center text-green-600 font-semibold">
+          {message}
+        </p>
       )}
 
       <div className="flex gap-6">
-
         <div className="flex-1 flex flex-col gap-4">
           <div className="flex flex-col gap-2 items-start text-sm">
-            <h2 className="text-lg font-semibold">Unassigned Approved Tenants</h2>
+            <h2 className="text-lg font-semibold">
+              Unassigned Approved Tenants
+            </h2>
             <div className="bg-gray-200 h-8 rounded flex items-center px-3 text-xs text-gray-600 w-full">
               Filter (to be implemented)
             </div>
@@ -131,21 +140,28 @@ export default function AssignmentClient({
               </thead>
               <tbody>
                 {applicants.length === 0 ? (
-                  <tr> 
-                    <td colSpan={2} className="p-3 text-gray-400">No unassigned applicants.</td>
+                  <tr>
+                    <td colSpan={2} className="p-3 text-gray-400">
+                      No unassigned applicants.
+                    </td>
                   </tr>
                 ) : (
                   applicants.map((app) => {
-                    const user = app.student?.user
+                    const user = app.student?.user;
                     const fullName = user
                       ? `${user.first_name} ${user.middle_name ? user.middle_name + " " : ""}${user.last_name}`
-                      : "Unknown"
+                      : "Unknown";
                     return (
-                      <tr key={app.application_id} className="border-t hover:bg-gray-50">
+                      <tr
+                        key={app.application_id}
+                        className="border-t hover:bg-gray-50"
+                      >
                         <td className="p-3">{fullName}</td>
-                        <td className="p-3">{app.expected_moveout_date ?? "N/A"}</td>
+                        <td className="p-3">
+                          {app.expected_moveout_date ?? "N/A"}
+                        </td>
                       </tr>
-                    )
+                    );
                   })
                 )}
               </tbody>
@@ -153,7 +169,6 @@ export default function AssignmentClient({
           </div>
         </div>
 
-   
         <div className="flex-1 flex flex-col gap-4">
           <h2 className="text-lg font-semibold">Room Assignment</h2>
           <div className="border rounded-lg p-4 max-h-[60vh] overflow-y-auto flex flex-col gap-3 w-full">
@@ -162,8 +177,8 @@ export default function AssignmentClient({
                 key={unit.id}
                 unit={unit}
                 onClick={() => {
-                  setSelectedUnit(unit.id)
-                  setSelectedApplicants([])
+                  setSelectedUnit(unit.id);
+                  setSelectedApplicants([]);
                 }}
               />
             ))}
@@ -180,29 +195,36 @@ export default function AssignmentClient({
             </h2>
             <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
               {applicants.length === 0 ? (
-                <p className="text-gray-400 text-sm">No unassigned applicants.</p>
+                <p className="text-gray-400 text-sm">
+                  No unassigned applicants.
+                </p>
               ) : (
                 applicants.map((app) => {
-                  const user = app.student?.user
+                  const user = app.student?.user;
                   const fullName = user
                     ? `${user.first_name} ${user.middle_name ? user.middle_name + " " : ""}${user.last_name}`
-                    : "Unknown"
+                    : "Unknown";
                   return (
-                    <label key={app.application_id} className="flex items-center gap-2">
+                    <label
+                      key={app.application_id}
+                      className="flex items-center gap-2"
+                    >
                       <input
                         type="checkbox"
-                        checked={selectedApplicants.includes(app.application_id)}
+                        checked={selectedApplicants.includes(
+                          app.application_id,
+                        )}
                         onChange={() => {
                           setSelectedApplicants((prev) =>
                             prev.includes(app.application_id)
                               ? prev.filter((id) => id !== app.application_id)
-                              : [...prev, app.application_id]
-                          )
+                              : [...prev, app.application_id],
+                          );
                         }}
                       />
                       {fullName}
                     </label>
-                  )
+                  );
                 })
               )}
             </div>
@@ -225,5 +247,5 @@ export default function AssignmentClient({
         </div>
       )}
     </main>
-  )
+  );
 }
