@@ -5,6 +5,7 @@ import StudentNavBar from "../../_components/StudentNavBar";
 import { StudentProfile } from "@/app/lib/models/student";
 import { LogOut } from "lucide-react";
 import LogoutModal from "../../../../components/LogoutModal";
+import StateMessage from "@/app/components/ui/state-message";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
@@ -20,6 +21,7 @@ export default function StudentProfilePage() {
 	const [loading, setLoading] = useState(true);
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [activeTab, setActiveTab] = useState("Personal Information");
+	const [loadError, setLoadError] = useState<string | null>(null);
 	const [saveStatus, setSaveStatus] = useState<{
 		message: string;
 		type: "success" | "error" | null;
@@ -63,6 +65,7 @@ export default function StudentProfilePage() {
 				} as StudentPayload);
 			} catch (err) {
 				console.error("Failed to load profile", err);
+				setLoadError("Unable to load the student profile.");
 			} finally {
 				setLoading(false);
 			}
@@ -145,10 +148,51 @@ export default function StudentProfilePage() {
 
 	if (loading)
 		return (
-			<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20">
-				<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
+			<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+				<div className="flex flex-col items-center gap-4 bg-white/90 p-8 rounded-2xl shadow-xl">
+					<svg viewBox="0 0 48 48" fill="none" className="w-12 h-12">
+						<path d="M24 6 L42 22 L6 22 Z" stroke="#C9642A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
+							style={{ strokeDasharray: 90, strokeDashoffset: 90, animation: "prf-roof 1s ease-out forwards" }} />
+						<path d="M10 22 L10 40 L38 40 L38 22" stroke="#567375" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
+							style={{ strokeDasharray: 90, strokeDashoffset: 90, animation: "prf-walls 0.8s ease-out 0.3s forwards" }} />
+						<rect x="19" y="28" width="10" height="12" rx="1" stroke="#1C2632" strokeWidth="1.5" fill="none"
+							style={{ strokeDasharray: 48, strokeDashoffset: 48, animation: "prf-door 0.6s ease-out 0.7s forwards" }} />
+						<rect x="12" y="27" width="5" height="5" rx="0.5" fill="#E3AF64"
+							style={{ opacity: 0, animation: "prf-glow 1.6s ease-in-out 1.2s infinite" }} />
+						<rect x="31" y="27" width="5" height="5" rx="0.5" fill="#E3AF64"
+							style={{ opacity: 0, animation: "prf-glow 1.6s ease-in-out 1.3s infinite" }} />
+					</svg>
+					<span className="text-sm font-semibold text-[#567375] tracking-wide"
+						style={{ opacity: 0, animation: "prf-show 0.5s ease-out 0.8s forwards" }}>Loading profile…</span>
+					<style>{`
+						@keyframes prf-roof { to { stroke-dashoffset: 0; } }
+						@keyframes prf-walls { to { stroke-dashoffset: 0; } }
+						@keyframes prf-door { to { stroke-dashoffset: 0; } }
+						@keyframes prf-glow { 0%,100% { opacity: 0.15; } 50% { opacity: 0.45; } }
+						@keyframes prf-show { to { opacity: 1; } }
+					`}</style>
+				</div>
 			</div>
 		);
+
+	if (loadError) {
+		return (
+			<StateMessage
+				variant="error"
+				title="Unable to load profile"
+				description={loadError}
+			/>
+		);
+	}
+
+	if (!student) {
+		return (
+			<StateMessage
+				title="No profile data yet"
+				description="We could not find your student details."
+			/>
+		);
+	}
 
 	const studentDetails = student?.student;
 	const studentAcademic = studentDetails?.student_academic;

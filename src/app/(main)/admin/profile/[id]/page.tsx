@@ -3,12 +3,17 @@
 import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import StateMessage from "@/app/components/ui/state-message";
 
 export default function AdminProfilePage() {
 	const { id } = useParams();
 	const [profile, setProfile] = useState<ManagerProfile | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("Personal Information");
+	const [loadError, setLoadError] = useState<string | null>(null);
+	const [saveStatus, setSaveStatus] = useState<
+		{ type: "success" | "error"; text: string } | null
+	>(null);
 
 	useEffect(() => {
 		async function fetchAdmin() {
@@ -19,6 +24,7 @@ export default function AdminProfilePage() {
 				setProfile(data);
 			} catch (err) {
 				console.error("Failed to load admin profile", err);
+				setLoadError("Unable to load admin profile.");
 			} finally {
 				setLoading(false);
 			}
@@ -29,6 +35,7 @@ export default function AdminProfilePage() {
 	const handleSave = async () => {
 		try {
 			if (!profile) return;
+			setSaveStatus(null);
 
 			const payload = {
 				...profile,
@@ -44,9 +51,22 @@ export default function AdminProfilePage() {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
 			});
-			if (res.ok) alert("Profile updated successfully!");
+			if (res.ok) {
+				setSaveStatus({
+					type: "success",
+					text: "Profile updated successfully!",
+				});
+			} else {
+				setSaveStatus({
+					type: "error",
+					text: "Failed to update the profile.",
+				});
+			}
 		} catch (err) {
-			alert("Error saving changes.");
+			setSaveStatus({
+				type: "error",
+				text: "Error saving changes.",
+			});
 		}
 	};
 
@@ -56,6 +76,25 @@ export default function AdminProfilePage() {
 				<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
 			</div>
 		);
+
+	if (loadError) {
+		return (
+			<StateMessage
+				variant="error"
+				title="Unable to load profile"
+				description={loadError}
+			/>
+		);
+	}
+
+	if (!profile) {
+		return (
+			<StateMessage
+				title="No profile data"
+				description="We could not find this profile yet."
+			/>
+		);
+	}
 
 	return (
 		<div className="flex min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
@@ -189,6 +228,18 @@ export default function AdminProfilePage() {
 							>
 								Save changes
 							</button>
+							{saveStatus && (
+								<div
+									role={saveStatus.type === "error" ? "alert" : "status"}
+									className={`ml-4 rounded-lg px-4 py-2 text-sm font-semibold ${
+										saveStatus.type === "error"
+											? "bg-red-100 text-red-800"
+											: "bg-emerald-100 text-emerald-800"
+									}`}
+								>
+									{saveStatus.text}
+								</div>
+							)}
 						</div>
 					</div>
 				</section>
