@@ -45,7 +45,7 @@ export async function PATCH(
       return NextResponse.json({ message: "Application not found." }, { status: 404 })
     }
 
-    return NextResponse.json({ message: `Application ${application_status} successfully.` }, { status: 200 })
+    return NextResponse.json({ message: `Application processed successfully.` }, { status: 200 })
 
   } catch (error: any) {
     console.error("Error updating application status:", error)
