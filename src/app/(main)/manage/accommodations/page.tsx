@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { housingService } from "@/app/lib/services/housing-service";
+import StateMessage from "@/app/components/ui/state-message";
 
 export const metadata: Metadata = {
   title: "Accommodations",
@@ -67,7 +68,18 @@ function AccommodationCard({
 
 
 export default async function AccommodationsPage() {
-  const housings = await housingService.getAllHousingWithRooms()
+  let housings: Awaited<ReturnType<typeof housingService.getAllHousingWithRooms>> = [];
+  try {
+    housings = await housingService.getAllHousingWithRooms();
+  } catch (error) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load accommodations"
+        description="Please try again in a moment."
+      />
+    );
+  }
 
   return (
     <main className="min-h-screen flex flex-col p-6 gap-6 bg-[var(--cream)]">
