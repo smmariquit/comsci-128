@@ -1,6 +1,6 @@
 "use client"
 
-import { Circle, MapPin } from 'lucide-react';
+
 import { useEffect, useRef } from 'react';
 
 export default function NotFoundPage() {
@@ -231,10 +231,17 @@ export default function NotFoundPage() {
 
                 {/* Icon */}
                 <div className="anim-icon" style={{ paddingBottom: 32 }}>
-                    <div className="float" style={{ width: 80, height: 96, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <MapPin size={80} strokeWidth={1.75} color="#C05C28" fill="#C05C28" aria-hidden="true" />
-                        <Circle size={22} strokeWidth={0} fill="#FFFFFF" color="#FFFFFF"
-                            style={{ position: 'absolute', top: 26, left: 29, opacity: 0.9 }} aria-hidden="true" />
+                    <div className="float">
+                        <svg viewBox="0 0 80 72" fill="none" xmlns="http://www.w3.org/2000/svg" width="80" height="72" aria-hidden="true">
+                            <path d="M40 8 L70 32 L10 32 Z" stroke="#C05C28" strokeWidth="2" strokeLinejoin="round" fill="#C05C28" fillOpacity="0.06" />
+                            <rect x="16" y="32" width="48" height="30" rx="1" stroke="#CEC7B0" strokeWidth="1.5" fill="white" />
+                            <rect x="33" y="44" width="14" height="18" rx="1" stroke="#2E4A4A" strokeWidth="1.5" fill="#2E4A4A" fillOpacity="0.06" />
+                            <rect x="37" y="47" width="6" height="8" rx="3" stroke="#2E4A4A" strokeWidth="1.2" fill="none" />
+                            <circle cx="40" cy="55" r="1.5" fill="#2E4A4A" />
+                            <rect x="21" y="39" width="8" height="8" rx="1" fill="#E3AF64" fillOpacity="0.15" stroke="#CEC7B0" strokeWidth="1" />
+                            <rect x="51" y="39" width="8" height="8" rx="1" fill="#E3AF64" fillOpacity="0.15" stroke="#CEC7B0" strokeWidth="1" />
+                            <rect x="54" y="12" width="5" height="12" rx="0.5" fill="white" stroke="#CEC7B0" strokeWidth="1" />
+                        </svg>
                     </div>
                 </div>
 
@@ -265,24 +272,7 @@ export default function NotFoundPage() {
                 </div>
             </div>
 
-            {/* Footer */}
-            <footer style={{
-                width: '100%', paddingTop: 21, paddingBottom: 22, paddingLeft: 22, paddingRight: 22,
-                background: '#567375', display: 'flex', flexDirection: 'column', gap: 4,
-                position: 'absolute', bottom: 0, zIndex: 1,
-            }}>
-                {[
-                    '© 2026 Website Name',
-                    'University of the Philippines Los Baños AY 2025–2026',
-                    'In partial fulfillment of the requirements for CMSC 128: Software Engineering',
-                ].map((text, idx) => (
-                    <div key={idx} style={{ alignSelf: 'stretch', display: 'flex', justifyContent: 'center' }}>
-                        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.55)', fontSize: 12, fontFamily: 'DM Mono, monospace', fontWeight: 400, lineHeight: '21.6px' }}>
-                            {text}
-                        </div>
-                    </div>
-                ))}
-            </footer>
+
         </main>
     );
 }
