@@ -5,9 +5,18 @@ import Logo from "@/app/components/Logo";
 interface StudentNavbarProps {
 	path: string;
 	userId?: number;
+	userName?: string;
 }
 
-export default function StudentNavBar({ path, userId }: StudentNavbarProps) {
+function getInitials(name?: string) {
+	if (!name) return "S";
+	const parts = name.split(" ").filter(Boolean);
+	if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+	if (parts.length > 1) return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+	return "S";
+}
+
+export default function StudentNavBar({ path, userId, userName }: StudentNavbarProps) {
 	return (
 		<>
 			{/* NAV BAR */}
@@ -40,8 +49,15 @@ export default function StudentNavBar({ path, userId }: StudentNavbarProps) {
 						<Bell className="h-6 w-6" strokeWidth={2} />
 					</button>
 
-						<Link href={`/student/profile/${userId}`}>
-							<div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all"></div>
+						<Link href={`/student/profile/${userId}`} className="flex items-center gap-3">
+							{userName && (
+								<span className="hidden md:block text-[#EDE9DE] text-sm font-medium font-[family-name:var(--font-geist-sans)]">
+									{userName}
+								</span>
+							)}
+							<div className="h-8 w-8 rounded-full bg-[#567375] flex items-center justify-center text-[#EDE9DE] text-xs font-bold cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all">
+								{getInitials(userName)}
+							</div>
 						</Link>
 					</div>
 				</div>
