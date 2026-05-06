@@ -15,9 +15,9 @@ export default function A11yLibraryPage() {
           </p>
           <h1 className="text-3xl font-bold">react-aria</h1>
           <p className="text-base text-[#567375]">
-            Accessible primitives and hooks from Adobe. Great for App Router
-            and custom UI because it handles keyboard interactions, ARIA
-            attributes, and focus management for you.
+            Accessible primitives and hooks from Adobe. Great for App Router and
+            custom UI because it handles keyboard interactions, ARIA attributes,
+            and focus management for you.
           </p>
         </header>
 
