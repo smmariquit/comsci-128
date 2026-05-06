@@ -2,8 +2,8 @@ import { C } from "@/lib/palette";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type OccupancyStatus = "Empty" | "Partially Occupied" | "Fully Occupied" ;
-export type RoomType = "Co-ed" | "Women Only" | "Men Only" 
+export type OccupancyStatus = "Empty" | "Partially Occupied" | "Fully Occupied";
+export type RoomType = "Co-ed" | "Women Only" | "Men Only";
 
 export interface RoomRow {
   room_id: number;
@@ -18,28 +18,43 @@ export interface RoomRow {
 
 // ── Occupancy badge ───────────────────────────────────────────────────────────
 
-const OCCUPANCY_STYLE: Record<OccupancyStatus, { bg: string; dot: string; text: string }> = {
-  "Empty":              { bg: "rgba(86,115,117,0.12)",  dot: C.teal,   text: C.teal },
-  "Partially Occupied": { bg: "rgba(201,100,42,0.13)",  dot: C.orange, text: C.orange },
-  "Fully Occupied":   { bg: "rgba(227,175,100,0.18)", dot: C.amber,  text: "#A07820" },
+const OCCUPANCY_STYLE: Record<
+  OccupancyStatus,
+  { bg: string; dot: string; text: string }
+> = {
+  Empty: { bg: "rgba(86,115,117,0.12)", dot: C.teal, text: C.teal },
+  "Partially Occupied": {
+    bg: "rgba(201,100,42,0.13)",
+    dot: C.orange,
+    text: C.orange,
+  },
+  "Fully Occupied": {
+    bg: "rgba(227,175,100,0.18)",
+    dot: C.amber,
+    text: "#A07820",
+  },
 };
 
 function OccupancyBadge({ status }: { status: OccupancyStatus }) {
   const s = OCCUPANCY_STYLE[status];
   return (
-    <span style={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 5,
-      background: s.bg,
-      color: s.text,
-      fontSize: 11,
-      fontWeight: 600,
-      padding: "3px 8px",
-      borderRadius: 20,
-      whiteSpace: "nowrap",
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot }} />
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        background: s.bg,
+        color: s.text,
+        fontSize: 11,
+        fontWeight: 600,
+        padding: "3px 8px",
+        borderRadius: 20,
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span
+        style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot }}
+      />
       {status}
     </span>
   );
@@ -48,23 +63,25 @@ function OccupancyBadge({ status }: { status: OccupancyStatus }) {
 // ── Room type tag ─────────────────────────────────────────────────────────────
 
 const TYPE_STYLE: Record<RoomType, { bg: string; text: string }> = {
-  "Co-ed":   { bg: "rgba(86,115,117,0.14)",  text: C.teal },
-  "Women Only":   { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
-  "Men Only":     { bg: "rgba(201,100,42,0.13)",  text: C.orange },
+  "Co-ed": { bg: "rgba(86,115,117,0.14)", text: C.teal },
+  "Women Only": { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
+  "Men Only": { bg: "rgba(201,100,42,0.13)", text: C.orange },
 };
 
 function RoomTypeTag({ type }: { type: RoomType }) {
   const s = TYPE_STYLE[type] ?? TYPE_STYLE["Co-ed"];
   return (
-    <span style={{
-      background: s.bg,
-      color: s.text,
-      fontSize: 10,
-      fontWeight: 600,
-      padding: "2px 6px",
-      borderRadius: 6,
-      whiteSpace: "nowrap",
-    }}>
+    <span
+      style={{
+        background: s.bg,
+        color: s.text,
+        fontSize: 10,
+        fontWeight: 600,
+        padding: "2px 6px",
+        borderRadius: 6,
+        whiteSpace: "nowrap",
+      }}
+    >
       {type}
     </span>
   );
@@ -75,13 +92,26 @@ function RoomTypeTag({ type }: { type: RoomType }) {
 type BtnVariant = "ghost" | "primary" | "danger" | "warn";
 
 const BTN_STYLE: Record<BtnVariant, React.CSSProperties> = {
-  ghost:   { background: "#fff", color: C.navy, border: `1px solid ${C.cream}` },
+  ghost: { background: "#fff", color: C.navy, border: `1px solid ${C.cream}` },
   primary: { background: C.orange, color: "#fff", border: "none" },
-  danger:  { background: "rgba(201,100,42,0.10)", color: C.orange, border: `1px solid rgba(201,100,42,0.2)` },
-  warn:    { background: "rgba(227,175,100,0.15)", color: "#A07820", border: `1px solid rgba(227,175,100,0.3)` },
+  danger: {
+    background: "rgba(201,100,42,0.10)",
+    color: C.orange,
+    border: `1px solid rgba(201,100,42,0.2)`,
+  },
+  warn: {
+    background: "rgba(227,175,100,0.15)",
+    color: "#A07820",
+    border: `1px solid rgba(227,175,100,0.3)`,
+  },
 };
 
-function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
+function ActionBtn({
+  label,
+  onClick,
+  variant = "ghost",
+  disabled,
+}: {
   label: string;
   onClick: () => void;
   variant?: BtnVariant;
@@ -108,13 +138,13 @@ function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
 // ── Columns ───────────────────────────────────────────────────────────────────
 
 const COLUMNS = [
-  { key: "room",      label: "Room" },
-  { key: "property",  label: "Property" },
-  { key: "type",      label: "Type" },
+  { key: "room", label: "Room" },
+  { key: "property", label: "Property" },
+  { key: "type", label: "Type" },
   { key: "bedspaces", label: "Bed Spaces" },
   { key: "occupancy", label: "Occupancy Status" },
-  { key: "tenants",   label: "Tenants" },
-  { key: "actions",   label: "Actions" },
+  { key: "tenants", label: "Tenants" },
+  { key: "actions", label: "Actions" },
 ];
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -139,33 +169,36 @@ export default function RoomTable({
   onToggleOccupancy,
 }: Props) {
   return (
-    <div style={{
-      background: "#fff",
-      borderRadius: 12,
-      outline: `1px solid ${C.cream}`,
-      overflow: "hidden",
-    }}>
-
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: 12,
+        outline: `1px solid ${C.cream}`,
+        overflow: "hidden",
+      }}
+    >
       {/* Header */}
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "12px 18px",
-        borderBottom: `1px solid ${C.dividerLight}`,
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "12px 18px",
+          borderBottom: `1px solid ${C.dividerLight}`,
+        }}
+      >
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
             Rooms
           </div>
-          <div style={{ fontSize: 11, color: C.teal }}>
-            {data.length} total
-          </div>
+          <div style={{ fontSize: 11, color: C.teal }}>{data.length} total</div>
         </div>
       </div>
 
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+        <table
+          style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}
+        >
           <thead>
             <tr style={{ background: C.cream }}>
               {COLUMNS.map((col) => (
@@ -190,14 +223,30 @@ export default function RoomTable({
               const isOccupied = row.occupancy_status === "Fully Occupied";
 
               return (
-                <tr key={row.room_id} style={{
-                  borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
-                }}>
-                  <td style={{ padding: "8px 14px", fontFamily: "monospace", color: C.navy, fontWeight: 500 }}>
+                <tr
+                  key={row.room_id}
+                  style={{
+                    borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
+                  }}
+                >
+                  <td
+                    style={{
+                      padding: "8px 14px",
+                      fontFamily: "monospace",
+                      color: C.navy,
+                      fontWeight: 500,
+                    }}
+                  >
                     {row.room_code}
                   </td>
 
-                  <td style={{ padding: "8px 14px", color: C.navy, fontWeight: 500 }}>
+                  <td
+                    style={{
+                      padding: "8px 14px",
+                      color: C.navy,
+                      fontWeight: 500,
+                    }}
+                  >
                     {row.housing_name}
                   </td>
 
@@ -206,7 +255,13 @@ export default function RoomTable({
                   </td>
 
                   {/* Simplified Bedspaces */}
-                  <td style={{ padding: "8px 14px", fontFamily: "monospace", color: C.teal }}>
+                  <td
+                    style={{
+                      padding: "8px 14px",
+                      fontFamily: "monospace",
+                      color: C.teal,
+                    }}
+                  >
                     {row.current_occupants} / {row.maximum_occupants}
                   </td>
 
@@ -216,11 +271,26 @@ export default function RoomTable({
 
                   <td style={{ padding: "8px 14px", color: C.teal }}>
                     {row.assigned_tenants.length === 0 ? (
-                      <span style={{ color: C.teal, opacity: 0.6 }}>Unassigned</span>
+                      <span style={{ color: C.teal, opacity: 0.6 }}>
+                        Unassigned
+                      </span>
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 2,
+                        }}
+                      >
                         {row.assigned_tenants.map((t) => (
-                          <span key={t.id} style={{ fontSize: 11, fontWeight: 500, color: C.navy }}>
+                          <span
+                            key={t.id}
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 500,
+                              color: C.navy,
+                            }}
+                          >
                             {t.name}
                           </span>
                         ))}

@@ -24,8 +24,18 @@ export default function StudentHousingStatus({ data }: Props) {
         padding: "18px 24px 24px",
       }}
     >
-      <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Student Housing Status</div>
-      <div style={{ fontSize: 11, color: C.teal, marginTop: 2, marginBottom: 20, fontFamily: "'DM Mono', monospace" }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
+        Student Housing Status
+      </div>
+      <div
+        style={{
+          fontSize: 11,
+          color: C.teal,
+          marginTop: 2,
+          marginBottom: 20,
+          fontFamily: "'DM Mono', monospace",
+        }}
+      >
         {total} total students
       </div>
 
@@ -34,7 +44,13 @@ export default function StudentHousingStatus({ data }: Props) {
           const pct = total === 0 ? 0 : Math.round((item.count / total) * 100);
           return (
             <div key={item.label}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 6,
+                }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
@@ -45,11 +61,20 @@ export default function StudentHousingStatus({ data }: Props) {
                       flexShrink: 0,
                     }}
                   />
-                  <span style={{ fontSize: 12, fontWeight: 500, color: C.navy }}>{item.label}</span>
+                  <span
+                    style={{ fontSize: 12, fontWeight: 500, color: C.navy }}
+                  >
+                    {item.label}
+                  </span>
                 </div>
-                <span style={{ fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace" }}>
-                  {item.count}{" "}
-                  <span style={{ color: C.amber }}>({pct}%)</span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    color: C.teal,
+                    fontFamily: "'DM Mono', monospace",
+                  }}
+                >
+                  {item.count} <span style={{ color: C.amber }}>({pct}%)</span>
                 </span>
               </div>
               <div

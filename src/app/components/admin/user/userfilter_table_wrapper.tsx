@@ -4,14 +4,23 @@ import { useState, useMemo } from "react";
 import UserTable from "@/app/components/admin/user/usertable";
 import UserFilters from "@/app/components/admin/user/userfilters";
 import type { UserRow } from "@/app/components/admin/user/usertable";
-import type { UserTypeFilter, HousingFilter, AccountStatusFilter } from "@/app/components/admin/user/userfilters";
+import type {
+  UserTypeFilter,
+  HousingFilter,
+  AccountStatusFilter,
+} from "@/app/components/admin/user/userfilters";
 
-export default function UsersFilterTableWrapper({ liveUsers }: { liveUsers: UserRow[] }) {
+export default function UsersFilterTableWrapper({
+  liveUsers,
+}: {
+  liveUsers: UserRow[];
+}) {
   // ── Filter state ──────────────────────────────────────────────────────────
-  const [search, setSearch]               = useState("");
-  const [userType, setUserType]           = useState<UserTypeFilter>("All");
+  const [search, setSearch] = useState("");
+  const [userType, setUserType] = useState<UserTypeFilter>("All");
   const [housingStatus, setHousingStatus] = useState<HousingFilter>("All");
-  const [accountStatus, setAccountStatus] = useState<AccountStatusFilter>("All");
+  const [accountStatus, setAccountStatus] =
+    useState<AccountStatusFilter>("All");
 
   // ── Filtered data ─────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -23,12 +32,10 @@ export default function UsersFilterTableWrapper({ liveUsers }: { liveUsers: User
         u.account_email.toLowerCase().includes(q) ||
         (u.phone_number ?? "").includes(q);
 
-      const matchesType =
-        userType === "All" || u.user_type === userType;
+      const matchesType = userType === "All" || u.user_type === userType;
 
       const matchesHousing =
-        housingStatus === "All" ||
-        u.housing_status === housingStatus;
+        housingStatus === "All" || u.housing_status === housingStatus;
 
       const matchesAccount =
         accountStatus === "All" ||
@@ -52,14 +59,15 @@ export default function UsersFilterTableWrapper({ liveUsers }: { liveUsers: User
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      gap: 16,
-      padding: "24px",
-      fontFamily: "'DM Sans', sans-serif",
-    }}>
-
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        padding: "24px",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
       {/* Filters */}
       <UserFilters
         search={search}
@@ -73,11 +81,7 @@ export default function UsersFilterTableWrapper({ liveUsers }: { liveUsers: User
       />
 
       {/* Table */}
-      <UserTable
-        data={filtered}
-        onView={handleView}
-        onRemove={handleRemove}
-      />
+      <UserTable data={filtered} onView={handleView} onRemove={handleRemove} />
     </div>
   );
 }

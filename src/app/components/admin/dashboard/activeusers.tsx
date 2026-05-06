@@ -22,8 +22,18 @@ export default function ActiveUsers({ data, total }: Props) {
         padding: "18px 24px 24px",
       }}
     >
-      <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Active Users</div>
-      <div style={{ fontSize: 11, color: C.teal, marginTop: 2, marginBottom: 20, fontFamily: "'DM Mono', monospace" }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
+        Active Users
+      </div>
+      <div
+        style={{
+          fontSize: 11,
+          color: C.teal,
+          marginTop: 2,
+          marginBottom: 20,
+          fontFamily: "'DM Mono', monospace",
+        }}
+      >
         {total} total non-deleted accounts
       </div>
 
@@ -40,7 +50,9 @@ export default function ActiveUsers({ data, total }: Props) {
               borderRadius: 8,
             }}
           >
-            <span style={{ fontSize: 12, fontWeight: 500, color: C.navy }}>{item.label}</span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: C.navy }}>
+              {item.label}
+            </span>
             <span
               style={{
                 fontSize: 12,

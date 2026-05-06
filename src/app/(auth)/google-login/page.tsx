@@ -36,10 +36,10 @@ export default function GoogleLoginPage() {
           throw new Error("Google login API request failed.");
         }
 
-        const payload: { role?: string; redirectTo?: string } = await response.json();
+        const payload: { role?: string; redirectTo?: string } =
+          await response.json();
 
         router.push(payload.redirectTo || "/login");
-
       } catch (error) {
         console.error("Google Login error:", error);
         router.push("/login");

@@ -1,22 +1,22 @@
 "use client";
- 
+
 import Link from "next/link";
 import { useState } from "react";
 import { GridIcon } from "./gridicon";
- 
+
 interface NavItemProps {
   label: string;
   href: string;
   isActive: boolean;
 }
- 
+
 export default function NavItem({ label, href, isActive }: NavItemProps) {
   const [hovered, setHovered] = useState(false);
- 
+
   let background = "transparent";
   if (isActive) background = "#A03A00";
   else if (hovered) background = "rgba(237,233,222,0.07)";
- 
+
   return (
     <Link
       href={href}
@@ -35,16 +35,27 @@ export default function NavItem({ label, href, isActive }: NavItemProps) {
       }}
     >
       {/* Icon */}
-      <span style={{ position: "relative", left: 20, display: "flex", opacity: isActive || hovered ? 1 : 0.5 }}>
+      <span
+        style={{
+          position: "relative",
+          left: 20,
+          display: "flex",
+          opacity: isActive || hovered ? 1 : 0.5,
+        }}
+      >
         <GridIcon active={isActive || hovered} />
       </span>
- 
+
       {/* Label */}
       <span
         style={{
           position: "relative",
           left: 28,
-          color: isActive ? "#EDE9DE" : hovered ? "rgba(237,233,222,0.85)" : "rgba(237,233,222,0.55)",
+          color: isActive
+            ? "#EDE9DE"
+            : hovered
+              ? "rgba(237,233,222,0.85)"
+              : "rgba(237,233,222,0.55)",
           fontSize: 13,
           fontWeight: isActive ? 500 : 400,
           transition: "color 0.15s ease",
@@ -55,4 +66,3 @@ export default function NavItem({ label, href, isActive }: NavItemProps) {
     </Link>
   );
 }
- 

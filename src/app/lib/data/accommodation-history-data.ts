@@ -1,9 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
-
-
 const getCurrentTenantsByHousingId = async (housingId: number) => {
-  const today = new Date().toISOString().split("T")[0]
+  const today = new Date().toISOString().split("T")[0];
 
   const { data, error } = await supabase
     .from("student_accommodation_history")
@@ -25,15 +23,15 @@ const getCurrentTenantsByHousingId = async (housingId: number) => {
       )
     `)
     .lte("movein_date", today)
-    .gte("moveout_date", today)
+    .gte("moveout_date", today);
 
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(error.message);
 
-  return (data ?? []).filter((t: any) => t.room?.housing_id === housingId)
-}
+  return (data ?? []).filter((t: any) => t.room?.housing_id === housingId);
+};
 
 const getCurrentTenantsByRoomId = async (roomId: number) => {
-  const today = new Date().toISOString().split("T")[0]
+  const today = new Date().toISOString().split("T")[0];
 
   const { data, error } = await supabase
     .from("student_accommodation_history")
@@ -52,18 +50,18 @@ const getCurrentTenantsByRoomId = async (roomId: number) => {
     `)
     .eq("room_id", roomId)
     .lte("movein_date", today)
-    .gte("moveout_date", today)
+    .gte("moveout_date", today);
 
-  if (error) throw new Error(error.message)
-  return data ?? []
-}
+  if (error) throw new Error(error.message);
+  return data ?? [];
+};
 
-const createTenantRecord = async(
+const createTenantRecord = async (
   accountNumber: number,
   roomId: number,
-  moveoutDate: string
+  moveoutDate: string,
 ) => {
-  const today = new Date().toISOString().split("T")[0] 
+  const today = new Date().toISOString().split("T")[0];
 
   const { data, error } = await supabase
     .from("student_accommodation_history")
@@ -74,14 +72,14 @@ const createTenantRecord = async(
       moveout_date: moveoutDate,
     })
     .select()
-    .single()
+    .single();
 
-  if (error) throw new Error(error.message)
-  return data
-}
+  if (error) throw new Error(error.message);
+  return data;
+};
 
 export const accommodationHistoryData = {
   getCurrentTenantsByHousingId,
   getCurrentTenantsByRoomId,
-  createTenantRecord
-}
+  createTenantRecord,
+};

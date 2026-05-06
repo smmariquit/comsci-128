@@ -5,15 +5,14 @@ import { usePathname } from "next/navigation";
 import { LayoutGrid, Home, ChevronRight } from "lucide-react";
 import Logo from "@/app/components/Logo";
 
-
 const navItems = [
-  { label: "Dashboard",            href: "/admin" },
+  { label: "Dashboard", href: "/admin" },
   { label: "Properties and Dorms", href: "/admin/accommodations" },
-  { label: "Rooms",                href: "/admin/rooms" },
-  { label: "Users",                href: "/admin/users" },
-  { label: "Billings",             href: "/admin/billing" },
-  { label: "Reports",              href: "/admin/reports" },
-  { label: "Audit Logs",           href: "/admin/logs" },
+  { label: "Rooms", href: "/admin/rooms" },
+  { label: "Users", href: "/admin/users" },
+  { label: "Billings", href: "/admin/billing" },
+  { label: "Reports", href: "/admin/reports" },
+  { label: "Audit Logs", href: "/admin/logs" },
 ];
 
 interface SidebarProps {
@@ -53,7 +52,7 @@ export default function Sidebar({
           top: -60,
           borderRadius: "50%",
           background: "#2C3D54",
-          opacity: 0.40,
+          opacity: 0.4,
           pointerEvents: "none",
         }}
       />
@@ -98,7 +97,7 @@ export default function Sidebar({
             fontSize: 24,
             fontWeight: 600,
             lineHeight: "16.8px",
-            letterSpacing: 0.10,
+            letterSpacing: 0.1,
           }}
         >
           UPLB CASA
@@ -156,9 +155,9 @@ export default function Sidebar({
                   display: "flex",
                 }}
               >
-                <LayoutGrid 
-                  size={17} 
-                  color={isActive ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)"} 
+                <LayoutGrid
+                  size={17}
+                  color={isActive ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)"}
                 />
               </span>
 

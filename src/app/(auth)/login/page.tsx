@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -45,15 +45,15 @@ export default function LoginPage() {
         const userType = profile.user_type?.toLowerCase();
 
         await supabase.auth.updateUser({
-          data: { account_number: profile.account_number }
+          data: { account_number: profile.account_number },
         });
 
         const { data: manager } = await supabase
-        .from("manager")
-        .select("manager_type")
-        .eq("account_number", profile.account_number)
-        .single();
-      
+          .from("manager")
+          .select("manager_type")
+          .eq("account_number", profile.account_number)
+          .single();
+
         const managerType = manager?.manager_type?.toLowerCase();
 
         if (userType === "manager") {
@@ -79,7 +79,10 @@ export default function LoginPage() {
             .single();
 
           const managerType = manager?.manager_type?.toLowerCase();
-          if (managerType === "housing administrator" || managerType === "house admin") {
+          if (
+            managerType === "housing administrator" ||
+            managerType === "house admin"
+          ) {
             target = "/admin";
           } else {
             target = "/manage";
@@ -101,58 +104,64 @@ export default function LoginPage() {
   }
 
   return (
-  <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
-    <form
-      className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
-      onSubmit={handleSubmit}
-      autoComplete="off"
-    >
-      <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Login</h2>
-      {status && <div className="text-red-400 text-center">{status}</div>}
-      <input
-        className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={handleChange}
-        required
-      />
-      <input
-        className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-        type="password"
-        name="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={handleChange}
-        required
-      />
-      <button
-        type="submit"
-        className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+      <form
+        className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
+        onSubmit={handleSubmit}
+        autoComplete="off"
       >
-        Login
-      </button>
-      <div className="text-center text-stone-200 mt-2">
-        Don’t have an account?{' '}
-        <a href="/register" className="font-bold underline">Sign up</a>
-      </div>
-      <div className="flex items-center gap-2 mt-4">
-        <div className="flex-grow h-px bg-stone-400" />
-        <span className="text-stone-400 text-xs">or</span>
-        <div className="flex-grow h-px bg-stone-400" />
-      </div>
-      <button
-        type="button"
-        className="bg-stone-50 text-black rounded-lg py-3 mt-2 flex items-center justify-center gap-2 font-normal"
-        onClick={handleGoogleSignIn}
-      >
-        Sign in using Google
-      </button>
-      <div className="text-center text-stone-200 mt-2">
-        <a href="/forgot-password" className="font-bold underline">Forgot password?</a>
-      </div>
-    </form>
-  </div>
+        <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
+          Login
+        </h2>
+        {status && <div className="text-red-400 text-center">{status}</div>}
+        <input
+          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
+        <input
+          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+        <button
+          type="submit"
+          className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"
+        >
+          Login
+        </button>
+        <div className="text-center text-stone-200 mt-2">
+          Don’t have an account?{" "}
+          <a href="/register" className="font-bold underline">
+            Sign up
+          </a>
+        </div>
+        <div className="flex items-center gap-2 mt-4">
+          <div className="flex-grow h-px bg-stone-400" />
+          <span className="text-stone-400 text-xs">or</span>
+          <div className="flex-grow h-px bg-stone-400" />
+        </div>
+        <button
+          type="button"
+          className="bg-stone-50 text-black rounded-lg py-3 mt-2 flex items-center justify-center gap-2 font-normal"
+          onClick={handleGoogleSignIn}
+        >
+          Sign in using Google
+        </button>
+        <div className="text-center text-stone-200 mt-2">
+          <a href="/forgot-password" className="font-bold underline">
+            Forgot password?
+          </a>
+        </div>
+      </form>
+    </div>
   );
 }

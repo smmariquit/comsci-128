@@ -1,27 +1,26 @@
-
 "use client";
 
 import { C } from "@/lib/palette";
 import type { PaymentStatus, BillType } from "./billingtable";
 import { Search } from "lucide-react";
 
-export type StatusFilter   = "All" | PaymentStatus;
+export type StatusFilter = "All" | PaymentStatus;
 export type BillTypeFilter = "All" | BillType;
 
 interface Props {
-  search:         string;
-  status:         StatusFilter;
-  billType:       BillTypeFilter;
-  housing:        string;
+  search: string;
+  status: StatusFilter;
+  billType: BillTypeFilter;
+  housing: string;
   housingOptions: string[];
-  dueDateFrom:    string;
-  dueDateTo:      string;
-  onSearch:       (v: string)          => void;
-  onStatus:       (v: StatusFilter)    => void;
-  onBillType:     (v: BillTypeFilter)  => void;
-  onHousing:      (v: string)          => void;
-  onDueDateFrom:  (v: string)          => void;
-  onDueDateTo:    (v: string)          => void;
+  dueDateFrom: string;
+  dueDateTo: string;
+  onSearch: (v: string) => void;
+  onStatus: (v: StatusFilter) => void;
+  onBillType: (v: BillTypeFilter) => void;
+  onHousing: (v: string) => void;
+  onDueDateFrom: (v: string) => void;
+  onDueDateTo: (v: string) => void;
 }
 
 const inputBase: React.CSSProperties = {
@@ -59,19 +58,41 @@ const labelStyle: React.CSSProperties = {
 };
 
 export default function BillFilters({
-  search, status, billType, housing, housingOptions,
-  dueDateFrom, dueDateTo,
-  onSearch, onStatus, onBillType, onHousing, onDueDateFrom, onDueDateTo,
+  search,
+  status,
+  billType,
+  housing,
+  housingOptions,
+  dueDateFrom,
+  dueDateTo,
+  onSearch,
+  onStatus,
+  onBillType,
+  onHousing,
+  onDueDateFrom,
+  onDueDateTo,
 }: Props) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {/* Row 1 — search + dropdowns */}
-      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         {/* Search */}
         <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
           <Search
-            style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+            style={{
+              position: "absolute",
+              left: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              pointerEvents: "none",
+            }}
             size={14}
             color={C.teal}
           />
@@ -93,7 +114,11 @@ export default function BillFilters({
           style={{ ...selectBase, minWidth: 180 }}
         >
           <option value="All">All Properties</option>
-          {housingOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+          {housingOptions.map((h) => (
+            <option key={h} value={h}>
+              {h}
+            </option>
+          ))}
         </select>
 
         {/* Bill type */}
@@ -104,8 +129,18 @@ export default function BillFilters({
           onChange={(e) => onBillType(e.target.value as BillTypeFilter)}
           style={{ ...selectBase, minWidth: 150 }}
         >
-          {(["All", "Rent", "Utility", "Maintenance", "Miscellaneous"] as BillTypeFilter[]).map((t) => (
-            <option key={t} value={t}>{t === "All" ? "All Types" : t}</option>
+          {(
+            [
+              "All",
+              "Rent",
+              "Utility",
+              "Maintenance",
+              "Miscellaneous",
+            ] as BillTypeFilter[]
+          ).map((t) => (
+            <option key={t} value={t}>
+              {t === "All" ? "All Types" : t}
+            </option>
           ))}
         </select>
 
@@ -117,14 +152,25 @@ export default function BillFilters({
           onChange={(e) => onStatus(e.target.value as StatusFilter)}
           style={{ ...selectBase, minWidth: 140 }}
         >
-          {(["All", "Pending", "Paid", "Overdue"] as StatusFilter[]).map((s) => (
-            <option key={s} value={s}>{s === "All" ? "All Statuses" : s}</option>
-          ))}
+          {(["All", "Pending", "Paid", "Overdue"] as StatusFilter[]).map(
+            (s) => (
+              <option key={s} value={s}>
+                {s === "All" ? "All Statuses" : s}
+              </option>
+            ),
+          )}
         </select>
       </div>
 
       {/* Row 2 — due date range */}
-      <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "flex-end",
+          flexWrap: "wrap",
+        }}
+      >
         <div style={{ display: "flex", flexDirection: "column" }}>
           <span style={labelStyle}>Due Date From</span>
           <input
@@ -147,7 +193,10 @@ export default function BillFilters({
         {/* Clear dates shortcut */}
         {(dueDateFrom || dueDateTo) && (
           <button
-            onClick={() => { onDueDateFrom(""); onDueDateTo(""); }}
+            onClick={() => {
+              onDueDateFrom("");
+              onDueDateTo("");
+            }}
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 11,
