@@ -1,6 +1,6 @@
 import { billData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
-import { validateAction, validateOwnership } from "./authorization-service";
+import { validateAction } from "./authorization-service";
 import { AppAction } from "../models/permissions";
 
 function normalizeStatus(rawStatus: unknown): BillRow["status"] {
@@ -28,35 +28,38 @@ const fetchAllBills = async (managedHousingIds: number[] = []): Promise<BillRow[
         // RBAC
         await validateAction(AppAction.BILL_STATUS);
         
-        const { data, error } = await billData.getAll();
-        if (error) throw error;
+        const { data, error } = await billData.getBillsOfLandlord();
+if (error) throw error;
 
-        return (data || []).map((bill: any) => {
-            const user = bill.student?.user;
-            const app = bill.student?.student_accommodation_history || [];
-            const relevantApp = app.find((a: any) => {
-                const room = Array.isArray(a.room) ? a.room[0] : a.room;
-                const housing = Array.isArray(room?.housing) ? room.housing[0] : room?.housing;
-                return managedHousingIds.map(Number).includes(Number(housing?.housing_id));
-            });
+return (data || [])
+    .map((bill: any) => {
+        const user = bill.student?.user;
+        const histories = bill.student?.student_accommodation_history || [];
 
-            const room = Array.isArray(relevantApp?.room) ? relevantApp.room[0] : relevantApp?.room;
+        const relevantHistory = histories.find((h: any) => {
+            const room = Array.isArray(h.room) ? h.room[0] : h.room;
             const housing = Array.isArray(room?.housing) ? room.housing[0] : room?.housing;
-            const housingName = housing?.housing_name;
-
-            return {
-                transaction_id: bill.transaction_id,
-                student_account_number: bill.student_account_number,
-                student_name: user ? `${user.first_name} ${user.last_name}` : "Unknown Student",
-                housing_name: housingName || "Unassigned Property",
-                amount: Number(bill.amount),
-                bill_type: bill.bill_type,
-                status: getEffectiveStatus(bill),
-                due_date: bill.due_date,
-                issue_date: bill.issue_date,
-                date_paid: bill.date_paid,
-            };
+            return managedHousingIds.includes(Number(housing?.housing_id));
         });
+
+        if (!relevantHistory) return null;
+
+        const room = Array.isArray(relevantHistory.room) ? relevantHistory.room[0] : relevantHistory.room;
+        const housing = Array.isArray(room?.housing) ? room?.housing[0] : room?.housing;
+
+        return {
+            transaction_id: bill.transaction_id,
+            student_account_number: bill.student_account_number,
+            student_name: user ? `${user.first_name} ${user.last_name}` : "Unknown Student",
+            housing_name: housing?.housing_name || "Unassigned Property",
+            amount: Number(bill.amount),
+            bill_type: bill.bill_type,
+            status: getEffectiveStatus(bill),
+            due_date: bill.due_date,
+            issue_date: bill.issue_date,
+            date_paid: bill.date_paid,
+        };
+    }).filter(Boolean) as BillRow[];
     } catch (error) {
         console.error("Service Error (fetchAllBills): ", error);
         return [];
@@ -93,9 +96,9 @@ const createBill = async (billDetails: any) => {
         await validateAction(AppAction.ASSIGN_BILL);
 
         return await billData.create(billDetails);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Service Error (createBill): ", error);
-        throw new Error("Failed to create billing");
+        throw new Error(error?.message || "Failed to create billing");
     }
 };
 
