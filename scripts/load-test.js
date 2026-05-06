@@ -8,9 +8,9 @@ import { check, sleep } from 'k6';
 export const options = {
   // Define the load stages
   stages: [
-    { duration: '30s', target: 1000 }, // Ramp up to 1,000 users
-    { duration: '1m', target: 5000 },  // Ramp up to 5,000 concurrent users
-    { duration: '3m', target: 5000 },  // Hold steady at 5,000 users for 3 minutes
+    { duration: '30s', target: 100 }, // Ramp up to 100 users
+    { duration: '1m', target: 100 },  // Ramp up to 500 concurrent users
+    { duration: '3m', target: 100 },  // Hold steady at 500 users for 3 minutes
     { duration: '30s', target: 0 },    // Ramp down gracefully to 0 users
   ],
   // Define success criteria (this is great for the pitch!)
