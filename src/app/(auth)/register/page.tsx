@@ -5,6 +5,7 @@ import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
 import { useToast } from "@/app/components/ui/Toast";
+import { InfoIcon } from "@/app/components/ui/Tooltip";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -257,8 +258,9 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label htmlFor="password" className="text-stone-300 text-sm font-medium mb-1 block">
+                <label htmlFor="password" className="text-stone-300 text-sm font-medium mb-1 flex items-center gap-1 block">
                   Password <span className="text-red-400">*</span>
+                  <InfoIcon tooltip="Use at least 8 characters with a mix of uppercase, lowercase, and numbers" />
                 </label>
                 <input
                   id="password"
@@ -334,8 +336,9 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label htmlFor="contact_email" className="text-stone-300 text-sm font-medium mb-1 block">
+                <label htmlFor="contact_email" className="text-stone-300 text-sm font-medium mb-1 flex items-center gap-1 block">
                   Alternative Contact Email
+                  <InfoIcon tooltip="Used for notifications if your primary email is unavailable" />
                 </label>
                 <input
                   id="contact_email"
