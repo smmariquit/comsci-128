@@ -3,6 +3,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useMemo } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 
@@ -37,19 +38,27 @@ function AccommodationCard({
 }) {
   return (
     <Link href={`/manage/accommodations/${id}`}>
-      <div className="min-w-[600px] flex items-center gap-6 rounded-xl p-3 bg-[#f5ede1] text-[var(--dark-orange)] shadow-xl border-2 border-l-8 border-[var(--teal)] hover:shadow-md transition">
-        <div className="w-80 h-40 bg-gray-300 rounded-lg overflow-hidden flex-shrink-0">
-          <img
+      <div className="flex min-w-0 flex-col gap-4 rounded-xl border-l-8 border-[var(--teal)] bg-[#f5ede1] p-3 text-[var(--dark-orange)] shadow-xl transition hover:shadow-md sm:flex-row sm:items-center sm:gap-6">
+        <div className="h-44 w-full shrink-0 overflow-hidden rounded-lg bg-gray-300 sm:h-40 sm:w-80">
+          <Image
             src={image || "/assets/placeholders/housing-card.svg"}
             alt="Accommodation"
+            width={320}
+            height={176}
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="flex flex-col w-full gap-10 min-w-0">
-          <div className="font-semibold text-2xl text-[var(--dark-blue)] truncate">{name}</div>
-          <div className="flex w-full">
-            {details.map((detail, index) => (
-              <DetailItem key={index} label={detail.label} value={detail.value} />
+        <div className="flex min-w-0 w-full flex-col gap-4 sm:gap-8">
+          <div className="truncate text-xl font-semibold text-[var(--dark-blue)] sm:text-2xl">
+            {name}
+          </div>
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+            {details.map((detail) => (
+              <DetailItem
+                key={detail.label}
+                label={detail.label}
+                value={detail.value}
+              />
             ))}
           </div>
         </div>
@@ -160,9 +169,11 @@ export default function AccommodationsPage({ housings }: { housings: Housing[] }
   }, [housings, search, sort]);
 
   return (
-    <main className="min-h-screen flex flex-col p-6 gap-6 bg-[var(--cream)]">
-      <section className="flex flex-col gap-4 px-5">
-        <h1 className="text-3xl text-[var(--dark-orange)] font-semibold">Accommodations</h1>
+    <main className="min-h-screen bg-[var(--cream)] p-4 sm:p-6">
+      <section className="flex flex-col gap-4">
+        <h1 className="text-2xl font-semibold text-[var(--dark-orange)] sm:text-3xl">
+          Accommodations
+        </h1>
         <FilterBar
           search={search}
           onSearchChange={setSearch}
@@ -171,11 +182,11 @@ export default function AccommodationsPage({ housings }: { housings: Housing[] }
           resultCount={filtered.length}
         />
       </section>
-      <section className="px-5 overflow-x-auto">
+      <section className="mt-6">
         {filtered.length === 0 ? (
           <p className="text-gray-500">No accommodations found.</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 bg-[var(--cream)] p-6 rounded-xl">
+          <div className="grid grid-cols-1 gap-4 rounded-xl bg-[var(--cream)]">
             {filtered.map((housing) => {
 
               const totalOccupants = housing.room.reduce(

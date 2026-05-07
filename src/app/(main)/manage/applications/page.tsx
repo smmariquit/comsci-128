@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: "Applications",
   description: "Review and process housing applications submitted by students.",
 };
-import Link from "next/link";
 import ApplicationsClient from "./_components/ApplicationsClient";
 
 
@@ -34,13 +33,11 @@ export default async function ApplicationsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-8 bg-(--cream) text-(--dark-orange)">
-
-      <h1 className="text-4xl font-bold text-center">
+    <div className="flex flex-col gap-6 bg-(--cream) p-4 text-(--dark-orange) sm:gap-8 sm:p-6 md:p-8">
+      <h1 className="text-center text-2xl font-bold sm:text-3xl">
         Applications
       </h1>
-      <ApplicationsClient applications={applications}/>
-
+      <ApplicationsClient applications={applications} />
     </div>
   );
 

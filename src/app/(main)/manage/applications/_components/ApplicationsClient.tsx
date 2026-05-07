@@ -3,13 +3,21 @@
 import { useState, useMemo } from "react"
 import Link from "next/link"
 import { Search, SlidersHorizontal } from "lucide-react"
-import { Constants, Database } from "@/app/types/database.types"
+import { Constants } from "@/app/types/database.types"
 
-type Application = Database["public"]["Tables"]["application"]["Row"] & {
+type Application = {
+  application_id: number;
+  housing_name: string | null;
+  application_status: string;
+  expected_moveout_date: string | null;
   student: {
-    user: Database["public"]["Tables"]["user"]["Row"] | null
-  } | null
-}
+    user?: {
+      first_name?: string;
+      middle_name?: string | null;
+      last_name?: string;
+    } | null;
+  } | null;
+};
 
 const STATUSES = ["All Status", ...Constants.public.Enums.ApplicationStatus]
 
@@ -61,30 +69,46 @@ export default function ApplicationsClient({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            size={16}
+          />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name or housing…"
-            className="w-full h-10 pl-9 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
+            className="h-10 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
           />
         </div>
-        <div className="relative">
-          <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+        <div className="relative w-full sm:w-auto">
+          <SlidersHorizontal
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            size={16}
+          />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-10 pl-9 pr-8 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 appearance-none focus:outline-none"
+            className="h-10 w-full appearance-none rounded-lg border border-gray-200 bg-white pl-9 pr-8 text-sm text-gray-700 focus:outline-none sm:w-auto"
           >
             {STATUSES.map((s) => (
               <option key={s}>{s}</option>
             ))}
           </select>
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▾</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">
+            ▾
+          </span>
         </div>
+
+        {/* TODO: housing type filter */}
+        <select
+          className="w-full cursor-not-allowed rounded border bg-white p-2 text-black opacity-50 sm:w-auto"
+          disabled
+        >
+          <option>All Housing</option>
+        </select>
       </div>
       <p className="text-xs text-gray-600">
         {filtered.length === 0
@@ -92,9 +116,9 @@ export default function ApplicationsClient({
           : `Showing ${filtered.length} application${filtered.length !== 1 ? "s" : ""}`}
       </p>
 
-      <div className="bg-yellow-50 rounded-xl text-black shadow overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-slate-800 text-[var(--dark-orange)]">
+      <div className="bg-white rounded-xl text-black shadow overflow-x-auto">
+        <table className="w-full min-w-[760px] text-left border-collapse">
+          <thead className="bg-gray-100">
             <tr>
               <th className="p-3">Name</th>
               <th className="p-3">Housing</th>
@@ -112,13 +136,17 @@ export default function ApplicationsClient({
               </tr>
             ) : (
               filtered.map((app) => {
-                const user = app.student?.user
+                const student = app.student;
+                const user = student?.user;
                 const fullName = user
                   ? `${user.first_name} ${user.middle_name ? user.middle_name + " " : ""}${user.last_name}`
                   : "Unknown"
 
                 return (
-                  <tr key={app.application_id} className="border-t hover:bg-yellow-100">
+                  <tr
+                    key={app.application_id}
+                    className="border-t hover:bg-gray-50"
+                  >
                     <td className="p-3">{fullName}</td>
                     <td className="p-3">{app.housing_name ?? "N/A"}</td>
                     <td className="p-3">{app.expected_moveout_date ?? "N/A"}</td>
@@ -129,7 +157,10 @@ export default function ApplicationsClient({
                     </td>
                     <td className="p-3">
                       <Link href={`/manage/applications/${app.application_id}`}>
-                        <button className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        <button
+                          type="button"
+                          className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
+                        >
                           Review
                         </button>
                       </Link>
