@@ -1,92 +1,55 @@
+"use client";
+
 import type { Metadata } from "next";
+import { useState } from "react";
 import PageHeader from "@/app/components/admin/pageheader";
 import Sidebar from "@/app/components/admin/sidebar";
-import { createSupabaseServerClient } from "@/app/lib/server-client";
 
 export const metadata: Metadata = {
   title: "Housing Administrator",
   description: "Housing Administrator Panel",
 };
 
-function buildInitials(name: string) {
-  const parts = name
-    .split(" ")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length === 0) return "HA";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-
-  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-}
-
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createSupabaseServerClient();
-
-  let sidebarUserName = "Housing Admin";
-  let sidebarUserRole = "Housing Admin";
-  let sidebarUserInitials = "HA";
-
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
-
-  if (authUser?.email) {
-    const { data: userRow } = await supabase
-      .from("user")
-      .select("account_number, first_name, last_name, user_type")
-      .eq("account_email", authUser.email)
-      .maybeSingle();
-
-    if (userRow) {
-      const fullName = [userRow.first_name, userRow.last_name]
-        .map((part) => part?.trim())
-        .filter(Boolean)
-        .join(" ");
-
-      const { data: housingAdminRow } = await supabase
-        .from("housing_admin")
-        .select("account_number")
-        .eq("account_number", userRow.account_number)
-        .maybeSingle();
-
-      sidebarUserName = fullName || authUser.email || sidebarUserName;
-      sidebarUserRole = housingAdminRow ? "Housing Admin" : (userRow.user_type ?? "Housing Admin");
-      sidebarUserInitials = buildInitials(sidebarUserName);
-    }
-  }
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        width: "100vw",
-        overflow: "hidden",
-        background: "#eef0f4",
-      }}
-    >
-      <Sidebar
-        userInitials={sidebarUserInitials}
-        userName={sidebarUserName}
-        userRole={sidebarUserRole}
-      />
+    <div className="min-h-screen bg-[#eef0f4] md:flex">
+      <div className="hidden md:block md:h-screen md:shrink-0">
+        <Sidebar
+          userInitials="JD"
+          userName="John Doe"
+          userRole="House Admin"
+        />
+      </div>
 
-      <main
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
-        <PageHeader />
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button
+            type="button"
+            aria-label="Close sidebar"
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          <div className="relative h-full w-[86%] max-w-[320px]">
+            <Sidebar
+              userInitials="JD"
+              userName="John Doe"
+              userRole="House Admin"
+              onNavigate={() => setIsSidebarOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
-        <div style={{ flex: 1, overflowY: "auto", padding: "32px" }}>
+      <main className="flex min-h-screen flex-1 flex-col md:h-screen md:overflow-hidden">
+        <PageHeader onMenuClick={() => setIsSidebarOpen(true)} />
+
+        <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 md:px-8 md:py-8">
           {children}
         </div>
       </main>
