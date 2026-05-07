@@ -39,12 +39,11 @@ const COLUMNS = [
 
 interface Props {
   data: AuditLogRow[];
-  onView: (row: AuditLogRow) => void;
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────────
 
-export default function AuditLogTable({ data, onView }: Props) {
+export default function AuditLogTable({ data }: Props) {
   return (
     <div style={{
       background: "#fff",
@@ -67,7 +66,8 @@ export default function AuditLogTable({ data, onView }: Props) {
       </div>
 
       {/* Table */}
-      <table style={{ width: "100%", fontSize: 12 }}>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", minWidth: 860, fontSize: 12 }}>
         <thead>
             <tr style={{ background: C.cream }}>
                 {COLUMNS.map((col) => (
@@ -121,7 +121,8 @@ export default function AuditLogTable({ data, onView }: Props) {
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }

@@ -43,10 +43,13 @@ export default async function UsersPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6 font-sans">
+    <div className="flex flex-col gap-4 px-1 py-1 font-[family-name:'DM_Sans',sans-serif] sm:px-2 sm:py-2">
       <PageTabs
         usersContent={
-          <UsersFilterTableWrapper liveUsers={liveUsers} liveApplications={[]} />
+          <UsersFilterTableWrapper
+            liveUsers={liveUsers}
+            liveApplications={[]}
+          />
         }
         applicationsContent={
           <ApplicationTabs liveApplications={liveApplications} />

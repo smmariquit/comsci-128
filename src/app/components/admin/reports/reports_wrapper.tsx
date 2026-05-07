@@ -12,8 +12,8 @@ import {
 import ReportDetailModal from "@/app/components/admin/reports/reportdetailmodal";
 import type { DetailRow } from "@/app/components/admin/reports/reportdetailmodal";
 import {
-  MOCK_OCCUPANCY, MOCK_APPLICATIONS, MOCK_REVENUE, MOCK_ACCOMMODATION,
-  ALL_HOUSING, formatPeso,
+  MOCK_REVENUE,
+  formatPeso,
 } from "@/app/components/admin/reports/reportsmock";
 import type {
   OccupancyReportRow, ApplicationReportRow,
@@ -271,37 +271,49 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
     );
   }
 
-  // ── Export stubs ────────────────────────────────────────────────────────────
-  function handleExportCSV() { console.log("Export CSV:", activeTab); /* TODO */ }
-  function handleExportPDF() { console.log("Export PDF:", activeTab); /* TODO */ }
-
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{
-      display: "flex", flexDirection: "column", gap: 16,
-      padding: "24px", fontFamily: "'DM Sans', sans-serif",
-    }}>
-    
-
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+      className="px-1 py-1 sm:px-2 sm:py-2"
+    >
       {/* Tab bar */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-        <div style={{
-          display: "flex", gap: 2,
-          background: C.cream, borderRadius: 10,
-          padding: 4, width: "fit-content",
-        }}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div
+          className="overflow-x-auto"
+          style={{
+            display: "flex",
+            gap: 2,
+            background: C.cream,
+            borderRadius: 10,
+            padding: 4,
+            width: "max-content",
+          }}
+        >
           {TABS.map((tab) => (
             <button
+              type="button"
               key={tab.key}
               onClick={() => switchTab(tab.key)}
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 12, fontWeight: 600,
-                padding: "7px 16px", borderRadius: 7,
-                border: "none", cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 600,
+                padding: "7px 16px",
+                borderRadius: 7,
+                border: "none",
+                cursor: "pointer",
                 background: activeTab === tab.key ? "#fff" : "transparent",
                 color: activeTab === tab.key ? C.navy : C.teal,
-                boxShadow: activeTab === tab.key ? "0 1px 4px rgba(28,38,50,0.10)" : "none",
+                boxShadow:
+                  activeTab === tab.key
+                    ? "0 1px 4px rgba(28,38,50,0.10)"
+                    : "none",
                 transition: "all 0.15s",
                 whiteSpace: "nowrap",
               }}
@@ -312,6 +324,7 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
         </div>
 
         <button
+          type="button"
           onClick={handleExportCsv}
           disabled={
             (activeTab === "occupancy" && filteredOccupancy.length === 0) ||
@@ -367,28 +380,44 @@ export default function ReportsWrapper({ liveOccupancy, liveApplications, liveAc
 
       {/* Tables */}
       {activeTab === "occupancy" && (
-        <OccupancyReportTable
-          data={filteredOccupancy}
-          onView={(row: OccupancyReportRow) => setDetail({ kind:"occupancy", data:row })}
-        />
+        <div className="w-full overflow-x-auto">
+          <OccupancyReportTable
+            data={filteredOccupancy}
+            onView={(row: OccupancyReportRow) =>
+              setDetail({ kind: "occupancy", data: row })
+            }
+          />
+        </div>
       )}
       {activeTab === "application" && (
-        <ApplicationReportTable
-          data={filteredApplications}
-          onView={(row: ApplicationReportRow) => setDetail({ kind:"application", data:row })}
-        />
+        <div className="w-full overflow-x-auto">
+          <ApplicationReportTable
+            data={filteredApplications}
+            onView={(row: ApplicationReportRow) =>
+              setDetail({ kind: "application", data: row })
+            }
+          />
+        </div>
       )}
       {activeTab === "revenue" && (
-        <RevenueReportTable
-          data={filteredRevenue}
-          onView={(row: RevenueReportRow) => setDetail({ kind:"revenue", data:row })}
-        />
+        <div className="w-full overflow-x-auto">
+          <RevenueReportTable
+            data={filteredRevenue}
+            onView={(row: RevenueReportRow) =>
+              setDetail({ kind: "revenue", data: row })
+            }
+          />
+        </div>
       )}
       {activeTab === "accommodation" && (
-        <AccommodationHistoryTable
-          data={filteredAccommodation}
-          onView={(row: AccommodationHistoryRow) => setDetail({ kind:"accommodation", data:row })}
-        />
+        <div className="w-full overflow-x-auto">
+          <AccommodationHistoryTable
+            data={filteredAccommodation}
+            onView={(row: AccommodationHistoryRow) =>
+              setDetail({ kind: "accommodation", data: row })
+            }
+          />
+        </div>
       )}
 
       {/* Detail modal */}
