@@ -6,17 +6,16 @@ import AuditLogFilters from "@/components/admin/audits/filters";
 import AuditLogTable from "@/components/admin/audits/auditlogtable";
 import { MOCK_AUDIT_LOGS } from "@/components/admin/audits/audit";
 import StateMessage from "@/app/components/ui/state-message";
+import type { ActionFilter } from "@/components/admin/audits/filters";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
-import Link from "next/link";
-
 export default function Page() {
   // ── State ───────────────────────────────────────────────────────────────────
 
   const [search, setSearch] = useState("");
   const [actionType, setActionType] = useState("All");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom] = useState("");
+  const [dateTo] = useState("");
 
   // ── Filtering Logic ─────────────────────────────────────────────────────────
 
@@ -60,11 +59,6 @@ export default function Page() {
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
-  const handleView = (row: any) => {
-    console.log("VIEW LOG:", row);
-    // later → open modal
-  };
-
   // ── UI ──────────────────────────────────────────────────────────────────────
 
   if (!Array.isArray(MOCK_AUDIT_LOGS)) {
@@ -80,18 +74,9 @@ export default function Page() {
   const isEmpty = filteredData.length === 0;
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "24px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 16,
-      }}
-    >
-
+    <main className="flex min-h-full flex-col gap-4 px-1 py-1 sm:px-2 sm:py-2">
       {/* ── Stat Cards ───────────────────────────────────────────────────────── */}
-      <div style={{ display: "flex", gap: 10 }}>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
         <AuditStatCard type="total" value={stats.total} />
         <AuditStatCard type="login" value={stats.login} />
         <AuditStatCard type="approval" value={stats.approval} />
@@ -102,9 +87,9 @@ export default function Page() {
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
       <AuditLogFilters
         search={search}
-        action={actionType as any}
+        action={actionType as ActionFilter}
         onSearch={setSearch}
-        onAction={setActionType}
+        onAction={(value) => setActionType(value)}
       />
 
       {/* ── Table ───────────────────────────────────────────────────────────── */}
@@ -114,10 +99,7 @@ export default function Page() {
           description="Try adjusting the filters or check back later."
         />
       ) : (
-        <AuditLogTable
-          data={filteredData}
-          onView={handleView}
-        />
+        <AuditLogTable data={filteredData} />
       )}
     </main>
   );
