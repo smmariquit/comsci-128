@@ -26,6 +26,7 @@ export default function Page() {
   // ── Raw Data ──────────────────────────────────────────
   const [rooms, setRooms] = useState<RoomRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [adminId, setAdminId] = useState<number>(0);
 
   // ── Filter State ──────────────────────────────────────
   const [search, setSearch] = useState("");
@@ -223,6 +224,12 @@ export default function Page() {
     }
   };
 
+  const handleFetchEligibleStudents = async () => {
+    if (!selectedRoom || !adminId) return [];
+
+    return roomService.getEligibleStudents(selectedRoom.room_type, adminId);
+  };
+
   // ── Fetch Data ────────────────────────────────────────
   useEffect(() => {
     async function loadLiveData() {
@@ -236,6 +243,11 @@ export default function Page() {
       }
     }
     loadLiveData();
+  }, []);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setAdminId(match ? Number(decodeURIComponent(match[1])) : 0);
   }, []);
 
   if (isLoading)
@@ -363,6 +375,7 @@ export default function Page() {
             setSelectedRoom(null);
           }}
           onAssign={(studentId) => handleAssignSubmit(studentId)}
+          onFetchEligibleStudents={handleFetchEligibleStudents}
           onUnassign={(studentId) => handleUnassign(studentId)}
         />
       )}
