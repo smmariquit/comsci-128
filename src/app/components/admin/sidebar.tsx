@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, ChevronRight, Home, DoorOpen, Users, Receipt, FileText, ClipboardList, X } from "lucide-react";
+import { LayoutGrid, ChevronRight } from "lucide-react";
 import Logo from "@/app/components/Logo";
 
 const navItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutGrid },
-  { label: "Properties and Dorms", href: "/admin/accommodations", icon: Home },
-  { label: "Rooms", href: "/admin/rooms", icon: DoorOpen },
-  { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Billings", href: "/admin/billing", icon: Receipt },
-  { label: "Reports", href: "/admin/reports", icon: FileText },
-  { label: "Audit Logs", href: "/admin/logs", icon: ClipboardList },
+  { label: "Dashboard", href: "/admin" },
+  { label: "Properties and Dorms", href: "/admin/accommodations" },
+  { label: "Rooms", href: "/admin/rooms" },
+  { label: "Users", href: "/admin/users" },
+  { label: "Billings", href: "/admin/billing" },
+  { label: "Reports", href: "/admin/reports" },
+  { label: "Audit Logs", href: "/admin/logs" },
 ];
 
 interface SidebarProps {
@@ -70,24 +70,6 @@ export default function Sidebar({
           position: "relative",
         }}
       >
-        {onNavigate && (
-          <button
-            onClick={onNavigate}
-            style={{
-              position: "absolute",
-              top: 16,
-              right: 16,
-              background: "transparent",
-              border: "none",
-              color: "#EDE9DE",
-              cursor: "pointer",
-              zIndex: 10,
-            }}
-            aria-label="Close sidebar"
-          >
-            <X size={20} />
-          </button>
-        )}
         {/* Orange icon box */}
         <div
           style={{
@@ -119,7 +101,6 @@ export default function Sidebar({
             fontWeight: 600,
             lineHeight: "16.8px",
             letterSpacing: 0.1,
-            whiteSpace: "nowrap",
           }}
         >
           UPLB CASA
@@ -178,7 +159,7 @@ export default function Sidebar({
                   display: "flex",
                 }}
               >
-                <item.icon
+                <LayoutGrid
                   size={17}
                   color={isActive ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)"}
                 />
