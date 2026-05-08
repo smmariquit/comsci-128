@@ -4,8 +4,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/app/lib/supabase";
 
+const STEP_ENTER_EMAIL = 1;
+const STEP_CHECK_EMAIL = 2;
+const STEP_CHANGE_PASSWORD = 3;
+
 export default function ForgotPasswordContent() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(STEP_ENTER_EMAIL);
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [status, setStatus] = useState("");
@@ -23,7 +27,7 @@ export default function ForgotPasswordContent() {
       if (error) {
         setError("Reset Link is Invalid or Expired.");
       } else {
-        setStep(3);
+        setStep(STEP_CHANGE_PASSWORD);
         router.replace("/forgot-password");
       }
     });
@@ -45,7 +49,7 @@ export default function ForgotPasswordContent() {
     if (!res.ok) {
       setError(data.error ?? "Something went wrong.");
     } else {
-      setStep(2);
+      setStep(STEP_CHECK_EMAIL);
       setStatus("Check your email for a reset link.");
     }
   }
@@ -81,7 +85,7 @@ export default function ForgotPasswordContent() {
         </h2>
         {status && <div className="text-green-400 text-center">{status}</div>}
         {error && <div className="text-red-400 text-center">{error}</div>}
-        {step === 1 && (
+        {step === STEP_ENTER_EMAIL && (
           <>
             <input
               className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
@@ -99,7 +103,7 @@ export default function ForgotPasswordContent() {
             </button>
           </>
         )}
-        {step === 3 && (
+        {step === STEP_CHANGE_PASSWORD && (
           <>
             <input
               className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"

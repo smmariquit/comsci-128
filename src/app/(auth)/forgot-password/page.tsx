@@ -3,7 +3,7 @@ import ForgotPasswordContent from "./_components/forgot-password-content";
 
 export default function ForgotPasswordPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="w-full min-h-screen bg-gray-950" />}>
       <ForgotPasswordContent />
     </Suspense>
   );
