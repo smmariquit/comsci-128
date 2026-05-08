@@ -103,6 +103,11 @@ export default function ForgotPasswordContent() {
             </button>
           </>
         )}
+        {step === STEP_CHECK_EMAIL && (
+          <div className="text-center text-stone-200">
+            We sent a password reset link to your email address.
+          </div>
+        )}
         {step === STEP_CHANGE_PASSWORD && (
           <>
             <input
