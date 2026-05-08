@@ -1,10 +1,9 @@
-
 import type { Metadata } from "next";
-import type { ComponentProps } from "react";
 import { redirect } from "next/navigation";
-import { applicationService } from "@/app/lib/services/application-service";
+import type { ComponentProps } from "react";
 import StateMessage from "@/app/components/ui/state-message";
 import { getManagerAccountNumber } from "@/app/lib/auth";
+import { applicationService } from "@/app/lib/services/application-service";
 import ApplicationsClient from "./_components/ApplicationsClient";
 
 export const metadata: Metadata = {

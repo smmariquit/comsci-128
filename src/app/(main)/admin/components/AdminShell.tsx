@@ -14,11 +14,7 @@ export default function AdminShell({
   return (
     <div className="min-h-screen bg-[#eef0f4] md:flex">
       <div className="hidden md:block md:h-screen md:shrink-0">
-        <Sidebar
-          userInitials="JD"
-          userName="John Doe"
-          userRole="House Admin"
-        />
+        <Sidebar userInitials="JD" userName="John Doe" userRole="House Admin" />
       </div>
 
       {isSidebarOpen && (

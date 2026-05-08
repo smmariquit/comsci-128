@@ -1,9 +1,9 @@
 "use client";
 
-import type { ManagerProfile } from "@/models/manager";
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import StateMessage from "@/app/components/ui/state-message";
+import type { ManagerProfile } from "@/models/manager";
 
 interface ProfileInputProps {
   label: string;
@@ -19,9 +19,10 @@ export default function AdminProfilePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("Personal Information");
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [saveStatus, setSaveStatus] = useState<
-    { type: "success" | "error"; text: string } | null
-  >(null);
+  const [saveStatus, setSaveStatus] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     async function fetchAdmin() {
@@ -51,8 +52,7 @@ export default function AdminProfilePage() {
         ...profile,
         manager: {
           ...profile.manager,
-          manager_payment_details:
-            profile.manager.manager_payment_details?.[0],
+          manager_payment_details: profile.manager.manager_payment_details?.[0],
         },
       };
 
@@ -193,8 +193,9 @@ export default function AdminProfilePage() {
                           ...profile,
                           manager: {
                             ...profile.manager,
-                            manager_type:
-                              val as "Housing Administrator" | "Landlord",
+                            manager_type: val as
+                              | "Housing Administrator"
+                              | "Landlord",
                           },
                         }
                       : profile,
@@ -203,7 +204,9 @@ export default function AdminProfilePage() {
               />
               <ProfileInput
                 label="Bank Type"
-                value={profile?.manager?.manager_payment_details?.[0]?.bank_type}
+                value={
+                  profile?.manager?.manager_payment_details?.[0]?.bank_type
+                }
                 disabled
               />
               <ProfileInput

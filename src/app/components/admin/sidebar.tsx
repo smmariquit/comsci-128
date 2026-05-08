@@ -1,8 +1,8 @@
 "use client";
 
+import { ChevronRight, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, ChevronRight } from "lucide-react";
 import Logo from "@/app/components/Logo";
 
 const navItems = [

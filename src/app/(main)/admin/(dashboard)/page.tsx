@@ -7,15 +7,14 @@ export const metadata: Metadata = {
     "Overview of occupancy, users, rooms, billings, and reports for managed properties",
 };
 
+import { cookies } from "next/headers";
 import OccupancyChart from "@/app/components/admin/dashboard/occupancy_chart";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 import RecentAuditLog from "@/app/components/admin/dashboard/recent_audit";
 import StatCard from "@/app/components/admin/dashboard/stat_card";
 import StudentHousingStatus from "@/app/components/admin/dashboard/student_housing_status";
 import StateMessage from "@/app/components/ui/state-message";
-
 import { getHousingAdmingDashboardData } from "@/app/lib/data/dashboard-data";
-import { cookies } from "next/headers";
 
 const recentAuditData = [
   {
@@ -67,7 +66,7 @@ export default async function Page() {
   let liveData: Awaited<ReturnType<typeof getHousingAdmingDashboardData>>;
   try {
     liveData = await getHousingAdmingDashboardData(adminId);
-  } catch (error) {
+  } catch (_error) {
     return (
       <StateMessage
         variant="error"
