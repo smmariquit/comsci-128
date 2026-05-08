@@ -29,9 +29,7 @@ export default function ManageLayout({
 
       {/* FOOTER */}
       <footer className="bg-[#1C2632] text-[#EDE9DE] px-6 py-10 text-sm">
-        <div className="max-w-7xl mx-auto">
-          © 2026 CMSC 128 Project
-        </div>
+        <div className="max-w-7xl mx-auto">© 2026 CMSC 128 Project</div>
       </footer>
     </div>
   );
