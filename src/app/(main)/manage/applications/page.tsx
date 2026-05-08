@@ -1,28 +1,38 @@
 
 import type { Metadata } from "next";
+import type { ComponentProps } from "react";
+import { redirect } from "next/navigation";
 import { applicationService } from "@/app/lib/services/application-service";
 import StateMessage from "@/app/components/ui/state-message";
 import { getManagerAccountNumber } from "@/app/lib/auth";
-import { redirect } from "next/navigation";
+import ApplicationsClient from "./_components/ApplicationsClient";
 
 export const metadata: Metadata = {
   title: "Applications",
   description: "Review and process housing applications submitted by students.",
 };
-import ApplicationsClient from "./_components/ApplicationsClient";
 
+type ApplicationsClientApplications = ComponentProps<
+  typeof ApplicationsClient
+>["applications"];
 
 export default async function ApplicationsPage() {
   const managerAccountNumber = await getManagerAccountNumber();
 
-  if(!managerAccountNumber) {
+  if (!managerAccountNumber) {
     redirect("/unauthorized");
   }
 
-  let applications: any = [];
+  // Supabase-generated types model the joined `student.user` relations as arrays,
+  // but the runtime data (and the rest of the app, e.g. dashboard-data) treats
+  // them as singular objects. Cast at the boundary instead of duplicating the
+  // permissive shape inside ApplicationsClient.
+  let applications: ApplicationsClientApplications;
   try {
-    applications = await applicationService.getApplicationsByLandlord(managerAccountNumber);
-  } catch (error) {
+    applications = (await applicationService.getApplicationsByLandlord(
+      managerAccountNumber,
+    )) as unknown as ApplicationsClientApplications;
+  } catch (_error) {
     return (
       <StateMessage
         variant="error"
@@ -40,5 +50,4 @@ export default async function ApplicationsPage() {
       <ApplicationsClient applications={applications} />
     </div>
   );
-
 }
