@@ -73,12 +73,24 @@ export default function ForgotPasswordContent() {
     }
   }
 
+  function handleFormSubmit(e: React.FormEvent) {
+    if (step === STEP_ENTER_EMAIL) {
+      void handleEmailSubmit(e);
+      return;
+    }
+    if (step === STEP_CHANGE_PASSWORD) {
+      void handlePasswordSubmit(e);
+      return;
+    }
+    e.preventDefault();
+  }
+
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
       <form
         className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
         autoComplete="off"
-        onSubmit={step === STEP_ENTER_EMAIL ? handleEmailSubmit : handlePasswordSubmit}
+        onSubmit={handleFormSubmit}
       >
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
           Forgot Password
