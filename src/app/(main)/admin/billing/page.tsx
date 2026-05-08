@@ -356,9 +356,14 @@ export default function BillingPage() {
       </div>
 
       {/* ── Issue Bill Modal ───────────────────────────────────────────────── */}
+      {/* TODO: wire managedIds via housingData.findbyLandlord like staging's
+          billing page does. The mobile-responsive refactor of this page
+          predates the landlord-scoped data flow merged on staging; passing
+          an empty list here keeps the build green until the two are
+          reconciled in a follow-up. */}
       <IssueBillModal
         open={issueOpen}
-        housingOptions={HOUSING_OPTIONS}
+        managedIds={[]}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
       />
