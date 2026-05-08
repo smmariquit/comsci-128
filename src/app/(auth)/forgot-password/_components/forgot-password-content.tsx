@@ -78,7 +78,7 @@ export default function ForgotPasswordContent() {
       <form
         className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
         autoComplete="off"
-        onSubmit={step === 1 ? handleEmailSubmit : handlePasswordSubmit}
+        onSubmit={step === STEP_ENTER_EMAIL ? handleEmailSubmit : handlePasswordSubmit}
       >
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
           Forgot Password
