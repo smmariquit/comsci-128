@@ -1,10 +1,12 @@
 "use client";
 
+import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 interface PageHeaderProps {
   title?: string;
   date?: string;
+  onMenuClick?: () => void;
 }
 
 const routeTitleMap: Record<string, string> = {
@@ -26,13 +28,19 @@ function toTitleCaseFromPath(pathname: string) {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-export default function PageHeader({ title, date }: PageHeaderProps) {
+export default function PageHeader({
+  title,
+  date,
+  onMenuClick,
+}: PageHeaderProps) {
   const pathname = usePathname();
 
   const resolvedTitle =
     title ??
     routeTitleMap[pathname] ??
-    (pathname.startsWith("/admin/") ? toTitleCaseFromPath(pathname) : "Dashboard");
+    (pathname.startsWith("/admin/")
+      ? toTitleCaseFromPath(pathname)
+      : "Dashboard");
 
   const formattedDate =
     date ??
@@ -44,25 +52,21 @@ export default function PageHeader({ title, date }: PageHeaderProps) {
     });
 
   return (
-    <div
-      style={{
-        padding: "28px 32px 20px",
-        borderBottom: "1px solid #e2e5ea",
-        fontFamily: "'DM Sans', sans-serif",
-      }}
-    >
-      <h1
-        style={{
-          fontSize: 26,
-          fontWeight: 700,
-          color: "#1C2632",
-          margin: "0 0 4px",
-          lineHeight: 1.2,
-        }}
-      >
-        {resolvedTitle}
-      </h1>
-      <p style={{ fontSize: 11, color: "#9aa3b0", margin: 0, letterSpacing: "0.02em" }}>
+    <div className="border-b border-[#e2e5ea] px-4 pb-4 pt-4 sm:px-6 sm:pb-5 sm:pt-6 md:px-8 md:pt-7">
+      <div className="mb-1 flex items-center gap-3">
+        <button
+          type="button"
+          aria-label="Open sidebar"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#d4d9e2] text-[#1C2632] md:hidden"
+          onClick={onMenuClick}
+        >
+          <Menu size={18} />
+        </button>
+        <h1 className="m-0 text-[22px] font-bold leading-tight text-[#1C2632] sm:text-[24px] md:text-[26px]">
+          {resolvedTitle}
+        </h1>
+      </div>
+      <p className="m-0 text-[11px] tracking-[0.02em] text-[#9aa3b0]">
         {formattedDate}
       </p>
     </div>
