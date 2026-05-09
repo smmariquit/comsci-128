@@ -46,7 +46,8 @@ const getCurrentTenantsByRoomId = async (roomId: number) => {
         user:user!account_number (
           first_name,
           middle_name,
-          last_name
+          last_name,
+          profile_picture
         )
       )
     `)
@@ -67,7 +68,7 @@ const createTenantRecord = async(
 
   const { data, error } = await supabase
     .from("student_accommodation_history")
-    .insert({
+    .upsert({
       account_number: accountNumber,
       room_id: roomId,
       movein_date: today,
@@ -80,8 +81,27 @@ const createTenantRecord = async(
   return data
 }
 
+const getCurrentTenantsByHousingAdmin = async (housingIds: number[] = []) => {
+
+  const { data, error } = await supabase
+    .from("student_accommodation_history")
+    .select(`
+        account_number,
+        room!inner (
+          housing_id
+        )
+      `)
+    .in("room.housing_id", housingIds)
+  
+    if (error) throw new Error ("Failed to getCurrentTenantsByHousingAdmin: " + error.message);
+
+    const uniqueStudentNumbers = new Set(data?.map(t => t.account_number));
+    return Array.from(uniqueStudentNumbers);
+}
+
 export const accommodationHistoryData = {
   getCurrentTenantsByHousingId,
   getCurrentTenantsByRoomId,
-  createTenantRecord
+  createTenantRecord,
+  getCurrentTenantsByHousingAdmin,
 }

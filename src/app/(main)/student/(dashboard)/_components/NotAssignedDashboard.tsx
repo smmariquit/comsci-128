@@ -1,12 +1,12 @@
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CircleAlert, CircleCheckBig } from "lucide-react";
 
 export default function NotAssignedDashboard(userName: String, dashboardData: Object) {
   const userHousingDetails = dashboardData as any;
   
   const hStyle = "justify-center text-white text-lg font-semibold font-[family-name:var(--font-DM_Sans)]";
   const tStyle = "text-black text-lg font-[family-name:var(--font-DM_Sans)]";
-  const checkIcon = <CheckCircle2 size={96} className="text-green-700" strokeWidth={1.5} />;
-  const crossIcon = <AlertCircle size={96} className="text-red-600" strokeWidth={1.5} />;
+  const checkIcon = <CircleCheckBig className="w-24 h-24 text-green-700" strokeWidth={2.2} />;
+  const crossIcon = <CircleAlert className="w-24 h-24 text-red-600" strokeWidth={2.2} />;
 
   function getApplicationStepStatus(stepIndex: number) {
     const stepStatus = userHousingDetails.steps[stepIndex].isDone
@@ -35,7 +35,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
         <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
           <div className={hStyle}>Application Status</div>
         </div>
-        <div className="self-stretch flex-1 px-4 md:px-24 py-6 md:py-4 grid grid-cols-2 lg:grid-cols-4 gap-6 items-center overflow-hidden">
+        <div className="self-stretch flex-1 px-4 md:px-24 py-6 md:py-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center overflow-hidden">
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(0)}
             <div className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}>Dorm<br />Chosen</div>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 // Import from the new Service Layer location
-import { getCompleteDashboardData } from "@/services/student-dashboard.service";
+import { getCompleteDashboardData } from "@/app/lib/services/student-dashboard-service";
 
 export async function GET(
     request: NextRequest,

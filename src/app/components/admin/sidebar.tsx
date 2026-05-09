@@ -1,39 +1,41 @@
 "use client";
 
+import { ChevronRight, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Home, ChevronRight } from "lucide-react";
 import Logo from "@/app/components/Logo";
 
-
 const navItems = [
-  { label: "Dashboard",            href: "/admin" },
+  { label: "Dashboard", href: "/admin" },
   { label: "Properties and Dorms", href: "/admin/accommodations" },
-  { label: "Rooms",                href: "/admin/rooms" },
-  { label: "Users",                href: "/admin/users" },
-  { label: "Billings",             href: "/admin/billing" },
-  { label: "Reports",              href: "/admin/reports" },
-  { label: "Audit Logs",           href: "/admin/logs" },
+  { label: "Rooms", href: "/admin/rooms" },
+  { label: "Users", href: "/admin/users" },
+  { label: "Billings", href: "/admin/billing" },
+  { label: "Reports", href: "/admin/reports" },
+  { label: "Audit Logs", href: "/admin/logs" },
 ];
 
 interface SidebarProps {
   userInitials?: string;
   userName?: string;
   userRole?: string;
+  onNavigate?: () => void;
 }
 
 export default function Sidebar({
   userInitials = "LF",
   userName = "Luthelle Fernandez",
   userRole = "System Admin",
+  onNavigate,
 }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside
       style={{
-        width: 316,
-        minWidth: 316,
+        width: "100%",
+        minWidth: 0,
+        maxWidth: 316,
         height: "100vh",
         background: "#1C2632",
         display: "flex",
@@ -53,7 +55,7 @@ export default function Sidebar({
           top: -60,
           borderRadius: "50%",
           background: "#2C3D54",
-          opacity: 0.40,
+          opacity: 0.4,
           pointerEvents: "none",
         }}
       />
@@ -61,7 +63,7 @@ export default function Sidebar({
       {/* ── Logo / Header ── */}
       <div
         style={{
-          width: 316,
+          width: "100%",
           height: 132,
           borderBottom: "1px solid rgba(255,255,255,0.07)",
           flexShrink: 0,
@@ -98,7 +100,7 @@ export default function Sidebar({
             fontSize: 24,
             fontWeight: 600,
             lineHeight: "16.8px",
-            letterSpacing: 0.10,
+            letterSpacing: 0.1,
           }}
         >
           UPLB CASA
@@ -122,8 +124,8 @@ export default function Sidebar({
       {/* ── Navigation ── */}
       <nav
         style={{
-          width: 274,
-          marginLeft: 24,
+          width: "calc(100% - 42px)",
+          marginLeft: 21,
           marginTop: 27,
           display: "flex",
           flexDirection: "column",
@@ -136,8 +138,9 @@ export default function Sidebar({
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               style={{
-                width: 274,
+                width: "100%",
                 height: 47,
                 borderRadius: 9,
                 display: "flex",
@@ -156,9 +159,9 @@ export default function Sidebar({
                   display: "flex",
                 }}
               >
-                <LayoutGrid 
-                  size={17} 
-                  color={isActive ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)"} 
+                <LayoutGrid
+                  size={17}
+                  color={isActive ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)"}
                 />
               </span>
 
@@ -182,7 +185,7 @@ export default function Sidebar({
       {/* ── User footer ── */}
       <div
         style={{
-          width: 316,
+          width: "100%",
           height: 84,
           borderTop: "1px solid rgba(255,255,255,0.07)",
           flexShrink: 0,

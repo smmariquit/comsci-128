@@ -1,4 +1,5 @@
 import { C } from "@/lib/palette";
+import { useState } from "react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -6,6 +7,7 @@ export type OccupancyStatus = "Empty" | "Partially Occupied" | "Fully Occupied" 
 export type RoomType = "Co-ed" | "Women Only" | "Men Only" 
 
 export interface RoomRow {
+  housing_id: number;
   room_id: number;
   room_code: string;
   housing_name: string;
@@ -87,17 +89,25 @@ function ActionBtn({ label, onClick, variant = "ghost", disabled }: {
   variant?: BtnVariant;
   disabled?: boolean;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       disabled={disabled}
       style={{
         ...BTN_STYLE[variant],
+        fontFamily: "'DM Sans', sans-serif",
         fontSize: 11,
         padding: "4px 10px",
         borderRadius: 6,
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.4 : 1,
+        transform: hovered && !disabled ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered && !disabled ? "0 6px 14px rgba(28,38,50,0.08)" : "none",
+        transition: "transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease",
       }}
     >
       {label}
@@ -138,6 +148,8 @@ export default function RoomTable({
   onOverrideAssign,
   onToggleOccupancy,
 }: Props) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
   return (
     <div style={{
       background: "#fff",
@@ -186,13 +198,27 @@ export default function RoomTable({
           </thead>
 
           <tbody>
-            {data.map((row, i) => {
+            {data.length === 0 ? (
+              <tr>
+                <td colSpan={COLUMNS.length} style={{ padding: "32px 14px", textAlign: "center", color: C.teal, opacity: 0.55, fontSize: 12, fontFamily: "'DM Sans', sans-serif" }}>
+                  No rooms found.
+                </td>
+              </tr>
+            ) : (
+              data.map((row, i) => {
               const isOccupied = row.occupancy_status === "Fully Occupied";
 
               return (
-                <tr key={row.room_id} style={{
-                  borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
-                }}>
+                <tr
+                  key={row.room_id}
+                  onMouseEnter={() => setHoveredRow(i)}
+                  onMouseLeave={() => setHoveredRow(null)}
+                  style={{
+                    borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
+                    background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent",
+                    transition: "background 0.15s ease",
+                  }}
+                >
                   <td style={{ padding: "8px 14px", fontFamily: "monospace", color: C.navy, fontWeight: 500 }}>
                     {row.room_code}
                   </td>
@@ -247,7 +273,8 @@ export default function RoomTable({
                   </td>
                 </tr>
               );
-            })}
+              })
+            )}
           </tbody>
         </table>
       </div>

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import StudentNavBar from "../../_components/StudentNavBar";
 import { StudentProfile } from "@/app/lib/models/student";
+import { LogOut } from "lucide-react";
+import LogoutModal from "../../../../components/LogoutModal";
+import StateMessage from "@/app/components/ui/state-message";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
@@ -14,19 +16,33 @@ type StudentPayload = Omit<StudentProfile, "student"> & {
 };
 
 export default function StudentProfilePage() {
-	const { id } = useParams();
+	const [accountNumber, setAccountNumber] = useState<string | null>(null);
 	const [student, setStudent] = useState<StudentPayload | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [activeTab, setActiveTab] = useState("Personal Information");
+	const [loadError, setLoadError] = useState<string | null>(null);
 	const [saveStatus, setSaveStatus] = useState<{
 		message: string;
 		type: "success" | "error" | null;
 	}>({ message: "", type: null });
 
 	useEffect(() => {
+		// read account_number from cookies on mount
+		const getCookie = (name: string) => {
+			const match = document.cookie.split("; ").find((c) => c.startsWith(name + "="));
+			return match ? decodeURIComponent(match.split("=")[1]) : null;
+		};
+		const acc = getCookie("account_number");
+		setAccountNumber(acc);
+	}, []);
+
+	useEffect(() => {
+		if (!accountNumber) return;
+
 		async function fetchProfile() {
 			try {
-				const res = await fetch(`/api/student/profile/${id}`);
+				const res = await fetch(`/api/student/profile/${accountNumber}`);
 				const data = await res.json();
 
 				const studentObj = Array.isArray(data.student)
@@ -49,17 +65,18 @@ export default function StudentProfilePage() {
 				} as StudentPayload);
 			} catch (err) {
 				console.error("Failed to load profile", err);
+				setLoadError("Unable to load the student profile.");
 			} finally {
 				setLoading(false);
 			}
 		}
 		fetchProfile();
-	}, [id]);
+	}, [accountNumber]);
 
 	const handleSave = async () => {
 		setSaveStatus({ message: "Saving...", type: null });
 		try {
-			const res = await fetch(`/api/student/profile/${id}`, {
+			const res = await fetch(`/api/student/profile/${accountNumber}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 
@@ -131,17 +148,58 @@ export default function StudentProfilePage() {
 
 	if (loading)
 		return (
-			<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20">
-				<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
+			<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+				<div className="flex flex-col items-center gap-4 bg-white/90 p-8 rounded-2xl shadow-xl">
+					<svg viewBox="0 0 48 48" fill="none" className="w-12 h-12">
+						<path d="M24 6 L42 22 L6 22 Z" stroke="#C9642A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
+							style={{ strokeDasharray: 90, strokeDashoffset: 90, animation: "prf-roof 1s ease-out forwards" }} />
+						<path d="M10 22 L10 40 L38 40 L38 22" stroke="#567375" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
+							style={{ strokeDasharray: 90, strokeDashoffset: 90, animation: "prf-walls 0.8s ease-out 0.3s forwards" }} />
+						<rect x="19" y="28" width="10" height="12" rx="1" stroke="#1C2632" strokeWidth="1.5" fill="none"
+							style={{ strokeDasharray: 48, strokeDashoffset: 48, animation: "prf-door 0.6s ease-out 0.7s forwards" }} />
+						<rect x="12" y="27" width="5" height="5" rx="0.5" fill="#E3AF64"
+							style={{ opacity: 0, animation: "prf-glow 1.6s ease-in-out 1.2s infinite" }} />
+						<rect x="31" y="27" width="5" height="5" rx="0.5" fill="#E3AF64"
+							style={{ opacity: 0, animation: "prf-glow 1.6s ease-in-out 1.3s infinite" }} />
+					</svg>
+					<span className="text-sm font-semibold text-[#567375] tracking-wide"
+						style={{ opacity: 0, animation: "prf-show 0.5s ease-out 0.8s forwards" }}>Loading profile…</span>
+					<style>{`
+						@keyframes prf-roof { to { stroke-dashoffset: 0; } }
+						@keyframes prf-walls { to { stroke-dashoffset: 0; } }
+						@keyframes prf-door { to { stroke-dashoffset: 0; } }
+						@keyframes prf-glow { 0%,100% { opacity: 0.15; } 50% { opacity: 0.45; } }
+						@keyframes prf-show { to { opacity: 1; } }
+					`}</style>
+				</div>
 			</div>
 		);
+
+	if (loadError) {
+		return (
+			<StateMessage
+				variant="error"
+				title="Unable to load profile"
+				description={loadError}
+			/>
+		);
+	}
+
+	if (!student) {
+		return (
+			<StateMessage
+				title="No profile data yet"
+				description="We could not find your student details."
+			/>
+		);
+	}
 
 	const studentDetails = student?.student;
 	const studentAcademic = studentDetails?.student_academic;
 
 	return (
 		<div className="flex flex-col min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
-			<StudentNavBar path="Student Profile" userId={Number(id)} />
+			<StudentNavBar path="Student Profile" userId={Number(accountNumber)} />
 
 			{/* Main Content*/}
 			<div className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner">
@@ -189,6 +247,14 @@ export default function StudentProfilePage() {
 						className="w-full bg-[#C9642A] text-white py-4 rounded-xl font-bold text-lg hover:brightness-110 transition-all shadow-lg active:scale-[0.98] mb-4"
 					>
 						Save changes
+					</button>
+
+					<button
+						onClick={() => setShowLogoutModal(true)}
+						className="w-full flex items-center justify-center gap-3 border-2 border-[#C9642A] text-[#C9642A] py-4 rounded-xl font-bold text-lg hover:bg-[#C9642A] hover:text-white transition-all shadow-sm active:scale-[0.98]"
+					>
+						<LogOut size={20} />
+						Logout
 					</button>
 
 					{saveStatus.message && (
@@ -313,6 +379,16 @@ export default function StudentProfilePage() {
 					)}
 				</div>
 			</div>
+
+		<LogoutModal
+			isOpen={showLogoutModal}
+			onClose={() => setShowLogoutModal(false)}
+			onConfirm={() => {
+				setShowLogoutModal(false);
+				console.log("Confirmed logout"); // place logout backend code here
+			}}
+		/>
+
 		</div>
 	);
 }
@@ -345,13 +421,7 @@ function ProfileSelect({ label, value, options, onChange }: any) {
 			<select
 				value={value || ""}
 				onChange={(e) => onChange(e.target.value)}
-				className="w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] font-[family-name:var(--font-geist-mono)] appearance-none cursor-pointer"
-				style={{
-					backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C2632' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-					backgroundRepeat: "no-repeat",
-					backgroundPosition: "right 1rem center",
-					backgroundSize: "1.5em",
-				}}
+				className="w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] font-[family-name:var(--font-geist-mono)] appearance-auto cursor-pointer"
 			>
 				<option value="" disabled>
 					Select {label}
@@ -365,3 +435,5 @@ function ProfileSelect({ label, value, options, onChange }: any) {
 		</div>
 	);
 }
+
+
