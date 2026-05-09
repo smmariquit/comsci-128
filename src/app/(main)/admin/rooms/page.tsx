@@ -121,11 +121,10 @@ export default function Page() {
         setIsLoading(true);
 
         const dbStatus = form.occupancy_status;
-        const selectedHousing = rooms.find(
-          (r) => r.housing_name === form.housing_name,
+        const selectedHousing = managedHousings.find(
+          (h) => h.housing_name === form.housing_name,
         );
-        const housingId = (selectedHousing as RoomRow & { housing_id?: number })
-          .housing_id;
+        const housingId = selectedHousing?.housing_id;
 
         if (!form.room_type || !dbStatus) {
           throw new Error("Room type and occupancy status are required.");
