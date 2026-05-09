@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Breadcrumbs from "./components/Breadcrumbs";
 import ManageTopNav from "./components/ManageTopNav";
+import Link from "next/link";
+import Logo from "@/app/components/Logo";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -14,23 +16,85 @@ export default function ManageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <ManageTopNav />
+       <div className="h-screen flex flex-col overflow-hidden">
+      <header className="flex-shrink-0">
+        {/*top navbar*/}
+        <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-10">
+              <Logo size={24} href="/manage" />
 
-      {/* BREAD CRUMBS */}
-      <div className="w-full bg-[#567375] font-[family-name:var(--font-geist-sans)]">
-        <div className="flex items-center px-4 md:px-10 min-h-[44px] align-middle">
-          <Breadcrumbs />
-        </div>
-      </div>
+              <div className="flex items-center text-sm">
+                <Link
+                  href="/manage"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                >
+                  Dashboard
+                </Link>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 bg-[var(--cream)]">{children}</main>
+                <span className="mx-2 opacity-60">|</span>
 
-      {/* FOOTER */}
-      <footer className="bg-[#1C2632] text-[#EDE9DE] px-6 py-10 text-sm">
-        <div className="max-w-7xl mx-auto">© 2026 CMSC 128 Project</div>
-      </footer>
+                <Link
+                  href="/manage/accommodations"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                >
+                  Accommodations
+                </Link>
+
+                <span className="mx-2 opacity-60">|</span>
+
+                <Link
+                  href="/manage/applications"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                >
+                  Applications
+                </Link>
+
+                <span className="mx-2 opacity-60">|</span>
+
+                <Link
+                  href="/manage/reports"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                >
+                  Reports
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6 text-sm">
+              {/* change for notifs later*/}
+              <Link
+                href="/manage"
+                className="hover:text-[var(--light-yellow)] transition-colors"
+              >
+                Notifications
+              </Link>
+
+              <Link
+                href="/profile"
+                className="hover:text-[var(--light-yellow)] transition-colors"
+              >
+                Profile
+              </Link>
+            </div>
+          </div>
+        </nav>
+
+        {/*breadcrumbs to be implemented*/}
+        <nav className="px-6 py-1 bg-[var(--teal)] text-[var(--dark-blue)] text-sm">
+          <Link href="/manage" className="font-medium hover:font-bold">
+            Dashboard
+          </Link>
+        </nav>
+      </header>
+
+      <main className="flex-1 overflow-y-auto bg-[var(--dark-blue)]">
+        {children}
+      </main>
+
+      <footer className="flex-shrink-0 bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
+        © 2026 CMSC 128 Project
+        </footer>
     </div>
   );
 }

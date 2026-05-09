@@ -1,6 +1,5 @@
 "use client";
 
-import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   AccommodationHistoryTable,
@@ -17,11 +16,12 @@ import type {
   OccupancyReportRow,
   RevenueReportRow,
 } from "@/app/components/admin/reports/reportsmock";
+import { exportToCSV, exportToPDF } from "@/app/lib/export_utils";
+
 import { formatPeso } from "@/app/components/admin/reports/reportsmock";
-import { StatCard } from "@/app/components/admin/reports/reportsui";
+import { ExportButton, StatCard } from "@/app/components/admin/reports/reportsui";
 import { C } from "@/lib/palette";
 
-// ── Report type ───────────────────────────────────────────────────────────────
 
 export type ReportType =
   | "occupancy"
@@ -43,36 +43,6 @@ interface ReportsWrapperProps {
   liveRevenue: RevenueReportRow[];
 }
 
-function escapeCsvValue(value: unknown) {
-  const text = value == null ? "" : String(value);
-  if (/[",\n]/.test(text)) {
-    return `"${text.replace(/"/g, '""')}"`;
-  }
-  return text;
-}
-
-function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
-  if (rows.length === 0) return;
-
-  const headers = Object.keys(rows[0]);
-  const csv = [
-    headers.join(","),
-    ...rows.map((row) =>
-      headers.map((header) => escapeCsvValue(row[header])).join(","),
-    ),
-  ].join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default function ReportsWrapper({
   liveOccupancy,
   liveApplications,
@@ -89,7 +59,7 @@ export default function ReportsWrapper({
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  // ── Detail modal ────────────────────────────────────────────────────────────
+  
   const [detail, setDetail] = useState<DetailRow | null>(null);
 
   // Reset filters on tab change
@@ -102,7 +72,7 @@ export default function ReportsWrapper({
     setDateTo("");
   }
 
-  // ── Filtered data ───────────────────────────────────────────────────────────
+  
 
   const filteredHousingOptions = useMemo(() => {
     const uniqueNames = new Set(liveOccupancy.map((row) => row.housing_name));
@@ -175,74 +145,6 @@ export default function ReportsWrapper({
       }),
     [liveAccommodationHistory, search, housing, status, dateFrom, dateTo],
   );
-
-  function handleExportCsv() {
-    if (activeTab === "occupancy") {
-      downloadCsv(
-        "occupancy-report.csv",
-        filteredOccupancy.map((row) => ({
-          room_code: row.room_code,
-          housing_name: row.housing_name,
-          room_type: row.room_type,
-          current_occupants: row.current_occupants,
-          maximum_occupants: row.maximum_occupants,
-          occupancy_status: row.occupancy_status,
-        })),
-      );
-      return;
-    }
-
-    if (activeTab === "application") {
-      downloadCsv(
-        "applications-report.csv",
-        filteredApplications.map((row) => ({
-          application_id: row.application_id,
-          student_name: row.student_name,
-          student_number: row.student_number,
-          housing_name: row.housing_name,
-          preferred_room_type: row.preferred_room_type ?? "",
-          application_status: row.application_status,
-          expected_moveout_date: row.expected_moveout_date,
-          actual_moveout_date: row.actual_moveout_date ?? "",
-        })),
-      );
-      return;
-    }
-
-    if (activeTab === "revenue") {
-      downloadCsv(
-        "revenue-report.csv",
-        filteredRevenue.map((row) => ({
-          transaction_id: row.transaction_id,
-          student_name: row.student_name,
-          housing_name: row.housing_name,
-          bill_type: row.bill_type,
-          amount: row.amount,
-          status: row.status,
-          issue_date: row.issue_date,
-          due_date: row.due_date,
-          date_paid: row.date_paid ?? "",
-        })),
-      );
-      return;
-    }
-
-    downloadCsv(
-      "accommodation-history-report.csv",
-      filteredAccommodation.map((row) => ({
-        account_number: row.account_number,
-        student_name: row.student_name,
-        student_number: row.student_number,
-        room_code: row.room_code,
-        housing_name: row.housing_name,
-        room_type: row.room_type,
-        movein_date: row.movein_date,
-        moveout_date: row.moveout_date,
-      })),
-    );
-  }
-
-  // ── Stat cards per tab ──────────────────────────────────────────────────────
 
   function OccupancyStats() {
     const d = filteredOccupancy;
@@ -361,6 +263,58 @@ export default function ReportsWrapper({
     );
   }
 
+  function getExportData() {
+    let headers: string[] = [];
+    let rows: any[][] = [];
+    let title = "";
+    
+    switch (activeTab) {
+      case "occupancy":
+        title = "Occupancy Report";
+        headers = ["Room Code", "Property", "Type", "Capacity", "Occupied", "Status"];
+        rows = filteredOccupancy.map(r => [
+          r.room_code, r.housing_name, r.room_type,
+          r.maximum_occupants, r.current_occupants, r.occupancy_status
+        ]);
+        break;
+      case "application":
+        title = "Applications Report";
+        headers = ["App ID", "Student Name", "Property", "Room Type", "Expected Move-out", "Status"];
+        rows = filteredApplications.map(r => [
+          r.application_id, r.student_name, r.housing_name, r.preferred_room_type,
+          new Date(r.expected_moveout_date).toLocaleDateString(), r.application_status
+        ]);
+        break;
+      case "revenue":
+        title = "Financial Summary Report";
+        headers = ["Bill ID", "Student Name", "Property", "Type", "Due Date", "Amount", "Status"];
+        rows = filteredRevenue.map(r => [
+          r.transaction_id, r.student_name, r.housing_name, r.bill_type,
+          new Date(r.due_date).toLocaleDateString(), formatPeso(r.amount), r.status
+        ]);
+        break;
+      case "accommodation":
+        title = "Accommodation History Report";
+        headers = ["Record ID", "Student Name", "Property", "Room", "Move-in Date", "Move-out Date"];
+        rows = filteredAccommodation.map(r => [
+          r.account_number, r.student_name, r.housing_name, r.room_code,
+          new Date(r.movein_date).toLocaleDateString(), new Date(r.moveout_date).toLocaleDateString()
+        ]);
+        break;
+    }
+    return { title, headers, rows };
+  }
+
+  function handleExportCSV() {
+    const { title, headers, rows } = getExportData();
+    exportToCSV(title.replace(/\s+/g, '_').toLowerCase(), headers, rows);
+  }
+
+  function handleExportPDF() {
+    const { title, headers, rows } = getExportData();
+    exportToPDF(title, title.replace(/\s+/g, '_').toLowerCase(), headers, rows);
+  }
+
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div
@@ -412,51 +366,9 @@ export default function ReportsWrapper({
             </button>
           ))}
         </div>
-
-        <button
-          type="button"
-          onClick={handleExportCsv}
-          disabled={
-            (activeTab === "occupancy" && filteredOccupancy.length === 0) ||
-            (activeTab === "application" &&
-              filteredApplications.length === 0) ||
-            (activeTab === "revenue" && filteredRevenue.length === 0) ||
-            (activeTab === "accommodation" &&
-              filteredAccommodation.length === 0)
-          }
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 7,
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: 12,
-            fontWeight: 600,
-            background: C.orange,
-            color: "#fff",
-            border: "none",
-            borderRadius: 8,
-            padding: "8px 14px",
-            cursor: "pointer",
-            whiteSpace: "nowrap",
-            opacity:
-              (activeTab === "occupancy" && filteredOccupancy.length === 0) ||
-              (activeTab === "application" &&
-                filteredApplications.length === 0) ||
-              (activeTab === "revenue" && filteredRevenue.length === 0) ||
-              (activeTab === "accommodation" &&
-                filteredAccommodation.length === 0)
-                ? 0.5
-                : 1,
-          }}
-        >
-          <Download
-            size={13}
-            color="#fff"
-            strokeWidth={2.2}
-            aria-hidden="true"
-          />
-          Export CSV
-        </button>
+        
+        {/* Export Buttons */}
+        <ExportButton onExportCSV={handleExportCSV} onExportPDF={handleExportPDF} />
       </div>
 
       {/* Stat cards */}
