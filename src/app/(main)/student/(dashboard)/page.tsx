@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";
 import { getHousingStatus } from "@/app/lib/data/student-dashboard";
 import { userData } from "@/app/lib/data/user-data";
-import { getCompleteDashboardData } from "@/app/lib/services/student-dashboard.service";
+import { getCompleteDashboardData } from "@/app/lib/services/student-dashboard-service";
 import AssignedDashboard from "./_components/AssignedDashboard";
 import NotAssignedDashboard from "./_components/NotAssignedDashboard";
 import StateMessage from "@/app/components/ui/state-message";
