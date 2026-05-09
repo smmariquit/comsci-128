@@ -19,7 +19,7 @@ import type {
 } from "@/components/admin/rooms/roomfilters";
 import { roomData } from "@/app/lib/data/room-data";
 import * as roomService from "@/app/lib/services/room-service";
-import housingData from "@/app/lib/data/housing-data";
+import { housingData } from "@/lib/data/housing-data";
 import { C } from "@/lib/palette";
 import { Receipt, Loader2 } from "lucide-react";
 import type { RoomType } from "@/app/lib/models/room";
