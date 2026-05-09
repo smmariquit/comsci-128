@@ -149,8 +149,7 @@ export default function Page() {
           occupancy_status: dbStatus,
         });
 
-        const updatedRooms = await roomData.findAllRoomDetailed();
-        setRooms(updatedRooms);
+        await refreshRooms(adminId);
 
         setShowAddModal(false);
       } catch (err) {
@@ -179,8 +178,7 @@ export default function Page() {
         occupancy_status: dbStatus,
       });
 
-      const updatedRooms = await roomData.findAllRoomDetailed();
-      setRooms(updatedRooms);
+      await refreshRooms(adminId);
 
       setShowFormModal(false);
       setSelectedRoom(null);
@@ -198,8 +196,7 @@ export default function Page() {
       setIsLoading(true);
       await roomService.assignRoom(selectedRoom.room_id, studentId);
 
-      const liveRooms = await roomData.findAllRoomDetailed();
-      setRooms(liveRooms);
+      await refreshRooms(adminId);
 
       setShowAssignModal(false);
       setSelectedRoom(null);
@@ -217,7 +214,8 @@ export default function Page() {
       setIsLoading(true);
       await roomService.unassignRoom(selectedRoom.room_id, studentId);
 
-      const liveRooms = await roomData.findAllRoomDetailed();
+      const managedIds = managedHousings.map((h) => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
       setRooms(liveRooms);
 
       const updateSelected = liveRooms.find(
