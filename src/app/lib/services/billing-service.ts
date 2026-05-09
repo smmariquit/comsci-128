@@ -2,6 +2,7 @@ import { billData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
 import { validateAction } from "./authorization-service";
 import { AppAction } from "../models/permissions";
+import { createAuditLog } from "./audit-log-service";
 
 function normalizeStatus(rawStatus: unknown): BillRow["status"] {
     const value = String(rawStatus ?? "").trim().toLowerCase();
@@ -70,7 +71,23 @@ const markAsPaid = async (txnId: number) => {
     try {
         // RBAC
         await validateAction(AppAction.UPDATE_BILL_STATUS);
-        return await billData.markAsPaid(txnId);
+        const { data, error } = await billData.markAsPaid(txnId);
+        if (error) throw error;
+
+        if (data) {
+            const accountNumber = data.manager_account_number ?? data.student_account_number ?? null;
+            if (accountNumber) {
+                await createAuditLog(
+                    accountNumber,
+                    "",
+                    "Update Bill Status",
+                    `Bill ${data.transaction_id} marked as paid`,
+                    data.manager_account_number ?? null,
+                );
+            }
+        }
+
+        return { data, error };
     } catch (error) {
         console.error("Service Error (markAsPaid): ", error);
         throw new Error("Failed to update billing");
@@ -94,8 +111,23 @@ const createBill = async (billDetails: any) => {
     try {
         // RBAC
         await validateAction(AppAction.ASSIGN_BILL);
+        const { data, error } = await billData.create(billDetails);
+        if (error) throw error;
 
-        return await billData.create(billDetails);
+        if (data) {
+            const accountNumber = data.manager_account_number ?? data.student_account_number ?? null;
+            if (accountNumber) {
+                await createAuditLog(
+                    accountNumber,
+                    "",
+                    "Assign Bill",
+                    `Bill ${data.transaction_id} created`,
+                    data.manager_account_number ?? null,
+                );
+            }
+        }
+
+        return { data, error };
     } catch (error: any) {
         console.error("Service Error (createBill): ", error);
         throw new Error(error?.message || "Failed to create billing");
