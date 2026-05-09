@@ -239,24 +239,30 @@ export default function Page() {
   };
 
   // ── Fetch Data ────────────────────────────────────────
-  useEffect(() => {
-    async function loadLiveData() {
-      try {
-        const liveRooms = await roomData.findAllRoomDetailed();
-        setRooms(liveRooms);
-      } catch (err) {
-        console.error("Failed to fetch rooms:", err);
-      } finally {
-        setIsLoading(false);
-      }
+  const refreshRooms = async (idForFetch: number) => {
+    if (!idForFetch) return;
+    try {
+      const housings = await housingData.findbyLandlord(idForFetch);
+      setManagedHousings(housings);
+
+      const managedIds = housings.map((h: { housing_id: any; }) => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
+      setRooms(liveRooms);
+    } catch (err) {
+      console.error("Failed to fetch rooms:", err);
     }
-    loadLiveData();
-  }, []);
+  };
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
     setAdminId(match ? Number(decodeURIComponent(match[1])) : 0);
   }, []);
+
+  useEffect(() => {
+    if (!adminId) return;
+    setIsLoading(true);
+    refreshRooms(adminId).finally(() => setIsLoading(false));
+  }, [adminId]);
 
   if (isLoading)
     return (
