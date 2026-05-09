@@ -37,7 +37,7 @@ export default function Page() {
   const [housing, setHousing] = useState("All");
 
   // ── Derived Options ───────────────────────────────────
-  const housingOptions = Array.from(new Set(rooms.map((r) => r.housing_name)));
+  const housingOptions = managedHousings.map((h) => h.housing_name);
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
