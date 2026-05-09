@@ -75,7 +75,12 @@ export async function DELETE(
   try {
     const {id } = await params;
 
-    const user = await userService.deactivateUser(String(id));
+    const userProfile = await userService.getUser(Number(id));
+    if (!userProfile) {
+      return NextResponse.json({ message: "User not found." }, { status: 404 });
+    }
+
+    const user = await userService.deactivateUser(userProfile.account_email);
     if (!user)
       return NextResponse.json({ message: "User not found." }, { status: 404 });
 

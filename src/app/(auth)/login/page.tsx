@@ -94,7 +94,7 @@ export default function LoginPage() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/google-login`,
+        redirectTo: `${window.location.origin}/google-login?intent=login`,
         skipBrowserRedirect: false,
       },
     });
