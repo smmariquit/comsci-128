@@ -13,11 +13,12 @@ export default async function ManagerReportsPage() {
   const assignedHousingIds = [3]; // e.g., manages only Dormitory 3
 
   // Server-side fetch from the mock database module
-  const [liveOccupancy, liveApplications, liveAccommodationHistory] =
+  const [liveOccupancy, liveApplications, liveAccommodationHistory, liveRevenue] =
     await Promise.all([
       reportData.getOccupancyReport(assignedHousingIds),
       reportData.getApplicationReport(assignedHousingIds),
       reportData.getAccommodationHistoryReport(assignedHousingIds),
+      reportData.getRevenueReport(assignedHousingIds),
     ]);
 
   return (
@@ -30,6 +31,7 @@ export default async function ManagerReportsPage() {
         liveOccupancy={liveOccupancy}
         liveApplications={liveApplications}
         liveAccommodationHistory={liveAccommodationHistory}
+        liveRevenue={liveRevenue}
       />
     </div>
   );
