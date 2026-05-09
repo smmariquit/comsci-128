@@ -130,27 +130,47 @@ export default function BillingPage() {
   const [bills, setBills] = useState<BillRow[]>([]);
   const [, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
-  const [managedHousingIds, setManagedHousingIds] = useState<number[]>([]);
+  const [managedHousings, setManagedHousings] = useState<{ housing_id: number; housing_name: string }[]>([]);
+  const managedHousingIds = managedHousings.map((h) => h.housing_id);
+
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
-  const loadBills = useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      const data = await billingClient.fetchAllBills();
-      setBills(data);
-    } catch (error) {
-      console.error("Refresh Load Error: ", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    const loadBills = useCallback(
+    async (ids: number[]) => {
+      if (ids.length === 0) {
+        setBills([]);
+        setIsLoading(false);
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const data = await billingClient.fetchAllBills(ids);
+        setBills(data);
+      } catch (error) {
+        console.error("Refresh Load Error: ", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     setIsMounted(true);
-    void loadBills();
-  }, [loadBills]);
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    const accountNumber = match ? Number(decodeURIComponent(match[1])) : 0;
+    if (!accountNumber) return;
+
+    housingData.findbyLandlord(accountNumber).then((housings) => {
+      setManagedHousings(housings);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (managedHousingIds.length === 0) return;
+    void loadBills(managedHousingIds);
+  }, [managedHousings, loadBills]);
 
   // ── Filter state ────────────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
@@ -211,7 +231,7 @@ export default function BillingPage() {
 
     try {
       await billingClient.markAsPaid(row.transaction_id);
-      await loadBills();
+      await loadBills(managedHousingIds);
     } catch (error) {
       console.error("Error handleMarkPaid: ", error);
     }
@@ -222,7 +242,7 @@ export default function BillingPage() {
 
     try {
       await billingClient.removeBill(row.transaction_id);
-      await loadBills();
+      await loadBills(managedHousingIds);
     } catch (error) {
       console.error("Error handleDelete: ", error);
     }
@@ -266,7 +286,7 @@ export default function BillingPage() {
       await Promise.all(issuePromises);
 
       setIssueOpen(false);
-      await loadBills();
+      await loadBills(managedHousingIds);
     } catch (error) {
       console.error("Failed to handleIssue: ", error);
     } finally {
@@ -365,7 +385,7 @@ export default function BillingPage() {
           reconciled in a follow-up. */}
       <IssueBillModal
         open={issueOpen}
-        managedIds={[]}
+        managedIds={managedHousings}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
       />
