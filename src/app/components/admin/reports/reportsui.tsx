@@ -9,7 +9,7 @@ import type {
 } from "./reportsmock";
 import { Download } from "lucide-react";
 
-// ── StatCard (exact design from user) ────────────────────────────────────────
+
 
 interface StatCardProps {
   label: string;
@@ -103,7 +103,7 @@ export function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
   );
 }
 
-// ── Action button ─────────────────────────────────────────────────────────────
+
 
 type BtnVariant = "ghost" | "primary" | "danger";
 
@@ -147,7 +147,7 @@ export function ActionBtn({
   );
 }
 
-// ── Table shell ───────────────────────────────────────────────────────────────
+
 
 export function TableShell({
   title,
@@ -255,12 +255,12 @@ export function EmptyRow({ cols }: { cols: number }) {
   );
 }
 
-// ── Badges ────────────────────────────────────────────────────────────────────
+
 
 import { Badge } from "@/app/components/ui/Badge";
 
 
-// ── Typed badge helpers ───────────────────────────────────────────────────────
+
 
 const OCC_S: Record<
   OccupancyStatus,
@@ -352,7 +352,7 @@ export function BillTypeTag({ type }: { type: BillType }) {
   return <Badge label={type} {...s} />;
 }
 
-// ── Export button ─────────────────────────────────────────────────────────────
+
 
 export function ExportButton({
   onExportCSV,
