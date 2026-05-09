@@ -14,6 +14,7 @@ import IssueBillModal, {
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import BillTable from "@/app/components/admin/billings/billingtable";
 import { billingClient } from "@/app/lib/client/billing-client";
+import { housingData } from "@/app/lib/data/housing-data";
 import { C } from "@/lib/palette";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
@@ -129,6 +130,7 @@ export default function BillingPage() {
   const [bills, setBills] = useState<BillRow[]>([]);
   const [, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [managedHousingIds, setManagedHousingIds] = useState<number[]>([]);
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
