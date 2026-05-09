@@ -112,12 +112,28 @@ const removeBill = async (txnId: number) => {
     // RBAC
     await validateAction(AppAction.UPDATE_BILL_STATUS);
 
-    await billData.remove(txnId);
-    return { success: true };
-  } catch (error) {
-    console.error("Service Error (removeBill): ", error);
-    throw new Error("Failed to delete billing");
-  }
+        const { data: existingBill, error: fetchError } = await billData.getById(txnId);
+        if (fetchError) throw fetchError;
+
+        await billData.remove(txnId);
+
+        if (existingBill) {
+            const accountNumber = existingBill.manager_account_number ?? existingBill.student_account_number ?? null;
+            if (accountNumber) {
+                await createAuditLog(
+                    accountNumber,
+                    "",
+                    "Bill Status",
+                    `Bill ${txnId} removed`,
+                    existingBill.manager_account_number ?? null,
+                );
+            }
+        }
+        return { success: true };
+    } catch (error) {
+        console.error("Service Error (removeBill): ", error);
+        throw new Error("Failed to delete billing");
+    }
 };
 
 const createBill = async (billDetails: any) => {
