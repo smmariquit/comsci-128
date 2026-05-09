@@ -7,6 +7,7 @@ import type { NewUser, UpdateUser, User } from "@/models/user";
 import type { Role } from "../models/audit_log";
 import { AppAction } from "../models/permissions";
 import { validateAction } from "./authorization-service";
+import { createAuditLog } from "./audit-log-service";
 
 type ServiceResponse<T> = { data?: T; error?: string };
 type Public<T> = Omit<T, "account_number" | "password">;
@@ -19,6 +20,17 @@ type GoogleProfile = {
   firstName: string;
   lastName: string;
 };
+
+function formatUserName(user: {
+  first_name?: string | null;
+  last_name?: string | null;
+  account_email?: string | null;
+}): string {
+  const first = user.first_name?.trim() ?? "";
+  const last = user.last_name?.trim() ?? "";
+  const full = `${first} ${last}`.trim();
+  return full || user.account_email?.trim() || "";
+}
 
 function normalizeGoogleProfile(googleUser: any): GoogleProfile {
   const email = googleUser.email || googleUser.user_metadata?.email || "";
@@ -63,6 +75,15 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
     userDetails.password = "";
 
     const createdUser = await userData.create(userDetails);
+
+    const userName = formatUserName(createdUser);
+    const label = userName || createdUser.account_email || "Unknown user";
+    await createAuditLog(
+      createdUser.account_number,
+      userName,
+      "Auth Register",
+      `User ${label} registered`,
+    );
 
     return createdUser;
   } catch (error) {
@@ -118,6 +139,15 @@ const updateUser = async (
       return { error: "User not found" };
     }
 
+    const userName = formatUserName(updatedUser);
+    const label = userName || updatedUser.account_email || "Unknown user";
+    await createAuditLog(
+      account_number!,
+      userName,
+      "Update User Details",
+      `User ${label} updated details`,
+    );
+
     const {
       account_number: _,
       password: __,
@@ -140,9 +170,17 @@ const deactivateUser = async (
     const updatedUser = await userData.deactivate(email);
     if (!updatedUser) return null;
 
-    // TODO: reevaluate returning data for disable or not
-    // Currently returns data
     const { account_number, password, ...nonSensitiveInfo } = updatedUser;
+    
+    const userName = formatUserName(updatedUser);
+    const label = userName || updatedUser.account_email || "Unknown user";
+    await createAuditLog(
+        account_number!,
+        userName,
+        "Delete Account",
+        `User ${label} deactivated`,
+    );
+
     return nonSensitiveInfo;
   } catch (error) {
     console.error("Error: ", error);
@@ -187,6 +225,15 @@ const _promoteUserType = async (
     if (!updatedUser) {
       return { error: "User not found" };
     }
+
+    const userName = formatUserName(updatedUser);
+    const label = userName || updatedUser.account_email || "Unknown user";
+    await createAuditLog(
+      updatedUser.account_number!,
+      userName,
+      "Update User Role",
+      `User ${label} role updated to ${userType}`,
+    );
 
     // Insert in the table of the current role
     if (userType === "Student") {
@@ -281,7 +328,16 @@ const finalizeGoogleSignup = async (googleUser: any, updates: UpdateUser): Promi
     is_deleted: false,
   };
 
-  return await userData.create(userDetails);
+  const createdUser = await userData.create(userDetails);
+  const userName = formatUserName(createdUser);
+  const label = userName || createdUser.account_email || "Unknown user";
+  await createAuditLog(
+    createdUser.account_number,
+    userName,
+    "Auth Register",
+    `User ${label} registered via Google`,
+  );
+  return createdUser;
 };
 
 const deleteGooglePlaceholderUser = async (email: string): Promise<{ success: boolean; error?: string }> => {

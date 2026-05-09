@@ -5,6 +5,19 @@ import { managerData } from "../data/manager-data";
 import { userData } from "../data/user-data";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
+import { createAuditLog } from "./audit-log-service";
+
+// helper function for name format
+function formatUserName(user: {
+	first_name?: string | null;
+	last_name?: string | null;
+	account_email?: string | null;
+}): string {
+	const first = user.first_name?.trim() ?? "";
+	const last = user.last_name?.trim() ?? "";
+	const full = `${first} ${last}`.trim();
+	return full || user.account_email?.trim() || "";
+}
 
 async function getStudentProfile(
 	userId: number,
@@ -77,6 +90,15 @@ async function updateStudentProfile(
 			}
 		}
 
+		const userName = formatUserName(updatedUser);
+		const label = userName || updatedUser.account_email || "Unknown user";
+		await createAuditLog(
+			account_number!,
+			userName,
+			"Update User Details",
+			`Student profile updated for ${label}`,
+		);
+
 		return await getStudentProfile(userId);
 	} catch (error: any) {
 		console.error("Error updating profile:", error.message);
@@ -128,6 +150,15 @@ async function updateManagerProfile(
 				await managerData.updatePaymentDetails(userId, paymentDetails);
 			}
 		}
+
+		const userName = formatUserName(updatedUser);
+		const label = userName || updatedUser.account_email || "Unknown user";
+		await createAuditLog(
+			account_number!,
+			userName,
+			"Update User Details",
+			`Manager profile updated for ${label}`,
+		);
 
 		return await managerData.findManagerProfileById(userId);
 	} catch (error: any) {
