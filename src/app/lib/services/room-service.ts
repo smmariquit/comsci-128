@@ -5,6 +5,7 @@ import type { Room, RoomInsert, RoomType, RoomUpdate } from "@/models/room";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
 import { housingData } from "../data/housing-data";
+import { createAuditLog } from "./audit-log-service";
 
 export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
   try {
@@ -22,6 +23,14 @@ export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
 
     const newRoom = await roomData.create(data);
     if (!newRoom) return null;
+
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Update Housing",
+      `Room ${newRoom.room_code} created for ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
     return newRoom;
   } catch (error) {
     console.error("Error: ", error);
@@ -90,6 +99,13 @@ export const updateRoom = async (
       return { error: "Update failed." };
     }
 
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Update Housing",
+      `Room ${updatedRoom.room_code} details updated for ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
     console.log(`Log: Room ${roomId} details updated.`);
     return { data: updatedRoom };
   } catch (error) {
@@ -125,7 +141,16 @@ export const deactivateRoom = async (roomId: number): Promise<Room | null> => {
     }
 
     const deletedRoom = await roomData.deactivate(roomId);
-    return deletedRoom ?? null;
+    if (!deletedRoom) return null;
+
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Update Housing",
+      `Room ${deletedRoom.room_code} deactivated for ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
+    return deletedRoom;
   } catch (error: any) {
     console.error("Service Error (removeRoom): ", error.message);
     throw new Error(error.message || "Failed to remove room.");
@@ -155,11 +180,19 @@ export const assignRoom = async (roomId: number, studentId: string) => {
     await roomData.getOccupantCount(roomId, 1);
     await roomData.updateStudentHousingStatus(account_number, "Assigned");
 
-    return { success: true };
-  } catch (error: any) {
-    console.error("Service Error (assignStudent): ", error.message);
-    throw error;
-  }
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Assign Room",
+      `Student ${account_number} assigned to room ${room.room_code} in ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
+
+		return { success: true };
+	} catch (error: any) {
+		console.error("Service Error (assignStudent): ", error.message);
+		throw error;
+	}
 };
 
 export const unassignRoom = async (
@@ -201,11 +234,19 @@ export const unassignRoom = async (
     await roomData.getOccupantCount(roomId, -1);
     await roomData.updateStudentHousingStatus(account_number, "Not Assigned");
 
-    return { success: true };
-  } catch (error: any) {
-    console.error("Service Error (unassignStudent): ", error.message);
-    throw error;
-  }
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Assign Room",
+      `Student ${account_number} unassigned from room ${room.room_code} in ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
+
+		return { success: true }
+	} catch (error: any) {
+		console.error("Service Error (unassignStudent): ", error.message);
+		throw error;
+	}
 };
 
 export const getEligibleStudents = async (
