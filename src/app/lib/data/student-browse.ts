@@ -5,6 +5,7 @@ interface FilterOptions {
     // TODO: filtering by sex (not yet implemented in the database)
     room_type?: "Women Only" | "Men Only" | "Co-ed";
     sort_by_price?: "asc" | "desc";
+    sort_by_application?: "asc" | "desc";
     search?: string; 
 
 }
@@ -65,7 +66,18 @@ export async function getAllAvailableDorms(filters?: FilterOptions) {
             });
         }
 
+
+        if (filters?.sort_by_application) {
+            filteredDorms.sort((a, b) => {
+                const dateA = new Date(filters.sort_by_application === "asc" ? a.end_application_date : a.start_application_date).getTime();
+                const dateB = new Date(filters.sort_by_application === "asc" ? b.end_application_date : b.start_application_date).getTime();
+                return filters.sort_by_application === "asc" ? dateA - dateB : dateB - dateA;
+            });
+        }
+
         return filteredDorms;
+
+        
 
     } catch (error: any) {
         console.error("Error fetching dorms:", error);

@@ -37,6 +37,7 @@ export default async function DormBrowsePage({
     const filters = {
         housing_type: params?.type as any,
         sort_by_price: params?.sort as any,
+        sort_by_application: params?.application as any,  
         search: params?.search as any,
     };
 

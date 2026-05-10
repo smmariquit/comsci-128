@@ -69,29 +69,24 @@ export default function SearchBar() {
                     onClick={() => { setIsSortOpen(!isSortOpen); setIsFilterOpen(false); }}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-black/5 transition-colors text-sm font-semibold text-[#C9642A]"
                 >
-                    {/* Sort Icon: Three bars with a descending arrow */}
                     <ArrowDownUp width="20" height="20" />
-                    
                     <span>
                         {searchParams.get('sort') === 'asc' ? 'Price: Low-High' : 
                         searchParams.get('sort') === 'desc' ? 'Price: High-Low' : 
+                        searchParams.get('application') === 'asc' ? 'Closing Soon' :
+                        searchParams.get('application') === 'desc' ? 'Recently Opened' :
                         'Sort By'}
                     </span>
                 </button>
 
                 {isSortOpen && (
                     <>
-                        {/* backdrop to close dropdown when clicking outside */}
-                        <div 
-                            className="fixed inset-0 z-40" 
-                            onClick={() => setIsSortOpen(false)}
-                        ></div>
+                        <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)}></div>
 
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 text-[#1C2632] overflow-hidden">
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 text-[#1C2632]">
                             <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                 Price Ranking
                             </div>
-                            
                             <button 
                                 onClick={() => { updateURL('sort', 'asc'); setIsSortOpen(false); }} 
                                 className={`flex items-center justify-between w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${searchParams.get('sort') === 'asc' ? 'text-[#C9642A] font-bold bg-orange-50' : ''}`}
@@ -99,7 +94,6 @@ export default function SearchBar() {
                                 Ascending
                                 {searchParams.get('sort') === 'asc' && <span className="h-2 w-2 rounded-full bg-[#C9642A]"></span>}
                             </button>
-                            
                             <button 
                                 onClick={() => { updateURL('sort', 'desc'); setIsSortOpen(false); }} 
                                 className={`flex items-center justify-between w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${searchParams.get('sort') === 'desc' ? 'text-[#C9642A] font-bold bg-orange-50' : ''}`}
@@ -108,9 +102,27 @@ export default function SearchBar() {
                                 {searchParams.get('sort') === 'desc' && <span className="h-2 w-2 rounded-full bg-[#C9642A]"></span>}
                             </button>
 
-                            {searchParams.get('sort') && (
+                            <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 border-t border-gray-100">
+                                Application Period
+                            </div>
+                            <button
+                                onClick={() => { updateURL('application', 'asc'); setIsSortOpen(false); }}
+                                className={`flex items-center justify-between w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${searchParams.get('application') === 'asc' ? 'text-[#C9642A] font-bold bg-orange-50' : ''}`}
+                            >
+                                Closing Soon
+                                {searchParams.get('application') === 'asc' && <span className="h-2 w-2 rounded-full bg-[#C9642A]"></span>}
+                            </button>
+                            <button
+                                onClick={() => { updateURL('application', 'desc'); setIsSortOpen(false); }}
+                                className={`flex items-center justify-between w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${searchParams.get('application') === 'desc' ? 'text-[#C9642A] font-bold bg-orange-50' : ''}`}
+                            >
+                                Recently Opened
+                                {searchParams.get('application') === 'desc' && <span className="h-2 w-2 rounded-full bg-[#C9642A]"></span>}
+                            </button>
+
+                            {(searchParams.get('sort') || searchParams.get('application')) && (
                                 <button 
-                                    onClick={() => { updateURL('sort', null); setIsSortOpen(false); }} 
+                                    onClick={() => { updateURL('sort', null); updateURL('application', null); setIsSortOpen(false); }} 
                                     className="w-full text-center mt-1 pt-2 border-t border-gray-100 text-xs text-red-500 hover:text-red-700 font-medium pb-1"
                                 >
                                     Reset Sorting
