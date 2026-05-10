@@ -72,7 +72,7 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
         occupancyRate: `${occupancyRate}`,
         totalPendingApplication,
         occupancyData: occupancyData,
-        recentApplications: formattedApps,
+        recentApplications: formattedApps.slice(0,5 ),
         activeAccommodations: totalLiveStudents
     }
 }
