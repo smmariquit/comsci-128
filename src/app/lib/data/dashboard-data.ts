@@ -41,43 +41,35 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
     };
   });
 
-  const totalPendingApplication = filteredApps.filter(
-    (a) =>
-      a.application_status === "Pending Manager Approval" ||
-      a.application_status === "Pending Admin Approval",
-  ).length;
+  const totalPendingApplication = filteredApps.filter(a => 
+        a.application_status === "Pending Manager Approval" || 
+        a.application_status === "Pending Admin Approval"
+    ).length;
 
-  const totalAcceptedApplication = filteredApps.filter(
-    (a) => a.application_status === "Approved",
-  ).length;
+    const totalAcceptedApplication = filteredApps.filter(a =>
+        a.application_status === "Approved"
+    ).length;
+    
+    const totalCapacity = filteredRooms.reduce((sum, r) => sum + (r.maximum_occupants || 0), 0);
+    const totalOccupied = filteredRooms.reduce((sum, r) => sum + (r.current_occupants || 0), 0);
 
-  const totalCapacity = filteredRooms.reduce(
-    (sum, r) => sum + (r.maximum_occupants || 0),
-    0,
-  );
-  const totalOccupied = filteredRooms.filter(
-    (r) => r.occupancy_status !== "Empty",
-  ).length;
+    const occupancyRate = totalCapacity > 0
+        ? Math.round((totalOccupied / totalCapacity) * 100)
+        : 0;
 
-  const occupancyRate =
-    totalCapacity > 0 ? Math.round((totalOccupied / totalCapacity) * 100) : 0;
+    const occupancyData = ["Co-ed", "Women Only", "Men Only"].map(type => {
+        const roomsType = filteredRooms.filter(r => r.room_type === type);
 
-  const occupancyData = ["Co-ed", "Women Only", "Men Only"].map((type) => {
-    const roomsType = filteredRooms.filter((r) => r.room_type === type);
+        return {
+            room_type: type,
+            occupied: roomsType.filter(r => r.occupancy_status !== "Empty").length,
+            empty: roomsType.filter(r => r.occupancy_status === "Empty").length,
+        }
+    });
 
-    return {
-      room_type: type,
-      occupied: roomsType.filter((r) => r.occupancy_status !== "Empty").length,
-      empty: roomsType.filter((r) => r.occupancy_status === "Empty").length,
-    };
-  });
-
-  const totalLiveStudents = filteredRooms.reduce(
-    (sum, room) => sum + room.current_occupants,
-    0,
-  );
-  const totalAssigned = totalLiveStudents;
-  const totalUnassigned = totalAcceptedApplication;
+    const totalLiveStudents = filteredRooms.reduce((sum, room) => sum + room.current_occupants, 0);
+    const totalAssigned = totalLiveStudents;
+    const totalUnassigned = totalAcceptedApplication;
 
   return {
         totalStudents: totalLiveStudents,
