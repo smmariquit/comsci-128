@@ -80,15 +80,15 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
   const totalUnassigned = totalAcceptedApplication;
 
   return {
-    totalStudents: totalLiveStudents,
-    housingStatusCounts: {
-      assigned: totalAssigned,
-      unassigned: totalUnassigned,
-    },
-    occupancyRate: `${occupancyRate}`,
-    totalPendingApplication,
-    occupancyData: occupancyData,
-    recentApplications: formattedApps,
-    activeAccommodations: totalLiveStudents,
-  };
+        totalStudents: totalLiveStudents,
+        housingStatusCounts: {
+            assigned: totalAssigned,
+            unassigned: totalUnassigned,
+        },
+        occupancyRate: `${occupancyRate}`,
+        totalPendingApplication,
+        occupancyData: occupancyData,
+        recentApplications: formattedApps.slice(0,5 ),
+        activeAccommodations: totalLiveStudents
+    }
 }
