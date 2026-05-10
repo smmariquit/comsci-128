@@ -43,7 +43,7 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
     ).length;
     
     const totalCapacity = filteredRooms.reduce((sum, r) => sum + (r.maximum_occupants || 0), 0);
-    const totalOccupied = filteredRooms.filter(r => r.occupancy_status !== "Empty").length;
+    const totalOccupied = filteredRooms.reduce((sum, r) => sum + (r.current_occupants || 0), 0);
 
     const occupancyRate = totalCapacity > 0
         ? Math.round((totalOccupied / totalCapacity) * 100)
