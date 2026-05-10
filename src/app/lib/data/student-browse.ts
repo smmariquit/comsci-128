@@ -3,7 +3,7 @@ import { supabase } from "@/app/lib/supabase";
 interface FilterOptions {
     housing_type?: "UP Housing" | "Non-UP Housing";
     // TODO: filtering by sex (not yet implemented in the database)
-    // sex?: "Male" | "Female" | "Co-ed";
+    room_type?: "Women Only" | "Men Only" | "Co-ed";
     sort_by_price?: "asc" | "desc";
     search?: string; 
 
@@ -11,17 +11,18 @@ interface FilterOptions {
 
 export async function getAllAvailableDorms(filters?: FilterOptions) {
     try{
-        const { data: rooms, error: roomError } = await supabase
+        let roomQuery = supabase
             .from("room")
             .select("housing_id")
             .eq("is_deleted", false)
             .not("occupancy_status", "eq", "Fully Occupied");
 
-        if (roomError) throw roomError;
-
-        if (!rooms || rooms.length === 0) {
-            return [];
+        if (filters?.room_type){
+            roomQuery = roomQuery.eq("room_type", filters.room_type);   
         }
+
+        const { data: rooms, error: roomError } = await roomQuery;
+        if (roomError) throw roomError;
 
         const housingIds = [...new Set(rooms.map((room) => room.housing_id))];
 
