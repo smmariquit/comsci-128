@@ -7,15 +7,14 @@ export const metadata: Metadata = {
     "Overview of occupancy, users, rooms, billings, and reports for managed properties",
 };
 
+import { cookies } from "next/headers";
 import OccupancyChart from "@/app/components/admin/dashboard/occupancy_chart";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 import RecentAuditLog from "@/app/components/admin/dashboard/recent_audit";
 import StatCard from "@/app/components/admin/dashboard/stat_card";
 import StudentHousingStatus from "@/app/components/admin/dashboard/student_housing_status";
 import StateMessage from "@/app/components/ui/state-message";
-
 import { getHousingAdmingDashboardData } from "@/app/lib/data/dashboard-data";
-import { cookies } from "next/headers";
 
 const recentAuditData = [
   {
@@ -67,7 +66,7 @@ export default async function Page() {
   let liveData: Awaited<ReturnType<typeof getHousingAdmingDashboardData>>;
   try {
     liveData = await getHousingAdmingDashboardData(adminId);
-  } catch (error) {
+  } catch (_error) {
     return (
       <StateMessage
         variant="error"
@@ -102,28 +101,35 @@ export default async function Page() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-          gap: 16,
-        }}
-      >
-        <StatCard label="Total Students" value={liveData.totalStudents.toString()} delta={0} deltaSub="Live Students" />
-        <StatCard label="Occupancy Rate" value={`${liveData.occupancyRate}%`} delta={0} deltaSub="Live Occupancy Rate" />
-        <StatCard label="Pending Applications" value={liveData.totalPendingApplication.toString()} delta={0} deltaSub="Pending Applications" />
-        <StatCard label="Active Accommodations" value={liveData.activeAccommodations.toString()} delta={0} deltaSub="Currently accommodated" />
+    <div className="flex flex-col gap-5">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Total Students"
+          value={liveData.totalStudents.toString()}
+          delta={0}
+          deltaSub="Live Students"
+        />
+        <StatCard
+          label="Occupancy Rate"
+          value={`${liveData.occupancyRate}%`}
+          delta={0}
+          deltaSub="Live Occupancy Rate"
+        />
+        <StatCard
+          label="Pending Applications"
+          value={liveData.totalPendingApplication.toString()}
+          delta={0}
+          deltaSub="Pending Applications"
+        />
+        <StatCard
+          label="Active Accommodations"
+          value={liveData.activeAccommodations.toString()}
+          delta={0}
+          deltaSub="Currently accommodated"
+        />
       </section>
 
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr",
-          gap: 16,
-          alignItems: "start",
-        }}
-      >
+      <section className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[2fr_1fr_1fr]">
         <OccupancyChart data={liveData.occupancyData} />
         <StudentHousingStatus data={housingStatusData} />
         <ActiveUsers
@@ -132,14 +138,7 @@ export default async function Page() {
         />
       </section>
 
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: 16,
-          alignItems: "start",
-        }}
-      >
+      <section className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[2fr_1fr]">
         <RecentApplications data={liveData.recentApplications} />
         <RecentAuditLog data={recentAuditData} />
       </section>

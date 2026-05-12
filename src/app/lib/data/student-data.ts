@@ -15,18 +15,46 @@ import type { NewUser } from "@/models/user";
 
 import { supabase } from "../supabase";
 
+// ============================================
+// Define safe fields to NEVER select from user table
+// ============================================
+const SAFE_USER_FIELDS = `
+  account_number,
+  account_email,
+  first_name,
+  middle_name,
+  last_name,
+  sex,
+  birthday,
+  home_address,
+  phone_number,
+  contact_email,
+  profile_picture,
+  user_type,
+  is_deleted
+` as const;
+
+// Helper function to sanitize user data
+function sanitizeUserData(userData: any) {
+	if (!userData) return null;
+	const { password, google_identity, ...safeUser } = userData;
+	return safeUser;
+}
+
 type RoomPerHousing = {
 	total: number;
 	occupied: number;
 };
 
 async function create(
-	accountNumber: number,
+	userDetails: NewUser,
 	studentDetails: NewStudent,
 	studentAcademicDetails: NewStudentAcademic,
 ): Promise<Student> {
-	studentDetails.account_number = accountNumber;
-	studentAcademicDetails.account_number = accountNumber;
+	const newUserData = await userData.create(userDetails);
+
+	studentDetails.account_number = newUserData.account_number;
+	studentAcademicDetails.account_number = newUserData.account_number;
 
 	const { data, error } = await supabase
 		.from("student")
@@ -61,19 +89,7 @@ async function findStudentProfileById(
 		.from("user")
 		.select(
 			`
-            account_number,
-            account_email,
-            first_name,
-            middle_name,
-            last_name,
-            sex,
-            birthday,
-            home_address,
-            phone_number,
-            contact_email,
-            profile_picture,
-            user_type,
-            google_identity,
+            ${SAFE_USER_FIELDS},
             student:student_account_number_fkey(
                 account_number,
                 student_number,
@@ -99,7 +115,9 @@ async function findStudentProfileById(
 		return null;
 	}
 
-	return data;
+	// Sanitize the user data
+	const sanitizedData = sanitizeUserData(data);
+	return sanitizedData;
 }
 
 async function updateStudent(
@@ -256,7 +274,7 @@ async function getRoomOccupancyRate() {
 	if (occupiedError) throw occupiedError;
 
 	//counts total rooms per housing
-	totalRooms?.forEach((room) => {
+	totalRooms?.forEach((room: any) => {
 		if (!housingDetails[room.housing_id]) {
 			housingDetails[room.housing_id] = { total: 0, occupied: 0 };
 		}
@@ -264,7 +282,7 @@ async function getRoomOccupancyRate() {
 	});
 
 	//counts occupied rooms per housing
-	occupiedRooms?.forEach((room) => {
+	occupiedRooms?.forEach((room : any) => {
 		if (!housingDetails[room.housing_id]) {
 			housingDetails[room.housing_id] = { total: 0, occupied: 0 };
 		}
@@ -293,7 +311,9 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
         student!inner(*),
         room!inner(*),
         housing!inner(*),
-        user!inner(*)
+        user!inner(
+          ${SAFE_USER_FIELDS}
+        )
       `,
 		)
 		.eq(
@@ -305,6 +325,16 @@ async function getAccommodationHistoryOfStudent(studentAccountNumber: number) {
 		throw new Error(
 			`getAccommodationHistoryOfStudent Error: ${error.message}`,
 		);
+	
+	// Sanitize user data in the response
+	if (data) {
+		const sanitizedData = data.map((item: any) => ({
+			...item,
+			user: sanitizeUserData(item.user)
+		}));
+		return sanitizedData;
+	}
+	
 	return data;
 }
 
@@ -341,8 +371,7 @@ const getBillingSummary = async (accountNumber: number) => {
 			manager!inner(
 				manager_type,
 				user!inner (
-					first_name,
-					last_name
+					${SAFE_USER_FIELDS}
 				)
 			)
 		`)
@@ -351,9 +380,21 @@ const getBillingSummary = async (accountNumber: number) => {
 
 	if (error) throw error;
 
+	// Sanitize user data in the response
+	let sanitizedData = data;
+	if (data) {
+		sanitizedData = data.map((item: any) => ({
+			...item,
+			manager: {
+				...item.manager,
+				user: sanitizeUserData(item.manager.user)
+			}
+		}));
+	}
+
 	// Calculate total balance for Pending and Overdue bills
 	const total_outstanding =
-		data
+		sanitizedData
 			?.filter(
 				(bill: any) =>
 					bill.status === "Pending" || bill.status === "Overdue",
@@ -364,7 +405,7 @@ const getBillingSummary = async (accountNumber: number) => {
 			) || 0;
 
 	// Detailed list including price and bill type
-	const breakdown = data.map((bill: any) => ({
+	const breakdown = sanitizedData.map((bill: any) => ({
 		id: bill.transaction_id,
 		amount: bill.amount,
 		bill_type: bill.bill_type,
@@ -392,8 +433,7 @@ const getBillingHistory = async (accountNumber: number) => {
 			due_date,
 			manager!inner(
 				user!inner (
-					first_name,
-					last_name
+					${SAFE_USER_FIELDS}
 				)
 			)
 		`)
@@ -403,7 +443,19 @@ const getBillingHistory = async (accountNumber: number) => {
 
 	if (error) throw error;
 
-	return data;
+	// Sanitize user data in the response
+	let sanitizedData = data;
+	if (data) {
+		sanitizedData = data.map((item: any) => ({
+			...item,
+			manager: {
+				...item.manager,
+				user: sanitizeUserData(item.manager.user)
+			}
+		}));
+	}
+
+	return sanitizedData;
 };
 
 const getUnpaidBills = async (accountNumber: number) => {
@@ -417,9 +469,7 @@ const getUnpaidBills = async (accountNumber: number) => {
 			status,
 			manager!inner(
 				user!inner (
-					first_name,
-					last_name,
-					account_email
+					${SAFE_USER_FIELDS}
 				)
 			)
 		`)
@@ -430,7 +480,19 @@ const getUnpaidBills = async (accountNumber: number) => {
 
 	if (error) throw error;
 
-	return data;
+	// Sanitize user data in the response
+	let sanitizedData = data;
+	if (data) {
+		sanitizedData = data.map((item: any) => ({
+			...item,
+			manager: {
+				...item.manager,
+				user: sanitizeUserData(item.manager.user)
+			}
+		}));
+	}
+
+	return sanitizedData;
 };
 
 async function deleteByAccountNumber(accountNumber: number): Promise<{ deleted: boolean; error?: string }> {

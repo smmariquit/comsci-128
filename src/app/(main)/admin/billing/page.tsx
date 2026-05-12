@@ -97,6 +97,7 @@ function SummaryCard({
 function IssueBillButton({ onClick }: { onClick: () => void }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       style={{
         display: "inline-flex",
@@ -129,7 +130,7 @@ function IssueBillButton({ onClick }: { onClick: () => void }) {
 
 export default function BillingPage() {
   const [bills, setBills] = useState<BillRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
@@ -150,7 +151,12 @@ export default function BillingPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    setIsMounted(true);
+    void loadBills();
+  }, [loadBills]);
 
   // ── Filter state ────────────────────────────────────────────────────────────
   const [search, setSearch] = useState("");

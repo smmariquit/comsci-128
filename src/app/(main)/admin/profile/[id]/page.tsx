@@ -1,7 +1,5 @@
 "use client";
 
-import type { ManagerProfile } from "@/models/manager";
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 export default function AdminProfilePage() {
