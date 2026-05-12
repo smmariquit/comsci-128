@@ -1,6 +1,7 @@
 "use client";
 import { ArrowRight, Camera, Check, LoaderCircle, MapPin, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useToast } from "@/app/components/ui/Toast";
 
 interface DormCardProps {
   housingId?: string;
@@ -38,6 +39,7 @@ export default function DormCard({
   onDelete = () => {},
   onSave = () => {},
 }: DormCardProps = {}) {
+  const toast = useToast();
   const [cardName, setCardName] = useState(initialName);
   const [cardAddress, setCardAddress] = useState(initialAddress);
   const [cardRent, setCardRent] = useState(initialRent);
@@ -171,15 +173,15 @@ export default function DormCard({
       setModalState("success");
     } catch (error) {
       console.error("Save failed:", error);
-      alert(error instanceof Error ? error.message : "Failed to save changes. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to save changes. Please try again.");
       setModalState("manage"); // Revert to manage state so user doesn't lose their typed input
     }
-  }, [clearPreviewObjectUrl, draftAddress, draftImageUrl, draftName, draftRent, housingId, onSave, selectedFile]);
+  }, [clearPreviewObjectUrl, draftAddress, draftImageUrl, draftName, draftRent, housingId, onSave, selectedFile, toast]);
 
   const handleDelete = useCallback(async () => {
     const normalizedId = String(housingId).trim();
     if (!normalizedId) {
-      alert("Invalid Housing ID.");
+      toast.error("Invalid Housing ID.");
       return;
     }
 
@@ -200,13 +202,14 @@ export default function DormCard({
       }
 
       onDelete();
+      toast.success("Housing record deactivated successfully.");
       window.location.reload();
     } catch (error) {
       console.error("Delete failed:", error);
-      alert(error instanceof Error ? error.message : "Failed to deactivate housing. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to deactivate housing. Please try again.");
       setModalState("manage");
     }
-  }, [housingId, onDelete]);
+  }, [housingId, onDelete, toast]);
 
   const occupancyColor =
     occupancyRate >= 80 ? "#1D9E75" : occupancyRate >= 50 ? "#E6A817" : "#D95F5F";
