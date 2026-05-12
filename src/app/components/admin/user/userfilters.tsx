@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { UserType, HousingStatus } from "./usertable";
-import { Search } from "lucide-react";
 
 export type UserTypeFilter    = "All" | UserType;
 export type HousingFilter     = "All" | HousingStatus;
@@ -35,11 +36,8 @@ const inputBase: React.CSSProperties = {
 const selectBase: React.CSSProperties = {
   ...inputBase,
   cursor: "pointer",
-  appearance: "none" as const,
-  paddingRight: 28,
-  backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23567375' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "right 10px center",
+  appearance: "auto" as const,
+  paddingRight: 12,
 };
 
 export default function UserFilters({
@@ -52,22 +50,42 @@ export default function UserFilters({
   onHousingStatus,
   onAccountStatus,
 }: Props) {
+  const [hoveredSearch, setHoveredSearch] = useState(false);
+  const [hoveredSelect, setHoveredSelect] = useState<string | null>(null);
+
   return (
     <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
 
       {/* Search */}
-      <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
+      <div
+        style={{
+          position: "relative",
+          flex: "1 1 180px",
+          minWidth: 160,
+          transform: hoveredSearch ? "translateY(-1px)" : "translateY(0)",
+          transition: "transform 0.15s ease",
+        }}
+      >
         <Search
-          style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
           size={14}
           color={C.teal}
+          strokeWidth={2}
+          style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
         />
         <input
           type="text"
           placeholder="Search name, email..."
           value={search}
           onChange={(e) => onSearch(e.target.value)}
-          style={{ ...inputBase, width: "100%", paddingLeft: 32 }}
+          onMouseEnter={() => setHoveredSearch(true)}
+          onMouseLeave={() => setHoveredSearch(false)}
+          style={{
+            ...inputBase,
+            width: "100%",
+            paddingLeft: 32,
+            boxShadow: hoveredSearch ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+            outlineColor: hoveredSearch ? C.amber : C.cream,
+          }}
         />
       </div>
 
@@ -77,7 +95,14 @@ export default function UserFilters({
         aria-label="Filter by role"
         value={userType}
         onChange={(e) => onUserType(e.target.value as UserTypeFilter)}
-        style={{ ...selectBase, minWidth: 150 }}
+        onMouseEnter={() => setHoveredSelect("role")}
+        onMouseLeave={() => setHoveredSelect((current) => (current === "role" ? null : current))}
+        style={{
+          ...selectBase,
+          minWidth: 150,
+          boxShadow: hoveredSelect === "role" ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+          outlineColor: hoveredSelect === "role" ? C.amber : C.cream,
+        }}
       >
         {(["All", "Student", "Landlord", "Housing Admin", "Guest"] as UserTypeFilter[]).map((t) => (
           <option key={t} value={t}>{t === "All" ? "All Roles" : t}</option>
@@ -90,7 +115,14 @@ export default function UserFilters({
         aria-label="Filter by housing status"
         value={housingStatus}
         onChange={(e) => onHousingStatus(e.target.value as HousingFilter)}
-        style={{ ...selectBase, minWidth: 170 }}
+        onMouseEnter={() => setHoveredSelect("housing")}
+        onMouseLeave={() => setHoveredSelect((current) => (current === "housing" ? null : current))}
+        style={{
+          ...selectBase,
+          minWidth: 170,
+          boxShadow: hoveredSelect === "housing" ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+          outlineColor: hoveredSelect === "housing" ? C.amber : C.cream,
+        }}
       >
         {(["All", "Assigned", "Not Assigned", "Pending"] as HousingFilter[]).map((s) => (
           <option key={s} value={s}>{s === "All" ? "All Housing Status" : s}</option>
@@ -103,7 +135,14 @@ export default function UserFilters({
         aria-label="Filter by account status"
         value={accountStatus}
         onChange={(e) => onAccountStatus(e.target.value as AccountStatusFilter)}
-        style={{ ...selectBase, minWidth: 140 }}
+        onMouseEnter={() => setHoveredSelect("account")}
+        onMouseLeave={() => setHoveredSelect((current) => (current === "account" ? null : current))}
+        style={{
+          ...selectBase,
+          minWidth: 140,
+          boxShadow: hoveredSelect === "account" ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+          outlineColor: hoveredSelect === "account" ? C.amber : C.cream,
+        }}
       >
         {(["All", "Active", "Removed"] as AccountStatusFilter[]).map((s) => (
           <option key={s} value={s}>{s === "All" ? "All Accounts" : s}</option>

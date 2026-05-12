@@ -10,10 +10,24 @@ import { accommodationHistoryData } from "@/lib/data/accommodation-history-data"
 import { validateAction, validateOwnership } from "./authorization-service";
 import App from "next/app";
 import { AppAction } from "../models/permissions";
+import { roomData } from "../data/room-data";
+import { createAuditLog } from "./audit-log-service";
 
-const getDashboardStats = async () => {
+function formatStudentName(user?: {
+  first_name?: string | null;
+  last_name?: string | null;
+  middle_name?: string | null;
+}): string {
+  if (!user) return "";
+  const first = user.first_name?.trim() ?? "";
+  const last = user.last_name?.trim() ?? "";
+  const full = `${first} ${last}`.trim();
+  return full;
+}
+
+const getDashboardStats = async (managerAccountNumber: number) => {
   try {
-    const stats = await applicationData.getApplicationStats()
+    const stats = await applicationData.getApplicationStats(managerAccountNumber)
     return stats
   } catch (error) {
     console.error("Error: ", error)
@@ -70,6 +84,20 @@ const updateApplicationStatus = async (
 
     const updated = await applicationData.update(applicationId, { application_status: status })
     if (!updated) return null
+
+    const landlordAccountNumber = appDetail?.landlord_account_number ?? null;
+    if (landlordAccountNumber) {
+      const studentUser = appDetail?.student[0]?.user;
+      const studentName = formatStudentName(studentUser[0]);
+      const label = studentName || `Student ${appDetail?.student[0]?.account_number ?? ""}`.trim();
+      await createAuditLog(
+        landlordAccountNumber,
+        "",
+        "Update Application Status",
+        `Application ${applicationId} status set to ${status} for ${label}`,
+      );
+    }
+
     return updated
   } catch (error) {
     console.error("Error: ", error)
@@ -86,11 +114,29 @@ const assignApplicantToRoom = async (
   try {
     // rbac
     await validateAction(AppAction.ASSIGN_ROOM);
+
+    const appDetail = await applicationData.getApplicationDetailById(applicationId);
     
     const updated = await applicationData.assignRoomToApplication(applicationId, roomId)
     if (!updated) throw new Error("Failed to assign room to application.")
 
     await accommodationHistoryData.createTenantRecord(studentAccountNumber, roomId, moveoutDate)
+
+    await roomData.incrementOccupantsCount(roomId)
+
+    const landlordAccountNumber = appDetail?.landlord_account_number ?? null;
+    if (landlordAccountNumber) {
+      const studentUser = appDetail?.student[0]?.user;
+      const studentName = formatStudentName(studentUser[0]);
+      const label = studentName || `Student ${studentAccountNumber}`;
+      const housingLabel = appDetail?.housing_name || "housing";
+      await createAuditLog(
+        landlordAccountNumber,
+        "",
+        "Assign Room",
+        `Assigned ${label} to room ${roomId} for ${housingLabel}`,
+      );
+    }
 
     return { success: true }
   } catch (error) {
@@ -109,6 +155,16 @@ const getApprovedUnassignedByHousingName = async (housingName: string) => {
   }
 }
 
+const getApplicationsByLandlord = async (landlordAccountNumber: number) => {
+  try {
+    const applications = await applicationData.getByLandlord(landlordAccountNumber)
+    if (!applications) return []
+    return applications
+  } catch (error) {
+    console.error("Error: ", error)
+    throw new Error("Failed to fetch applications")
+  }
+}
 export const applicationService = {
   getDashboardStats,
   getApplications,
@@ -116,5 +172,6 @@ export const applicationService = {
   getApplicationDocuments, 
   updateApplicationStatus,
   assignApplicantToRoom,
-  getApprovedUnassignedByHousingName
+  getApprovedUnassignedByHousingName,
+  getApplicationsByLandlord
 }

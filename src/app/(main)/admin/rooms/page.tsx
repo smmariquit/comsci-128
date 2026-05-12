@@ -1,37 +1,41 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ViewRoomModal, RoomFormModal, OverrideAssignModal, RoomForm } from "@/components/admin/rooms/roommodal";
-import RoomTable, { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
-import RoomFilters, {
-  OccupancyFilter,
-  TypeFilter,
-} from  "@/components/admin/rooms/roomfilters";
+import {
+  ViewRoomModal,
+  RoomFormModal,
+  OverrideAssignModal,
+} from "@/components/admin/rooms/roommodal";
+import type { RoomForm } from "@/components/admin/rooms/roommodal";
+import RoomTable from "@/components/admin/rooms/roomtable";
+import type { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
+import RoomFilters from "@/components/admin/rooms/roomfilters";
+import type { OccupancyFilter, TypeFilter } from "@/components/admin/rooms/roomfilters";
 import { roomData } from "@/app/lib/data/room-data";
 import * as roomService from "@/app/lib/services/room-service";
 import { C } from "@/lib/palette";
-import { Receipt } from "lucide-react";
+import { Receipt, Loader2 } from "lucide-react";
+import type { RoomType } from "@/app/lib/models/room";
 
 export default function Page() {
-    const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [showFormModal, setShowFormModal] = useState(false);
-    const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<RoomRow | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
   // ── Raw Data ──────────────────────────────────────────
-    const [rooms, setRooms] = useState<RoomRow[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [rooms, setRooms] = useState<RoomRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [adminId, setAdminId] = useState<number>(0);
 
-    // ── Filter State ──────────────────────────────────────
-    const [search, setSearch] = useState("");
-    const [occupancy, setOccupancy] = useState<OccupancyFilter>("All");
-    const [roomType, setRoomType] = useState<TypeFilter>("All");
-    const [housing, setHousing] = useState("All");
+  // ── Filter State ──────────────────────────────────────
+  const [search, setSearch] = useState("");
+  const [occupancy, setOccupancy] = useState<OccupancyFilter>("All");
+  const [roomType, setRoomType] = useState<TypeFilter>("All");
+  const [housing, setHousing] = useState("All");
 
-    // ── Derived Options ───────────────────────────────────
-    const housingOptions = Array.from(
-      new Set(rooms.map((r) => r.housing_name))
-    );
+  // ── Derived Options ───────────────────────────────────
+  const housingOptions = Array.from(new Set(rooms.map((r) => r.housing_name)));
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
@@ -40,44 +44,41 @@ export default function Page() {
 
     const matchesSearch =
       roomCode.includes(searchTerm) ||
-      (room.assigned_tenants || []).some((t) =>
-        t.id?.toLowerCase().includes(searchTerm) ||
-        t.name?.toLowerCase().includes(searchTerm)
+      (room.assigned_tenants || []).some(
+        (t) =>
+          t.id?.toLowerCase().includes(searchTerm) ||
+          t.name?.toLowerCase().includes(searchTerm),
       );
 
     const matchesOccupancy =
       occupancy === "All" || room.occupancy_status === occupancy;
 
-    const matchesType =
-      roomType === "All" || room.room_type === roomType;
+    const matchesType = roomType === "All" || room.room_type === roomType;
 
-    const matchesHousing =
-      housing === "All" || room.housing_name === housing;
+    const matchesHousing = housing === "All" || room.housing_name === housing;
 
-    return (
-      matchesSearch &&
-      matchesOccupancy &&
-      matchesType &&
-      matchesHousing
-    );
+    return matchesSearch && matchesOccupancy && matchesType && matchesHousing;
   });
 
-    const handleView = (room: RoomRow) => {
-            setSelectedRoom(room);
-            setShowViewModal(true);
-    };
-    const handleEdit = (room: RoomRow) => {
+  const handleView = (room: RoomRow) => {
+    setSelectedRoom(room);
+    setShowViewModal(true);
+  };
+  const handleEdit = (room: RoomRow) => {
     setSelectedRoom(room);
     setShowFormModal(true);
-    };
-    const handleAssign = (room: RoomRow) => {
+  };
+  const handleAssign = (room: RoomRow) => {
     setSelectedRoom(room);
     setShowAssignModal(true);
-    };
+  };
 
   // ── Handlers ──────────────────────────────────────────
   const handleDelete = async (row: RoomRow) => {
-    if (!window.confirm(`Are you sure you want to deactivate ${row.room_code}?`)) return;
+    if (
+      !window.confirm(`Are you sure you want to deactivate ${row.room_code}?`)
+    )
+      return;
 
     try {
       setIsLoading(true);
@@ -91,13 +92,20 @@ export default function Page() {
   };
 
   const handleToggle = async (row: RoomRow) => {
-    const nextStatus = row.occupancy_status === "Empty" ? "Fully Occupied" : "Empty";
+    const nextStatus =
+      row.occupancy_status === "Empty" ? "Fully Occupied" : "Empty";
     const nextStatusUI: OccupancyStatus = nextStatus;
 
     try {
-      await roomData.update(row.room_id, { occupancy_status: nextStatus as any });
+      await roomData.update(row.room_id, {
+        occupancy_status: nextStatus,
+      });
       setRooms((prev) =>
-        prev.map((r) => r.room_id === row.room_id ? { ...r, occupancy_status: nextStatusUI } : r)
+        prev.map((r) =>
+          r.room_id === row.room_id
+            ? { ...r, occupancy_status: nextStatusUI }
+            : r,
+        ),
       );
     } catch (err) {
       console.error("Failed to update status: ", err);
@@ -111,17 +119,27 @@ export default function Page() {
         setIsLoading(true);
 
         const dbStatus = form.occupancy_status;
-        const housingId = (rooms.find((r) => r.housing_name === form.housing_name) as any)?.housing_id;
+        const selectedHousing = rooms.find(
+          (r) => r.housing_name === form.housing_name,
+        );
+        const housingId = (selectedHousing as RoomRow & { housing_id?: number })
+          .housing_id;
+
+        if (!form.room_type || !dbStatus) {
+          throw new Error("Room type and occupancy status are required.");
+        }
 
         if (housingId == null) {
-          throw new Error("Unable to resolve housing_id for the selected housing.");
+          throw new Error(
+            "Unable to resolve housing_id for the selected housing.",
+          );
         }
 
         await roomData.create({
           housing_id: housingId,
-          room_type: form.room_type as any,
+          room_type: form.room_type as RoomType,
           maximum_occupants: Number(form.maximum_occupants),
-          occupancy_status: dbStatus as any,
+          occupancy_status: dbStatus,
         });
 
         const updatedRooms = await roomData.findAllRoomDetailed();
@@ -144,10 +162,14 @@ export default function Page() {
 
       const dbStatus = form.occupancy_status;
 
+      if (!form.room_type || !dbStatus) {
+        throw new Error("Room type and occupancy status are required.");
+      }
+
       await roomData.update(selectedRoom.room_id, {
-        room_type: form.room_type as any,
+        room_type: form.room_type as RoomType,
         maximum_occupants: Number(form.maximum_occupants),
-        occupancy_status: dbStatus as any,
+        occupancy_status: dbStatus,
       });
 
       const updatedRooms = await roomData.findAllRoomDetailed();
@@ -191,13 +213,21 @@ export default function Page() {
       const liveRooms = await roomData.findAllRoomDetailed();
       setRooms(liveRooms);
 
-      const updateSelected = liveRooms.find(r => r.room_id === selectedRoom.room_id);
+      const updateSelected = liveRooms.find(
+        (r) => r.room_id === selectedRoom.room_id,
+      );
       setSelectedRoom(updateSelected || null);
     } catch (err) {
       console.error("Failed to unassign: ", err);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFetchEligibleStudents = async () => {
+    if (!selectedRoom || !adminId) return [];
+
+    return roomService.getEligibleStudents(selectedRoom.room_type, adminId);
   };
 
   // ── Fetch Data ────────────────────────────────────────
@@ -215,12 +245,22 @@ export default function Page() {
     loadLiveData();
   }, []);
 
-  if (isLoading) return <div className="p-6">Syncing with the database...</div>;
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setAdminId(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
+
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center h-64 text-[#1C2632]">
+        <Loader2 className="animate-spin mr-2" size={24} />
+        <span className="font-semibold font-sans">Syncing with the database...</span>
+      </div>
+    );
 
   // ── UI ────────────────────────────────────────────────
   return (
-    <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
-
+    <div className="flex flex-col gap-4 px-1 py-1 sm:px-2 sm:py-2">
       {/* Filters */}
       <RoomFilters
         search={search}
@@ -235,19 +275,22 @@ export default function Page() {
       />
 
       {/* Table */}
-      <RoomTable
-        data={filteredRooms}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onOverrideAssign={handleAssign}
-        onToggleOccupancy={handleToggle}
-      />
+      <div className="w-full overflow-x-auto">
+        <RoomTable
+          data={filteredRooms}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onOverrideAssign={handleAssign}
+          onToggleOccupancy={handleToggle}
+        />
+      </div>
 
       {/* Add Room Button */}
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <button
-          onClick={() => setShowAddModal(true)} 
+          type="button"
+          onClick={() => setShowAddModal(true)}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -267,7 +310,12 @@ export default function Page() {
             width: "fit-content",
           }}
         >
-          <Receipt size={14} color="#fff" strokeWidth={2.2} aria-hidden="true" />
+          <Receipt
+            size={14}
+            color="#fff"
+            strokeWidth={2.2}
+            aria-hidden="true"
+          />
           Add Room
         </button>
       </div>
@@ -327,6 +375,7 @@ export default function Page() {
             setSelectedRoom(null);
           }}
           onAssign={(studentId) => handleAssignSubmit(studentId)}
+          onFetchEligibleStudents={handleFetchEligibleStudents}
           onUnassign={(studentId) => handleUnassign(studentId)}
         />
       )}

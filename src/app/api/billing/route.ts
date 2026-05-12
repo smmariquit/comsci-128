@@ -1,19 +1,16 @@
 import { NextResponse } from "next/server";
-import { AppAction } from "@/app/lib/models/permissions";
-import { validateAction } from "@/app/lib/services/authorization-service";
-import { createSupabaseServerClient } from "@/app/lib/server-client";
+import { billingService } from "@/app/lib/services/billing-service";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    await validateAction(AppAction.BILL_STATUS);
+    const url = new URL(request.url);
+    const managedHousingIds = url.searchParams
+      .getAll("managedHousingIds")
+      .flatMap((value) => value.split(","))
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value));
 
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("bill")
-      .select("*, manager!inner(*), student!inner(*)")
-      .eq("is_deleted", false);
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    const data = await billingService.fetchAllBills(managedHousingIds);
     return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || String(error) }, { status: 500 });
@@ -22,18 +19,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await validateAction(AppAction.ASSIGN_BILL);
-
     const body = await request.json();
-    const supabase = await createSupabaseServerClient();
-
-    const { data, error } = await supabase
-      .from("bill")
-      .insert([body])
-      .select()
-      .single();
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    const data = await billingService.createBill(body);
     return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || String(error) }, { status: 500 });

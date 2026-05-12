@@ -7,12 +7,13 @@ export const metadata: Metadata = {
     "Overview of occupancy, users, rooms, billings, and reports for managed properties",
 };
 
+import { cookies } from "next/headers";
 import OccupancyChart from "@/app/components/admin/dashboard/occupancy_chart";
 import RecentApplications from "@/app/components/admin/dashboard/recent_applications";
 import RecentAuditLog from "@/app/components/admin/dashboard/recent_audit";
 import StatCard from "@/app/components/admin/dashboard/stat_card";
 import StudentHousingStatus from "@/app/components/admin/dashboard/student_housing_status";
-
+import StateMessage from "@/app/components/ui/state-message";
 import { getHousingAdmingDashboardData } from "@/app/lib/data/dashboard-data";
 
 const recentAuditData = [
@@ -59,9 +60,21 @@ const totalActiveUsers = activeUserData.reduce(
 );
 
 export default async function Page() {
-  const liveData = await getHousingAdmingDashboardData();
-  // <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
-  console.log(liveData.occupancyData);
+  const storedCookie = await cookies();
+  const adminId = Number(storedCookie.get("account_number")?.value ?? "0");
+
+  let liveData: Awaited<ReturnType<typeof getHousingAdmingDashboardData>>;
+  try {
+    liveData = await getHousingAdmingDashboardData(adminId);
+  } catch (_error) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load dashboard"
+        description="Please try again in a moment."
+      />
+    );
+  }
   const housingStatusData = [
     {
       label: "Assigned",
@@ -75,15 +88,21 @@ export default async function Page() {
     },
   ];
 
+  const isEmpty =
+    liveData.totalStudents === 0 && liveData.recentApplications.length === 0;
+
+  if (isEmpty) {
+    return (
+      <StateMessage
+        title="No dashboard data yet"
+        description="Once students and applications come in, metrics will appear here."
+      />
+    );
+  }
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-          gap: 16,
-        }}
-      >
+    <div className="flex flex-col gap-5">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total Students"
           value={liveData.totalStudents.toString()}
@@ -104,20 +123,13 @@ export default async function Page() {
         />
         <StatCard
           label="Active Accommodations"
-          value="27"
-          delta={2}
-          deltaSub="new this month"
+          value={liveData.activeAccommodations.toString()}
+          delta={0}
+          deltaSub="Currently accommodated"
         />
       </section>
 
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr",
-          gap: 16,
-          alignItems: "start",
-        }}
-      >
+      <section className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[2fr_1fr_1fr]">
         <OccupancyChart data={liveData.occupancyData} />
         <StudentHousingStatus data={housingStatusData} />
         <ActiveUsers
@@ -126,14 +138,7 @@ export default async function Page() {
         />
       </section>
 
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: 16,
-          alignItems: "start",
-        }}
-      >
+      <section className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[2fr_1fr]">
         <RecentApplications data={liveData.recentApplications} />
         <RecentAuditLog data={recentAuditData} />
       </section>
