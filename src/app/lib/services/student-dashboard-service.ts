@@ -33,7 +33,7 @@ export function getComputedNotifications(application: any, billing: any[]) {
         }
     }
 
-    billing.filter(b => b.status === "Unpaid").forEach(bill => {
+    billing.filter(b => b.status === "Pending").forEach(bill => {
         notifications.push({
             id: `bill-${bill.transaction_id}`,
             type: "WARNING",
