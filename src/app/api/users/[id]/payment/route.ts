@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { completePaymentProcess } from "@/services/student-dashboard.service";
+import { completePaymentProcess } from "@/app/lib/services/student-dashboard-service";
 
 export async function PATCH(request: NextRequest) {
     try {

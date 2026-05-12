@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { C } from "@/lib/palette";
 import { BillRow } from "./billingtable";
 
@@ -22,6 +25,8 @@ export default function BillingSummaryCard({ data }: { data: BillRow[] }) {
 }
 
 function Card({ label, value }: { label: string; value: any }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div style={{
       background: "#fff",
@@ -29,7 +34,11 @@ function Card({ label, value }: { label: string; value: any }) {
       borderRadius: 10,
       outline: `1px solid ${C.cream}`,
       minWidth: 140,
-    }}>
+      transform: hovered ? "translateY(-2px)" : "translateY(0)",
+      boxShadow: hovered ? "0 10px 20px rgba(28,38,50,0.08)" : "none",
+      transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+      outlineColor: hovered ? C.amber : C.cream,
+    }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
       <div style={{ fontSize: 10, color: C.teal }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: 600, color: C.navy }}>
         {value}

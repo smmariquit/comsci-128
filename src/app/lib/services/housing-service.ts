@@ -2,6 +2,7 @@ import { housingData } from "@/app/lib/data/housing-data";
 import { Housing, HousingWithRooms } from "@/models/housing";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
+import { createAuditLog } from "./audit-log-service";
 
 const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 	try {
@@ -10,6 +11,14 @@ const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 		const housingDetail = await housingData.create(HousingDetail);
 
 		if (!housingDetail) return null;
+
+        await createAuditLog(
+            housingDetail.landlord_account_number,
+            "",
+            "Create Housing",
+            `New Entity House ${HousingDetail.housing_name} created`,
+            housingDetail.manager_account_number
+        );
 
 		return housingDetail;
 	} catch (error) {
@@ -70,6 +79,14 @@ const updateHousing = async (
 
 		if (!updatedHousing) return null;
 
+		await createAuditLog(
+			updatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${updatedHousing.housing_name} updated`,
+			updatedHousing.manager_account_number,
+		);
+
 		return updatedHousing;
 	} catch (error) {
 		console.error("Error: ", error);
@@ -99,7 +116,16 @@ const deactivateHousing = async (
 		 */
 
 		const deactivatedHousing = await housingData.deactivate(housingId);
-		return deactivatedHousing ?? null;
+		if (!deactivatedHousing) return null;
+
+		await createAuditLog(
+			deactivatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${deactivatedHousing.housing_name} deactivated`,
+			deactivatedHousing.manager_account_number,
+		);
+		return deactivatedHousing;
 	} catch (error: any) {
 		if (error.message.includes("not found")) {
 			throw error;
@@ -174,7 +200,17 @@ const uploadHousingImage = async (
 		// OBAC
 		await validateOwnership(housing.landlord_account_number);
 
-		return await housingData.uploadHousingImage(housingId, file);
+		const updatedHousing = await housingData.uploadHousingImage(housingId, file);
+		if (!updatedHousing) return null;
+
+		await createAuditLog(
+			updatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${updatedHousing.housing_name} image updated`,
+			updatedHousing.manager_account_number,
+		);
+		return updatedHousing;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Failed to upload housing image");
@@ -190,6 +226,28 @@ const getOccupancyRate = async () => {
 	}
 }
 
+const getAllHousingByManager = async (managerAccountNumber: number): Promise<Housing[] | null> => {
+  try {
+    const housingDetail = await housingData.findAllByManager(managerAccountNumber);
+    if (!housingDetail) return null;
+    return housingDetail;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Error");
+  }
+};
+
+const getAllHousingWithRoomsByManager = async (managerAccountNumber: number): Promise<HousingWithRooms[] | null> => {
+  try {
+    const housings = await housingData.findAllWithRoomsByManager(managerAccountNumber);
+    if (!housings) return null;
+    return housings;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Failed to fetch housing with rooms");
+  }
+};
+
 export const housingService = {
 	addHousing,
 	getHousing,
@@ -200,5 +258,7 @@ export const housingService = {
 	uploadHousingImage,
 	updateHousing,
 	deactivateHousing,
-	getOccupancyRate
+	getOccupancyRate,
+	getAllHousingByManager,
+	getAllHousingWithRoomsByManager
 };

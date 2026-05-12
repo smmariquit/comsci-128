@@ -155,122 +155,113 @@ async function findStudents(): Promise<any[]> {
 }
 
 // get users for housing admin by tracing student accommodation history for students
-// Added pending applications
-// TODO: Also query non-student users under housing admin
+// plus get managers from housing
 async function getUsersForHousingAdmin(managedHousingIds: number[]): Promise<any[]> {
-	// get student accommodation history of managed housings
-	const { data: histories, error: histError } = await supabase
-		.from("student_accommodation_history")
-		.select(`
-			account_number,
-			movein_date,
-			moveout_date,
-			room!inner (
-				housing_id,
-				housing ( housing_name )
-			)
-		`)
-		.in("room.housing_id", managedHousingIds);
+    // get student accommodation history of managed housings
+    const { data: histories, error: histError } = await supabase
+        .from("student_accommodation_history")
+        .select(`
+            account_number,
+            movein_date,
+            moveout_date,
+            room!inner (
+                housing_id,
+                housing!inner ( housing_name )
+            )
+        `)
+        .in("room.housing_id", managedHousingIds);
 
-	if (histError) throw new Error("History Error: " + histError.message);
+    if (histError) throw new Error("History Error: " + histError.message);
+    
+    const { data: managers, error:dormManagerError} = await supabase
+          .from("housing")
+          .select(`
+                housing_id,
+                housing_name,
+                manager_account_number
+          `)
+          .not('manager_account_number','is',null)
+          .in("housing_id", managedHousingIds);
+    
+    if (dormManagerError) throw new Error("Property Error: " + dormManagerError.message);
 
-	// get pending applications of managed housing ids
-	const { data: applications, error: appliError } = await supabase
-		.from("application")
-		.select(`
-			student_account_number,
-			application_status,
-			housing_name,
-			room!inner ( 
-				housing_id,
-				housing ( housing_name )
-			)
-		`)
-		.in("room.housing_id", managedHousingIds)
-		.in("application_status", ["Pending Manager Approval", "Pending Admin Approval"]);
+    const userIds = new Set<number>();
+    histories?.forEach(h => userIds.add(h.account_number));
+    managers?.forEach(m => userIds.add(m.manager_account_number));
 
-	if (appliError && appliError.code !== 'PGRST116') throw new Error("App Error: " + appliError.message);
+    // short-circuit for empty housing
+    if (userIds.size === 0) return [];
 
-	const userIds = new Set<number>();
-	histories?.forEach((h: { account_number: number; }) => userIds.add(h.account_number));
-	applications?.forEach((a: { student_account_number: number; }) => a.student_account_number && userIds.add(a.student_account_number));
+    // fetch only the specific users we need
+    const { data: users, error: userError } = await supabase
+        .from("user")
+        .select(`
+            account_number,
+            first_name,
+            last_name,
+            account_email,
+            phone_number,
+            user_type,
+            sex
+        `)
+        .in("account_number", Array.from(userIds));
 
-	// short-circuit for empty housing
-	if (userIds.size === 0) return [];
+    if (userError) throw new Error("User Error: " + userError.message);
 
-	// fetch only the specific users we need
-	const { data: users, error: userError } = await supabase
-		.from("user")
-		.select(`
-			${SAFE_USER_FIELDS}
-		`)
-		.in("account_number", Array.from(userIds));
+    return users.map(user => {
+        let localHousingStatus = "Not Assigned";
+        let currentHousingId = null;
+        let currentHousingName = undefined;
+        let is_inactive = true;
 
-	if (userError) throw new Error("User Error: " + userError.message);
+        const managedProperty = managers?.find(m => m.manager_account_number === user.account_number);
 
-	// Sanitize users
-	const sanitizedUsers = users?.map((user: any) => sanitizeUserData(user)) ?? [];
+        if (managedProperty) {
+            localHousingStatus = "Assigned"; 
+            currentHousingId = managedProperty.housing_id;
+            currentHousingName = managedProperty.housing_name;
+            is_inactive = false; 
+        } 
 
-	return sanitizedUsers.map((user: { account_number: any; first_name: any; last_name: any; account_email: any; phone_number: any; user_type: any; sex: any; }) => {
-		const userHistories = histories?.filter((h: { account_number: any; }) => h.account_number === user.account_number) || [];
-		const userApps = applications?.filter((a: { student_account_number: any; }) => a.student_account_number === user.account_number) || [];
+        else {
+            const userHistories = histories?.filter(h => h.account_number === user.account_number) || [];
 
-		// localize housing status instead of using user's global housing status
-		let localHousingStatus = "Not Assigned";
-		let currentHousingId = null;
-		let currentHousingName = undefined;
-		let is_inactive = true;
+            if (userHistories.length > 0) {
+                const latestHistory = userHistories.sort((a: any, b: any) =>
+                    new Date(b.movein_date).getTime() - new Date(a.movein_date).getTime()
+                )[0];
 
-		// student recent accommodation check
-		if (userHistories.length > 0) {
-			const latestHistory = userHistories.sort((a: any, b: any) =>
-				new Date(b.movein_date).getTime() - new Date(a.movein_date).getTime()
-			)[0];
+                const latestRoom = Array.isArray(latestHistory.room) ? latestHistory.room[0] : latestHistory.room;
+                const housingObj = Array.isArray(latestRoom?.housing) ? latestRoom?.housing[0] : latestRoom?.housing;
 
-			const latestRoom = Array.isArray(latestHistory.room)
-				? latestHistory.room[0]
-				: latestHistory.room;
+                currentHousingId = latestRoom?.housing_id || null;
+                currentHousingName = housingObj?.housing_name;
 
-			currentHousingId = latestRoom?.housing_id || null;
-			currentHousingName = latestRoom?.housing?.[0]?.housing_name;
+                const isCurrentlyLivingThere = !latestHistory.moveout_date || new Date(latestHistory.moveout_date) > new Date();
 
-			const isCurrentlyLivingThere = !latestHistory.moveout_date || new Date(latestHistory.moveout_date) > new Date();
+                if (isCurrentlyLivingThere) {
+                    localHousingStatus = "Assigned";
+                    is_inactive = false; 
+                } else {
+                    localHousingStatus = "Not Assigned";
+                    is_inactive = true; 
+                }
+            }
+        }
 
-			if (isCurrentlyLivingThere) {
-				localHousingStatus = "Assigned";
-				is_inactive = false; // Active Tenant
-			} else {
-				localHousingStatus = "Not Assigned";
-				is_inactive = true; // Past Tenant (mark as removed)
-			}
-		}
-
-		// add users with pending applications
-		if (localHousingStatus !== "Assigned" && userApps.length > 0) {
-			localHousingStatus = "Pending";
-			is_inactive = false;
-
-			const appRoom = Array.isArray(userApps[0].room)
-				? userApps[0].room[0]
-				: userApps[0].room;
-
-			currentHousingId = appRoom?.housing_id || null;
-			currentHousingName = userApps[0].housing_name || appRoom?.housing?.[0]?.housing_name || null;
-		}
-
-		return {
-			account_number: user.account_number,
-			full_name: `${user.first_name} ${user.last_name}`,
-			account_email: user.account_email,
-			phone_number: user.phone_number,
-			user_type: user.user_type,
-			is_deleted: is_inactive,
-			sex: user.sex,
-			housing_status: localHousingStatus,
-			housing_name: currentHousingName,
-			housing_id: currentHousingId
-		};
-	});
+        return {
+            account_number: user.account_number,
+            full_name: `${user.first_name} ${user.last_name}`,
+            account_email: user.account_email,
+            phone_number: user.phone_number,
+            user_type: user.user_type,
+            is_deleted: is_inactive,
+            sex: user.sex,
+            housing_status: localHousingStatus,
+            housing_name: currentHousingName,
+            housing_id: currentHousingId
+        };
+    });
 }
 
 async function countAllUser(): Promise<number | null> {
@@ -313,6 +304,24 @@ async function promote(
 	return sanitizeUserData(user);
 }
 
+async function deleteByEmail(email: string): Promise<{ deleted: boolean; error?: string }> {
+  // Hard delete user by email (used for incomplete Google OAuth placeholders)
+  try {
+    const { error } = await supabase
+      .from("user")
+      .delete()
+      .eq("account_email", email);
+
+    if (error) {
+      return { deleted: false, error: error.message };
+    }
+
+    return { deleted: true };
+  } catch (err: any) {
+    return { deleted: false, error: err.message };
+  }
+}
+
 export const userData = {
 	findStudents,
 	getUsersForHousingAdmin,
@@ -325,5 +334,6 @@ export const userData = {
 	deactivate,
 	countAllUser,
 	countActiveUsers,
-	promote
+  promote,
+  deleteByEmail
 };

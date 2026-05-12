@@ -2,6 +2,7 @@ import "server-only";
 
 import type { AppAction, Permission, UserRole } from "@/models/permissions";
 import { createSupabaseServerClient } from "../server-client";
+import { cookies } from "next/headers";
 
 // memory caching to prevent multiple db calls
 let permissionsCache: Permission[] | null = null;
@@ -11,10 +12,6 @@ async function getPermissions(): Promise<Permission[]> {
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.from("permissions").select("*");
-
-  // console.log("DB Fetch - Error:", error);
-  // console.log("DB Fetch - Row Count:", data?.length);
-  // console.log("DB Fetch - First Row:", data?.[0]);
 
   if (error) {
     console.error("Authorization: Error Fetching Permissions", error);
@@ -40,7 +37,7 @@ export async function validateAction(action: AppAction) {
 
   if (!allowed) {
     throw new Error(
-      `Unauthorized: Role "${role} does not have permission to perform "${action}}".`,
+      `Unauthorized: Role "${role}" does not have permission to perform "${action}".`,
     );
   }
 
@@ -75,10 +72,6 @@ export async function validateOwnership(ownerAccountNumber: number | string) {
   if (Number(accountNumber) !== Number(ownerAccountNumber)) {
     throw new Error("Access Denied: You do not own this resource.");
   }
-
-  console.log(
-    `Ownership Verified: Account ${accountNumber} owns resource ${ownerAccountNumber}`,
-  );
 }
 
 export async function getCurrentUserRole(): Promise<UserRole> {
@@ -87,7 +80,12 @@ export async function getCurrentUserRole(): Promise<UserRole> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const accountNumber = user?.user_metadata?.account_number;
+  let accountNumber = user?.user_metadata?.account_number;
+  if (!accountNumber) {
+    const storedCookie = await cookies();
+    accountNumber = storedCookie.get("account_number")?.value;
+  };
+
   if (!accountNumber) return "public";
 
   const { data: userData } = await supabase

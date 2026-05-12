@@ -1,4 +1,5 @@
 import { C } from "@/lib/palette";
+import { useState } from "react";
 import {
   TableShell, Th, Td, EmptyRow, ActionBtn,
   OccupancyBadge, RoomTypeTag, ApplicationStatusBadge,
@@ -18,6 +19,8 @@ interface OccupancyProps {
 }
 
 export function OccupancyReportTable({ data, onView }: OccupancyProps) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
   const vacancyRate = data.length > 0
     ? Math.round((data.filter(r => r.occupancy_status === "Empty").length / data.length) * 100)
     : 0;
@@ -43,7 +46,7 @@ export function OccupancyReportTable({ data, onView }: OccupancyProps) {
               ? Math.round(((row.maximum_occupants - row.current_occupants) / row.maximum_occupants) * 100)
               : 0;
             return (
-              <tr key={row.room_id} style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}` }}>
+              <tr key={row.room_id} onMouseEnter={() => setHoveredRow(i)} onMouseLeave={() => setHoveredRow(null)} style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`, background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent", transition: "background 0.15s ease" }}>
                 <Td mono bold>{row.room_code}</Td>
                 <Td bold>{row.housing_name}</Td>
                 <Td><RoomTypeTag type={row.room_type} /></Td>
@@ -75,6 +78,8 @@ interface ApplicationProps {
 }
 
 export function ApplicationReportTable({ data, onView }: ApplicationProps) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
   return (
     <TableShell title="Application Report" count={data.length}>
       <thead>
@@ -94,7 +99,7 @@ export function ApplicationReportTable({ data, onView }: ApplicationProps) {
         {data.length === 0
           ? <EmptyRow cols={9} />
           : data.map((row, i) => (
-            <tr key={row.application_id} style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}` }}>
+            <tr key={row.application_id} onMouseEnter={() => setHoveredRow(i)} onMouseLeave={() => setHoveredRow(null)} style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`, background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent", transition: "background 0.15s ease" }}>
               <Td mono muted>#{row.application_id}</Td>
               <Td bold>{row.student_name}</Td>
               <Td mono muted>{row.student_number}</Td>
@@ -124,6 +129,8 @@ interface RevenueProps {
 }
 
 export function RevenueReportTable({ data, onView }: RevenueProps) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
   return (
     <TableShell title="Revenue Report" count={data.length}>
       <thead>
@@ -144,7 +151,7 @@ export function RevenueReportTable({ data, onView }: RevenueProps) {
         {data.length === 0
           ? <EmptyRow cols={10} />
           : data.map((row, i) => (
-            <tr key={row.transaction_id} style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}` }}>
+            <tr key={row.transaction_id} onMouseEnter={() => setHoveredRow(i)} onMouseLeave={() => setHoveredRow(null)} style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`, background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent", transition: "background 0.15s ease" }}>
               <Td mono muted>#{row.transaction_id}</Td>
               <Td bold>{row.student_name}</Td>
               <Td>{row.housing_name}</Td>
@@ -183,6 +190,8 @@ interface AccommodationProps {
 }
 
 export function AccommodationHistoryTable({ data, onView }: AccommodationProps) {
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
   return (
     <TableShell title="Accommodation History" count={data.length}>
       <thead>
@@ -209,7 +218,8 @@ export function AccommodationHistoryTable({ data, onView }: AccommodationProps) 
             const months = Math.round(days / 30);
             return (
               <tr key={`${row.account_number}-${row.room_id}`}
-                style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}` }}>
+                onMouseEnter={() => setHoveredRow(i)} onMouseLeave={() => setHoveredRow(null)}
+                style={{ borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`, background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent", transition: "background 0.15s ease" }}>
                 <Td bold>{row.student_name}</Td>
                 <Td mono muted>{row.student_number}</Td>
                 <Td mono bold>{row.room_code}</Td>

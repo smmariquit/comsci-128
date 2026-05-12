@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import Breadcrumbs from "./components/Breadcrumbs";
+import ManageTopNav from "./components/ManageTopNav";
 import Link from "next/link";
 import Logo from "@/app/components/Logo";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
-  description: "Manager panel for managing properties, applications, and tenants.",
+  description:
+    "Manager panel for managing properties, applications, and tenants.",
 };
 
 export default function ManageLayout({
@@ -13,7 +16,7 @@ export default function ManageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+       <div className="h-screen flex flex-col overflow-hidden">
       <header className="flex-shrink-0">
         {/*top navbar*/}
         <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
@@ -45,6 +48,15 @@ export default function ManageLayout({
                   className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
                 >
                   Applications
+                </Link>
+
+                <span className="mx-2 opacity-60">|</span>
+
+                <Link
+                  href="/manage/reports"
+                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
+                >
+                  Reports
                 </Link>
               </div>
             </div>
@@ -82,7 +94,7 @@ export default function ManageLayout({
 
       <footer className="flex-shrink-0 bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
         © 2026 CMSC 128 Project
-      </footer>
+        </footer>
     </div>
   );
 }
