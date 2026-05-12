@@ -49,6 +49,9 @@ async function getAll() {
           phone_number,
           contact_email,
           user_type,
+          is_deleted,
+          profile_picture,
+          google_identity
         )
       )
     `);
@@ -82,7 +85,9 @@ async function getById(accountNumber: number) {
           phone_number,
           contact_email,
           user_type,
-          is_deleted
+          is_deleted,
+          profile_picture,
+          google_identity
         )
       )
     `,
