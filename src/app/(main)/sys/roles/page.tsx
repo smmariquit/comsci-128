@@ -68,38 +68,28 @@ const ITEMS_PER_PAGE = 5;
 export default function UserManagementPage({
   user = stubUser,
   notifications = stubNotifications,
+import PageLoading from "@/app/components/ui/page-loading";
+import StateMessage from "@/app/components/ui/state-message";
   onLogout,
 }: UserManagementProps) {
-  const [userList, setUserList] = useState<User[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<UserFiltersState>({
-  search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
-  });
-
-  // Paging and modals state
-  const [page, setPage] = useState(1);
-  const [disableUser, setDisableUser] = useState<User | null>(null);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-
-  // Fetch managers from API
-  useEffect(() => {
-    const fetchManagers = async () => {
+    return <PageLoading label="Loading roles" />;
       try {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/manager');
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        console.log('Raw API data:', data);
-
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="w-full max-w-md">
+            <StateMessage
+              variant="error"
+              title="Could not load roles"
+              description={error}
+            />
+            <button
+              onClick={() => window.location.reload()}
+              className="mx-auto mt-4 block rounded-full bg-[#1a2332] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            >
+              Try again
+            </button>
         let rawUsers = [];
         if (Array.isArray(data)) {
           rawUsers = data;
@@ -242,7 +232,12 @@ export default function UserManagementPage({
 
             <div className="divide-y divide-[#1a2332]/5">
               {paginated.length === 0 ? (
-                <p className="text-sm text-[#1a2332]/40 text-center py-12">No users found.</p>
+                <div className="py-12 px-6">
+                  <StateMessage
+                    title="No users match these filters"
+                    description="Try clearing the search or switching role and status filters."
+                  />
+                </div>
                       ) : (
                 paginated.map((u) => (
                   <div key={u.id} className="grid grid-cols-[2.8fr_2.2fr_1.3fr_1.4fr_1.2fr_1.5fr] gap-4 px-6 py-4 items-center hover:bg-[#eae8e1]/30 transition-colors">
