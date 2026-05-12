@@ -197,7 +197,8 @@ export default function BillingPage() {
   // ── Housing Options ─────────────────────────────────────────────────
 
   const HOUSING_OPTIONS = useMemo(() => {
-    return [...new Set(bills.map((b) => b.housing_name))].filter(Boolean);
+    const names = [...new Set(bills.map((b) => b.housing_name))].filter(Boolean) as string[];
+    return names.map((name, i) => ({ housing_id: i + 1, housing_name: name }));
   }, [bills]);
 
   // ── Table handlers ──────────────────────────────────────────────────────────

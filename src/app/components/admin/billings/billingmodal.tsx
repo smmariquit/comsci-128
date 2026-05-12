@@ -174,14 +174,15 @@ function SelectField({ id, label, value, onChange, children, flex }: {
 
 interface IssueBillModalProps {
   open:           boolean;
-  managedIds: { housing_id: number; housing_name: string }[];          // list of housing_name strings
+  managedIds?: { housing_id: number; housing_name: string }[];         // list of housing objects
+  housingOptions?: { housing_id: number; housing_name: string }[];     // alternative prop name used by some pages
   onClose:        () => void;
   onSubmit:       (form: IssueBillForm) => void;
   isSubmitting?:  boolean;
 }
 
 export default function IssueBillModal({
-  open, managedIds, onClose, onSubmit, isSubmitting = false,
+  open, managedIds, housingOptions: housingOptionsProp, onClose, onSubmit, isSubmitting = false,
 }: IssueBillModalProps) {
 
   const today = new Date().toISOString().split("T")[0];
@@ -205,7 +206,7 @@ export default function IssueBillModal({
   // Reset when modal opens
   useEffect(() => {
     if (open) {
-      setHousingOptions(managedIds);
+      setHousingOptions(managedIds ?? housingOptionsProp ?? []);
       // Reset all
       setSelectedHousingId(""); 
       setSelectedRoomId(""); 

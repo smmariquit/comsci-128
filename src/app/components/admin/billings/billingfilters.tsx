@@ -14,7 +14,7 @@ interface Props {
   status:         StatusFilter;
   billType:       BillTypeFilter;
   housing:        string;
-  housingOptions: string[];
+  housingOptions: string[] | { housing_id: number; housing_name: string }[];
   dueDateFrom:    string;
   dueDateTo:      string;
   onSearch:       (v: string)          => void;
@@ -101,7 +101,10 @@ export default function BillFilters({
           style={{ ...selectBase, minWidth: 180, boxShadow: hoveredSelect === "housing" ? "0 8px 18px rgba(28,38,50,0.08)" : "none", outlineColor: hoveredSelect === "housing" ? C.amber : C.cream }}
         >
           <option value="All">All Properties</option>
-          {housingOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+          {housingOptions.map((h) => {
+            if (typeof h === "string") return <option key={h} value={h}>{h}</option>;
+            return <option key={h.housing_id} value={h.housing_name}>{h.housing_name}</option>;
+          })}
         </select>
 
         {/* Bill type */}
