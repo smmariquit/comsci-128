@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import UserTable from "@/app/components/admin/user/usertable";
 import UserFilters from "@/app/components/admin/user/userfilters";
@@ -15,10 +15,15 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
   const [housingStatus, setHousingStatus] = useState<HousingFilter>("All");
   const [accountStatus, setAccountStatus] = useState<AccountStatusFilter>("All");
   const [viewRow, setViewRow] = useState<UserRow | null>(null);
+  const [users, setUsers] = useState(liveUsers);
+
+  useEffect(() => {
+    setUsers(liveUsers);
+  }, [liveUsers]);
 
   // ── Filtered data ─────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
-    return liveUsers.filter((u) => {
+    return users.filter((u) => {
       const q = search.toLowerCase();
       const matchesSearch =
         !q ||
@@ -40,11 +45,32 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
 
       return matchesSearch && matchesType && matchesHousing && matchesAccount;
     });
-  }, [search, userType, housingStatus, accountStatus]);
+  }, [users, search, userType, housingStatus, accountStatus]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   function handleView(row: UserRow) {
     setViewRow(row);
+  }
+
+  async function handleRemove(row: UserRow) {
+    if (!window.confirm(`Remove ${row.full_name}?`)) return;
+
+    try {
+      const response = await fetch(`/api/users/${row.account_number}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to remove user");
+      }
+
+      setUsers((prev) => prev.filter((user) => user.account_number !== row.account_number));
+      if (viewRow?.account_number === row.account_number) {
+        setViewRow(null);
+      }
+    } catch (error) {
+      console.error("Failed to remove user:", error);
+    }
   }
 
   const initials = viewRow
@@ -95,6 +121,7 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
       <UserTable
         data={filtered}
         onView={handleView}
+        onRemove={handleRemove}
       />
 
       {viewRow && (

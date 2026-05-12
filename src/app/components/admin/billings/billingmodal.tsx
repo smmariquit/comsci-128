@@ -174,18 +174,17 @@ function SelectField({ id, label, value, onChange, children, flex }: {
 
 interface IssueBillModalProps {
   open:           boolean;
-  managedIds: number[];          // list of housing_name strings
+  managedIds: { housing_id: number; housing_name: string }[];          // list of housing_name strings
   onClose:        () => void;
   onSubmit:       (form: IssueBillForm) => void;
   isSubmitting?:  boolean;
 }
 
 export default function IssueBillModal({
-  open, onClose, onSubmit, isSubmitting = false,
+  open, managedIds, onClose, onSubmit, isSubmitting = false,
 }: IssueBillModalProps) {
 
   const today = new Date().toISOString().split("T")[0];
-  const mockLandlordId = 179;
 
   // ── Form state (IDs) ──────────────────────────────────────────────────────────
   const [selectedHousingId, setSelectedHousingId] = useState<number | "">("");
@@ -206,11 +205,13 @@ export default function IssueBillModal({
   // Reset when modal opens
   useEffect(() => {
     if (open) {
-      housingData.findbyLandlord(mockLandlordId).then(setHousingOptions); // Use managedIds to filter if needed
+      setHousingOptions(managedIds);
       // Reset all
-      setSelectedHousingId(""); setSelectedRoomId(""); setSelectedStudentId("");
+      setSelectedHousingId(""); 
+      setSelectedRoomId(""); 
+      setSelectedStudentId("");
     }
-  }, [open]);
+  }, [open, managedIds]);
 
   // Fetch rooms
   useEffect(() => {

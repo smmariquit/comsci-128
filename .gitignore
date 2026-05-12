@@ -40,3 +40,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI / Vibe Coding
+.cursorrules
+.cursor/
+.ai/
+.vibe/
+.windsurfrules

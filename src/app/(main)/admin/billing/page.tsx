@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 
 import { useState, useMemo, useEffect } from "react";
 import { AlertTriangle, Check, Clock3, DollarSign, ReceiptText } from "lucide-react";
@@ -10,9 +9,11 @@ import  IssueBillModal, {ViewBillModal} from "@/app/components/admin/billings/bi
 import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
+import { housingData } from "@/app/lib/data/housing-data";
 import { billingClient } from "@/app/lib/client/billing-client";
 import BillingPageLoading from "./loading";
 import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
+import StateMessage from "@/app/components/ui/state-message";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
@@ -117,21 +118,36 @@ function IssueBillButton({ onClick, isLoading = false }: { onClick: () => void; 
 // PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Issue Bill button ─────────────────────────────────────────────────────────
+
 export default function BillingPage() {
   
   const [bills, setBills] = useState<BillRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [pageError, setPageError] = useState<string | null>(null);
+  const [managedHousingIds, setManagedHousingIds] = useState<number[]>([]);
+  const [managedHousings, setManagedHousings] = useState<{housing_id: number, housing_name: string}[]>([]);
 
-  // fetch actual ids
-  const managedHousingIds = [3, 12, 13, 14, 16, 18];
+  // ── Fetch Data ─────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    const accountNumber = match ? Number(decodeURIComponent(match[1])) : 0;
+
+    if (!accountNumber) return;
+    housingData.findbyLandlord(accountNumber).then((housings) => {
+      setManagedHousings(housings);
+      setManagedHousingIds(housings.map(h => h.housing_id));
+    });
+  },[]);
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    loadBills();
-  }, []);
+    if (managedHousingIds.length > 0) loadBills();
+  }, [managedHousingIds]);
 
   async function loadBills() {
     if (!isLoading) setIsLoading(true);
@@ -139,8 +155,13 @@ export default function BillingPage() {
     try {
       const data = await billingClient.fetchAllBills(managedHousingIds);
       setBills(data);
+      setPageError(null);
     } catch (error) {
       console.error("Refresh Load Error: ", error);
+      setBills([]);
+      setPageError(
+        error instanceof Error ? error.message : "Failed to load bills.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -256,7 +277,12 @@ export default function BillingPage() {
       const studentId = form.student_account_number
 
       if (!studentId) {
-        alert('Student not found (handleIssue)!');
+        setFeedback({
+          open: true,
+          kind: "error",
+          title: "Student not found",
+          message: "Select a valid student before issuing a bill.",
+        });
         return;
       }
   
@@ -301,6 +327,17 @@ export default function BillingPage() {
   }
 
   if (!isMounted || (isLoading && bills.length === 0)) return <BillingPageLoading />;
+  if (pageError) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load billing"
+        description={pageError}
+      />
+    );
+  }
+
+  const isEmpty = filtered.length === 0;
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -359,12 +396,19 @@ export default function BillingPage() {
       </div>
           
       {/* ── Table ─────────────────────────────────────────────────────────── */}
-      <BillTable
-        data={filtered}
-        onView={handleView}
-        onMarkPaid={handleMarkPaid}
-        onDelete={handleDelete}
-      />
+      {isEmpty ? (
+        <StateMessage
+          title="No billing records found"
+          description="Try adjusting filters or issue a new bill."
+        />
+      ) : (
+        <BillTable
+          data={filtered}
+          onView={handleView}
+          onMarkPaid={handleMarkPaid}
+          onDelete={handleDelete}
+        />
+      )}
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <IssueBillButton onClick={() => setIssueOpen(true)} isLoading={isIssueSubmitting} />
       </div>
@@ -374,7 +418,7 @@ export default function BillingPage() {
       {/* ── Issue Bill Modal ───────────────────────────────────────────────── */}
       <IssueBillModal
         open={issueOpen}
-        managedIds={managedHousingIds}
+        managedIds={managedHousings}
         onClose={() => setIssueOpen(false)}
         onSubmit={handleIssue}
         isSubmitting={isIssueSubmitting}

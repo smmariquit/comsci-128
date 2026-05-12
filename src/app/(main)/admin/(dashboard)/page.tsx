@@ -12,8 +12,10 @@ import RecentApplications from "@/app/components/admin/dashboard/recent_applicat
 import RecentAuditLog from "@/app/components/admin/dashboard/recent_audit";
 import StatCard from "@/app/components/admin/dashboard/stat_card";
 import StudentHousingStatus from "@/app/components/admin/dashboard/student_housing_status";
+import StateMessage from "@/app/components/ui/state-message";
 
 import { getHousingAdmingDashboardData } from "@/app/lib/data/dashboard-data";
+import { cookies } from "next/headers";
 
 const recentAuditData = [
   {
@@ -59,12 +61,21 @@ const totalActiveUsers = activeUserData.reduce(
 );
 
 export default async function Page() {
-  // sample landlord id for testing
-  const landlordIds = 179
+  const storedCookie = await cookies();
+  const adminId = Number(storedCookie.get("account_number")?.value ?? "0");
 
-  const liveData = await getHousingAdmingDashboardData(landlordIds);
-  // <StatCard label="Total Students" value="1,024" delta={24} deltaSub="vs last month" />
-  console.log(liveData.occupancyData);
+  let liveData: Awaited<ReturnType<typeof getHousingAdmingDashboardData>>;
+  try {
+    liveData = await getHousingAdmingDashboardData(adminId);
+  } catch (error) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load dashboard"
+        description="Please try again in a moment."
+      />
+    );
+  }
   const housingStatusData = [
     {
       label: "Assigned",
@@ -78,6 +89,18 @@ export default async function Page() {
     },
   ];
 
+  const isEmpty =
+    liveData.totalStudents === 0 && liveData.recentApplications.length === 0;
+
+  if (isEmpty) {
+    return (
+      <StateMessage
+        title="No dashboard data yet"
+        description="Once students and applications come in, metrics will appear here."
+      />
+    );
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <section
@@ -87,30 +110,10 @@ export default async function Page() {
           gap: 16,
         }}
       >
-        <StatCard
-          label="Total Students"
-          value={liveData.totalStudents.toString()}
-          delta={0}
-          deltaSub="Live Students"
-        />
-        <StatCard
-          label="Occupancy Rate"
-          value={`${liveData.occupancyRate}%`}
-          delta={0}
-          deltaSub="Live Occupancy Rate"
-        />
-        <StatCard
-          label="Pending Applications"
-          value={liveData.totalPendingApplication.toString()}
-          delta={0}
-          deltaSub="Pending Applications"
-        />
-        <StatCard
-          label="Active Accommodations"
-          value="27"
-          delta={2}
-          deltaSub="new this month"
-        />
+        <StatCard label="Total Students" value={liveData.totalStudents.toString()} delta={0} deltaSub="Live Students" />
+        <StatCard label="Occupancy Rate" value={`${liveData.occupancyRate}%`} delta={0} deltaSub="Live Occupancy Rate" />
+        <StatCard label="Pending Applications" value={liveData.totalPendingApplication.toString()} delta={0} deltaSub="Pending Applications" />
+        <StatCard label="Active Accommodations" value={liveData.activeAccommodations.toString()} delta={0} deltaSub="Currently accommodated" />
       </section>
 
       <section
