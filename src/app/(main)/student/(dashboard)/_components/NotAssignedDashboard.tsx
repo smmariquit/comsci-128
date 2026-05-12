@@ -1,4 +1,5 @@
 import { CircleAlert, CircleCheckBig } from "lucide-react";
+import Link from "next/link";
 
 export default function NotAssignedDashboard(userName: String, dashboardData: Object) {
   const userHousingDetails = dashboardData as any;
@@ -24,6 +25,45 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
 
   function getHousing() {
     return getApplication()?.room?.housing;
+  }
+
+  function showApplicationDetails() {
+    if (getApplicationStepStatus(1) == checkIcon) {
+      return (
+        <div className="w-full flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
+          <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+            <div className={hStyle}>Application Details</div>
+          </div>
+          <div className="self-stretch flex-1 px-9 py-4">
+            <span className={`${tStyle} font-semibold `}>Housing Details</span>
+            <ul className={`${tStyle} pb-4 px-4`}>
+              <li><span className="font-bold">Name:</span> {getHousing()?.housing_name}</li>
+              <li><span className="font-bold">Address:</span> {getHousing()?.housing_address}</li>
+            </ul>
+            <span className={`${tStyle} font-semibold `}>Room Details</span>
+            <ul className={`${tStyle} pb-4 px-4`}>
+              <li><span className="font-bold">Room ID:</span> {getApplication()?.room_id}</li>
+              <li><span className="font-bold">Room Type:</span> {getApplication()?.room.room_type}</li>
+            </ul>
+            <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {getApplication()?.expected_moveout_date}</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
+        <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+            <div className={hStyle}>Application Details</div>
+          </div>
+        <div className="self-stretch flex-1 px-9 py-4 flex flex-col justify-center items-center gap-2.5 overflow-hidden">
+          <div className={`${tStyle} font-semibold `}>You have no active housing application at this time</div>
+          <Link href="/student/browse" className="px-9 py-px bg-gray-800 rounded-2xl inline-flex justify-center items-center gap-2.5">
+            <div className={hStyle}>Browse Available Accomodations</div>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -54,24 +94,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
           </div>
         </div>
       </div>
-      <div className="w-full flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
-        <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
-          <div className={hStyle}>Application Details</div>
-        </div>
-        <div className="self-stretch flex-1 px-9 py-4">
-          <span className={`${tStyle} font-semibold `}>Housing Details</span>
-          <ul className={`${tStyle} pb-4 px-4`}>
-            <li><span className="font-bold">Name:</span> {getHousing()?.housing_name}</li>
-            <li><span className="font-bold">Address:</span> {getHousing()?.housing_address}</li>
-          </ul>
-          <span className={`${tStyle} font-semibold `}>Room Details</span>
-          <ul className={`${tStyle} pb-4 px-4`}>
-            <li><span className="font-bold">Room ID:</span> {getApplication()?.room_id}</li>
-            <li><span className="font-bold">Room Type:</span> {getApplication()?.room.room_type}</li>
-          </ul>
-          <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {getApplication()?.expected_moveout_date}</span>
-        </div>
-      </div>
+      {showApplicationDetails()}
     </div>
   );
 }
