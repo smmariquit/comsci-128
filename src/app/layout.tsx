@@ -27,11 +27,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const fontClass = `${geistSans?.variable ?? ""} ${geistMono?.variable ?? ""}`.trim();
+
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen overflow-x-hidden`}
-      >
+    <html lang="en" className={fontClass}>
+      <body className={`antialiased min-h-screen overflow-x-hidden`}>
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

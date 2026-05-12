@@ -9,9 +9,9 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
   const crossIcon = <CircleAlert className="w-24 h-24 text-red-600" strokeWidth={2.2} />;
 
   function getApplicationStepStatus(stepIndex: number) {
-    const stepStatus = userHousingDetails.steps[stepIndex].isDone
+    const stepStatus = userHousingDetails?.steps?.[stepIndex]?.isDone ?? false;
 
-    if(stepStatus) {
+    if (stepStatus) {
       return checkIcon;
     }
 
@@ -19,11 +19,12 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
   }
 
   function getApplication() {
-    return userHousingDetails?.application;
+    return userHousingDetails?.application ?? null;
   }
 
   function getHousing() {
-    return getApplication()?.room?.housing;
+    const app = getApplication();
+    return app?.room?.housing ?? null;
   }
 
   return (
@@ -61,15 +62,15 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
         <div className="self-stretch flex-1 px-9 py-4">
           <span className={`${tStyle} font-semibold `}>Housing Details</span>
           <ul className={`${tStyle} pb-4 px-4`}>
-            <li><span className="font-bold">Name:</span> {getHousing()?.housing_name}</li>
-            <li><span className="font-bold">Address:</span> {getHousing()?.housing_address}</li>
+            <li><span className="font-bold">Name:</span> {getHousing()?.housing_name ?? '—'}</li>
+            <li><span className="font-bold">Address:</span> {getHousing()?.housing_address ?? '—'}</li>
           </ul>
           <span className={`${tStyle} font-semibold `}>Room Details</span>
           <ul className={`${tStyle} pb-4 px-4`}>
-            <li><span className="font-bold">Room ID:</span> {getApplication()?.room_id}</li>
-            <li><span className="font-bold">Room Type:</span> {getApplication()?.room.room_type}</li>
+            <li><span className="font-bold">Room ID:</span> {getApplication()?.room_id ?? '—'}</li>
+            <li><span className="font-bold">Room Type:</span> {getApplication()?.room?.room_type ?? '—'}</li>
           </ul>
-          <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {getApplication()?.expected_moveout_date}</span>
+          <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {getApplication()?.expected_moveout_date ?? '—'}</span>
         </div>
       </div>
     </div>

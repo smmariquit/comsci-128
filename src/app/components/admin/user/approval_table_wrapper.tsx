@@ -157,10 +157,10 @@ function StatusFilter({
   counts,
 }: {
   value: ApplicationStatus | "All";
-  const toast = useToast();
   onChange: (v: ApplicationStatus | "All") => void;
   counts: Record<ApplicationStatus | "All", number>;
 }) {
+  // StatusFilter is a pure presentational component — do not call hooks here.
   const options: (ApplicationStatus | "All")[] = ["All", ...ALL_STATUSES];
 
   return (
@@ -536,6 +536,7 @@ export default function ApplicationTable_Wrapper({
   onReject?: (row: ApplicationReportRow) => void | Promise<void>;
 }) {
   const router = useRouter();
+  const toast = useToast();
   const [applications, setApplications] = useState<ApplicationReportRow[]>(liveApplications);
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "All">("Pending Admin Approval");
   const [search, setSearch] = useState("");

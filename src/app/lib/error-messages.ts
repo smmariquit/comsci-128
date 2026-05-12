@@ -3,7 +3,7 @@
  * Error Recovery - Plain Language, Suggest Solutions
  */
 
-export const ErrorMessages: Record<string, string> = {
+export const ErrorMessages: Record<string, string | ((param: string) => string)> = {
   // Network errors
   NETWORK_ERROR: "Unable to connect to the server. Please check your internet connection and try again.",
   TIMEOUT: "Request took too long. Please try again.",
@@ -37,15 +37,15 @@ export function getErrorMessage(error: unknown): string {
     // Check if error message matches known patterns
     const message = error.message.toLowerCase();
     
-    if (message.includes("network")) return ErrorMessages.NETWORK_ERROR;
-    if (message.includes("timeout")) return ErrorMessages.TIMEOUT;
-    if (message.includes("invalid")) return ErrorMessages.INVALID_CREDENTIALS;
-    if (message.includes("not found")) return ErrorMessages.NOT_FOUND;
-    if (message.includes("unauthorized") || message.includes("permission")) return ErrorMessages.UNAUTHORIZED;
+    if (message.includes("network")) return ErrorMessages.NETWORK_ERROR as string;
+    if (message.includes("timeout")) return ErrorMessages.TIMEOUT as string;
+    if (message.includes("invalid")) return ErrorMessages.INVALID_CREDENTIALS as string;
+    if (message.includes("not found")) return ErrorMessages.NOT_FOUND as string;
+    if (message.includes("unauthorized") || message.includes("permission")) return ErrorMessages.UNAUTHORIZED as string;
     
     // Return the actual error message if it's user-friendly
     return error.message;
   }
   
-  return ErrorMessages.GENERIC;
+  return ErrorMessages.GENERIC as string;
 }
