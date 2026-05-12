@@ -458,11 +458,11 @@ function ViewModal({
     { label: "Preferred Room Type", value: row.preferred_room_type ?? <span style={{ opacity: 0.45 }}>—</span> },
     {
       label: "Expected Move-Out",
-      value: row.expected_moveout_date ? new Date(row.expected_moveout_date).toLocaleDateString() : <span style={{ opacity: 0.45 }}>—</span>,
+      value: row.expected_moveout_date ? new Date(row.expected_moveout_date).toLocaleDateString("en-PH", { dateStyle: "medium", timeZone: "Asia/Manila" }) : <span style={{ opacity: 0.45 }}>—</span>,
     },
     {
       label: "Actual Move-Out",
-      value: row.actual_moveout_date ? new Date(row.actual_moveout_date).toLocaleDateString() : <span style={{ opacity: 0.45 }}>—</span>,
+      value: row.actual_moveout_date ? new Date(row.actual_moveout_date).toLocaleDateString("en-PH", { dateStyle: "medium", timeZone: "Asia/Manila" }) : <span style={{ opacity: 0.45 }}>—</span>,
     },
   ];
 

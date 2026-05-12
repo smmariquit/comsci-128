@@ -234,7 +234,7 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                 <InfoCell label="Date Added"   value={dorm.dateAdded} />
                 <InfoCell
                   label="Monthly Rate"
-                  value={dorm.monthlyRate ? `₱${dorm.monthlyRate.toLocaleString()} / mo` : undefined}
+                  value={dorm.monthlyRate ? `₱${dorm.monthlyRate.toLocaleString("en-PH")} / mo` : undefined}
                 />
                 <InfoCell label="Status"       value={dorm.status} />
               </div>

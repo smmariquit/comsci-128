@@ -108,7 +108,11 @@ export default function ManagerComplaintsPage() {
                 </a>
               )}
               <div className="text-xs text-gray-500 mt-2">
-                Status: {c.status} | Submitted: {new Date(c.created_at).toLocaleString()}
+                Status: {c.status} | Submitted: {new Date(c.created_at).toLocaleString("en-PH", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                  timeZone: "Asia/Manila",
+                })}
               </div>
             </li>
           ))}
