@@ -2,124 +2,157 @@ import type { NewUser, UpdateUser, User } from "@/models/user";
 import { supabase } from "../supabase";
 import { count } from "console";
 
+// ============================================
+// Define safe fields to NEVER select from user table
+// ============================================
+const SAFE_USER_FIELDS = `
+  account_number,
+  account_email,
+  first_name,
+  middle_name,
+  last_name,
+  sex,
+  birthday,
+  home_address,
+  phone_number,
+  contact_email,
+  profile_picture,
+  user_type,
+  is_deleted
+` as const;
+
+// Helper function to sanitize user data
+function sanitizeUserData(userData: any) {
+	if (!userData) return null;
+	const { password, google_identity, ...safeUser } = userData;
+	return safeUser;
+}
+
 async function create(userDetails: NewUser): Promise<User> {
 	// this is for returning the newly inserted user
 	const { data, error } = await supabase
 		.from("user")
 		.insert(userDetails)
-		.select();
+		.select(SAFE_USER_FIELDS);
 
-  if (error) {
-    throw new Error(error.message);
-  }
+	if (error) {
+		throw new Error(error.message);
+	}
 
-  return data[0];
+	// Sanitize the returned data
+	return sanitizeUserData(data[0]);
 }
 
 async function findAll(): Promise<User[]> {
 	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
 
 	const { data, error } = await supabase
-	.from('user')
-	.select()
-	.eq('is_deleted', false);
+		.from('user')
+		.select(SAFE_USER_FIELDS)
+		.eq('is_deleted', false);
 
-  if (error) throw new Error(`Get All Users Error: ${error.message}`);
+	if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
-  return data ?? [];
+	// Sanitize all users in the array
+	const sanitizedData = data?.map((user: any) => sanitizeUserData(user)) ?? [];
+	return sanitizedData;
 }
 
 async function findById(userId: number): Promise<User | null> {
 	const { data, error } = await supabase
 		.from("user")
-		.select()
+		.select(SAFE_USER_FIELDS)
 		.eq("account_number", userId)
 		.eq("is_deleted", false);
 
-  if (error) throw new Error(`Find User by ID Error: ${error.message}`);
+	if (error) throw new Error(`Find User by ID Error: ${error.message}`);
 
-  return data && data.length > 0 ? data[0] : null;
+	const user = data && data.length > 0 ? data[0] : null;
+	return sanitizeUserData(user);
 }
 
 async function findByEmail(userEmail: string): Promise<User | null> {
 	const { data, error } = await supabase
 		.from("user")
-		.select()
+		.select(SAFE_USER_FIELDS)
 		.eq("account_email", userEmail)
 		.eq("is_deleted", false);
 
-  if (error) throw new Error(`Find User by Email Error: ${error.message}`);
+	if (error) throw new Error(`Find User by Email Error: ${error.message}`);
 
-  return data && data.length > 0 ? data[0] : null;
+	const user = data && data.length > 0 ? data[0] : null;
+	return sanitizeUserData(user);
 }
 
 async function findByGoogleIdentity(googleIdentity: string): Promise<User | null> {
-    const { data, error } = await supabase
-        .from("user")
-        .select()
-        .eq("google_identity", googleIdentity)
-        .eq("is_deleted", false);
+	const { data, error } = await supabase
+		.from("user")
+		.select(SAFE_USER_FIELDS)
+		.eq("google_identity", googleIdentity)
+		.eq("is_deleted", false);
 
-  if (error) throw new Error(`Find User by Google Identity Error: ${error.message}`);
+	if (error) throw new Error(`Find User by Google Identity Error: ${error.message}`);
 
-  return data && data.length > 0 ? data[0] : null;
+	const user = data && data.length > 0 ? data[0] : null;
+	return sanitizeUserData(user);
 }
 
 async function update(
 	userId: number,
 	userDetails: UpdateUser,
 ): Promise<UpdateUser | null> {
-  // update all attributes of the user based on their account number
-  // RETURNS the updated object (user)
+	// update all attributes of the user based on their account number
+	// RETURNS the updated object (user)
 
-  const { data, error } = await supabase
-    .from("user")
-    .update(userDetails)
-    .eq("account_number", Number(userId))
-    .select("*");
+	const { data, error } = await supabase
+		.from("user")
+		.update(userDetails)
+		.eq("account_number", Number(userId))
+		.select(SAFE_USER_FIELDS);
 
-  if (error) throw new Error(`Update User Error: ${error.message}`);
+	if (error) throw new Error(`Update User Error: ${error.message}`);
 
-  return data && data.length > 0 ? data[0] : null;
+	const user = data && data.length > 0 ? data[0] : null;
+	return sanitizeUserData(user);
 }
 
 async function deactivate(email: string): Promise<UpdateUser | null> {
 	// This function takes a USERID of type STRING.
 	// CHANGES is_deleted field to true if user is found, otherwise return null.
 
-  const { data, error } = await supabase
-    .from("user")
-    .update({ is_deleted: true })
-    .eq("account_email", email)
-    .select();
+	const { data, error } = await supabase
+		.from("user")
+		.update({ is_deleted: true })
+		.eq("account_email", email)
+		.select(SAFE_USER_FIELDS);
 
-  if (error) throw new Error(`Deactivate User Error: ${error.message}`);
+	if (error) throw new Error(`Deactivate User Error: ${error.message}`);
 
-  return data && data.length > 0 ? data[0] : null;
+	const user = data && data.length > 0 ? data[0] : null;
+	return sanitizeUserData(user);
 }
 
 async function findStudents(): Promise<any[]> {
 	// returns students ONLY
 	const { data, error } = await supabase
-	.from("user")
-	.select(`
-		account_number, 
-		first_name, 
-		last_name, 
-		student:student!account_number (
-			housing_status
-		)`
-	)
-	.eq("user_type", "Student")
-	.eq("is_deleted", false);
+		.from("user")
+		.select(`
+			${SAFE_USER_FIELDS},
+			student:student!account_number (
+				housing_status
+			)
+		`)
+		.eq("user_type", "Student")
+		.eq("is_deleted", false);
 
 	if (error) {
 		throw new Error(error.message);
 	}
 
-	return data ?? null;
+	// Sanitize the returned data
+	const sanitizedData = data?.map((user: any) => sanitizeUserData(user)) ?? [];
+	return sanitizedData;
 }
-
 
 // get users for housing admin by tracing student accommodation history for students
 // plus get managers from housing
@@ -242,11 +275,11 @@ async function countAllUser(): Promise<number | null> {
 }
 
 // Counts only active users (not marked as deleted)
-async function countActiveUsers():Promise<number | null> {
+async function countActiveUsers(): Promise<number | null> {
 	const { count, error } = await supabase
-      .from("user")
-      .select("*", { count: "exact", head: true })
-      .eq("is_deleted", false);
+		.from("user")
+		.select("*", { count: "exact", head: true })
+		.eq("is_deleted", false);
 
 	if (error) throw new Error(error.message);
 
@@ -259,15 +292,16 @@ async function promote(
 	userDetails: UpdateUser,
 ): Promise<UpdateUser | null> {
 
-  const { data, error } = await supabase
-    .from("user")
-    .update(userDetails)
-    .eq("account_email", account_email)
-    .select("*");
+	const { data, error } = await supabase
+		.from("user")
+		.update(userDetails)
+		.eq("account_email", account_email)
+		.select(SAFE_USER_FIELDS);
 
-  if (error) throw new Error(`Update User Error: ${error.message}`);
+	if (error) throw new Error(`Update User Error: ${error.message}`);
 
-  return data && data.length > 0 ? data[0] : null;
+	const user = data && data.length > 0 ? data[0] : null;
+	return sanitizeUserData(user);
 }
 
 async function deleteByEmail(email: string): Promise<{ deleted: boolean; error?: string }> {
@@ -291,15 +325,15 @@ async function deleteByEmail(email: string): Promise<{ deleted: boolean; error?:
 export const userData = {
 	findStudents,
 	getUsersForHousingAdmin,
-    create,
-    findAll,
-    findById,
-    findByEmail,
-    findByGoogleIdentity,
-    update,
-    deactivate,
-    countAllUser,
+	create,
+	findAll,
+	findById,
+	findByEmail,
+	findByGoogleIdentity,
+	update,
+	deactivate,
+	countAllUser,
 	countActiveUsers,
-    promote,
-    deleteByEmail
+  promote,
+  deleteByEmail
 };
