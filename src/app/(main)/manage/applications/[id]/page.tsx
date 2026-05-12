@@ -66,11 +66,11 @@ export default async function ApplicationReviewPage({
           documents={documents}
           fullName={fullName}
           housingName={application.housing_name}
+          applicationStatus={application.application_status}
         />
 
       </div>
     
     </div>
   );
-
 }

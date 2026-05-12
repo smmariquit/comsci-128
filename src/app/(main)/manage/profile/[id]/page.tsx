@@ -3,12 +3,20 @@
 import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import LogoutModal from "../../../../components/LogoutModal";
+import { LogOut } from "lucide-react";
+import StateMessage from "@/app/components/ui/state-message";
 
 export default function ManagerProfilePage() {
 	const { id } = useParams();
 	const [profile, setProfile] = useState<ManagerProfile | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [activeTab, setActiveTab] = useState("Personal Information");
+	const [loadError, setLoadError] = useState<string | null>(null);
+	const [saveStatus, setSaveStatus] = useState<
+		{ type: "success" | "error"; text: string } | null
+	>(null);
 
 	useEffect(() => {
 		async function fetchManager() {
@@ -19,6 +27,7 @@ export default function ManagerProfilePage() {
 				setProfile(data);
 			} catch (err) {
 				console.error("Failed to load profile", err);
+				setLoadError("Unable to load manager profile.");
 			} finally {
 				setLoading(false);
 			}
@@ -29,6 +38,7 @@ export default function ManagerProfilePage() {
 	const handleSave = async () => {
 		try {
 			if (!profile) return;
+			setSaveStatus(null);
 
 			const payload = {
 				...profile,
@@ -45,18 +55,72 @@ export default function ManagerProfilePage() {
 				body: JSON.stringify(payload),
 			});
 
-			if (res.ok) alert("Manager profile updated successfully!");
+			if (res.ok) {
+				setSaveStatus({
+					type: "success",
+					text: "Manager profile updated successfully!",
+				});
+			} else {
+				setSaveStatus({
+					type: "error",
+					text: "Failed to update the profile.",
+				});
+			}
 		} catch (err) {
-			alert("Error saving changes.");
+			setSaveStatus({
+				type: "error",
+				text: "Error saving changes.",
+			});
 		}
 	};
 
 	if (loading)
 		return (
-			<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20">
-				<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
+			<div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+				<div className="flex flex-col items-center gap-4 bg-white/90 p-8 rounded-2xl shadow-xl">
+					<svg viewBox="0 0 48 48" fill="none" className="w-12 h-12">
+						<path d="M24 6 L42 22 L6 22 Z" stroke="#C9642A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
+							style={{ strokeDasharray: 90, strokeDashoffset: 90, animation: "prf-roof 1s ease-out forwards" }} />
+						<path d="M10 22 L10 40 L38 40 L38 22" stroke="#567375" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
+							style={{ strokeDasharray: 90, strokeDashoffset: 90, animation: "prf-walls 0.8s ease-out 0.3s forwards" }} />
+						<rect x="19" y="28" width="10" height="12" rx="1" stroke="#1C2632" strokeWidth="1.5" fill="none"
+							style={{ strokeDasharray: 48, strokeDashoffset: 48, animation: "prf-door 0.6s ease-out 0.7s forwards" }} />
+						<rect x="12" y="27" width="5" height="5" rx="0.5" fill="#E3AF64"
+							style={{ opacity: 0, animation: "prf-glow 1.6s ease-in-out 1.2s infinite" }} />
+						<rect x="31" y="27" width="5" height="5" rx="0.5" fill="#E3AF64"
+							style={{ opacity: 0, animation: "prf-glow 1.6s ease-in-out 1.3s infinite" }} />
+					</svg>
+					<span className="text-sm font-semibold text-[#567375] tracking-wide"
+						style={{ opacity: 0, animation: "prf-show 0.5s ease-out 0.8s forwards" }}>Loading profile…</span>
+					<style>{`
+						@keyframes prf-roof { to { stroke-dashoffset: 0; } }
+						@keyframes prf-walls { to { stroke-dashoffset: 0; } }
+						@keyframes prf-door { to { stroke-dashoffset: 0; } }
+						@keyframes prf-glow { 0%,100% { opacity: 0.15; } 50% { opacity: 0.45; } }
+						@keyframes prf-show { to { opacity: 1; } }
+					`}</style>
+				</div>
 			</div>
 		);
+
+	if (loadError) {
+		return (
+			<StateMessage
+				variant="error"
+				title="Unable to load profile"
+				description={loadError}
+			/>
+		);
+	}
+
+	if (!profile) {
+		return (
+			<StateMessage
+				title="No profile data"
+				description="We could not find this profile yet."
+			/>
+		);
+	}
 
 	return (
 		<div className="flex flex-col min-h-screen bg-[#1C2632] font-[family-name:var(--font-geist-sans)]">
@@ -100,6 +164,27 @@ export default function ManagerProfilePage() {
 					>
 						Save changes
 					</button>
+
+					<button
+						onClick={() => setShowLogoutModal(true)}
+						className="w-full flex items-center justify-center gap-3 border-2 border-[#C9642A] text-[#C9642A] py-4 rounded-xl font-bold text-lg hover:bg-[#C9642A] hover:text-white transition-all shadow-sm active:scale-[0.98]"
+					>
+						<LogOut size={20} />
+						Logout
+					</button>
+
+					{saveStatus && (
+						<div
+							role={saveStatus.type === "error" ? "alert" : "status"}
+							className={`mt-3 rounded-lg px-4 py-2 text-sm font-semibold ${
+								saveStatus.type === "error"
+									? "bg-red-100 text-red-800"
+									: "bg-emerald-100 text-emerald-800"
+							}`}
+						>
+							{saveStatus.text}
+						</div>
+					)}
 				</div>
 
 				{/* RIGHT FORM AREA */}
@@ -175,6 +260,15 @@ export default function ManagerProfilePage() {
 					)}
 				</div>
 			</div>
+
+			<LogoutModal
+				isOpen={showLogoutModal}
+				onClose={() => setShowLogoutModal(false)}
+				onConfirm={() => {
+					setShowLogoutModal(false);
+					console.log("Confirmed logout"); // place logout backend code here
+				}}
+			/>
 		</div>
 	);
 }

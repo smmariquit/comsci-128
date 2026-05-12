@@ -130,7 +130,8 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 	if (error) throw new Error(error.message);
 
 	return (data || []).map((room) => {
-		const activeTenants = (room.tenants || []).filter((t: any) => t.moveout_date === null);
+		const today = new Date().toISOString().split('T')[0];
+		const activeTenants = (room.tenants || []).filter((t: any) => t.moveout_date > today);
 
 		const occupantCount = activeTenants.length;
 		const max = room.maximum_occupants;
@@ -166,13 +167,23 @@ async function findAllRoomDetailed (managedHousingIds: number[] = []): Promise<R
 }
 
 async function insertAccommodation(roomId: number, studentId: number) {
+	const { data: appData } = await supabase
+		.from("application")
+		.select("expected_moveout_date")
+		.eq("student_account_number", studentId)
+		.eq("application_status", "Approved")
+		.limit(1)
+		.maybeSingle();
+
+	const moveoutDate = appData?.expected_moveout_date ?? "9999-12-31";
+
 	const { data, error } = await supabase
 		.from("student_accommodation_history")
 		.insert({
 			room_id: roomId,
 			account_number: studentId,
 			movein_date: new Date().toISOString().split('T')[0],
-			moveout_date: null,
+			moveout_date: moveoutDate,
 		})
 		.select();
 
@@ -186,12 +197,12 @@ async function endAccommodation(roomId: number, studentId: number) {
 		.update({ moveout_date: new Date().toISOString().split('T')[0]})
 		.eq("room_id", roomId)
 		.eq("account_number", studentId)
-		.is("moveout_date", null)
+		.gte("moveout_date", new Date().toISOString().split('T')[0])
 	
 	if (error) throw new Error(error.message);
 }
 
-async function findUnassignedStudents(roomType: string) {
+async function findUnassignedStudents(roomType: string, adminId: number) {
 	let targetSex: string | null = null;
 
 	if (roomType === "Men Only") targetSex = "Male";
@@ -203,7 +214,7 @@ async function findUnassignedStudents(roomType: string) {
             account_number,
             user:user!account_number (first_name, last_name, sex), 
             history:student_accommodation_history!account_number (moveout_date), 
-            applications:application!account_number (application_status)
+            applications:application!account_number (application_status, landlord_account_number)
         `);
 
 	if (error) throw new Error(error.message);
@@ -212,10 +223,11 @@ async function findUnassignedStudents(roomType: string) {
             const userObj = Array.isArray(item.user) ? item.user[0] : item.user;
 
             const isApproved = item.applications?.some(
-				(app: any) => app.application_status === "Approved"
+				(app: any) => app.application_status === "Approved" && app.landlord_account_number === adminId
 			);
 
-            const isCurrentlyUnassigned = !item.history?.some(h => h.moveout_date === null);
+			const today = new Date().toISOString().split('T')[0];
+            const isCurrentlyUnassigned = !item.history?.some(h => h.moveout_date > today);
 
             const matchesSex = !targetSex || userObj?.sex === targetSex;
 
@@ -282,21 +294,61 @@ async function updateStudentHousingStatus(accountNumber: number, status: string)
 
 
 
-async function getRoomStats() {
+async function getRoomStats(managerAccountNumber: number) {
   const { data, error } = await supabase
     .from("room")
-    .select("maximum_occupants, occupancy_status")
+    .select("maximum_occupants, occupants_count, housing!inner(landlord_account_number)")
     .eq("is_deleted", false)
+    .eq("housing.landlord_account_number", managerAccountNumber);
 
   if (error) {
     throw new Error(error.message);
   }
 
   const totalRooms = data?.length ?? 0
-  const totalOccupants = data?.reduce((sum, r) => sum + (r.maximum_occupants ?? 0), 0) ?? 0
-  const totalFreeRooms = data?.filter(r => r.occupancy_status === "Empty").length ?? 0
+  const totalOccupants = data?.reduce((sum, r) => sum + (r.occupants_count ?? 0), 0) ?? 0
+  const totalFreeRooms = data?.filter(r => r.occupants_count < r.maximum_occupants).length ?? 0
 
   return { totalRooms, totalOccupants, totalFreeRooms }
+}
+
+async function incrementOccupantsCount(roomId: number) {
+
+	const {data : room}  = await supabase
+		.from("room")
+		.select("occupants_count, maximum_occupants")
+		.eq("room_id", roomId)
+		.single()
+
+	
+	if (!room) throw new Error("Room not found")
+
+	const newCount = (room.occupants_count ?? 0) + 1
+	const maxOccupants = room.maximum_occupants ?? 0
+	
+	let newStatus = ""
+
+	if (newCount === 0) {
+
+		newStatus = "Empty"
+	} else if (newCount < maxOccupants) {
+		newStatus = "Partially Occupied"
+	} else if (newCount >= maxOccupants) {
+		newStatus = "Fully Occupied"
+	}
+
+	const { data, error } = await supabase
+		.from("room")
+		.update({
+			occupants_count: newCount,
+			occupancy_status: newStatus
+		})
+		.eq("room_id", roomId)
+		.select()
+		.single()
+
+	if (error) throw new Error(error.message)
+	return data
 }
 
 export const roomData = {
@@ -313,5 +365,6 @@ export const roomData = {
 	getOccupantCount,
 	getAccountbyStudentNumber,
 	updateStudentHousingStatus,
-	getRoomStats
+	getRoomStats,
+	incrementOccupantsCount
 };
