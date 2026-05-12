@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Search } from "lucide-react";
 import { C } from "@/lib/palette";
+import { useToast } from "@/app/components/ui/Toast";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -156,6 +157,7 @@ function StatusFilter({
   counts,
 }: {
   value: ApplicationStatus | "All";
+  const toast = useToast();
   onChange: (v: ApplicationStatus | "All") => void;
   counts: Record<ApplicationStatus | "All", number>;
 }) {
@@ -597,6 +599,7 @@ export default function ApplicationTable_Wrapper({
             : app
         ));
 
+        toast.success("Application approved and room assigned.");
         router.refresh();
 
       } else {
@@ -609,11 +612,12 @@ export default function ApplicationTable_Wrapper({
             : app
         ));
 
+        toast.success("Application rejected.");
         router.refresh();
       }
     } catch (error) {
       console.error("Failed action:", error);
-      alert(error instanceof Error ? error.message : "Failed to process application");
+      toast.error(error instanceof Error ? error.message : "Failed to process application");
     } finally {
       setIsProcessing(false);
       setModalConfig(null);
