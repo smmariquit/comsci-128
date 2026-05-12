@@ -16,7 +16,7 @@ export default function BillingSummaryCard({ data }: { data: BillRow[] }) {
       gap: 12,
       marginBottom: 12,
     }}>
-      <Card label="Total Revenue" value={`₱${total.toLocaleString()}`} />
+      <Card label="Total Revenue" value={`₱${total.toLocaleString("en-PH")}`} />
       <Card label="Paid" value={paid} />
       <Card label="Pending" value={pending} />
       <Card label="Overdue" value={overdue} />

@@ -95,7 +95,11 @@ export default function AuditLogTable({ data, onView }: Props) {
               
               {/* Timestamp */}
               <td style={{ padding: "8px 14px", fontFamily: "monospace", color: C.navy }}>
-                {new Date(row.timestamp).toLocaleString()}
+                {new Date(row.timestamp).toLocaleString("en-PH", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                  timeZone: "Asia/Manila",
+                })}
               </td>
 
               {/* User */}

@@ -421,7 +421,7 @@ export default function DormCard({
           <div style={{ display: "flex", alignItems: "baseline", gap: 2 }}>
             <span style={{ fontSize: 11, color: "#8AABAC" }}>from </span>
             <span style={{ fontSize: 15, fontWeight: 800, color: "#1D9E75" }}>
-              ₱{cardRent.toLocaleString()}
+              ₱{cardRent.toLocaleString("en-PH")}
             </span>
             <span style={{ fontSize: 11, color: "#8AABAC" }}>/mo</span>
           </div>
