@@ -1,18 +1,26 @@
 import { CircleAlert, CircleCheckBig } from "lucide-react";
 import Link from "next/link";
 
-export default function NotAssignedDashboard(userName: String, dashboardData: Object) {
+export default function NotAssignedDashboard(
+  userName: string,
+  dashboardData: Object,
+) {
   const userHousingDetails = dashboardData as any;
-  
-  const hStyle = "justify-center text-white text-lg font-semibold font-[family-name:var(--font-DM_Sans)]";
+
+  const hStyle =
+    "justify-center text-white text-lg font-semibold font-[family-name:var(--font-DM_Sans)]";
   const tStyle = "text-black text-lg font-[family-name:var(--font-DM_Sans)]";
-  const checkIcon = <CircleCheckBig className="w-24 h-24 text-green-700" strokeWidth={2.2} />;
-  const crossIcon = <CircleAlert className="w-24 h-24 text-red-600" strokeWidth={2.2} />;
+  const checkIcon = (
+    <CircleCheckBig className="w-24 h-24 text-green-700" strokeWidth={2.2} />
+  );
+  const crossIcon = (
+    <CircleAlert className="w-24 h-24 text-red-600" strokeWidth={2.2} />
+  );
 
   function getApplicationStepStatus(stepIndex: number) {
-    const stepStatus = userHousingDetails.steps[stepIndex].isDone
+    const stepStatus = userHousingDetails.steps[stepIndex].isDone;
 
-    if(stepStatus) {
+    if (stepStatus) {
       return checkIcon;
     }
 
@@ -28,7 +36,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
   }
 
   function showApplicationDetails() {
-    if (getApplicationStepStatus(1) == checkIcon) {
+    if (getApplicationStepStatus(1) === checkIcon) {
       return (
         <div className="w-full flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
           <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
@@ -37,15 +45,32 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
           <div className="self-stretch flex-1 px-9 py-4">
             <span className={`${tStyle} font-semibold `}>Housing Details</span>
             <ul className={`${tStyle} pb-4 px-4`}>
-              <li><span className="font-bold">Name:</span> {getHousing()?.housing_name}</li>
-              <li><span className="font-bold">Address:</span> {getHousing()?.housing_address}</li>
+              <li>
+                <span className="font-bold">Name:</span>{" "}
+                {getHousing()?.housing_name}
+              </li>
+              <li>
+                <span className="font-bold">Address:</span>{" "}
+                {getHousing()?.housing_address}
+              </li>
             </ul>
             <span className={`${tStyle} font-semibold `}>Room Details</span>
             <ul className={`${tStyle} pb-4 px-4`}>
-              <li><span className="font-bold">Room ID:</span> {getApplication()?.room_id}</li>
-              <li><span className="font-bold">Room Type:</span> {getApplication()?.room?.room_type}</li>
+              <li>
+                <span className="font-bold">Room ID:</span>{" "}
+                {getApplication()?.room_id}
+              </li>
+              <li>
+                <span className="font-bold">Room Type:</span>{" "}
+                {getApplication()?.room?.room_type}
+              </li>
             </ul>
-            <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {getApplication()?.expected_moveout_date}</span>
+            <span className={tStyle}>
+              <span className={`${tStyle} font-semibold `}>
+                Expected Move Out Date:
+              </span>{" "}
+              {getApplication()?.expected_moveout_date}
+            </span>
           </div>
         </div>
       );
@@ -54,11 +79,16 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
     return (
       <div className="w-full flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
         <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
-            <div className={hStyle}>Application Details</div>
-          </div>
+          <div className={hStyle}>Application Details</div>
+        </div>
         <div className="self-stretch flex-1 px-9 py-4 flex flex-col justify-center items-center gap-2.5 overflow-hidden">
-          <div className={`${tStyle} font-semibold `}>You have no active housing application at this time</div>
-          <Link href="/student/browse" className="px-9 py-px bg-gray-800 rounded-2xl inline-flex justify-center items-center gap-2.5">
+          <div className={`${tStyle} font-semibold `}>
+            You have no active housing application at this time
+          </div>
+          <Link
+            href="/student/browse"
+            className="px-9 py-px bg-gray-800 rounded-2xl inline-flex justify-center items-center gap-2.5"
+          >
             <div className={hStyle}>Browse Available Accomodations</div>
           </Link>
         </div>
@@ -78,19 +108,43 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
         <div className="self-stretch flex-1 px-4 md:px-24 py-6 md:py-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center overflow-hidden">
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(0)}
-            <div className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}>Dorm<br />Chosen</div>
+            <div
+              className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}
+            >
+              Dorm
+              <br />
+              Chosen
+            </div>
           </div>
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(1)}
-            <div className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}>Application<br />Submitted</div>
+            <div
+              className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}
+            >
+              Application
+              <br />
+              Submitted
+            </div>
           </div>
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(2)}
-            <div className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}>Manager<br />Review</div>
+            <div
+              className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}
+            >
+              Manager
+              <br />
+              Review
+            </div>
           </div>
           <div className="p-2.5 inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden">
             {getApplicationStepStatus(3)}
-            <div className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}>Room<br />Assigned</div>
+            <div
+              className={`${tStyle} text-sm md:text-lg text-center justify-center font-semibold `}
+            >
+              Room
+              <br />
+              Assigned
+            </div>
           </div>
         </div>
       </div>
