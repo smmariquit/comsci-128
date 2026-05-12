@@ -1,29 +1,37 @@
-
 import type { Metadata } from "next";
-import { applicationService } from "@/app/lib/services/application-service";
+import { redirect } from "next/navigation";
+import type { ComponentProps } from "react";
 import StateMessage from "@/app/components/ui/state-message";
 import { getManagerAccountNumber } from "@/app/lib/auth";
-import { redirect } from "next/navigation";
+import { applicationService } from "@/app/lib/services/application-service";
+import ApplicationsClient from "./_components/ApplicationsClient";
 
 export const metadata: Metadata = {
   title: "Applications",
   description: "Review and process housing applications submitted by students.",
 };
-import Link from "next/link";
-import ApplicationsClient from "./_components/ApplicationsClient";
 
+type ApplicationsClientApplications = ComponentProps<
+  typeof ApplicationsClient
+>["applications"];
 
 export default async function ApplicationsPage() {
   const managerAccountNumber = await getManagerAccountNumber();
 
-  if(!managerAccountNumber) {
+  if (!managerAccountNumber) {
     redirect("/unauthorized");
   }
 
-  let applications: any = [];
+  // Supabase-generated types model the joined `student.user` relations as arrays,
+  // but the runtime data (and the rest of the app, e.g. dashboard-data) treats
+  // them as singular objects. Cast at the boundary instead of duplicating the
+  // permissive shape inside ApplicationsClient.
+  let applications: ApplicationsClientApplications;
   try {
-    applications = await applicationService.getApplicationsByLandlord(managerAccountNumber);
-  } catch (error) {
+    applications = (await applicationService.getApplicationsByLandlord(
+      managerAccountNumber,
+    )) as unknown as ApplicationsClientApplications;
+  } catch (_error) {
     return (
       <StateMessage
         variant="error"
@@ -34,14 +42,11 @@ export default async function ApplicationsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-8 bg-(--cream) text-(--dark-orange)">
-
-      <h1 className="text-4xl font-bold text-center">
+    <div className="flex flex-col gap-6 bg-(--cream) p-4 text-(--dark-orange) sm:gap-8 sm:p-6 md:p-8">
+      <h1 className="text-center text-2xl font-bold sm:text-3xl">
         Applications
       </h1>
-      <ApplicationsClient applications={applications}/>
-
+      <ApplicationsClient applications={applications} />
     </div>
   );
-
 }

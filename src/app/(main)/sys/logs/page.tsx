@@ -10,6 +10,7 @@ import { ActionType } from "@/app/lib/models/audit_log";
 import { ViewAuditLogModal } from '@/app/(main)/sys/component/view-audit';
 import PageLoading from "@/app/components/ui/page-loading";
 import StateMessage from "@/app/components/ui/state-message";
+import { exportToCSV, exportToPDF } from "@/app/lib/export_utils";
 
 
 // Types
@@ -247,18 +248,23 @@ export default function AuditLogsPage({
   const showingFrom = filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
   const showingTo = Math.min(page * ITEMS_PER_PAGE, filtered.length);
 
-  // CSV export (only exports the currently filtered rows)
-  const handleExport = () => {
-    const rows = [
-      ['Timestamp', 'User', 'Role', 'Action', 'Module', 'IP Address', 'Status'],
-      ...filtered.map((l) => [l.timestamp, l.userName, l.userRole, l.action, l.module, l.ipAddress, l.status]),
-    ];
-    const csv = rows.map((r) => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'audit-logs.csv'; a.click();
-    URL.revokeObjectURL(url);
+  // Export Handlers
+  const getExportData = () => {
+    const headers = ['Timestamp', 'User', 'Role', 'Action', 'Module', 'IP Address', 'Status'];
+    const rows = filtered.map((l) => [
+      l.timestamp, l.userName, l.userRole, l.action, l.module, l.ipAddress, l.status
+    ]);
+    return { headers, rows };
+  };
+
+  const handleExportCSV = () => {
+    const { headers, rows } = getExportData();
+    exportToCSV('audit_logs', headers, rows);
+  };
+
+  const handleExportPDF = () => {
+    const { headers, rows } = getExportData();
+    exportToPDF('Audit Logs Report', 'audit_logs', headers, rows);
   };
 
   // Loading state
@@ -314,7 +320,8 @@ export default function AuditLogsPage({
           <AuditFilters
             values={filters}
             onChange={(f) => { setFilters(f); setPage(1); }}
-            onExport={handleExport}
+            onExport={handleExportCSV}
+            onExportPDF={handleExportPDF}
           />
 
           {/* Log Table */}
