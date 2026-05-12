@@ -8,6 +8,8 @@ import AuditFilters, { type AuditFiltersState } from '@/app/(main)/sys/component
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ActionType } from "@/app/lib/models/audit_log";
 import { ViewAuditLogModal } from '@/app/(main)/sys/component/view-audit';
+import PageLoading from "@/app/components/ui/page-loading";
+import StateMessage from "@/app/components/ui/state-message";
 
 
 // Types
@@ -261,17 +263,7 @@ export default function AuditLogsPage({
 
   // Loading state
   if (loading) {
-    return (
-      <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
-            <p className="text-[#1a2332]/60">Loading Audit Logs...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <PageLoading label="Loading audit logs" />;
   }
 
   // Error state
@@ -279,15 +271,18 @@ export default function AuditLogsPage({
     return (
       <div className="flex min-h-screen bg-[#eae8e1]">
         <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
-            <p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
-            <p className="text-red-500 text-sm mb-4">{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="w-full max-w-md">
+            <StateMessage
+              variant="error"
+              title="Could not load audit logs"
+              description={error}
+            />
+            <button
+              onClick={() => window.location.reload()}
+              className="mx-auto mt-4 block rounded-full bg-[#1a2332] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
             >
-              Try Again
+              Try again
             </button>
           </div>
         </div>
@@ -345,7 +340,12 @@ export default function AuditLogsPage({
             {/* Rows */}
             <div className="divide-y divide-[#1a2332]/5">
               {paginated.length === 0 ? (
-                <p className="text-sm text-[#1a2332]/40 text-center py-14">No events match your filters.</p>
+                <div className="py-12 px-6">
+                  <StateMessage
+                    title="No events match your filters"
+                    description="Try clearing the search or broadening the selected action, module, or status."
+                  />
+                </div>
               ) : (
                 paginated.map((log) => (
                   <div

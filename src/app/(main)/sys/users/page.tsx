@@ -7,6 +7,8 @@ import UserFilters, { type UserFiltersState } from '@/app/(main)/sys/component/s
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { EditUserModal } from '@/app/(main)/sys/component/edit-user-modal';
 import { DisableAccountModal } from "@/app/(main)/sys//component/disable-account-modal";
+import PageLoading from "@/app/components/ui/page-loading";
+import StateMessage from "@/app/components/ui/state-message";
 
 // User Data Types
 export interface User {
@@ -136,17 +138,7 @@ export default function UserManagementPage({
 
 	// Loading state
 	if (loading) {
-		return (
-			<div className="flex min-h-screen bg-[#eae8e1]">
-				<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
-				<div className="flex-1 flex items-center justify-center">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
-						<p className="text-[#1a2332]/60">Loading users...</p>
-					</div>
-				</div>
-			</div>
-		);
+		return <PageLoading label="Loading users" />;
 	}
 
 	// Error state
@@ -154,15 +146,18 @@ export default function UserManagementPage({
 		return (
 			<div className="flex min-h-screen bg-[#eae8e1]">
 				<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
-				<div className="flex-1 flex items-center justify-center">
-					<div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
-						<p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
-						<p className="text-red-500 text-sm mb-4">{error}</p>
-						<button 
-							onClick={() => window.location.reload()} 
-							className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+				<div className="flex-1 flex items-center justify-center px-6">
+					<div className="w-full max-w-md">
+						<StateMessage
+							variant="error"
+							title="Could not load users"
+							description={error}
+						/>
+						<button
+							onClick={() => window.location.reload()}
+							className="mx-auto mt-4 block rounded-full bg-[#1a2332] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
 						>
-							Try Again
+							Try again
 						</button>
 					</div>
 				</div>
@@ -216,8 +211,11 @@ export default function UserManagementPage({
 						<tbody className="divide-y divide-[#1a2332]/5">
 							{paginated.length === 0 ? (
 							<tr>
-								<td colSpan={7} className="text-sm text-[#1a2332]/40 text-center py-12">
-								No users found.
+								<td colSpan={7} className="py-12 px-6">
+									<StateMessage
+										title="No users match these filters"
+										description="Try clearing search or broadening the role, status, or dorm filters."
+									/>
 								</td>
 							</tr>
 							) : (
