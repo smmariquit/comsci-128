@@ -469,7 +469,6 @@ export default function AuditLogsPage({
               setFilters(f);
               setPage(1);
             }}
-            onExport={handleExport}
           />
 
           {/* Log Table */}
