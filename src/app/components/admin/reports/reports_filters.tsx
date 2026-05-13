@@ -166,7 +166,7 @@ export default function ReportFilters({
               onChange={onDateFrom}
               maxDate={new Date().toISOString().split("T")[0]}
               placeholder="From"
-              className="w-[150px]"
+              style={{ ...inputBase, minWidth: 150 }}
             />
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -176,7 +176,7 @@ export default function ReportFilters({
               onChange={onDateTo}
               maxDate={new Date().toISOString().split("T")[0]}
               placeholder="To"
-              className="w-[150px]"
+              style={{ ...inputBase, minWidth: 150 }}
             />
           </div>
           {(dateFrom || dateTo) && (

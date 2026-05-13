@@ -355,6 +355,7 @@ export default function IssueBillModal({
                 value={dueDate}
                 minDate={today}
                 onChange={(val) => setDueDate(val)}
+                style={inputStyle}
               />
             </div>
           </div>

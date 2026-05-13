@@ -209,6 +209,7 @@ export default function RegisterPage() {
                 onChange={(val) => handleChange({ target: { name: "birthday", value: val } } as any)}
                 maxDate={new Date().toISOString().split("T")[0]}
                 placeholder="Select your birthday"
+                className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200 w-full"
               />
             </div>
             <input

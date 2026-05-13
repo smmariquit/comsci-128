@@ -174,6 +174,7 @@ export function ApplyFormContent() {
 								onChange={(val) => setMoveOutDate(val)}
 								minDate={new Date().toISOString().split("T")[0]}
 								placeholder="Select move-out date"
+								className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:outline-none focus:ring-2 focus:ring-[#C9642A]"
 							/>
 						</div>
 					</div>

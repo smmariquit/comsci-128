@@ -144,7 +144,7 @@ export default function BillFilters({
             value={dueDateFrom}
             onChange={onDueDateFrom}
             placeholder="From"
-            className="w-[150px]"
+            style={{ ...inputBase, minWidth: 150 }}
           />
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -153,7 +153,7 @@ export default function BillFilters({
             value={dueDateTo}
             onChange={onDueDateTo}
             placeholder="To"
-            className="w-[150px]"
+            style={{ ...inputBase, minWidth: 150 }}
           />
         </div>
 
