@@ -27,10 +27,11 @@ export default async function DashboardPage() {
 
   const account_number = parseInt(getValue, 10);
   let currUser: Awaited<ReturnType<typeof userData.findById>> | null = null;
-  let userHousingStatus: Awaited<ReturnType<typeof getHousingStatus>> | null = null;
-  let userHousingDetails: Awaited<ReturnType<
-    typeof getCompleteDashboardData
-  >> | null = null;
+  let userHousingStatus: Awaited<ReturnType<typeof getHousingStatus>> | null =
+    null;
+  let userHousingDetails: Awaited<
+    ReturnType<typeof getCompleteDashboardData>
+  > | null = null;
 
   try {
     currUser = await userData.findById(account_number);
@@ -80,7 +81,11 @@ export default async function DashboardPage() {
     // MAIN PAGE
     <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
       {/* NAVBAR */}
-      <StudentNavBar path={"Dashboard"} userId={currUser.account_number} userName={userName} />
+      <StudentNavBar
+        path={"Dashboard"}
+        userId={currUser.account_number}
+        userName={userName}
+      />
 
       {/* BODY */}
       <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col justify-start items-center gap-4 overflow-hidden">

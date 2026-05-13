@@ -40,12 +40,9 @@ export async function GET() {
       accountNumber,
     );
 
-    // Send Response
+    // If no logs, return an empty array so the UI can render "no events"
     if (!auditLogs || auditLogs.length === 0) {
-      return NextResponse.json(
-        { message: "Audit logs not found." },
-        { status: 404 },
-      );
+      return NextResponse.json([], { status: 200 });
     }
 
     // Success

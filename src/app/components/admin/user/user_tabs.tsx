@@ -20,18 +20,26 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "users", label: "Users" },
 ];
 
-export default function PageTabs({ usersContent, applicationsContent }: PageTabsProps) {
+export default function PageTabs({
+  usersContent,
+  applicationsContent,
+}: PageTabsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("applications");
   const [hoveredTab, setHoveredTab] = useState<Tab | null>(null);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* Tab Bar */}
-      <div style={{
-        display: "flex", gap: 2,
-        background: C.cream, borderRadius: 10,
-        padding: 4, width: "fit-content",
-      }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 2,
+          background: C.cream,
+          borderRadius: 10,
+          padding: 4,
+          width: "fit-content",
+        }}
+      >
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -40,15 +48,24 @@ export default function PageTabs({ usersContent, applicationsContent }: PageTabs
             onMouseLeave={() => setHoveredTab(null)}
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12, fontWeight: 600,
-              padding: "7px 16px", borderRadius: 7,
-              border: "none", cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+              padding: "7px 16px",
+              borderRadius: 7,
+              border: "none",
+              cursor: "pointer",
               background: activeTab === tab.key ? "#fff" : "transparent",
-              color: activeTab === tab.key ? C.navy :  "#9CA3AF",
-              boxShadow: activeTab === tab.key ? "0 1px 4px rgba(28,38,50,0.10)" : "none",
+              color: activeTab === tab.key ? C.navy : "#9CA3AF",
+              boxShadow:
+                activeTab === tab.key
+                  ? "0 1px 4px rgba(28,38,50,0.10)"
+                  : "none",
               transition: "all 0.15s",
               whiteSpace: "nowrap",
-              transform: hoveredTab === tab.key && activeTab !== tab.key ? "translateY(-1px)" : "translateY(0)",
+              transform:
+                hoveredTab === tab.key && activeTab !== tab.key
+                  ? "translateY(-1px)"
+                  : "translateY(0)",
               backgroundColor:
                 activeTab === tab.key
                   ? "#fff"

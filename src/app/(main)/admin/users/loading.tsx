@@ -1,4 +1,10 @@
-function SkeletonBlock({ className = "", style = {} }: { className?: string; style?: React.CSSProperties }) {
+function SkeletonBlock({
+  className = "",
+  style = {},
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return <div className={className} style={style} />;
 }
 
@@ -9,7 +15,8 @@ export default function Loading() {
         style={{
           height: 56,
           borderRadius: 12,
-          background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+          background:
+            "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
           backgroundSize: "200% 100%",
           animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
           outline: "1px solid #CEC7B0",
@@ -20,7 +27,8 @@ export default function Loading() {
         style={{
           height: 92,
           borderRadius: 12,
-          background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+          background:
+            "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
           backgroundSize: "200% 100%",
           animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
           outline: "1px solid #CEC7B0",
@@ -31,7 +39,8 @@ export default function Loading() {
         style={{
           height: 420,
           borderRadius: 12,
-          background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+          background:
+            "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
           backgroundSize: "200% 100%",
           animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
           outline: "1px solid #CEC7B0",

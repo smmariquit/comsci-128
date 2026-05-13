@@ -163,7 +163,10 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
         {/* Label with gentle fade */}
         <span
           className="text-sm font-semibold tracking-wider uppercase text-[#567375]"
-          style={{ animation: "house-fade-in 0.8s ease-in-out 1s forwards", opacity: 0 }}
+          style={{
+            animation: "house-fade-in 0.8s ease-in-out 1s forwards",
+            opacity: 0,
+          }}
         >
           {label}
         </span>

@@ -18,7 +18,7 @@ function addDesignSystemHeader(doc: jsPDF, title: string, subtitle?: string) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   doc.setTextColor(255, 255, 255);
-  doc.text("University Student Accommodation Tracker", 14, 12);
+  doc.text("UPLB CASA", 14, 12);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);

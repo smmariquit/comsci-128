@@ -1,23 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import * as roomService from "@/app/lib/services/room-service";
-import { Room, RoomType } from "@/app/lib/models/room"
-import Link from "next/link"
-
+import { Room, RoomType } from "@/app/lib/models/room";
+import Link from "next/link";
 
 function TenantCard({ tenant }: { tenant: any }) {
-  const user = tenant.student?.user
+  const user = tenant.student?.user;
   const fullName = user
     ? `${user.first_name} ${user.middle_name ? user.middle_name + " " : ""}${user.last_name}`
-    : "Unknown"
+    : "Unknown";
 
   return (
     <div className="flex items-center gap-3 bg-[var(--teal)] p-3 rounded-lg border border-slate-700">
       <div className="w-20 h-20 rounded-md bg-gray-400 shrink-0 overflow-hidden">
         {user?.profile_picture ? (
-          <img 
-            src={user.profile_picture} 
+          <img
+            src={user.profile_picture}
             alt={fullName}
             className="w-full h-full object-cover"
           />
@@ -26,7 +25,9 @@ function TenantCard({ tenant }: { tenant: any }) {
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xl font-semibold text-[var(--dark-blue)] truncate">{fullName}</p>
+        <p className="text-xl font-semibold text-[var(--dark-blue)] truncate">
+          {fullName}
+        </p>
         <div className="flex gap-3 text-sm text-[var(--cream)] mt-1">
           <span className="opacity-70">Move in:</span>
           <span>{tenant.movein_date}</span>
@@ -35,7 +36,7 @@ function TenantCard({ tenant }: { tenant: any }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function UnitClient({
@@ -43,30 +44,32 @@ export default function UnitClient({
   tenants,
   housingId,
 }: {
-  room: Room
-  tenants: any[]
-  housingId: number
+  room: Room;
+  tenants: any[];
+  housingId: number;
 }) {
-  const [currentRoom, setCurrentRoom] = useState<Room>(room)
-  const [isEditing, setIsEditing] = useState(false)
-  const [selectedType, setSelectedType] = useState<RoomType>(room.room_type)
-  
-  const [maxOccupants, setMaxOccupants] = useState<number>(room.maximum_occupants ?? 1)
+  const [currentRoom, setCurrentRoom] = useState<Room>(room);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedType, setSelectedType] = useState<RoomType>(room.room_type);
+
+  const [maxOccupants, setMaxOccupants] = useState<number>(
+    room.maximum_occupants ?? 1,
+  );
 
   const handleSave = async () => {
     const result = await roomService.updateRoom(room.room_id, {
       room_type: selectedType,
       maximum_occupants: maxOccupants,
-    })
+    });
 
     if (result.error) {
-      alert(result.error)
+      alert(result.error);
     } else {
-      setCurrentRoom(result.data!)
-      setIsEditing(false)
-      alert("Room updated successfully!")
+      setCurrentRoom(result.data!);
+      setIsEditing(false);
+      alert("Room updated successfully!");
     }
-  }
+  };
 
   return (
     <main className="min-h-screen bg-[var(--cream)] px-6 py-10">
@@ -92,7 +95,9 @@ export default function UnitClient({
                     <label className="block text-sm mb-1">Room Type</label>
                     <select
                       value={selectedType}
-                      onChange={(e) => setSelectedType(e.target.value as RoomType)}
+                      onChange={(e) =>
+                        setSelectedType(e.target.value as RoomType)
+                      }
                       className="w-full p-2 bg-slate-700 rounded text-white"
                     >
                       <option value="Women Only">Women-Only</option>
@@ -111,10 +116,16 @@ export default function UnitClient({
                     />
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <button onClick={handleSave} className="bg-green-600 px-4 py-2 rounded font-bold flex-1">
+                    <button
+                      onClick={handleSave}
+                      className="bg-green-600 px-4 py-2 rounded font-bold flex-1"
+                    >
                       Save
                     </button>
-                    <button onClick={() => setIsEditing(false)} className="bg-gray-600 px-4 py-2 rounded flex-1">
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="bg-gray-600 px-4 py-2 rounded flex-1"
+                    >
                       Cancel
                     </button>
                   </div>
@@ -122,19 +133,29 @@ export default function UnitClient({
               ) : (
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm text-[var(--dark-orange)] opacity-80">Room ID</p>
+                    <p className="text-sm text-[var(--dark-orange)] opacity-80">
+                      Room ID
+                    </p>
                     <p>{currentRoom.room_id}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-[var(--dark-orange)] opacity-80">Type</p>
+                    <p className="text-sm text-[var(--dark-orange)] opacity-80">
+                      Type
+                    </p>
                     <p>{currentRoom.room_type}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-[var(--dark-orange)] opacity-80">Occupants</p>
-                    <p>{tenants.length} / {currentRoom.maximum_occupants}</p>
+                    <p className="text-sm text-[var(--dark-orange)] opacity-80">
+                      Occupants
+                    </p>
+                    <p>
+                      {tenants.length} / {currentRoom.maximum_occupants}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-[var(--dark-orange)] opacity-80">Status</p>
+                    <p className="text-sm text-[var(--dark-orange)] opacity-80">
+                      Status
+                    </p>
                     <p>{currentRoom.occupancy_status}</p>
                   </div>
                   <button
@@ -165,5 +186,5 @@ export default function UnitClient({
         </div>
       </div>
     </main>
-  )
+  );
 }
