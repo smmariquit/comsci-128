@@ -10,16 +10,18 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-
   const managerAccountNumber = await getManagerAccountNumber();
 
-  if(!managerAccountNumber){
+  if (!managerAccountNumber) {
     redirect("/unauthorized");
   }
 
   let housings;
   try {
-    housings = await housingService.getAllHousingWithRoomsByManager(managerAccountNumber);
+    housings =
+      await housingService.getAllHousingWithRoomsByManager(
+        managerAccountNumber,
+      );
   } catch (error) {
     return (
       <StateMessage

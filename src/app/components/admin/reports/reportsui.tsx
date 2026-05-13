@@ -259,7 +259,6 @@ export function EmptyRow({ cols }: { cols: number }) {
 
 import { Badge } from "@/app/components/ui/Badge";
 
-
 // ── Typed badge helpers ───────────────────────────────────────────────────────
 
 const OCC_S: Record<

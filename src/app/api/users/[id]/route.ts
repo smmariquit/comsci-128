@@ -70,10 +70,10 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id : string }> },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const {id } = await params;
+    const { id } = await params;
 
     const userProfile = await userService.getUser(Number(id));
     if (!userProfile) {

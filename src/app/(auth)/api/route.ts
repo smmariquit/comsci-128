@@ -22,7 +22,11 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        if (body.account_email && user.email && body.account_email !== user.email) {
+        if (
+          body.account_email &&
+          user.email &&
+          body.account_email !== user.email
+        ) {
           return NextResponse.json(
             { message: "Email mismatch for Google signup." },
             { status: 400 },
@@ -40,13 +44,14 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             message: "Registration failed. Please try signing up again.",
-            error: finalizationError.message || "An error occurred during registration.",
+            error:
+              finalizationError.message ||
+              "An error occurred during registration.",
           },
           { status: 500 },
         );
       }
     }
-
   } catch (error: any) {
     console.error("Error during registration:", error);
     return NextResponse.json(

@@ -32,7 +32,9 @@ export default function PageHeader({ title, date }: PageHeaderProps) {
   const resolvedTitle =
     title ??
     routeTitleMap[pathname] ??
-    (pathname.startsWith("/admin/") ? toTitleCaseFromPath(pathname) : "Dashboard");
+    (pathname.startsWith("/admin/")
+      ? toTitleCaseFromPath(pathname)
+      : "Dashboard");
 
   const formattedDate =
     date ??
@@ -62,7 +64,14 @@ export default function PageHeader({ title, date }: PageHeaderProps) {
       >
         {resolvedTitle}
       </h1>
-      <p style={{ fontSize: 11, color: "#9aa3b0", margin: 0, letterSpacing: "0.02em" }}>
+      <p
+        style={{
+          fontSize: 11,
+          color: "#9aa3b0",
+          margin: 0,
+          letterSpacing: "0.02em",
+        }}
+      >
         {formattedDate}
       </p>
     </div>

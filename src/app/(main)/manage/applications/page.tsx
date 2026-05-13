@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { applicationService } from "@/app/lib/services/application-service";
 import StateMessage from "@/app/components/ui/state-message";
@@ -12,17 +11,17 @@ export const metadata: Metadata = {
 import Link from "next/link";
 import ApplicationsClient from "./_components/ApplicationsClient";
 
-
 export default async function ApplicationsPage() {
   const managerAccountNumber = await getManagerAccountNumber();
 
-  if(!managerAccountNumber) {
+  if (!managerAccountNumber) {
     redirect("/unauthorized");
   }
 
   let applications: any = [];
   try {
-    applications = await applicationService.getApplicationsByLandlord(managerAccountNumber);
+    applications =
+      await applicationService.getApplicationsByLandlord(managerAccountNumber);
   } catch (error) {
     return (
       <StateMessage
@@ -35,13 +34,8 @@ export default async function ApplicationsPage() {
 
   return (
     <div className="flex flex-col gap-8 p-8 bg-(--cream) text-(--dark-orange)">
-
-      <h1 className="text-4xl font-bold text-center">
-        Applications
-      </h1>
-      <ApplicationsClient applications={applications}/>
-
+      <h1 className="text-4xl font-bold text-center">Applications</h1>
+      <ApplicationsClient applications={applications} />
     </div>
   );
-
 }
