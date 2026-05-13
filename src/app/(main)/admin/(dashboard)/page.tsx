@@ -110,10 +110,30 @@ export default async function Page() {
           gap: 16,
         }}
       >
-        <StatCard label="Total Students" value={liveData.totalStudents.toString()} delta={0} deltaSub="Live Students" />
-        <StatCard label="Occupancy Rate" value={`${liveData.occupancyRate}%`} delta={0} deltaSub="Live Occupancy Rate" />
-        <StatCard label="Pending Applications" value={liveData.totalPendingApplication.toString()} delta={0} deltaSub="Pending Applications" />
-        <StatCard label="Active Accommodations" value={liveData.activeAccommodations.toString()} delta={0} deltaSub="Currently accommodated" />
+        <StatCard
+          label="Total Students"
+          value={liveData.totalStudents.toString()}
+          delta={0}
+          deltaSub="Live Students"
+        />
+        <StatCard
+          label="Occupancy Rate"
+          value={`${liveData.occupancyRate}%`}
+          delta={0}
+          deltaSub="Live Occupancy Rate"
+        />
+        <StatCard
+          label="Pending Applications"
+          value={liveData.totalPendingApplication.toString()}
+          delta={0}
+          deltaSub="Pending Applications"
+        />
+        <StatCard
+          label="Active Accommodations"
+          value={liveData.activeAccommodations.toString()}
+          delta={0}
+          deltaSub="Currently accommodated"
+        />
       </section>
 
       <section

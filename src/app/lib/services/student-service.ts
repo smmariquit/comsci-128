@@ -5,65 +5,65 @@ import { studentData } from "../data/student-data";
 import { userService } from "@/services/user-service";
 
 const buildDefaultStudentDetails = (): NewStudent => ({
-    student_number: Math.floor(Math.random() * 1000000),
-    housing_status: "Not Assigned",
-    emergency_contact_name: null,
-    emergency_contact_number: null,
-    emergency_contact_relationship: null,
+  student_number: Math.floor(Math.random() * 1000000),
+  housing_status: "Not Assigned",
+  emergency_contact_name: null,
+  emergency_contact_number: null,
+  emergency_contact_relationship: null,
 });
 
 const buildDefaultStudentAcademicDetails = (): NewStudentAcademic => ({
-    degree_program: "",
-    standing: "Freshman",
-    status: "Active",
+  degree_program: "",
+  standing: "Freshman",
+  status: "Active",
 });
 
 export const addStudent = async (
-    userDetails: NewUser,
-    studentDetails?: NewStudent,
-    studentAcademicDetails?: NewStudentAcademic,
+  userDetails: NewUser,
+  studentDetails?: NewStudent,
+  studentAcademicDetails?: NewStudentAcademic,
 ): Promise<{ user: User; student: Student }> => {
-    try {
-        const createdUser = await userService.addUser(userDetails);
-        const accountNumber = createdUser.account_number;
-        const mergeStudentDetails = {
-            ...buildDefaultStudentDetails(),
-            ...(studentDetails ?? {}),
-        } as NewStudent;
-        const mergeStudentAcademicDetails = {
-            ...buildDefaultStudentAcademicDetails(),
-            ...(studentAcademicDetails ?? {}),
-        } as NewStudentAcademic;
+  try {
+    const createdUser = await userService.addUser(userDetails);
+    const accountNumber = createdUser.account_number;
+    const mergeStudentDetails = {
+      ...buildDefaultStudentDetails(),
+      ...(studentDetails ?? {}),
+    } as NewStudent;
+    const mergeStudentAcademicDetails = {
+      ...buildDefaultStudentAcademicDetails(),
+      ...(studentAcademicDetails ?? {}),
+    } as NewStudentAcademic;
 
-        const student = await studentData.create(
-            accountNumber,
-            mergeStudentDetails,
-            mergeStudentAcademicDetails,
-        );
-        return { user: createdUser, student };
-    } catch (error) {
-        console.error("Error creating student:", error);
-        throw error;
-    }
+    const student = await studentData.create(
+      accountNumber,
+      mergeStudentDetails,
+      mergeStudentAcademicDetails,
+    );
+    return { user: createdUser, student };
+  } catch (error) {
+    console.error("Error creating student:", error);
+    throw error;
+  }
 };
 
 export const createStudentProfile = async (
-    accountNumber: number,
-    studentDetails?: NewStudent,
-    studentAcademicDetails?: NewStudentAcademic,
+  accountNumber: number,
+  studentDetails?: NewStudent,
+  studentAcademicDetails?: NewStudentAcademic,
 ): Promise<Student> => {
-    const mergeStudentDetails = {
-        ...buildDefaultStudentDetails(),
-        ...(studentDetails ?? {}),
-    } as NewStudent;
-    const mergeStudentAcademicDetails = {
-        ...buildDefaultStudentAcademicDetails(),
-        ...(studentAcademicDetails ?? {}),
-    } as NewStudentAcademic;
+  const mergeStudentDetails = {
+    ...buildDefaultStudentDetails(),
+    ...(studentDetails ?? {}),
+  } as NewStudent;
+  const mergeStudentAcademicDetails = {
+    ...buildDefaultStudentAcademicDetails(),
+    ...(studentAcademicDetails ?? {}),
+  } as NewStudentAcademic;
 
-    return await studentData.create(
-        accountNumber,
-        mergeStudentDetails,
-        mergeStudentAcademicDetails,
-    );
+  return await studentData.create(
+    accountNumber,
+    mergeStudentDetails,
+    mergeStudentAcademicDetails,
+  );
 };

@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: University Student Accommodation Tracker API
+  title: UPLB CASA API
   version: 1.1.0
   description: |
     Consolidated OpenAPI reference specification aligned with current code and SRS.

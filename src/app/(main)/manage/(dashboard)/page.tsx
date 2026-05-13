@@ -1,27 +1,30 @@
+import { Armchair, Bed, FileCheck, FileX, Home, UserCheck } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getManagerAccountNumber } from "@/app/lib/auth";
 import { applicationService } from "@/app/lib/services/application-service";
+import { auditLogService } from "@/app/lib/services/audit-log-service";
+import { billingService } from "@/app/lib/services/billing-service";
 import { housingService } from "@/app/lib/services/housing-service";
 import { getRoomStats } from "@/app/lib/services/room-service";
-import { billingService } from "@/app/lib/services/billing-service";
-import { getManagerAccountNumber } from "@/app/lib/auth";
-import { redirect } from "next/navigation";
-import { auditLogService } from "@/app/lib/services/audit-log-service";
 import DormsSection from "./DormsSection";
-import Link from "next/link";
-
-import { Home, FileCheck, FileX, Bed, UserCheck, Armchair} from 'lucide-react';
-
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
-  description: "Overview of properties, applications, and tenant activity for managed properties",
+  description:
+    "Overview of properties, applications, and tenant activity for managed properties",
 };
+
 import StateMessage from "@/app/components/ui/state-message";
+import ExportButtonsClient from "./ExportButtonsClient";
 
 function GrossRevenueCard({ value }: { value: number }) {
   return (
     <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between h-full overflow-hidden">
-      <p className="text-3xl text-(--cream) uppercase tracking-widest">Gross Revenue</p>
+      <p className="text-3xl text-(--cream) uppercase tracking-widest">
+        Gross Revenue
+      </p>
       <div className="wrap-break-word whitespace-normal">
         <p className="text-6xl font-bold text-[var(--dark-orange)] wrap-break-word">
           ₱{value.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
@@ -52,7 +55,7 @@ function StatCard({
   );
 }
 
-function DormCard({
+function _DormCard({
   id,
   name,
   image,
@@ -80,11 +83,9 @@ function DormCard({
   );
 }
 
-function ActivityItem({ text }: { text: string }) {
+function _ActivityItem({ text }: { text: string }) {
   return (
-    <div className="bg-gray-100 p-3 rounded text-sm text-gray-800">
-      {text}
-    </div>
+    <div className="bg-gray-100 p-3 rounded text-sm text-gray-800">{text}</div>
   );
 }
 
@@ -99,7 +100,7 @@ export default async function MgrDashboardPage() {
   let roomStats: Awaited<ReturnType<typeof getRoomStats>>;
   let dorms: Awaited<ReturnType<typeof housingService.getAllHousingByManager>>;
   let grossRevenue: number;
-  let logs: any[];
+  let logs: Array<Record<string, any>>;
 
   try {
     [stats, roomStats, dorms, grossRevenue, logs] = await Promise.all([
@@ -109,7 +110,7 @@ export default async function MgrDashboardPage() {
       billingService.getGrossRevenue(managerAccountNumber ?? undefined),
       auditLogService.getRecentLogsByManager(managerAccountNumber),
     ]);
-  } catch (error) {
+  } catch (_error) {
     return (
       <StateMessage
         variant="error"
@@ -121,47 +122,82 @@ export default async function MgrDashboardPage() {
 
   return (
     <div className="flex flex-col gap-10 text-[var(--dark-orange)] bg-[var(--cream)]">
-
       <section className="flex flex-col gap-6 p-6">
-        <h1 className="text-2xl font-bold text-[var(--dark-blue)]">Manager Dashboard</h1>
+        <div className="w-full flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[var(--dark-blue)]">
+            Manager Dashboard
+          </h1>
+          <div className="ml-4">
+            <ExportButtonsClient logs={logs ?? []} />
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
           <div className="md:col-span-1">
             <GrossRevenueCard value={grossRevenue} />
           </div>
 
           <div className="md:col-span-2 grid grid-cols-2 gap-4">
-            <StatCard label="Total Occupants" value={roomStats.totalOccupants} icon={UserCheck} />
-            <StatCard label="New Applicants" value={stats.pending} icon={Home} />
-            <StatCard label="Approved Applications" value={stats.approved} icon={FileCheck} />
-            <StatCard label="Rejected Applications" value={stats.rejected} icon={FileX} />
-            <StatCard label="Total Rooms" value={roomStats.totalRooms} icon={Bed} />
-            <StatCard label="Rooms with vacancy" value={roomStats.totalFreeRooms} icon={Armchair}/>
+            <StatCard
+              label="Total Occupants"
+              value={roomStats.totalOccupants}
+              icon={UserCheck}
+            />
+            <StatCard
+              label="New Applicants"
+              value={stats.pending}
+              icon={Home}
+            />
+            <StatCard
+              label="Approved Applications"
+              value={stats.approved}
+              icon={FileCheck}
+            />
+            <StatCard
+              label="Rejected Applications"
+              value={stats.rejected}
+              icon={FileX}
+            />
+            <StatCard
+              label="Total Rooms"
+              value={roomStats.totalRooms}
+              icon={Bed}
+            />
+            <StatCard
+              label="Rooms with vacancy"
+              value={roomStats.totalFreeRooms}
+              icon={Armchair}
+            />
           </div>
-
         </div>
       </section>
 
       <section className="flex flex-col gap-4 p-6 bg-[var(--teal)]/70">
-        <h2 className="text-3xl text-[var(--dark-blue)] font-extrabold"> Dorms Managed</h2>
+        <h2 className="text-3xl text-[var(--dark-blue)] font-extrabold">
+          {" "}
+          Dorms Managed
+        </h2>
 
         <DormsSection dorms={dorms ?? []} />
-
       </section>
 
       <section className="flex flex-col gap-4 px-6 pb-6">
-        <h2 className="text-xl font-semibold text-[var(--dark-orange)]">Recent Activities</h2>
+        <h2 className="text-xl font-semibold text-[var(--dark-orange)]">
+          Recent Activities
+        </h2>
         <div className="flex flex-col gap-2">
-          {logs.length === 0 ? (
+          {(logs || []).length === 0 ? (
             <p className="text-gray-500 text-sm">No recent activity.</p>
           ) : (
-            logs.map((log: any) => (
+            (logs || []).map((log) => (
               <div
                 key={log.audit_id}
                 className="bg-gray-100 p-3 rounded text-sm text-gray-800 flex justify-between items-center border border-gray-300"
               >
-                <span><span className="font-bold">{log.action_type}</span> — {log.audit_description ?? "No description"}</span>
+                <span>
+                  <span className="font-bold">{log.action_type}</span> —{" "}
+                  {log.audit_description ?? "No description"}
+                </span>
                 <span className="text-sm text-gray-110 shrink-0 ml-4">
                   {new Date(log.timestamp).toLocaleString("en-PH")}
                 </span>
@@ -170,7 +206,6 @@ export default async function MgrDashboardPage() {
           )}
         </div>
       </section>
-
     </div>
   );
 }

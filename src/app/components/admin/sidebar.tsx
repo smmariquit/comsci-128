@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, ChevronRight, Home, DoorOpen, Users, Receipt, FileText, ClipboardList, X } from "lucide-react";
+import {
+  LayoutGrid,
+  ChevronRight,
+  Home,
+  DoorOpen,
+  Users,
+  Receipt,
+  FileText,
+  ClipboardList,
+  X,
+} from "lucide-react";
 import Logo from "@/app/components/Logo";
 
 const navItems = [

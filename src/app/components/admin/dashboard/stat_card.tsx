@@ -10,7 +10,12 @@ interface StatCardProps {
   deltaSub?: string;
 }
 
-export default function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
+export default function StatCard({
+  label,
+  value,
+  delta,
+  deltaSub,
+}: StatCardProps) {
   const [hovered, setHovered] = useState(false);
   const isPositive = delta === undefined || delta >= 0;
   // Up = amber, down = orange (both from palette)
@@ -32,7 +37,8 @@ export default function StatCard({ label, value, delta, deltaSub }: StatCardProp
         height: 100,
         transform: hovered ? "translateY(-2px)" : "translateY(0)",
         boxShadow: hovered ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
-        transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+        transition:
+          "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
         outlineColor: hovered ? C.amber : C.cream,
       }}
     >

@@ -22,7 +22,6 @@ export default function Page() {
 
   const filteredData = useMemo(() => {
     return MOCK_AUDIT_LOGS.filter((log) => {
-      
       // Search
       const matchesSearch =
         log.user_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -36,11 +35,9 @@ export default function Page() {
       // Date Range
       const logDate = new Date(log.timestamp).getTime();
 
-      const matchesFrom =
-        !dateFrom || logDate >= new Date(dateFrom).getTime();
+      const matchesFrom = !dateFrom || logDate >= new Date(dateFrom).getTime();
 
-      const matchesTo =
-        !dateTo || logDate <= new Date(dateTo).getTime();
+      const matchesTo = !dateTo || logDate <= new Date(dateTo).getTime();
 
       return matchesSearch && matchesAction && matchesFrom && matchesTo;
     });
@@ -51,10 +48,14 @@ export default function Page() {
   const stats = useMemo(() => {
     return {
       total: MOCK_AUDIT_LOGS.length,
-      login: MOCK_AUDIT_LOGS.filter(l => l.action_type === "LOGIN").length,
-      approval: MOCK_AUDIT_LOGS.filter(l => l.action_type === "APPROVE_APPLICATION").length,
-      assignment: MOCK_AUDIT_LOGS.filter(l => l.action_type === "ASSIGN_ROOM").length,
-      billing: MOCK_AUDIT_LOGS.filter(l => l.action_type === "BILL_UPDATE").length,
+      login: MOCK_AUDIT_LOGS.filter((l) => l.action_type === "LOGIN").length,
+      approval: MOCK_AUDIT_LOGS.filter(
+        (l) => l.action_type === "APPROVE_APPLICATION",
+      ).length,
+      assignment: MOCK_AUDIT_LOGS.filter((l) => l.action_type === "ASSIGN_ROOM")
+        .length,
+      billing: MOCK_AUDIT_LOGS.filter((l) => l.action_type === "BILL_UPDATE")
+        .length,
     };
   }, []);
 
@@ -89,7 +90,6 @@ export default function Page() {
         gap: 16,
       }}
     >
-
       {/* ── Stat Cards ───────────────────────────────────────────────────────── */}
       <div style={{ display: "flex", gap: 10 }}>
         <AuditStatCard type="total" value={stats.total} />
@@ -114,10 +114,7 @@ export default function Page() {
           description="Try adjusting the filters or check back later."
         />
       ) : (
-        <AuditLogTable
-          data={filteredData}
-          onView={handleView}
-        />
+        <AuditLogTable data={filteredData} onView={handleView} />
       )}
     </main>
   );

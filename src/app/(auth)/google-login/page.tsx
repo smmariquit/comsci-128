@@ -34,7 +34,10 @@ export default function GoogleLoginPage() {
           return;
         }
 
-        const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+        const urlParams =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search)
+            : new URLSearchParams();
         const intent = urlParams.get("intent") || "login";
 
         const response = await fetch("/api/auth/google-login", {
@@ -45,20 +48,36 @@ export default function GoogleLoginPage() {
           body: JSON.stringify({ intent }),
         });
 
-        const payload: { role?: string; redirectTo?: string; error?: string; googleData?: any; cleanup?: any; user?: any } = await response.json();
+        const payload: {
+          role?: string;
+          redirectTo?: string;
+          error?: string;
+          googleData?: any;
+          cleanup?: any;
+          user?: any;
+        } = await response.json();
 
         if (!response.ok) {
-          if (payload.cleanup?.success || payload.cleanup?.dbError || payload.cleanup?.authError) {
-            setError("An error occurred during registration setup. Please try signing up again from the beginning.");
+          if (
+            payload.cleanup?.success ||
+            payload.cleanup?.dbError ||
+            payload.cleanup?.authError
+          ) {
+            setError(
+              "An error occurred during registration setup. Please try signing up again from the beginning.",
+            );
 
             sessionStorage.removeItem("googleSignupData");
-            
+
             setTimeout(() => {
               router.push("/register");
             }, 2000);
           } else {
             if (payload.googleData) {
-              sessionStorage.setItem("googleSignupData", JSON.stringify(payload.googleData));
+              sessionStorage.setItem(
+                "googleSignupData",
+                JSON.stringify(payload.googleData),
+              );
             }
             router.push(payload.redirectTo || "/register");
           }
@@ -66,10 +85,17 @@ export default function GoogleLoginPage() {
         }
 
         if (payload.googleData) {
-          sessionStorage.setItem("googleSignupData", JSON.stringify(payload.googleData));
+          sessionStorage.setItem(
+            "googleSignupData",
+            JSON.stringify(payload.googleData),
+          );
         }
 
-        if (payload.redirectTo !== "/register" && payload.role && payload.user) {
+        if (
+          payload.redirectTo !== "/register" &&
+          payload.role &&
+          payload.user
+        ) {
           if (payload.user.account_number) {
             await supabase.auth.updateUser({
               data: { account_number: payload.user.account_number },
@@ -80,7 +106,6 @@ export default function GoogleLoginPage() {
         }
 
         router.push(payload.redirectTo || "/login");
-
       } catch (error) {
         console.error("Google Login error:", error);
         setError("An unexpected error occurred. Please try again.");

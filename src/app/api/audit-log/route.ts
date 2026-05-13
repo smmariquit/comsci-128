@@ -1,48 +1,58 @@
+import { NextResponse } from "next/server";
+import type { Role } from "@/app/lib/models/audit_log";
+import { createSupabaseServerClient } from "@/app/lib/server-client";
 import { auditLogService } from "@/app/lib/services/audit-log-service";
-import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUserRole } from "@/app/lib/services/authorization-service";
 
-// Fetch all audit logs for system admin
-export async function GET(request: NextRequest) {
-    try {
-        /*
-            TODO:
-            - authentication middleware
-            - role access (role guard) middleware
-        */
+function toAuditRole(
+  role: Awaited<ReturnType<typeof getCurrentUserRole>>,
+): Role {
+  if (role === "student") return "Student";
+  if (role === "system_admin") return "System Admin";
+  return "Manager";
+}
 
-        // filler for system admin
-        
-        // Authorization check
-        // if (!user) {
-        //     return NextResponse.json(
-        //         { message: "Unauthorized" },
-        //         { status: 401 },
-        //     );
-        // }
+// Fetch audit logs for the current authenticated user
+export async function GET() {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-        // Filler for system admin (temporary for testing)
-        const auditLogs = await auditLogService.getAuditLogs(
-            "174",
-            "Manager",
-            174
-        );
-
-        // Send Response
-        if (!auditLogs || auditLogs.length === 0) {
-            return NextResponse.json(
-                { message: "Audit logs not found." },
-                { status: 404 },
-            );
-        }
-
-        // Success
-        return NextResponse.json(auditLogs, { status: 200 });
-        
-    } catch (error: any) {
-        console.error("Error fetching audit logs:", error);
-        return NextResponse.json(
-            { message: "Failed to fetch audit logs.", error: error.message },
-            { status: 500 },
-        );
+    if (authError || !user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+
+    const accountNumber = Number(user.user_metadata?.account_number ?? 0);
+    if (!accountNumber) {
+      return NextResponse.json(
+        { message: "Account number is missing from the session." },
+        { status: 400 },
+      );
+    }
+
+    const role = await getCurrentUserRole();
+    const auditLogs = await auditLogService.getAuditLogs(
+      user.id,
+      toAuditRole(role),
+      accountNumber,
+    );
+
+    // If no logs, return an empty array so the UI can render "no events"
+    if (!auditLogs || auditLogs.length === 0) {
+      return NextResponse.json([], { status: 200 });
+    }
+
+    // Success
+    return NextResponse.json(auditLogs, { status: 200 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error fetching audit logs:", error);
+    return NextResponse.json(
+      { message: "Failed to fetch audit logs.", error: message },
+      { status: 500 },
+    );
+  }
 }

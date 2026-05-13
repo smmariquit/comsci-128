@@ -24,12 +24,11 @@ function normalizeGoogleProfile(googleUser: any): GoogleProfile {
   const email = googleUser.email || googleUser.user_metadata?.email || "";
   const googleIdentity = googleUser.identities?.[0]?.id || null;
   const fullName =
-    googleUser.user_metadata?.full_name ||
-    googleUser.user_metadata?.name ||
-    "";
+    googleUser.user_metadata?.full_name || googleUser.user_metadata?.name || "";
   const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
   const firstName = nameParts[0] || email.split("@")[0] || "";
-  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : firstName;
+  const lastName =
+    nameParts.length > 1 ? nameParts.slice(1).join(" ") : firstName;
 
   return { email, googleIdentity, firstName, lastName };
 }
@@ -48,14 +47,17 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
     if (!last_name) throw new Error("Last name is required.");
     if (!password) throw new Error("Password is required");
 
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email: account_email,
-      password: password,
-      email_confirm: true,
-    });
+    const { data: authData, error: authError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email: account_email,
+        password: password,
+        email_confirm: true,
+      });
 
     if (authError || !authData.user) {
-      throw new Error(`Auth creation failed: ${authError?.message || "Unknown error"}`);
+      throw new Error(
+        `Auth creation failed: ${authError?.message || "Unknown error"}`,
+      );
     }
 
     // set user type to Student (default)
@@ -208,7 +210,9 @@ const findGoogleUser = async (googleUser: any): Promise<User | null> => {
   const profile = normalizeGoogleProfile(googleUser);
 
   if (profile.googleIdentity) {
-    const byGoogleIdentity = await userData.findByGoogleIdentity(profile.googleIdentity);
+    const byGoogleIdentity = await userData.findByGoogleIdentity(
+      profile.googleIdentity,
+    );
     if (byGoogleIdentity) {
       return byGoogleIdentity;
     }
@@ -221,7 +225,10 @@ const findGoogleUser = async (googleUser: any): Promise<User | null> => {
   return await userData.findByEmail(profile.email);
 };
 
-const finalizeGoogleSignup = async (googleUser: any, updates: UpdateUser): Promise<User> => {
+const finalizeGoogleSignup = async (
+  googleUser: any,
+  updates: UpdateUser,
+): Promise<User> => {
   const profile = normalizeGoogleProfile(googleUser);
   const accountEmail = updates.account_email || profile.email;
 
@@ -243,22 +250,26 @@ const finalizeGoogleSignup = async (googleUser: any, updates: UpdateUser): Promi
 
   let authUserId = googleUser?.id as string | undefined;
   if (!authUserId) {
-    const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: authUsers, error: listError } =
+      await supabaseAdmin.auth.admin.listUsers();
     if (listError) {
       throw new Error(`Failed to list Auth users: ${listError.message}`);
     }
 
-    const authUser = authUsers?.users?.find(u => u.email === accountEmail);
+    const authUser = authUsers?.users?.find((u) => u.email === accountEmail);
     if (!authUser) {
       throw new Error("Auth user not found.");
     }
     authUserId = authUser.id;
   }
 
-  const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
-    password: updates.password,
-    email_confirm: true,
-  });
+  const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+    authUserId,
+    {
+      password: updates.password,
+      email_confirm: true,
+    },
+  );
 
   if (updateError) {
     throw new Error(`Auth update failed: ${updateError.message}`);
@@ -284,18 +295,23 @@ const finalizeGoogleSignup = async (googleUser: any, updates: UpdateUser): Promi
   return await userData.create(userDetails);
 };
 
-const deleteGooglePlaceholderUser = async (email: string): Promise<{ success: boolean; error?: string }> => {
+const deleteGooglePlaceholderUser = async (
+  email: string,
+): Promise<{ success: boolean; error?: string }> => {
   try {
     const existingUser = await userData.findByEmail(email);
-    
+
     if (existingUser) {
       await studentData.deleteByAccountNumber(existingUser.account_number);
     }
 
     const userDeleteResult = await userData.deleteByEmail(email);
-    
+
     if (!userDeleteResult.deleted) {
-      return { success: false, error: `Database cleanup failed: ${userDeleteResult.error}` };
+      return {
+        success: false,
+        error: `Database cleanup failed: ${userDeleteResult.error}`,
+      };
     }
 
     return { success: true };
@@ -304,24 +320,35 @@ const deleteGooglePlaceholderUser = async (email: string): Promise<{ success: bo
   }
 };
 
-const deleteFromSupabaseAuth = async (email: string): Promise<{ success: boolean; error?: string }> => {
+const deleteFromSupabaseAuth = async (
+  email: string,
+): Promise<{ success: boolean; error?: string }> => {
   try {
-    const { data: authUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-    
+    const { data: authUsers, error: listError } =
+      await supabaseAdmin.auth.admin.listUsers();
+
     if (listError) {
-      return { success: false, error: `Failed to list Auth users: ${listError.message}` };
+      return {
+        success: false,
+        error: `Failed to list Auth users: ${listError.message}`,
+      };
     }
 
-    const authUser = authUsers?.users?.find(u => u.email === email);
-    
+    const authUser = authUsers?.users?.find((u) => u.email === email);
+
     if (!authUser) {
       return { success: true };
     }
 
-    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(authUser.id);
-    
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
+      authUser.id,
+    );
+
     if (deleteError) {
-      return { success: false, error: `Failed to delete from Auth: ${deleteError.message}` };
+      return {
+        success: false,
+        error: `Failed to delete from Auth: ${deleteError.message}`,
+      };
     }
 
     return { success: true };
@@ -330,12 +357,13 @@ const deleteFromSupabaseAuth = async (email: string): Promise<{ success: boolean
   }
 };
 
-const cleanupGooglePlaceholder = async (email: string): Promise<{ success: boolean; dbError?: string; authError?: string }> => {
-  
+const cleanupGooglePlaceholder = async (
+  email: string,
+): Promise<{ success: boolean; dbError?: string; authError?: string }> => {
   const dbCleanup = await deleteGooglePlaceholderUser(email);
-  
+
   const authCleanup = await deleteFromSupabaseAuth(email);
-  
+
   const result = {
     success: dbCleanup.success && authCleanup.success,
     ...(dbCleanup.error && { dbError: dbCleanup.error }),

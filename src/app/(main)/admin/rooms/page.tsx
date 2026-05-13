@@ -8,9 +8,15 @@ import {
 } from "@/components/admin/rooms/roommodal";
 import type { RoomForm } from "@/components/admin/rooms/roommodal";
 import RoomTable from "@/components/admin/rooms/roomtable";
-import type { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
+import type {
+  OccupancyStatus,
+  RoomRow,
+} from "@/components/admin/rooms/roomtable";
 import RoomFilters from "@/components/admin/rooms/roomfilters";
-import type { OccupancyFilter, TypeFilter } from "@/components/admin/rooms/roomfilters";
+import type {
+  OccupancyFilter,
+  TypeFilter,
+} from "@/components/admin/rooms/roomfilters";
 import { roomData } from "@/app/lib/data/room-data";
 import * as roomService from "@/app/lib/services/room-service";
 import { C } from "@/lib/palette";
@@ -254,7 +260,9 @@ export default function Page() {
     return (
       <div className="flex items-center justify-center h-64 text-[#1C2632]">
         <Loader2 className="animate-spin mr-2" size={24} />
-        <span className="font-semibold font-sans">Syncing with the database...</span>
+        <span className="font-semibold font-sans">
+          Syncing with the database...
+        </span>
       </div>
     );
 
