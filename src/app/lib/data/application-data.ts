@@ -18,8 +18,12 @@ async function create(application: NewApplication): Promise<Application> {
 }
 
 // READ ALL APPLICATIONS
-async function getAll() {
-	const { data, error } = await supabase
+async function getAll(page = 1) {
+	const totalPageRows = 5;
+	const from = (page - 1) * totalPageRows;
+	const to = from + totalPageRows - 1;
+
+	const { data, count, error } = await supabase
 		.from("application")
 		.select(
 			`
@@ -35,16 +39,26 @@ async function getAll() {
 				last_name
 			)
 		)
-	`,
+	`, { count: "exact"}
 		)
-		.eq("is_deleted", false);
+		.eq("is_deleted", false)
+		.order("expected_moveout_date", { ascending: true })
+		.range(from, to);
+
+	if (error) throw error;
+
+	const totalPages = Math.ceil(count / totalPageRows);
+	return {
+		data, totalPages, currentPage: page
+	};
 }
 
 async function getById(applicationId: number): Promise<Application | null> {
-	const { data, error } = await supabase
+	const { data, count, error } = await supabase
 		.from("application")
-		.select("*")
-		.eq("application_id", applicationId);
+		.select("*", { count: "exact"})
+		.eq("application_id", applicationId)
+
 	if (error) throw error;
 
 	return data && data.length > 0 ? data[0] : null;
