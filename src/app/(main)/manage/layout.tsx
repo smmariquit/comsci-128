@@ -1,6 +1,6 @@
+import { Bell } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Bell } from "lucide-react";
 import Logo from "@/app/components/Logo";
 import Breadcrumbs from "./components/Breadcrumbs";
 
@@ -24,7 +24,10 @@ export default function ManageLayout({
             <Logo size={28} href="/manage" />
 
             <nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
-              <Link href="/manage" className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3">
+              <Link
+                href="/manage"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+              >
                 Dashboard
               </Link>
               <Link
@@ -45,21 +48,33 @@ export default function ManageLayout({
               >
                 Complaints
               </Link>
+              <Link
+                href="/manage/logs"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+              >
+                Audit Logs
+              </Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-6 text-sm">
             {/* Mobile Nav Link */}
-            <Link href="/manage" className="md:hidden text-[#EDE9DE] text-xs font-medium">
+            <Link
+              href="/manage"
+              className="md:hidden text-[#EDE9DE] text-xs font-medium"
+            >
               Dashboard
             </Link>
 
-            <button className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center justify-center">
+            <button
+              type="button"
+              className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center justify-center"
+            >
               <Bell size={22} strokeWidth={2} />
             </button>
 
             <Link href="/manage/profile/21" className="py-2">
-              <div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all items-center justify-center" ></div>
+              <div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all items-center justify-center"></div>
             </Link>
           </div>
         </div>
@@ -77,9 +92,7 @@ export default function ManageLayout({
 
       {/* FOOTER */}
       <footer className="bg-[#1C2632] text-[#EDE9DE] px-6 py-10 text-sm">
-        <div className="max-w-7xl mx-auto">
-          © 2026 CMSC 128 Project
-        </div>
+        <div className="max-w-7xl mx-auto">© 2026 CMSC 128 Project</div>
       </footer>
     </div>
   );
