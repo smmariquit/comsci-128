@@ -58,12 +58,14 @@ export default function LandingPage() {
 
       {/* ── Navbar ── */}
       <nav className="flex justify-between items-center px-8 py-6 md:px-16">
-        <Logo href={null} size={64} textClassName="text-[#1C2632]" />
-        <div className="flex items-center gap-5">
+        <div className="flex items-center">
+          <Logo href={null} size={64} textClassName="text-[#1C2632]" />
+        </div>
+        <div className="flex items-center gap-6">
           {isLoggedIn ? (
             <Link
               href={dashboardUrl}
-              className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+              className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center justify-center"
             >
               Continue to Dashboard
             </Link>
@@ -71,13 +73,13 @@ export default function LandingPage() {
             <>
               <Link
                 href="/login"
-                className="font-medium text-[#C9642A] hover:underline transition-colors"
+                className="font-medium text-[#C9642A] hover:underline transition-colors flex items-center justify-center"
               >
                 Log in
               </Link>
               <Link
                 href="/register"
-                className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+                className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center justify-center"
               >
                 Sign up
               </Link>
