@@ -3,14 +3,14 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
     <div className="min-h-screen w-full flex items-center justify-center bg-[#EDE9DE]">
       <div className="flex flex-col items-center gap-6">
         {/* Animated house icon — built stroke by stroke */}
-        <div className="relative w-16 h-16">
+        <div className="relative w-32 h-32">
           <svg
             viewBox="0 0 64 64"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="w-16 h-16"
+            className="w-32 h-32"
           >
-            {/* Roof — triangle */}
+            {/* ... rest of the svg paths remain the same as they use viewBox ... */}
             <path
               d="M32 8 L56 30 L8 30 Z"
               stroke="#C9642A"
@@ -24,7 +24,6 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
                 animation: "house-draw-roof 1.2s ease-out forwards",
               }}
             />
-            {/* Walls — rectangle */}
             <path
               d="M14 30 L14 54 L50 54 L50 30"
               stroke="#567375"
@@ -38,7 +37,6 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
                 animation: "house-draw-walls 1s ease-out 0.4s forwards",
               }}
             />
-            {/* Door */}
             <rect
               x="26"
               y="38"
@@ -54,7 +52,6 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
                 animation: "house-draw-door 0.8s ease-out 0.9s forwards",
               }}
             />
-            {/* Door knob */}
             <circle
               cx="35"
               cy="47"
@@ -65,7 +62,6 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
                 animation: "house-fade-in 0.4s ease-out 1.5s forwards",
               }}
             />
-            {/* Window left */}
             <rect
               x="17"
               y="36"
@@ -81,7 +77,6 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
                 animation: "house-draw-window 0.6s ease-out 1.1s forwards",
               }}
             />
-            {/* Window right */}
             <rect
               x="40"
               y="36"
@@ -97,7 +92,6 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
                 animation: "house-draw-window 0.6s ease-out 1.2s forwards",
               }}
             />
-            {/* Warm glow from windows */}
             <rect
               x="18"
               y="37"
@@ -122,7 +116,6 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
                 animation: "house-glow 1.8s ease-in-out 1.7s infinite",
               }}
             />
-            {/* Chimney */}
             <path
               d="M44 14 L44 22 L48 22 L48 18"
               stroke="#567375"
@@ -136,7 +129,6 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
                 animation: "house-draw-chimney 0.5s ease-out 0.6s forwards",
               }}
             />
-            {/* Smoke puffs */}
             <circle
               cx="46"
               cy="10"
@@ -162,7 +154,7 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
 
         {/* Label with gentle fade */}
         <span
-          className="text-sm font-semibold tracking-wider uppercase text-[#567375]"
+          className="text-lg font-bold tracking-[0.2em] uppercase text-[#1C2632]"
           style={{ animation: "house-fade-in 0.8s ease-in-out 1s forwards", opacity: 0 }}
         >
           {label}
