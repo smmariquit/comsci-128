@@ -6,7 +6,7 @@ import { StudentProfile } from "@/app/lib/models/student";
 import { LogOut } from "lucide-react";
 import LogoutModal from "../../../../components/LogoutModal";
 import StateMessage from "@/app/components/ui/state-message";
-import { deleteCookie } from "@/app/lib/utils";
+import { logoutAndRedirect } from "@/app/lib/utils";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
 	student:
@@ -386,12 +386,7 @@ export default function StudentProfilePage() {
 			onClose={() => setShowLogoutModal(false)}
 			onConfirm={() => {
 				setShowLogoutModal(false);
-				document.cookie.split(";").forEach((cookie) => {
-					const eqPos = cookie.indexOf("=");
-					const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
-					deleteCookie(name);
-				});
-				window.location.href = "/";
+				void logoutAndRedirect("/");
 			}}
 		/>
 

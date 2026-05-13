@@ -7,6 +7,7 @@ import NotificationBell from '@/app/(main)/sys/component/notification';
 import AddManagerModal from '@/app/(main)/sys/component/add-manager-modal';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
 import { AuditLog } from '@/app/lib/models/audit_log';
+import { logoutAndRedirect } from '@/app/lib/utils';
 
 import {
 	TrendingUp,
@@ -239,7 +240,7 @@ export default function DashboardPage({
 		if (error) {
 			return (
 				<div className="flex min-h-screen bg-[#eae8e1]">
-					<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+					<Sidebar user={user} onLogout={onLogout ?? (() => { void logoutAndRedirect('/'); })} />
 					<div className="flex-1 flex items-center justify-center px-6">
 						<div className="w-full max-w-md">
 							<StateMessage
@@ -279,7 +280,7 @@ export default function DashboardPage({
 							/>
 
 				{/*Sidebar */}
-				<Sidebar user={stubUser} onLogout={() => window.location.href = '/'} />
+				<Sidebar user={stubUser} onLogout={() => { void logoutAndRedirect('/'); }} />
 				
 				{/* Main Content */}
 				<div className="flex-1 flex flex-col overflow-auto">

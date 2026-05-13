@@ -11,6 +11,7 @@ import { ViewAuditLogModal } from '@/app/(main)/sys/component/view-audit';
 import PageLoading from "@/app/components/ui/page-loading";
 import StateMessage from "@/app/components/ui/state-message";
 import { exportToCSV, exportToPDF } from "@/app/lib/export_utils";
+import { logoutAndRedirect } from '@/app/lib/utils';
 
 
 // Types
@@ -276,7 +277,7 @@ export default function AuditLogsPage({
   if (error) {
     return (
       <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+        <Sidebar user={user} onLogout={onLogout ?? (() => { void logoutAndRedirect('/'); })} />
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="w-full max-w-md">
             <StateMessage
@@ -300,7 +301,7 @@ export default function AuditLogsPage({
     <div className="flex min-h-screen bg-[#eae8e1]">
 
       {/* Sidebar */}
-      <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+      <Sidebar user={user} onLogout={onLogout ?? (() => { void logoutAndRedirect('/'); })} />
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-auto">

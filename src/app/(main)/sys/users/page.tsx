@@ -9,6 +9,7 @@ import { EditUserModal } from '@/app/(main)/sys/component/edit-user-modal';
 import { DisableAccountModal } from "@/app/(main)/sys//component/disable-account-modal";
 import PageLoading from "@/app/components/ui/page-loading";
 import StateMessage from "@/app/components/ui/state-message";
+import { logoutAndRedirect } from '@/app/lib/utils';
 
 // User Data Types
 export interface User {
@@ -145,7 +146,7 @@ export default function UserManagementPage({
 	if (error) {
 		return (
 			<div className="flex min-h-screen bg-[#eae8e1]">
-				<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+				<Sidebar user={user} onLogout={onLogout ?? (() => { void logoutAndRedirect('/'); })} />
 				<div className="flex-1 flex items-center justify-center px-6">
 					<div className="w-full max-w-md">
 						<StateMessage
@@ -167,7 +168,7 @@ export default function UserManagementPage({
 
 	return (
 		<div className="flex min-h-screen bg-[#eae8e1]">
-			<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+			<Sidebar user={user} onLogout={onLogout ?? (() => { void logoutAndRedirect('/'); })} />
 
 			<div className="flex-1 flex flex-col overflow-auto">
 				<div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-[#1a2332]/6">

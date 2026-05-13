@@ -1,3 +1,5 @@
+import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+
 export function setCookie(name: string, value: string, days: number): void {
   let expires = "";
   if (days) {
@@ -22,4 +24,20 @@ export function getCookie(name: string): string | null {
 
 export function deleteCookie(name: string): void {
   setCookie(name, "", -1);
+}
+
+export async function logoutAndRedirect(target = "/"): Promise<void> {
+  const supabase = getSupabaseBrowserClient();
+
+  try {
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.error("Failed to sign out:", error);
+  }
+
+  deleteCookie("is_logged_in");
+  deleteCookie("user_role");
+  deleteCookie("account_number");
+
+  window.location.replace(target);
 }

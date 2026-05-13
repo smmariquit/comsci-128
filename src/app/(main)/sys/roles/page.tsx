@@ -10,6 +10,7 @@ import { EditUserModal } from '@/app/(main)/sys/component/edit-user-modal';
 import { DisableAccountModal } from "@/app/(main)/sys//component/disable-account-modal";
 import PageLoading from "@/app/components/ui/page-loading";
 import StateMessage from "@/app/components/ui/state-message";
+import { logoutAndRedirect } from '@/app/lib/utils';
 
 // User Data Types - showed in table
 export interface User {
@@ -71,7 +72,7 @@ export default function UserManagementPage({ user = stubUser, notifications = st
   // Minimal safe implementation while the page body is being refactored.
   return (
     <div className="flex min-h-screen bg-[#eae8e1]">
-      <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+      <Sidebar user={user} onLogout={onLogout ?? (() => { void logoutAndRedirect('/'); })} />
       <div className="flex-1 flex items-center justify-center">
         <PageLoading label="Loading roles" />
       </div>

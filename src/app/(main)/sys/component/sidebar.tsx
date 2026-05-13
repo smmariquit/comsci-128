@@ -15,6 +15,7 @@ import {
     LogOut,
 } from 'lucide-react'; // Icons
 import Logo from '@/app/components/Logo';
+import { logoutAndRedirect } from '@/app/lib/utils';
 
 // Footer - User info
 export interface SidebarUser {
@@ -107,7 +108,15 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
                     {menuOpen && (
                         <div className="absolute bottom-full left-4 right-4 mb-2 bg-[#243447] rounded-xl overflow-hidden shadow-xl border border-white/6">
                         <button
-                            onClick={onLogout}
+                            onClick={() => {
+                                setMenuOpen(false);
+                                if (onLogout) {
+                                    void onLogout();
+                                    return;
+                                }
+
+                                void logoutAndRedirect('/');
+                            }}
                                 className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-white/6 transition-colors duration-150"
                                 >
                                 <LogOut size={16} />

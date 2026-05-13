@@ -10,6 +10,7 @@ import { EditDormModal } from '@/app/(main)/sys/component/edit-dorm';
 import { ViewDormModal } from '@/app/(main)/sys/component/view-dorm';
 import PageLoading from "@/app/components/ui/page-loading";
 import StateMessage from "@/app/components/ui/state-message";
+import { logoutAndRedirect } from '@/app/lib/utils';
 
 // Dorm Data Types - showed in table
 export interface Dorm {
@@ -233,7 +234,7 @@ export default function DormManagementPage({
       />
 
       {/* Sidebar */}
-      <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+      <Sidebar user={Dorm} onLogout={onLogout ?? (() => { void logoutAndRedirect('/'); })} />
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-auto">
