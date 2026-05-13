@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Search } from "lucide-react";
@@ -52,8 +51,14 @@ export default function AuditLogFilters({
   onAction,
 }: Props) {
   return (
-    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-      
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
       {/* Search */}
       <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
         <Search
@@ -93,7 +98,6 @@ export default function AuditLogFilters({
         <option value="BILL_UPDATE">Billing</option>
         <option value="LOGOUT">Logout</option>
       </select>
-
     </div>
   );
 }

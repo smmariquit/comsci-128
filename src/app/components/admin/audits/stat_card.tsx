@@ -20,29 +20,22 @@ interface Props {
 
 // ── Config (keeps design consistent) ──────────────────────────────────────────
 
-const STAT_CONFIG: Record<
-  AuditStatType,
-  { label: string; color: string; }
-> = {
+const STAT_CONFIG: Record<AuditStatType, { label: string; color: string }> = {
   total: {
     label: "Total Logs",
     color: C.navy,
-
   },
   login: {
     label: "Logins",
     color: C.teal,
-
   },
   approval: {
     label: "Approvals",
     color: C.teal,
-  
   },
   assignment: {
     label: "Assignments",
     color: C.navy,
-
   },
   billing: {
     label: "Billing Updates",
@@ -52,12 +45,7 @@ const STAT_CONFIG: Record<
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function AuditStatCard({
-  type,
-  value,
-  delta,
-  deltaSub,
-}: Props) {
+export default function AuditStatCard({ type, value, delta, deltaSub }: Props) {
   const config = STAT_CONFIG[type];
 
   const isPositive = delta === undefined || delta >= 0;
@@ -88,7 +76,6 @@ export default function AuditStatCard({
           gap: 6,
         }}
       >
-       
         <span
           style={{
             color: C.teal,

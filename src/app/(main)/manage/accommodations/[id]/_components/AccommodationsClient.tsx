@@ -11,7 +11,7 @@ function UnitCard({
   occupants,
   freeSlots,
   bedType,
-  housingId
+  housingId,
 }: {
   id: number;
   name: string;
@@ -23,8 +23,10 @@ function UnitCard({
   return (
     <Link href={`/manage/accommodations/${housingId}/${id}`} className="block">
       <div className="rounded-xl p-5 bg-[var(--dark-blue)] hover:brightness-110 transition cursor-pointer border border-[var(--dark-orange)]/20">
-        <h3 className="text-3xl text-[var(--dark-orange)] font-bold mb-4">{name}</h3>
-        
+        <h3 className="text-3xl text-[var(--dark-orange)] font-bold mb-4">
+          {name}
+        </h3>
+
         <div className="grid grid-cols-2 gap-y-3 gap-x-2">
           <div className="flex items-center gap-2 text-[var(--cream)] text-sm">
             <Users size={16} className="text-[var(--dark-orange)] shrink-0" />
@@ -43,7 +45,10 @@ function UnitCard({
           </div>
 
           <div className="flex items-center gap-2 text-[var(--cream)] text-sm">
-            <DoorOpen size={16} className="text-[var(--dark-orange)] shrink-0" />
+            <DoorOpen
+              size={16}
+              className="text-[var(--dark-orange)] shrink-0"
+            />
             <span className="opacity-80">Bed Type</span>
           </div>
           <div className="text-[var(--cream)] font-medium text-base text-right capitalize">
@@ -64,14 +69,14 @@ type Unit = {
   housingId: number;
 };
 
-type Tenant = any
+type Tenant = any;
 
 export default function AccommodationClient({
   units: initialUnits,
   tenants: initialTenants,
   housingName,
   housingImage,
-  housingId
+  housingId,
 }: {
   units: Unit[];
   tenants: Tenant[];
@@ -80,17 +85,34 @@ export default function AccommodationClient({
   housingId: number;
 }) {
   const [unitSearch, setUnitSearch] = useState("");
-  const [unitSort, setUnitSort] = useState<"num-asc" | "num-desc" | "occupants-desc" | "occupants-asc" | "free-asc" | "free-desc">("num-asc");
+  const [unitSort, setUnitSort] = useState<
+    | "num-asc"
+    | "num-desc"
+    | "occupants-desc"
+    | "occupants-asc"
+    | "free-asc"
+    | "free-desc"
+  >("num-asc");
   const [tenantSearch, setTenantSearch] = useState("");
-  const [tenantSort, setTenantSort] = useState<"name-asc" | "name-desc" | "unit-asc" | "unit-desc" | "start-asc" | "start-desc" | "end-asc" | "end-desc">("name-asc");
+  const [tenantSort, setTenantSort] = useState<
+    | "name-asc"
+    | "name-desc"
+    | "unit-asc"
+    | "unit-desc"
+    | "start-asc"
+    | "start-desc"
+    | "end-asc"
+    | "end-desc"
+  >("name-asc");
 
   const filteredUnits = useMemo(() => {
     let result = [...initialUnits];
     const q = unitSearch.trim().toLowerCase();
     if (q) {
-      result = result.filter((unit) =>
-        unit.name.toLowerCase().includes(q) ||
-        unit.bedType.toLowerCase().includes(q)
+      result = result.filter(
+        (unit) =>
+          unit.name.toLowerCase().includes(q) ||
+          unit.bedType.toLowerCase().includes(q),
       );
     }
 
@@ -124,7 +146,9 @@ export default function AccommodationClient({
         const fullName = user
           ? `${user.first_name} ${user.middle_name || ""} ${user.last_name}`.toLowerCase()
           : "";
-        const unitNumber = tenant.room?.room_id ? `unit #${tenant.room.room_id}` : "";
+        const unitNumber = tenant.room?.room_id
+          ? `unit #${tenant.room.room_id}`
+          : "";
         return fullName.includes(q) || unitNumber.includes(q);
       });
     }
@@ -148,13 +172,25 @@ export default function AccommodationClient({
         case "unit-desc":
           return getUnitNum(b) - getUnitNum(a);
         case "start-asc":
-          return new Date(a.movein_date).getTime() - new Date(b.movein_date).getTime();
+          return (
+            new Date(a.movein_date).getTime() -
+            new Date(b.movein_date).getTime()
+          );
         case "start-desc":
-          return new Date(b.movein_date).getTime() - new Date(a.movein_date).getTime();
+          return (
+            new Date(b.movein_date).getTime() -
+            new Date(a.movein_date).getTime()
+          );
         case "end-asc":
-          return new Date(a.moveout_date).getTime() - new Date(b.moveout_date).getTime();
+          return (
+            new Date(a.moveout_date).getTime() -
+            new Date(b.moveout_date).getTime()
+          );
         case "end-desc":
-          return new Date(b.moveout_date).getTime() - new Date(a.moveout_date).getTime();
+          return (
+            new Date(b.moveout_date).getTime() -
+            new Date(a.moveout_date).getTime()
+          );
         default:
           return 0;
       }
@@ -183,12 +219,17 @@ export default function AccommodationClient({
       </div>
 
       <div className="flex flex-col gap-6 py-13 px-10 rounded-lg">
-        <h1 className="text-3xl font-semibold text-[var(--dark-blue)]">Units</h1>
+        <h1 className="text-3xl font-semibold text-[var(--dark-blue)]">
+          Units
+        </h1>
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                size={16}
+              />
               <input
                 type="text"
                 value={unitSearch}
@@ -198,7 +239,10 @@ export default function AccommodationClient({
               />
             </div>
             <div className="relative">
-              <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+              <SlidersHorizontal
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                size={16}
+              />
               <select
                 value={unitSort}
                 onChange={(e) => setUnitSort(e.target.value as any)}
@@ -217,7 +261,9 @@ export default function AccommodationClient({
                   <option value="free-asc">Low to High</option>
                 </optgroup>
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▾</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">
+                ▾
+              </span>
             </div>
           </div>
           <p className="text-xs text-gray-600">
@@ -235,12 +281,17 @@ export default function AccommodationClient({
       </div>
 
       <div className="flex flex-col gap-6 px-12 pb-10">
-        <h2 className="text-2xl text-[var(--dark-blue)] font-semibold">All Tenants</h2>
+        <h2 className="text-2xl text-[var(--dark-blue)] font-semibold">
+          All Tenants
+        </h2>
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                size={16}
+              />
               <input
                 type="text"
                 value={tenantSearch}
@@ -250,7 +301,10 @@ export default function AccommodationClient({
               />
             </div>
             <div className="relative">
-              <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+              <SlidersHorizontal
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                size={16}
+              />
               <select
                 value={tenantSort}
                 onChange={(e) => setTenantSort(e.target.value as any)}
@@ -273,7 +327,9 @@ export default function AccommodationClient({
                   <option value="end-desc">Latest First</option>
                 </optgroup>
               </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▾</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">
+                ▾
+              </span>
             </div>
           </div>
           <p className="text-xs text-gray-600">
@@ -296,7 +352,9 @@ export default function AccommodationClient({
             <tbody>
               {filteredTenants.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-3 text-gray-400">No tenants match your search.</td>
+                  <td colSpan={4} className="p-3 text-gray-400">
+                    No tenants match your search.
+                  </td>
                 </tr>
               ) : (
                 filteredTenants.map((tenant: any) => {
@@ -305,7 +363,10 @@ export default function AccommodationClient({
                     ? `${user.first_name} ${user.middle_name ? user.middle_name + " " : ""}${user.last_name}`
                     : "Unknown";
                   return (
-                    <tr key={tenant.account_number} className="border-t text-[var(--dark-blue)] hover:bg-black/5">
+                    <tr
+                      key={tenant.account_number}
+                      className="border-t text-[var(--dark-blue)] hover:bg-black/5"
+                    >
                       <td className="p-3">{fullName}</td>
                       <td className="p-3">Unit #{tenant.room?.room_id}</td>
                       <td className="p-3">{tenant.movein_date}</td>

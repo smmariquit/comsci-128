@@ -1,69 +1,75 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
-import Link from "next/link"
-import { Search, SlidersHorizontal } from "lucide-react"
-import { Constants, Database } from "@/app/types/database.types"
+import { useState, useMemo } from "react";
+import Link from "next/link";
+import { Search, SlidersHorizontal } from "lucide-react";
+import { Constants, Database } from "@/app/types/database.types";
 
 type Application = Database["public"]["Tables"]["application"]["Row"] & {
   student: {
-    user: Database["public"]["Tables"]["user"]["Row"] | null
-  } | null
-}
+    user: Database["public"]["Tables"]["user"]["Row"] | null;
+  } | null;
+};
 
-const STATUSES = ["All Status", ...Constants.public.Enums.ApplicationStatus]
+const STATUSES = ["All Status", ...Constants.public.Enums.ApplicationStatus];
 
 const getStatusStyles = (status: string) => {
   switch (status) {
     case "Pending Manager Approval":
-      return "bg-yellow-200 text-yellow-800"
+      return "bg-yellow-200 text-yellow-800";
     case "Pending Admin Approval":
-      return "bg-orange-200 text-orange-800"
+      return "bg-orange-200 text-orange-800";
     case "Approved":
-      return "bg-green-200 text-green-800"
+      return "bg-green-200 text-green-800";
     case "Rejected":
-      return "bg-red-200 text-red-800"
+      return "bg-red-200 text-red-800";
     case "Cancelled":
-      return "bg-gray-200 text-gray-700"
+      return "bg-gray-200 text-gray-700";
     default:
-      return "bg-gray-100 text-gray-600"
+      return "bg-gray-100 text-gray-600";
   }
-}
+};
 
 export default function ApplicationsClient({
   applications,
 }: {
-  applications: Application[]
+  applications: Application[];
 }) {
-  const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState("All Status")
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Status");
 
   const filtered = useMemo(() => {
-    let result = [...applications]
-    
-    const q = search.trim().toLowerCase()
+    let result = [...applications];
+
+    const q = search.trim().toLowerCase();
     if (q) {
       result = result.filter((app) => {
-        const user = app.student?.user
+        const user = app.student?.user;
         const fullName = user
           ? `${user.first_name} ${user.middle_name || ""} ${user.last_name}`.toLowerCase()
-          : ""
-        return fullName.includes(q) || (app.housing_name?.toLowerCase().includes(q) ?? false)
-      })
+          : "";
+        return (
+          fullName.includes(q) ||
+          (app.housing_name?.toLowerCase().includes(q) ?? false)
+        );
+      });
     }
-    
+
     if (statusFilter !== "All Status") {
-      result = result.filter((app) => app.application_status === statusFilter)
+      result = result.filter((app) => app.application_status === statusFilter);
     }
-    
-    return result
-  }, [applications, search, statusFilter])
+
+    return result;
+  }, [applications, search, statusFilter]);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            size={16}
+          />
           <input
             type="text"
             value={search}
@@ -73,7 +79,10 @@ export default function ApplicationsClient({
           />
         </div>
         <div className="relative">
-          <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+          <SlidersHorizontal
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            size={16}
+          />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -83,7 +92,9 @@ export default function ApplicationsClient({
               <option key={s}>{s}</option>
             ))}
           </select>
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▾</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">
+            ▾
+          </span>
         </div>
       </div>
       <p className="text-xs text-gray-600">
@@ -112,18 +123,25 @@ export default function ApplicationsClient({
               </tr>
             ) : (
               filtered.map((app) => {
-                const user = app.student?.user
+                const user = app.student?.user;
                 const fullName = user
                   ? `${user.first_name} ${user.middle_name ? user.middle_name + " " : ""}${user.last_name}`
-                  : "Unknown"
+                  : "Unknown";
 
                 return (
-                  <tr key={app.application_id} className="border-t hover:bg-yellow-100">
+                  <tr
+                    key={app.application_id}
+                    className="border-t hover:bg-yellow-100"
+                  >
                     <td className="p-3">{fullName}</td>
                     <td className="p-3">{app.housing_name ?? "N/A"}</td>
-                    <td className="p-3">{app.expected_moveout_date ?? "N/A"}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-1 rounded text-sm font-semibold ${getStatusStyles(app.application_status)}`}>
+                      {app.expected_moveout_date ?? "N/A"}
+                    </td>
+                    <td className="p-3">
+                      <span
+                        className={`px-2 py-1 rounded text-sm font-semibold ${getStatusStyles(app.application_status)}`}
+                      >
                         {app.application_status}
                       </span>
                     </td>
@@ -135,12 +153,12 @@ export default function ApplicationsClient({
                       </Link>
                     </td>
                   </tr>
-                )
+                );
               })
             )}
           </tbody>
         </table>
       </div>
     </div>
-  )
+  );
 }

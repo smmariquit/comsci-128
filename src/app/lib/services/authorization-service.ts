@@ -84,7 +84,7 @@ export async function getCurrentUserRole(): Promise<UserRole> {
   if (!accountNumber) {
     const storedCookie = await cookies();
     accountNumber = storedCookie.get("account_number")?.value;
-  };
+  }
 
   if (!accountNumber) return "public";
 
