@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
+import PageLoading from "@/app/components/ui/page-loading";
 
 export default function GoogleLoginPage() {
   const router = useRouter();
@@ -102,7 +103,7 @@ export default function GoogleLoginPage() {
           <p className="text-stone-400">Redirecting...</p>
         </div>
       ) : (
-        <p className="text-stone-400">Signing you in...</p>
+        <PageLoading label="Signing you in..." />
       )}
     </div>
   );
