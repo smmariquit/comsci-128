@@ -123,12 +123,14 @@ export default async function MgrDashboardPage() {
   return (
     <div className="flex flex-col gap-10 text-[var(--dark-orange)] bg-[var(--cream)]">
       <section className="flex flex-col gap-6 p-6">
-        <h1 className="text-2xl font-bold text-[var(--dark-blue)]">
-          Manager Dashboard
-        </h1>
-
-        {/* Export controls for recent audit logs */}
-        <ExportButtonsClient logs={logs ?? []} />
+        <div className="w-full flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[var(--dark-blue)]">
+            Manager Dashboard
+          </h1>
+          <div className="ml-4">
+            <ExportButtonsClient logs={logs ?? []} />
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-1">
