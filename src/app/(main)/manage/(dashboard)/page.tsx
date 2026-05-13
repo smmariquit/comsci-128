@@ -20,10 +20,10 @@ import StateMessage from "@/app/components/ui/state-message";
 
 function GrossRevenueCard({ value }: { value: number }) {
   return (
-    <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between h-full">
+    <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between h-full overflow-hidden">
       <p className="text-3xl text-(--cream) uppercase tracking-widest">Gross Revenue</p>
-      <div>
-        <p className="text-6xl font-bold text-[var(--dark-orange)]">
+      <div className="wrap-break-word whitespace-normal">
+        <p className="text-6xl font-bold text-[var(--dark-orange)] wrap-break-word">
           ₱{value.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
         </p>
         <p className="text-sm text-gray-400 mt-2">Total from paid bills</p>
