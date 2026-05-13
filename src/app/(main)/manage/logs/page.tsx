@@ -144,7 +144,7 @@ export default function ManageLogsPage() {
     exportToCSV("audit_logs", headers, rows);
   }
 
-  function handleExportPDF() {
+  async function handleExportPDF() {
     const headers = [
       "Timestamp",
       "User",
@@ -162,7 +162,7 @@ export default function ManageLogsPage() {
       log.partial_ip,
     ]);
 
-    exportToPDF("Audit Logs Report", "audit_logs", headers, rows);
+    await exportToPDF("Audit Logs Report", "audit_logs", headers, rows);
   }
 
   if (loading) {
