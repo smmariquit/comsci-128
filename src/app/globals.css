@@ -98,9 +98,10 @@ span a {
 }
 
 .react-datepicker__day--today {
-  border: 1px solid #c9642a !important;
+  border: 1px solid #567375 !important;
   border-radius: 8px !important;
-  color: #c9642a !important;
+  color: #567375 !important;
+  font-weight: 700 !important;
 }
 
 .react-datepicker__current-month {
