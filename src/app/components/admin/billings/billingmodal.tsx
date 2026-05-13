@@ -6,6 +6,7 @@ import { AlertCircle, ChevronDown, Trash2, X } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { BillRow, PaymentStatus, BillType } from "./billingtable";
 import { housingData } from "@/app/lib/data/housing-data";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 type ExtendedBillType = BillType | "Other";
 
@@ -349,13 +350,11 @@ export default function IssueBillModal({
 
             <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
               <label htmlFor="bill-due" style={labelStyle}>Due Date</label>
-              <input
+              <ThemedDatePicker
                 id="bill-due"
-                type="date"
                 value={dueDate}
-                min={today}
-                onChange={(e) => setDueDate(e.target.value)}
-                style={inputStyle}
+                minDate={today}
+                onChange={(val) => setDueDate(val)}
               />
             </div>
           </div>

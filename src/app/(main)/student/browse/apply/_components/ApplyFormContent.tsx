@@ -5,6 +5,7 @@ import { ChevronDown, ChevronLeft, FileText } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 export function ApplyFormContent() {
 	const dateNow = new Date(Date.now()).toISOString().split("T")[0];
@@ -167,11 +168,12 @@ export function ApplyFormContent() {
 							<label className="block text-sm font-bold text-[#1C2632]">
 								Expected move-out date:
 							</label>
-							<input
-								type="date"
+							<ThemedDatePicker
+								id="move-out-date"
 								value={moveOutDate}
-								onChange={(e) => setMoveOutDate(e.target.value)}
-								className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:outline-none focus:ring-2 focus:ring-[#C9642A]"
+								onChange={(val) => setMoveOutDate(val)}
+								minDate={new Date().toISOString().split("T")[0]}
+								placeholder="Select move-out date"
 							/>
 						</div>
 					</div>
