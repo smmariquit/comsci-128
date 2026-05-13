@@ -58,7 +58,7 @@ export default function Logo({
   if (href === null) return content;
 
   return (
-    <Link href={href} className="inline-flex">
+    <Link href={href} className={`inline-flex items-center ${className}`}>
       {content}
     </Link>
   );
