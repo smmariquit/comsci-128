@@ -1,6 +1,14 @@
 import { supabase } from "../supabase";
 import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill"
 
+type BillingHistoryFilters = {
+  status?: "Unpaid" | "Overdue";
+  sortBy?: "due_date" | "amount";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  pageSize?: number;
+};
+
 const create = async (billData: Bill) => {
 	return await supabase.from("bill").insert([billData]).select().single();
 };
@@ -21,6 +29,41 @@ const getAll = async () => {
             )
         `)
 		.eq("is_deleted", false);
+};
+
+const getBillingHistory = async (filters: BillingHistoryFilters = {}) => {
+	const today = new Date().toISOString();
+	let query = supabase
+		.from("bill")
+		.select(`
+            *,
+            student (
+                user ( first_name, last_name )
+            )
+        `)
+		.eq("is_deleted", false);
+
+	if (filters.status === "Unpaid") {
+		query = query.eq("status", "Pending");
+	} else if (filters.status === "Overdue") {
+		query = query.eq("status", "Pending").lt("due_date", today);
+	}
+
+	const ascending = filters.sortOrder !== "desc";
+
+	if (filters.sortBy === "amount") {
+		query = query.order("amount", { ascending }).order("due_date", { ascending });
+	} else {
+		query = query.order("due_date", { ascending }).order("amount", { ascending });
+	}
+
+	if (filters.page && filters.pageSize) {
+		const from = (filters.page - 1) * filters.pageSize;
+		const to = from + filters.pageSize - 1;
+		query = query.range(from, to);
+	}
+
+	return await query;
 };
 
 const getById = async (transactionId: number) => {
@@ -168,6 +211,7 @@ export const billData = {
 	getBillsOfStudent,
 	getBillsByStatus,
 	getOverdueBills,
+	getBillingHistory,
 	getTotalBalance,
 	getGrossRevenue,
 	getBillsOfLandlord

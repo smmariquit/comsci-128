@@ -2,6 +2,15 @@ import type { NewUser, UpdateUser, User } from "@/models/user";
 import { supabase } from "../supabase";
 import { count } from "console";
 
+type FindAllUserOptions = {
+  user_type?: string;
+  sex?: string;
+  sortBy?: "name" | "account_number";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  pageSize?: number;
+};
+
 async function create(userDetails: NewUser): Promise<User> {
 	// this is for returning the newly inserted user
 	const { data, error } = await supabase
@@ -16,13 +25,37 @@ async function create(userDetails: NewUser): Promise<User> {
   return data[0];
 }
 
-async function findAll(): Promise<User[]> {
-	// RETURNS an array of USER rows when found in the DB; otherwise, returns null.
+async function findAll(options: FindAllUserOptions = {}): Promise<User[]> {
+	// RETURNS an array of USER rows when found in the DB; otherwise, returns an empty array.
 
-	const { data, error } = await supabase
-	.from('user')
-	.select()
-	.eq('is_deleted', false);
+	let query = supabase
+		.from('user')
+		.select()
+		.eq('is_deleted', false);
+
+	if (options.user_type) {
+		query = query.eq('user_type', options.user_type);
+	}
+
+	if (options.sex) {
+		query = query.eq('sex', options.sex);
+	}
+
+	const ascending = options.sortOrder !== 'desc';
+
+	if (options.sortBy === 'account_number') {
+		query = query.order('account_number', { ascending });
+	} else {
+		query = query.order('first_name', { ascending }).order('last_name', { ascending });
+	}
+
+	if (options.page && options.pageSize) {
+		const from = (options.page - 1) * options.pageSize;
+		const to = from + options.pageSize - 1;
+		query = query.range(from, to);
+	}
+
+	const { data, error } = await query;
 
   if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
