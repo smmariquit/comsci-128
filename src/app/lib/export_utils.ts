@@ -99,12 +99,13 @@ export function exportToPDF(
   autoTable(doc, {
     startY: 38,
     head: [headers],
-    body: rows,
+    // Ensure cells are valid strings (jspdf-autotable CellInput cannot be undefined)
+    body: rows.map((r) => r.map((c) => (c === null || c === undefined ? "" : String(c)))),
     theme: "striped",
-    headStyles: { fillColor: BRAND.teal, textColor: [255, 255, 255] },
+    headStyles: { fillColor: [...BRAND.teal] as [number, number, number], textColor: [255, 255, 255] },
     alternateRowStyles: { fillColor: [250, 249, 245] },
-    styles: { fontSize: 8, cellPadding: 3, textColor: BRAND.navy },
-    tableLineColor: BRAND.cream,
+    styles: { fontSize: 8, cellPadding: 3, textColor: [...BRAND.navy] as [number, number, number] },
+    tableLineColor: [...BRAND.cream] as [number, number, number],
     tableLineWidth: 0.2,
   });
 
