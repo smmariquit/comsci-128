@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 
 
@@ -200,14 +201,16 @@ export default function RegisterPage() {
 
         {step === 2 && (
           <>
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="date"
-              name="birthday"
-              placeholder="Birthday"
-              value={form.birthday}
-              onChange={handleChange}
-            />
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider ml-1">Birthday</label>
+              <ThemedDatePicker
+                id="birthday"
+                value={form.birthday}
+                onChange={(val) => handleChange({ target: { name: "birthday", value: val } } as any)}
+                maxDate={new Date().toISOString().split("T")[0]}
+                placeholder="Select your birthday"
+              />
+            </div>
             <input
               className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
               type="text"
