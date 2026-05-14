@@ -269,6 +269,63 @@ export default function UserManagementPage({
                 {filtered.length} users
               </span>
             </div>
+								{/* ACTIONS */}
+								<td className="px-6 py-4">
+									<div className="flex items-center gap-2">
+									<button
+										onClick={() => setEditingUser(u)}
+										className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+										>
+										Edit
+									</button>
+																			
+                  <button
+                    onClick={() => {
+					setDisableUser(u);
+					}}	
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                      u.status === 'Active'
+                        ? 'text-red-500 border border-red-200 hover:bg-red-50'
+                        : 'text-emerald-600 border border-emerald-200 hover:bg-emerald-50'
+                    }`}
+                  >
+                    {u.status === 'Active' ? 'Disable' : 'Enable'}
+                  </button>
+									</div>
+								</td>
+								</tr>
+							))
+							)}
+						</tbody>
+						</table>
+						
+						<div className="flex items-center justify-between px-6 py-4 border-t border-[#1a2332]/6">
+							<span className="text-xs text-[#1a2332]/40">
+								Showing {filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} users
+							</span>
+							<div className="flex items-center gap-1">
+								<PageBtn onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}><ChevronLeft size={14} /></PageBtn>
+								{Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+									<PageBtn key={p} onClick={() => setPage(p)} active={p === page}>{p}</PageBtn>
+								))}
+								<PageBtn onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}><ChevronRight size={14} /></PageBtn>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{editingUser && (
+			<EditUserModal
+			user={{
+				...editingUser,
+				userType: editingUser.role as any, 
+			} as any}
+			dormitories={dorms}  
+			onClose={() => setEditingUser(null)}
+			onSave={async (id, role, dorm) => {
+			try {
+				const userId = id.toString();
+				
 
             <table className="w-full border-separate border-spacing-0">
               {/* HEADER */}
@@ -461,12 +518,10 @@ export default function UserManagementPage({
                 }),
               });
 				// Delete in Student table
-				const deleteStudent = await fetch(`/api/student/${userId}`, {
-					method: "PATCH",
+				const deleteStudent = await fetch(`/api/student/profile/${userId}`, {
+					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ is_deleted: true }),
 				});
-
 
 				// 3. Update UI
 				setUsers((prev) =>
