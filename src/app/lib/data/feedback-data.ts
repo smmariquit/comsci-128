@@ -33,7 +33,20 @@ async function getAllByManagerId(managerId: number): Promise<Partial<Feedback>[]
         .select("id, text, feedback_type, category, created_at")
         .eq("manager_id", managerId);
 
-    if (error) throw new Error(`Get All Feedback Error: ${error.message}`);
+    if (error) throw new Error(`Get All Feedback by Manager ID Error: ${error.message}`);
+
+    return data || [];
+}
+
+async function getAllByHousingId(housingId: number): Promise<Partial<Feedback>[]> {
+    // get the feedback associated with the provided housing ID
+
+    const { data, error } = await supabase
+        .from("feedback")
+        .select("id, text, feedback_type, category, created_at")
+        .eq("housing_id", housingId);
+
+    if (error) throw new Error(`Get All Feedback by housing ID Error: ${error.message}`);
 
     return data || [];
 }
@@ -41,5 +54,6 @@ async function getAllByManagerId(managerId: number): Promise<Partial<Feedback>[]
 export const feedbackData = {
 	create,
 	findById,
-	getAllByManagerId
+	getAllByManagerId,
+	getAllByHousingId
 }
