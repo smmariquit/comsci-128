@@ -8,10 +8,6 @@ export interface NewDorm {
   id: string;
   name: string;
   dormAddress: string;
-  description?: string;
-  rooms: number;
-  capacity: number;
-  capacityPerRoom: number;
   monthlyRate: number;
   securityDeposit: number;
   managerEmail?: string;
@@ -51,22 +47,22 @@ export default function AddDormModal({
 }: AddDormModalProps) {
   const [dormName,        setDormName]        = useState('');
   const [address,         setAddress]         = useState('');
-  const [description,     setDescription]     = useState('');
-  const [totalRooms,      setTotalRooms]      = useState('');
-  const [capacityPerRoom, setCapacityPerRoom] = useState('');
   const [monthlyRate,     setMonthlyRate]     = useState('');
   const [securityDeposit, setSecurityDeposit] = useState('');
   const [managerId,       setManagerId]       = useState('');
+  const [housingType, setHousingType] = useState<'UP Housing' | 'Non-UP Housing'>('UP Housing');
   const [landlordId, setLandlordId] = useState(''); 
+  const [submitted, setSubmitted] = useState(false);
 
   if (!open) return null;
 
   // Reset all form fields to initial values
   const reset = () => {
-    setDormName(''); setAddress(''); setDescription('');
-    setTotalRooms(''); setCapacityPerRoom('');
+    setDormName(''); setAddress(''); 
     setMonthlyRate(''); setSecurityDeposit('');
+    setHousingType('UP Housing');
     setLandlordId('');
+    setSubmitted(false);
   };
 
   const handleClose = () => { reset(); onClose(); };
@@ -74,8 +70,10 @@ export default function AddDormModal({
 // Submit handler
   const handleSubmit = async () => {
     const manager    = (managers ?? []).find((m) => m.id === managerId);
-    const rooms      = parseInt(totalRooms)      || 0;
-    const capPerRoom = parseInt(capacityPerRoom) || 0;
+
+    setSubmitted(true); 
+
+    if (!landlordId) return; 
 
     try {
         const response = await fetch('/api/housing', {
@@ -84,8 +82,7 @@ export default function AddDormModal({
             body: JSON.stringify({
                 housing_name:    dormName,
                 housing_address: address,
-                
-                housing_type:    'UP Housing',       // or add a toggle in the form
+                housing_type:    housingType,    
                 rent_price:      parseFloat(monthlyRate) || 0,
                 manager_account_number:  managerId  ? Number(managerId)  : undefined,  // nullable
                 landlord_account_number: Number(landlordId)  
@@ -101,10 +98,6 @@ export default function AddDormModal({
             id:              String(data.data?.housing_id || Date.now()),
             name:            dormName,
             dormAddress:     address,
-            description:     description || undefined,
-            rooms,
-            capacity:        rooms * capPerRoom,
-            capacityPerRoom: capPerRoom,
             monthlyRate:     parseFloat(monthlyRate)     || 0,
             securityDeposit: parseFloat(securityDeposit) || 0,
             dormitory:       manager?.name ?? '',
@@ -162,39 +155,10 @@ export default function AddDormModal({
               />
             </Field>
 
-            <Field label="Description" optional>
-              <textarea
-                placeholder="Brief description of the dormitory..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                className={TEXTAREA_CLS}
-              />
-            </Field>
-
           </Section>
 
           {/* Capacity & rooms */}
           <Section label="Capacity & Rooms">
-
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Total Rooms">
-                <TextInput
-                  type="number"
-                  placeholder="e.g. 30"
-                  value={totalRooms}
-                  onChange={(e) => setTotalRooms(e.target.value)}
-                />
-              </Field>
-              <Field label="Capacity per Room" hint="Max tenants per room">
-                <TextInput
-                  type="number"
-                  placeholder="e.g. 2"
-                  value={capacityPerRoom}
-                  onChange={(e) => setCapacityPerRoom(e.target.value)}
-                />
-              </Field>
-            </div>
 
             <div className="grid grid-cols-2 gap-3">
               <Field label="Monthly Rate (₱)">
@@ -216,6 +180,34 @@ export default function AddDormModal({
             </div>
 
           </Section>
+
+
+          <Field label="Housing Type">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setHousingType('UP Housing')}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
+                  housingType === 'UP Housing'
+                    ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
+                    : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                }`}
+              >
+                UP Housing
+              </button>
+              <button
+                type="button"
+                onClick={() => setHousingType('Non-UP Housing')}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
+                  housingType === 'Non-UP Housing'
+                    ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
+                    : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                }`}
+              >
+                Non-UP Housing
+              </button>
+            </div>
+          </Field>
 
           {/* Assignment & Status */}
           <Section label="Assignment & Status">
@@ -240,24 +232,31 @@ export default function AddDormModal({
               </div>
             </Field>
 
-            <Field label="Assign Landlord">
-              <div className="relative">
-                <select
-                  value={landlordId}
-                  onChange={(e) => setLandlordId(e.target.value)}
-                  className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer`}
-                >
-                  <option value="">Select a landlord...</option>
-                 {(landlords ?? []).map((l) => (
-                      <option key={l.id} value={l.id}>{l.name}</option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={14}
-                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2332]/40"
-                />
-              </div>
-            </Field>
+           <Field label="Assign Landlord">
+            <div className="relative">
+              <select
+                value={landlordId}
+                onChange={(e) => setLandlordId(e.target.value)}
+                className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer ${
+                  submitted && !landlordId ? 'border-red-300 bg-red-50 text-red-400' : ''  // ✅ Only red after submit
+                }`}
+              >
+                <option value="">Select a landlord...</option>
+                {(landlords ?? []).map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+              <ChevronDown
+                size={14}
+                className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 ${
+                  submitted && !landlordId ? 'text-red-400' : 'text-[#1a2332]/40'  // ✅ Only red after submit
+                }`}
+              />
+            </div>
+            {submitted && !landlordId && (  // ✅ Only show error after submit
+              <p className="text-xs text-red-500 mt-1">Landlord is required</p>
+            )}
+          </Field>
 
           </Section>
         </div>
@@ -274,7 +273,6 @@ export default function AddDormModal({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!landlordId} 
             className="px-5 py-2 text-sm font-semibold text-white bg-[#e8622a] rounded-xl hover:bg-[#d4561f] transition-colors"
           >
             Add Dormitory
