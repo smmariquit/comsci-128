@@ -196,7 +196,6 @@ export function EditUserModal({
               </div>
             </div>
 
-            <div className="border-t border-gray-100" />
 
             {/* Assign userType */}
             <div>
@@ -243,8 +242,15 @@ export function EditUserModal({
                     </button>
                   );
                 })}
+            {/* Non-student message */}
+            {user.userType !== "Student" && (
+              <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#f3f4f5] border border-gray-200">
+                <AlertTriangle size={15} className="text-[#1a2332]/40 shrink-0 mt-0.5" />
+                <p className="text-xs text-[#1a2332]/50 font-mono">
+                This user is already assigned as <span className="font-bold text-[#1a2332]/70">{user.userType}</span>.
+                </p>
               </div>
-            </div>
+            )}
 
             {/* Dorm select — searchable input */}
             <div ref={containerRef} className="relative">
@@ -296,20 +302,118 @@ export function EditUserModal({
                   ) : (
                     <div className="px-4 py-3 text-sm text-gray-400">
                       No dorm found
+          {/* Assign userType — only for Students */}
+            {user.userType === "Student" && (
+              <>
+                <div className="border-t border-gray-100" />
+
+                {/* Assign userType */}
+                <div>
+                  <p className="text-sm font-bold text-[#1a2332] mb-3">Assign New userType</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {userTypeS.map((userType) => {
+                      const isSelected = selecteduserType === userType.value;
+                      return (
+                        <button
+                          key={userType.value}
+                          type="button"
+                          onClick={() => {
+                            setSelecteduserType(userType.value);
+                            if (!DORM_REQUIRED_userTypeS.includes(userType.value)) {
+                              setSelectedDorm("");
+                            }
+                          }}
+                          className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all
+                            ${isSelected
+                              ? "border-[#b85c28] bg-[#fdf0e8]"
+                              : "border-[#e8e6e1] bg-[#faf9f7] hover:border-[#c8c4bc]"
+                            }`}
+                        >
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
+                            ${isSelected ? "border-[#b85c28]" : "border-[#c8c4bc]"}`}>
+                            {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#b85c28]" />}
+                          </div>
+                          <div>
+                            <p className={`text-sm font-bold ${isSelected ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
+                              {userType.label}
+                            </p>
+                            <p className="text-xs text-[#1a2332]/45 font-mono">{userType.description}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Dorm select — searchable input */}
+                <div ref={containerRef} className="relative">
+                  <p className={`text-sm font-bold mb-2 ${dormRequired ? "text-[#b85c28]" : "text-[#1a2332]/40"}`}>
+                    Assign to Dormitory
+                  </p>
+                  <input
+                    value={displayValue}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setSelectedDorm("");
+                      setOpen(true);
+                    }}
+                    onFocus={() => {
+                      if (dormRequired) {
+                        setQuery("");
+                        setOpen(true);
+                      }
+                    }}
+                    disabled={!dormRequired}
+                    placeholder="Select a Dormitory ..."
+                    className={`w-full px-4 py-3 rounded-xl border text-sm text-black
+                      ${dormRequired
+                        ? "border-gray-200 bg-[#f3f4f5]"
+                        : "border-gray-100 bg-[#f3f4f5]/50 cursor-not-allowed text-gray-400"
+                      }`}
+                  />
+                  {open && dormRequired && (
+                    <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-60 overflow-y-auto">
+                      {filteredDorms.length > 0 ? (
+                        filteredDorms.map((d) => (
+                          <div
+                            key={d.id}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              setSelectedDorm(d);
+                              setQuery("");
+                              setOpen(false);
+                            }}
+                            className={`block w-full px-4 py-3 text-sm cursor-pointer hover:bg-gray-200
+                              ${d.id === selectedDorm?.id ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}
+                          >
+                            {d.name}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-sm text-gray-400">
+                          No dorm found
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
 
-            {/* Warning */}
-            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
-              <AlertTriangle size={15} className="text-[#b85c28]" />
-              <p className="text-xs text-[#b85c28] font-mono">
-                Changing a userType will immediately update the user&apos;s
-                access permissions.
-              </p>
-            </div>
+                {/* Warning */}
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
+                  <AlertTriangle size={15} className="text-[#b85c28]" />
+                  <p className="text-xs text-[#b85c28] font-mono">
+                    Changing a userType will immediately update the user&apos;s access permissions.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200">
+                  <AlertTriangle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-500 font-mono">
+                    Changing a user&apos;s role is <span className="font-bold">permanent</span> and cannot be undone.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Footer */}
@@ -320,13 +424,16 @@ export function EditUserModal({
             >
               Cancel
             </button>
+             {/* Only show Save for Students */}
+          {user.userType === "Student" && (
             <button
               onClick={handleSave}
               disabled={dormRequired && !selectedDorm}
-              className="px-6 py-2.5 text-sm font-semibold text-white bg-[#b85c28] rounded-xl disabled:opacity-40"
+              className="px-6 py-2.5 text-sm font-semibold text-white bg-[#b85c28] rounded-xl disabled:opacity-40 hover:bg-[#9e4f22] transition-colors"
             >
-              Save Changes
+              Assign Role
             </button>
+          )}
           </div>
         </div>
       </div>
