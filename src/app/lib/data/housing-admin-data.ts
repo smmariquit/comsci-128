@@ -30,7 +30,7 @@ async function create(
 
 // Read all housing admins with user details
 async function getAll() {
-	const { data, error } = await supabase.from("housing_admin").select(`
+  const { data, error } = await supabase.from("housing_admin").select(`
       account_number,
       manager!inner(
         manager_type,
@@ -48,14 +48,15 @@ async function getAll() {
           user_type
         )
       )
-    `);
+    `)
+    .eq("is_deleted", false); 
 
-	if (error) {
-		console.error("Error fetching housing admins:", error.message);
-		return { data: null, error };
-	}
+  if (error) {
+    console.error("Error fetching housing admins:", error.message);
+    return { data: null, error };
+  }
 
-	return { data, error: null };
+  return { data, error: null };
 }
 
 // Read single housing admin with user details by account_number

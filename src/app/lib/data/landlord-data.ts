@@ -46,7 +46,8 @@ async function getAll() {
           is_deleted
         )
       )
-    `);
+    `)
+    .eq("is_deleted", false);  
  
   if (error) {
     console.error("Error fetching landlords:", error.message);
@@ -55,7 +56,6 @@ async function getAll() {
  
   return { data, error: null };
 }
-
 // Read single landlord with user details by account_number
 async function getById(accountNumber: number) {
   const { data, error } = await supabase
