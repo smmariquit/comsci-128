@@ -331,6 +331,10 @@ export default function UserManagementPage({
                           </div>
                         </div>
                       </td>
+				const roleRouteMap: Record<string, string> = {
+					"Landlord":              "landlord",
+					"Housing Administrator": "housing-admin",  
+				};
 
                       {/* EMAIL */}
                       <td className="px-6 py-4 text-sm text-[#1a2332]/60 truncate">
@@ -456,6 +460,26 @@ export default function UserManagementPage({
                   dormitory: dorm,
                 }),
               });
+				// Delete in Student table
+				const deleteStudent = await fetch(`/api/student/${userId}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ is_deleted: true }),
+				});
+
+
+				// 3. Update UI
+				setUsers((prev) =>
+				prev.map((u) =>
+					u.id === id
+					? {
+						...u,
+						role,
+						dormitory: dorm ? dorm.name : u.dormitory,
+						}
+					: u
+				)
+				);
 
               if (!response.ok) {
                 const errorText = await response.text();
