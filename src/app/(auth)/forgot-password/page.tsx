@@ -17,21 +17,32 @@ function ForgotPasswordForm() {
   const exchanged = useRef(false);
 
   useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes("error=")) {
+      const params = new URLSearchParams(hash.slice(1));
+      const desc = params.get("error_description");
+      setError(desc ? desc.replace(/\+/g, " ") : "Reset link is invalid or expired.");
+      window.history.replaceState(null, "", "/forgot-password");
+      return;
+    }
+
     const code = searchParams.get("code");
     if (!code || exchanged.current) return;
     exchanged.current = true;
 
     supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
       if (error) {
-        setError("Reset Link is Invalid or Expired.");
+        setError("Reset link is invalid or expired.");
       } else {
         setStep(3);
-        router.replace("/forgot-password");
+        window.history.replaceState(null, "", "/forgot-password");
       }
     });
-  }, [searchParams, router]);
+  }, [searchParams]);
 
-    async function handleEmailSubmit(e: React.FormEvent) {
+
+
+  async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setStatus("");
