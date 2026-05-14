@@ -46,13 +46,6 @@ export interface Notification {
   time: string;
 }
 
-// Hardcoded stubs for development - to be replaced with real data fetching logic
-const stubDorm: SidebarUser = {
-  name: "Luthelle Fernandez",
-  role: "System Admin",
-  initials: "LF",
-};
-
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
   {
@@ -139,6 +132,7 @@ export default function DormManagementPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [acc, setAccountNumber] = useState<number>(0);
   const [editingDorm, setEditingDorm] = useState<Dorm | null>(null); //edit dorm
   const [viewingDorm, setViewingDorm] = useState<Dorm | null>(null); // view dorm
   const [filters, setFilters] = useState<UserFiltersState>({
@@ -154,6 +148,16 @@ export default function DormManagementPage({
     try {
       setLoading(true);
       setError(null);
+
+      // Current User for side bar
+      // read account_number from cookies on mount
+      const getCookie = (name: string) => {
+        const match = document.cookie.split(";").find((c) => c.startsWith(name + "="));
+        return match ? decodeURIComponent(match.split("=")[1]) : null;
+      };
+
+      const acc = getCookie("account_number");
+      setAccountNumber(Number(acc));
 
       const [housingResponse, occupancyResponse, landlordResponse, managerResponse] = await Promise.all([
         fetch('/api/housing'),
