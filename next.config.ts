@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
         ? { exclude: ["error", "warn"] }
         : false,
   },
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "mahcvrvoickyuuxnhcxn.supabase.co",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

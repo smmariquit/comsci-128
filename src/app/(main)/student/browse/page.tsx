@@ -62,6 +62,7 @@ export default async function DormBrowsePage({
     name: item.housing_name,
     type: item.housing_type,
     price: item.rent_price,
+    image: item.housing_image,
   }));
 
   return (
