@@ -145,7 +145,7 @@ export default function DormManagementPage({
       const landlordData = await landlordResponse.json();
       const managerData = await managerResponse.json();
 
-      // ✅ Build occupancy lookup map by housingId
+      // Build occupancy lookup map by housingId
       const rawOccupancy = Array.isArray(occupancyData) ? occupancyData : occupancyData.data ?? [];
       const occupancyMap = new Map(rawOccupancy.map((o: any) => [String(o.housingId), o]));
 
@@ -161,7 +161,7 @@ export default function DormManagementPage({
       });
       const managerMap = new Map(transformedManagers.map((m: any) => [m.id, m]));
 
-      // ✅ Use housing as base, map occupancy data onto it
+      // Use housing as base, map occupancy data onto it
       const rawHousing = Array.isArray(housingData) ? housingData : housingData.data ?? [];
       const transformed: Dorm[] = rawHousing.map((housing: any) => {
         const housingId = String(housing.housing_id ?? '');

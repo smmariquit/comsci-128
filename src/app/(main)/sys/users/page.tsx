@@ -393,7 +393,6 @@ export default function UserManagementPage({
 				const roleRouteMap: Record<string, string> = {
 					"Landlord":              "landlord",
 					"Housing Administrator": "housing-admin",  
-					"Student":               "student",
 				};
 
 				// Update role
@@ -452,6 +451,14 @@ export default function UserManagementPage({
 						throw new Error("Failed to assign housing");
 					}
 				}
+
+				// Delete in Student table
+				const deleteStudent = await fetch(`/api/student/${userId}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ is_deleted: true }),
+				});
+
 
 				// 3. Update UI
 				setUsers((prev) =>
