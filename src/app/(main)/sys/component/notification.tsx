@@ -1,8 +1,26 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bell, ChevronRight, X } from "lucide-react";
+import { getNotificationsForUser } from "@/app/lib/actions/notification-actions";
+import type { Role } from "@/app/lib/models/audit_log";
+
+const STORAGE_KEY = "notif_read_ids";
+
+function getReadIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveReadIds(ids: Set<string>) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
+  } catch {}
+}
 
 export interface Notification {
   id: string;
@@ -13,20 +31,44 @@ export interface Notification {
 }
 
 export interface NotificationBellProps {
-  notifications?: Notification[];
+  accountNumber: number;
+  role: Role;
+  logsHref?: string;
 }
 
 export default function NotificationBell({
-  notifications = [],
+  accountNumber,
+  role,
+  logsHref = "/sys/logs",
 }: NotificationBellProps) {
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifList, setNotifList] = useState(notifications);
+  const [notifList, setNotifList] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    if (!accountNumber) return;
+    getNotificationsForUser(accountNumber, role).then((raw) => {
+      const readIds = getReadIds();
+      setNotifList(
+        raw.map((n) => ({ ...n, read: readIds.has(n.id) })),
+      );
+    });
+  }, [accountNumber, role]);
 
   const unreadCount = notifList.filter((n) => !n.read).length;
-  const markAllRead = () =>
+
+  const markAllRead = () => {
+    const readIds = getReadIds();
+    notifList.forEach((n) => readIds.add(n.id));
+    saveReadIds(readIds);
     setNotifList((prev) => prev.map((n) => ({ ...n, read: true })));
-  const dismissNotif = (id: string) =>
+  };
+
+  const dismissNotif = (id: string) => {
+    const readIds = getReadIds();
+    readIds.add(id);
+    saveReadIds(readIds);
     setNotifList((prev) => prev.filter((n) => n.id !== id));
+  };
 
   return (
     <>
@@ -67,7 +109,7 @@ export default function NotificationBell({
             <div className="max-h-80 overflow-y-auto divide-y divide-[#1a2332]/6">
               {notifList.length === 0 ? (
                 <p className="text-center text-xs text-[#1a2332]/40 py-8">
-                  You're all caught up!
+                  You&apos;re all caught up!
                 </p>
               ) : (
                 notifList.map((n) => (
@@ -101,6 +143,15 @@ export default function NotificationBell({
             </div>
 
             <div className="px-5 py-3 border-t border-[#1a2332]/6">
+              <Link
+                href={logsHref}
+ssName="px-5 py-3 border-t border-[#1a2332]/6">
+              <Link
+                href="/sys/logs"
+sName="px-5 py-3 border-t border-[#1a2332]/6">
+              <Link
+                href="/sys/logs"
+ssName="px-5 py-3 border-t border-[#1a2332]/6">
               <Link
                 href="/sys/logs"
                 onClick={() => setNotifOpen(false)}
