@@ -16,6 +16,7 @@ export interface Dorm {
   status: 'Accepting' | 'Disabled' | string;
   dormitory: string;
   dormAddress?: string;
+  managerName?: string; 
   managerEmail?: string;
   capacity?: number;
   rooms?: number;
@@ -120,79 +121,93 @@ export default function DormManagementPage({
   const [managersList, setManagersList] = useState<{ id: string; name: string; email: string }[]>([]);
   const [landlordList, setLandlordList] = useState<LandlordOption[]>([]);
   
-  // Fetch dorms from API
   useEffect(() => {
-    const fetchDorms = async () => {
-        try {
-            setLoading(true);
-            setError(null);
+  const fetchDorms = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-            const [response, landlordResponse, managerResponse] = await Promise.all([
-                fetch('/api/housing/occupancy'),
-                fetch('/api/landlord'),
-                fetch('/api/housing-admin'),
-            ]);
+      const [housingResponse, occupancyResponse, landlordResponse, managerResponse] = await Promise.all([
+        fetch('/api/housing'),
+        fetch('/api/housing/occupancy'),
+        fetch('/api/landlord'),
+        fetch('/api/housing-admin'),
+      ]);
 
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            if (!landlordResponse.ok) throw new Error(`HTTP error! status: ${landlordResponse.status}`);
-            if (!managerResponse.ok) throw new Error(`HTTP error! status: ${managerResponse.status}`);
+      if (!housingResponse.ok) throw new Error(`HTTP error! status: ${housingResponse.status}`);
+      if (!occupancyResponse.ok) throw new Error(`HTTP error! status: ${occupancyResponse.status}`);
+      if (!landlordResponse.ok) throw new Error(`HTTP error! status: ${landlordResponse.status}`);
+      if (!managerResponse.ok) throw new Error(`HTTP error! status: ${managerResponse.status}`);
 
-            const data = await response.json();
-            const landlordData = await landlordResponse.json();
-            const managerData = await managerResponse.json();
+      const housingData = await housingResponse.json();
+      const occupancyData = await occupancyResponse.json();
+      const landlordData = await landlordResponse.json();
+      const managerData = await managerResponse.json();
 
-            // Transform dorms
-            const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
-            const transformed: Dorm[] = rawDorms.map((dorm: any) => ({
-              id: String(dorm.housingId ?? dorm.housing_id ?? ''),
-              name: dorm.name ?? dorm.housing_name ?? 'Unknown',
-              status: 'Accepting',
-              dormitory: 'Unassigned',
-              dormAddress: dorm.address ?? dorm.housing_address ?? '',
-              managerEmail: undefined,
-              capacity: dorm.totalRooms ?? 0,
-              rooms: dorm.totalRooms ?? 0,
-              occupied: dorm.occupiedRooms ?? 0,
-            }));
-            // Transform landlords
-            const rawLandlords = Array.isArray(landlordData) ? landlordData : Array.isArray(landlordData.data) ? landlordData.data : [];
-            console.log('Raw landlord data:', rawLandlords);
+      // ✅ Build occupancy lookup map by housingId
+      const rawOccupancy = Array.isArray(occupancyData) ? occupancyData : occupancyData.data ?? [];
+      const occupancyMap = new Map(rawOccupancy.map((o: any) => [String(o.housingId), o]));
 
-            const transformedLandlords: LandlordOption[] = rawLandlords.map((l: any) => {
-                const user = l.manager?.user;
-                return {
-                    id:    String(l.account_number),
-                    name:  `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
-                    email: user?.account_email || '',
-                };
-            });
+      // Build manager lookup map
+      const rawManagers = managerData?.data?.data ?? [];
+      const transformedManagers = rawManagers.map((m: any) => {
+        const user = m.manager?.user;
+        return {
+          id: String(m.account_number),
+          name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+          email: user?.account_email || '',
+        };
+      });
+      const managerMap = new Map(transformedManagers.map((m: any) => [m.id, m]));
 
-            const rawManagers = managerData?.data?.data ?? [];
-            const transformedManagers = rawManagers.map((m: any) => {
-              const user = m.manager?.user;
-              return {
-                id: String(m.account_number),
-                name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
-                email: user?.account_email || '',
-              };
-            });
+      // ✅ Use housing as base, map occupancy data onto it
+      const rawHousing = Array.isArray(housingData) ? housingData : housingData.data ?? [];
+      const transformed: Dorm[] = rawHousing.map((housing: any) => {
+        const housingId = String(housing.housing_id ?? '');
+        const occupancy = occupancyMap.get(housingId) as any;
+        const managerId = String(housing.manager_account_number ?? '');
+        const manager = managerMap.get(managerId) as { id: string; name: string; email: string } | undefined;
 
+        return {
+          id: housingId,
+          name: housing.housing_name ?? 'Unknown',
+          status: 'Accepting',
+          dormitory: manager?.name || 'Unassigned',
+          dormAddress: housing.housing_address ?? '',
+          managerName: manager?.name || undefined,
+          managerEmail: manager?.email || undefined,
+          capacity: occupancy?.totalRooms ?? 0,
+          rooms: occupancy?.totalRooms ?? 0,
+          occupied: occupancy?.occupiedRooms ?? 0,
+        };
+      });
 
-            setDormList(transformed);
-            setLandlordList(transformedLandlords);
-            setManagersList(transformedManagers)
-        } catch (error) {
-            console.error('Error fetching dorms:', error);
-            setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
-            setDormList([]);
-            setLandlordList([]);
-        } finally {
-            setLoading(false);
-        }
-    };
+      // Transform landlords
+      const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
+      const transformedLandlords: LandlordOption[] = rawLandlords.map((l: any) => {
+        const user = l.manager?.user;
+        return {
+          id: String(l.account_number),
+          name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+          email: user?.account_email || '',
+        };
+      });
 
-      fetchDorms();
-  }, []);
+      setDormList(transformed);
+      setLandlordList(transformedLandlords);
+      setManagersList(transformedManagers);
+    } catch (error) {
+      console.error('Error fetching dorms:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
+      setDormList([]);
+      setLandlordList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDorms();
+}, []);
 
   const [page, setPage] = useState(1);
 
