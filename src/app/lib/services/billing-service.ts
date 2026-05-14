@@ -88,7 +88,7 @@ const markAsPaid = async (txnId: number) => {
         if (error) throw error;
 
         if (data) {
-            const accountNumber = data.manager_account_number ?? data.student_account_number ?? null;
+            const accountNumber = data.student_account_number ?? null;
             if (accountNumber) {
                 await createAuditLog(
                     accountNumber,
@@ -118,7 +118,7 @@ const removeBill = async (txnId: number) => {
         await billData.remove(txnId);
 
         if (existingBill) {
-            const accountNumber = existingBill.manager_account_number ?? existingBill.student_account_number ?? null;
+            const accountNumber = existingBill.student_account_number ?? null;
             if (accountNumber) {
                 await createAuditLog(
                     accountNumber,
@@ -144,7 +144,7 @@ const createBill = async (billDetails: any) => {
         if (error) throw error;
 
         if (data) {
-            const accountNumber = data.manager_account_number ?? data.student_account_number ?? null;
+            const accountNumber = data.student_account_number ?? null;
             if (accountNumber) {
                 await createAuditLog(
                     accountNumber,
