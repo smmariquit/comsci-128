@@ -61,6 +61,12 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (form.email && !emailRegex.test(form.email)) {
+      setError("Invalid email address (missing domain/TLD)");
+      setLoading(false);
+      return;
+    }
     try {
       const endpoint = googleSignupPending ? "/api" : "/api/student";
       const payload = {
@@ -132,8 +138,9 @@ export default function RegisterPage() {
         }
         router.push(target);
       }
-    } catch (_err) {
-      setError("Something went wrong. Please try again.");
+    } catch (err: any) {
+      const msg = err?.message || String(err) || "Something went wrong. Please try again.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -144,7 +151,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+    <div
+      className="w-full min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage: "url('/images/login-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <form
         className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
         onSubmit={

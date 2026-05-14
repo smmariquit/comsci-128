@@ -27,13 +27,19 @@ export default function LoginPage() {
     e.preventDefault();
     setStatus("");
     setLoading(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (form.email && !emailRegex.test(form.email)) {
+      setStatus("Invalid email address (missing domain/TLD)");
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.password,
     });
 
     if (error) {
-      setStatus(error.message);
+      setStatus(error.message || "Invalid credentials");
       setLoading(false);
     } else {
       setStatus("Signed in successfully");
@@ -122,7 +128,26 @@ export default function LoginPage() {
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
           Login
         </h2>
-        {status && <div className="text-red-400 text-center">{status}</div>}
+        {status && (
+          <div
+            className={
+              status === "Signed in successfully"
+                ? "text-green-400 text-center"
+                : "text-red-400 text-center"
+            }
+          >
+            {status}
+          </div>
+        )}
+            <div
+              className="w-full min-h-screen flex items-center justify-center"
+              style={{
+                backgroundImage:
+                  "url('/images/login-bg.jpg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
         <input
           className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
           type="email"
