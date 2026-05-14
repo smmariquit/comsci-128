@@ -25,7 +25,21 @@ async function findById(feedbackId: number): Promise<Feedback | null> {
     return data && data.length > 0 ? data[0] : null;
 }
 
+async function getAllByManagerId(managerId: number): Promise<Partial<Feedback>[]> {
+    // get the feedback associated with the provided manager ID
+
+    const { data, error } = await supabase
+        .from("feedback")
+        .select("id, text, feedback_type, category, created_at")
+        .eq("manager_id", managerId);
+
+    if (error) throw new Error(`Get All Feedback Error: ${error.message}`);
+
+    return data || [];
+}
+
 export const feedbackData = {
 	create,
-	findById
+	findById,
+	getAllByManagerId
 }
