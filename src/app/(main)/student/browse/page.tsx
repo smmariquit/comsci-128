@@ -40,6 +40,7 @@ export default async function DormBrowsePage({
     housing_type: params?.type as any,
     sort_by_price: params?.sort as any,
     search: params?.search as any,
+    sex: params?.sex as any,
   };
 
   // fetch from db
