@@ -355,7 +355,7 @@ export default function DormManagementPage({
                     <span className="text-sm text-[#1a2332]/70">{u.occupied ?? '—'}</span>
 
                     {/* STATUS */}
-                    <span className="text-sm text-[#1a2332]/70">{u.occupied ?? 'Mixed'}</span>
+                    <span className="text-sm text-[#1a2332]/70">{u.occupied ?? 'Co-ed'}</span>
 
                     {/* ACTIONS */}
                     <div className="flex items-center gap-2">
