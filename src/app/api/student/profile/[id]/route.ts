@@ -1,4 +1,5 @@
 import { profileAction } from "@/app/lib/services/profile-service";
+import { studentService } from "@/app/lib/services/student-service";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -59,4 +60,25 @@ export async function PATCH(
 			{ status: 500 },
 		);
 	}
+}
+
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+    const student = await studentService.deactivateStudent(Number(id));
+
+    return NextResponse.json(
+      { message: "Student deactivated successfully.", data: student },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: "Failed to deactivate student.", error: error.message },
+      { status: 500 }
+    );
+  }
 }

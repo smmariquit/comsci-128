@@ -380,7 +380,10 @@ export default function UserManagementPage({
 			</div>
 			{editingUser && (
 			<EditUserModal
-			user={editingUser as any}
+			user={{
+				...editingUser,
+				userType: editingUser.role as any, 
+			} as any}
 			dormitories={dorms}  
 			onClose={() => setEditingUser(null)}
 			onSave={async (id, role, dorm) => {
@@ -453,12 +456,10 @@ export default function UserManagementPage({
 				}
 
 				// Delete in Student table
-				const deleteStudent = await fetch(`/api/student/${userId}`, {
-					method: "PATCH",
+				const deleteStudent = await fetch(`/api/student/profile/${userId}`, {
+					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ is_deleted: true }),
 				});
-
 
 				// 3. Update UI
 				setUsers((prev) =>
