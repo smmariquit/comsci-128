@@ -16,6 +16,7 @@ export interface User {
 	email: string;
 	role: 'Landlord' | 'Dorm Manager' | 'Student' | string;
 	status: 'Active' | 'Disabled' | string;
+	managerType?: string;
 	dormitory: string;
 	room: string;
 }
@@ -85,8 +86,12 @@ export default function UserManagementPage({
 				setLoading(true);
 				setError(null);
 				
-				const response = await fetch('/api/users');
-				const dormResponse = await fetch('/api/housing');
+				const [response, dormResponse, landlordResponse, housingAdminResponse] = await Promise.all([
+					fetch('/api/users'),
+					fetch('/api/housing'),
+					fetch('/api/landlord'),
+					fetch('/api/housing-admin'),
+				]);
 				
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
@@ -94,6 +99,14 @@ export default function UserManagementPage({
 				
 				const data = await response.json();
 				const dormData = await dormResponse.json();
+				const landlordData = await landlordResponse.json();
+				const housingAdminData = await housingAdminResponse.json();
+
+				const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
+				const rawHousingAdmins = Array.isArray(housingAdminData) ? housingAdminData : housingAdminData.data?.data ?? [];
+
+				const landlordIds = new Set(rawLandlords.map((l: any) => String(l.account_number)));
+				const housingAdminIds = new Set(rawHousingAdmins.map((m: any) => String(m.account_number)));
 
 				let rawDorms = [];
 				if (Array.isArray(dormData)) {
@@ -129,27 +142,40 @@ export default function UserManagementPage({
 				
 				// Transform the data to match User interface
 				const transformedUsers: User[] = rawUsers.map((user: any) => {
-				// Student housing
+				const userId = String(user.account_number);
+				
+				// ✅ Determine manager type
+				let role = user.user_type;
+				let managerType = undefined;
+				
+				if (user.user_type === 'Manager') {
+					if (landlordIds.has(userId)) {
+					managerType = 'Landlord';
+					role = 'Landlord';
+					} else if (housingAdminIds.has(userId)) {
+					managerType = 'Housing Administrator';
+					role = 'Housing Administrator';
+					}
+				}
+
 				const history = user.student?.student_accommodation_history?.[0];
 				const room = history?.room;
 				const studentHousing = room?.housing;
-
-				// Manager housing
 				const managerHousing = user.manager?.housing_admin?.housing?.[0];
-
 				const housing = studentHousing || managerHousing;
 
 				return {
-					id:        String(user.account_number),
-					name:      `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-					gender:    user.sex,
-					email:     user.account_email,
-					role:      user.user_type,
-					status:    user.is_deleted ? 'Disabled' : 'Active',
+					id: userId,
+					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+					gender: user.sex,
+					email: user.account_email,
+					role,
+					managerType,
+					status: user.is_deleted ? 'Disabled' : 'Active',
 					dormitory: housing?.housing_name || '—',
-					room:      room?.room_code ? String(room.room_code) : '—',
+					room: room?.room_code ? String(room.room_code) : '—',
 				};
-			});
+				});
 								
 				console.log('Transformed users:', transformedUsers); 
 				
@@ -428,32 +454,6 @@ export default function UserManagementPage({
 				if (!response.ok) throw new Error("Failed to update role");
 				console.log(dorm?.id);
 
-				// Assign dorm manager or landlord
-				if (dorm) {
-					const payload =
-						role === "Landlord"
-						? {
-							housing_id: dorm.id,
-							landlord_account_number: Number(userId),
-							}
-						: role === "Housing Administrator"
-						? {
-							housing_id: dorm.id,
-							manager_account_number: Number(userId),
-							}
-						: null;
-
-					if (payload) {
-						const assignManager = await fetch(`/api/housing/${dorm.id}`, {
-						method: "PATCH",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify(payload),
-						});
-
-						if (!assignManager.ok)
-						throw new Error("Failed to assign housing");
-					}
-				}
 
 				// Delete in Student table
 				const deleteStudent = await fetch(`/api/student/profile/${userId}`, {
