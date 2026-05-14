@@ -19,7 +19,14 @@ export enum AppAction {
     ASSIGN_ROOM = "assign_room",
     ASSIGN_BILL = "assign_bill",
     ISSUE_BILL_REFUND = "issue_bill_refund",
-    UPDATE_BILL_STATUS = "update_bill_status",  
+    UPDATE_BILL_STATUS = "update_bill_status",
+    CREATE_FEEDBACK = "create_feedback",
+    GET_ALL_FEEDBACK = "get_all_feedback",
+    GET_OWN_FEEDBACK = "get_own_feedback",
+    GET_FEEDBACK_TO_ME = "get_feedback_to_me",
+    GET_ALL_APP_FEEDBACK = "get_all_app_feedback",
+    UPDATE_FEEDBACK_STATUS = "update_feedback_status",
+    GET_FEEDBACK_BY_ID = "get_feedback_by_id",
 }
 
 export type UserRole = "public" | "student" | "housing_admin" | "landlord" | "system_admin";
