@@ -9,6 +9,16 @@ const createFeedback = async (feedbackDetails: any) => {
     }
 };
 
+const findFeedbackById = async (feedbackId: number) => {
+    try {
+        return await feedbackData.findById(feedbackId);
+    } catch (error) {
+        console.error("Service Error (findFeedbackById): ", error);
+        throw new Error("Failed to retrieve feedback");
+    }
+};
+
 export const feedbackService = {
     createFeedback,
+    findFeedbackById,
 };
