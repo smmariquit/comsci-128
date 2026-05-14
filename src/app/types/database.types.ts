@@ -228,6 +228,35 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          account_number: number
+          feedback_type: Database["public"]["Enums"]["FeedbackType"]
+          id: number
+          text: string
+        }
+        Insert: {
+          account_number: number
+          feedback_type: Database["public"]["Enums"]["FeedbackType"]
+          id?: number
+          text: string
+        }
+        Update: {
+          account_number?: number
+          feedback_type?: Database["public"]["Enums"]["FeedbackType"]
+          id?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_account_number_fkey"
+            columns: ["account_number"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["account_number"]
+          },
+        ]
+      }
       housing: {
         Row: {
           end_application_date: string | null
@@ -683,6 +712,7 @@ export type Database = {
         | "Rejected"
       BillType: "Rent" | "Utility" | "WiFi"
       DocumentType: "Form 5" | "Payment Receipt" | "Contract" | "Waiver"
+      FeedbackType: "App" | "Manager" | "Housing"
       HousingStatus: "Assigned" | "Not Assigned"
       HousingType: "Non-UP Housing" | "UP Housing"
       ManagerType: "Housing Administrator" | "Landlord"
@@ -848,6 +878,7 @@ export const Constants = {
       ],
       BillType: ["Rent", "Utility", "WiFi"],
       DocumentType: ["Form 5", "Payment Receipt", "Contract", "Waiver"],
+      FeedbackType: ["App", "Manager", "Housing"],
       HousingStatus: ["Assigned", "Not Assigned"],
       HousingType: ["Non-UP Housing", "UP Housing"],
       ManagerType: ["Housing Administrator", "Landlord"],
