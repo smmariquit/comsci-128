@@ -231,20 +231,32 @@ export type Database = {
       feedback: {
         Row: {
           account_number: number
+          category: Database["public"]["Enums"]["FeedbackCategory"]
+          created_at: string
           feedback_type: Database["public"]["Enums"]["FeedbackType"]
           id: number
+          involved_housing_id: number | null
+          involved_manager_id: number | null
           text: string
         }
         Insert: {
           account_number: number
+          category: Database["public"]["Enums"]["FeedbackCategory"]
+          created_at?: string
           feedback_type: Database["public"]["Enums"]["FeedbackType"]
           id?: number
+          involved_housing_id?: number | null
+          involved_manager_id?: number | null
           text: string
         }
         Update: {
           account_number?: number
+          category?: Database["public"]["Enums"]["FeedbackCategory"]
+          created_at?: string
           feedback_type?: Database["public"]["Enums"]["FeedbackType"]
           id?: number
+          involved_housing_id?: number | null
+          involved_manager_id?: number | null
           text?: string
         }
         Relationships: [
@@ -253,6 +265,20 @@ export type Database = {
             columns: ["account_number"]
             isOneToOne: false
             referencedRelation: "user"
+            referencedColumns: ["account_number"]
+          },
+          {
+            foreignKeyName: "feedback_involved_housing_id_fkey"
+            columns: ["involved_housing_id"]
+            isOneToOne: false
+            referencedRelation: "housing"
+            referencedColumns: ["housing_id"]
+          },
+          {
+            foreignKeyName: "feedback_involved_manager_id_fkey"
+            columns: ["involved_manager_id"]
+            isOneToOne: false
+            referencedRelation: "manager"
             referencedColumns: ["account_number"]
           },
         ]
@@ -712,6 +738,21 @@ export type Database = {
         | "Rejected"
       BillType: "Rent" | "Utility" | "WiFi"
       DocumentType: "Form 5" | "Payment Receipt" | "Contract" | "Waiver"
+      FeedbackCategory:
+        | "Bug"
+        | "UI Issues"
+        | "Feature Request"
+        | "App Performance"
+        | "Cleanliness"
+        | "Maintenance"
+        | "Noise"
+        | "Facilities"
+        | "Security"
+        | "Responsiveness"
+        | "Conduct"
+        | "Communication"
+        | "Rules Enforcement"
+        | "Other"
       FeedbackType: "App" | "Manager" | "Housing"
       HousingStatus: "Assigned" | "Not Assigned"
       HousingType: "Non-UP Housing" | "UP Housing"
@@ -878,6 +919,22 @@ export const Constants = {
       ],
       BillType: ["Rent", "Utility", "WiFi"],
       DocumentType: ["Form 5", "Payment Receipt", "Contract", "Waiver"],
+      FeedbackCategory: [
+        "Bug",
+        "UI Issues",
+        "Feature Request",
+        "App Performance",
+        "Cleanliness",
+        "Maintenance",
+        "Noise",
+        "Facilities",
+        "Security",
+        "Responsiveness",
+        "Conduct",
+        "Communication",
+        "Rules Enforcement",
+        "Other",
+      ],
       FeedbackType: ["App", "Manager", "Housing"],
       HousingStatus: ["Assigned", "Not Assigned"],
       HousingType: ["Non-UP Housing", "UP Housing"],
