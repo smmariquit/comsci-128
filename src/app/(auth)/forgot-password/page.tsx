@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState, Suspense, useRef } from "react";
 import { supabase } from "@/app/lib/supabase";
 
 function ForgotPasswordForm() {
@@ -14,10 +14,12 @@ function ForgotPasswordForm() {
 
   const searchParams = useSearchParams();
   const router = useRouter();
+  const exchanged = useRef(false);
 
   useEffect(() => {
     const code = searchParams.get("code");
-    if (!code) return;
+    if (!code || exchanged.current) return;
+    exchanged.current = true;
 
     supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
       if (error) {
@@ -29,22 +31,17 @@ function ForgotPasswordForm() {
     });
   }, [searchParams, router]);
 
-  async function handleEmailSubmit(e: React.FormEvent) {
+    async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setStatus("");
 
-    // Here you would trigger the email send
-    const res = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/forgot-password`,
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error ?? "Something went wrong.");
+    if (error) {
+      setError(error.message);
     } else {
       setStep(2);
       setStatus("Check your email for a reset link.");
@@ -100,6 +97,11 @@ function ForgotPasswordForm() {
               Send reset code
             </button>
           </>
+        )}
+        {step === 2 && (
+          <p className="text-stone-300 text-center">
+            Check your email and click the reset link.
+          </p>
         )}
         {step === 3 && (
           <>
