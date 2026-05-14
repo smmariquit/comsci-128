@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -37,9 +37,57 @@ const navItems = [
 ];
 
 // Main Sidebar component
-export default function Sidebar({ user, onLogout }: SidebarProps) {
+export default function Sidebar({ onLogout }: SidebarProps) {
     const pathname = usePathname(); // Get current path for active link styling
     const [menuOpen, setMenuOpen] = useState(false); // State for user profile dropdown menu (Shows logout button) 
+    const [accountNumber, setAccountNumber] = useState<number>(0);
+    const [user, setUser] = useState<SidebarUser>({name: "",role: "",initials: ""});
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            // read account_number from cookies on mount
+            const getCookie = (name: string) => {
+                const match = document.cookie.split(";").find((c) => c.startsWith(name + "="));
+                return match ? decodeURIComponent(match.split("=")[1]) : null;
+            };
+
+            const acc = getCookie("account_number");
+
+            if (!acc) return;
+
+            const accountNumber = Number(acc);
+
+            setAccountNumber(accountNumber);
+
+            try {
+                const userResponse = await fetch(`/api/users/${accountNumber}`);
+
+                if (!userResponse.ok) {
+                    throw new Error("Failed to fetch user");
+                }
+
+                const userData = await userResponse.json();
+
+                setUser({
+                    name: userData.name,
+                    role: userData.role,
+                    initials: userData.name
+                        .split(" ")
+                        .map((n: string) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2),
+                });
+
+                console.log(userData);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
     return (
         <aside className="w-70 min-h-screen bg-[#1a2332] flex flex-col shrink-0">
             {/* Logo, System Name, Tagline */}
