@@ -107,6 +107,13 @@ export default function UserManagementPage({
   const [disableUser, setDisableUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
+
   // Fetch managers from API
   useEffect(() => {
     const fetchManagers = async () => {
@@ -264,7 +271,7 @@ export default function UserManagementPage({
               Assign and manage roles for users and dormitory managers
             </p>
           </div>
-          <NotificationBell notifications={notifications} />
+          <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
         </div>
         <div className="px-8 py-6 flex flex-col gap-5">
           {/* Filters */}

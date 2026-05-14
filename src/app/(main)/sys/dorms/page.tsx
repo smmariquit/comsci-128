@@ -147,6 +147,12 @@ export default function DormManagementPage({
   const [managersList, setManagersList] = useState<
     { id: string; name: string; email: string }[]
   >([]);
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
 
   // Fetch dorms from API
   useEffect(() => {
@@ -312,7 +318,7 @@ export default function DormManagementPage({
               Assign and manage roles for Dorms and dormitory managers
             </p>
           </div>
-          <NotificationBell notifications={notifications} />
+          <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">
