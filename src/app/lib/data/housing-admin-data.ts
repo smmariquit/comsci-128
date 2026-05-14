@@ -45,7 +45,8 @@ async function getAll() {
           user_type,
         )
       )
-    `);
+    `)
+    .eq("is_deleted", false); 
 
   if (error) {
     console.error("Error fetching housing admins:", error.message);
