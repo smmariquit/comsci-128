@@ -41,7 +41,7 @@ export default function ActiveUsers({ data, total }: Props) {
             fontFamily: "'DM Mono', monospace",
           }}
         >
-          0 total non-deleted accounts
+          {total} registered {total === 1 ? "user" : "users"}
         </div>
         <div
           style={{ textAlign: "center", padding: "24px 12px", color: C.teal }}
@@ -97,7 +97,7 @@ export default function ActiveUsers({ data, total }: Props) {
           fontFamily: "'DM Mono', monospace",
         }}
       >
-        {total} total non-deleted accounts
+        {total} registered {total === 1 ? "user" : "users"}
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

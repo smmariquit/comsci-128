@@ -2,23 +2,42 @@
 
 import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import LogoutModal from "../../../../components/LogoutModal";
 import { LogOut } from "lucide-react";
 import StateMessage from "@/app/components/ui/state-message";
+import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
+import { deleteCookie } from "@/app/lib/utils";
 import { deleteCookie } from "@/app/lib/utils";
 
 export default function ManagerProfilePage() {
   const { id } = useParams();
+  const router = useRouter();
+  const supabase = getSupabaseBrowserClient();
   const [profile, setProfile] = useState<ManagerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("Personal Information");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const handleLogout = async () => {
+    setLogoutLoading(true);
+    try {
+      await supabase.auth.signOut();
+      document.cookie = "is_logged_in=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie = "account_number=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      document.cookie = "user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      router.push("/login");
+    } catch (err) {
+      console.error("Logout error:", err);
+      setLogoutLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchManager() {
@@ -312,19 +331,12 @@ export default function ManagerProfilePage() {
         </div>
       </div>
 
-			<LogoutModal
-				isOpen={showLogoutModal}
-				onClose={() => setShowLogoutModal(false)}
-				onConfirm={() => {
-					setShowLogoutModal(false);
-                    document.cookie.split(";").forEach((cookie) => {
-                        const eqPos = cookie.indexOf("=");
-                        const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
-                        deleteCookie(name);
-                    });
-					console.log("Confirmed logout"); // place logout backend code here
-				}}
-			/>
+		<LogoutModal
+			isOpen={showLogoutModal}
+			onClose={() => setShowLogoutModal(false)}
+			onConfirm={handleLogout}
+			isLoading={logoutLoading}
+		/>
 		</div>
 	);
 }
