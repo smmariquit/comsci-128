@@ -6,7 +6,7 @@ import { X, AlertTriangle, Building2 } from "lucide-react";
 // Types
 
 type DormStatus = "Accepting" | "Full" | "Closed";
-type DormType   = "Co-ed" | "Male Only" | "Female Only";
+type DormType   = "UP Housing" | "Non-UP Housing";
 
 export interface DormManager {
   id: string | number;
@@ -15,7 +15,7 @@ export interface DormManager {
 }
 
 export interface EditDormData {
-  id: string | number;
+  id: number;
   name: string;
   dormAddress?: string;
   type?: DormType;
@@ -31,14 +31,14 @@ export interface EditDormData {
 export interface EditDormModalProps {
   dorm: EditDormData;
   /** List of eligible managers to pick from */
-  managers?: DormManager[];
   onClose: () => void;
-  onSave: (dormId: EditDormData["id"], updates: Partial<EditDormData>) => void;
+  onSave: (id: string, updates: Partial<EditDormData>) => void;
+  managers?: DormManager[];
 }
 
 // Constants
 
-const DORM_TYPES: DormType[]   = ["Co-ed", "Male Only", "Female Only"];
+const DORM_TYPES: DormType[]   = ["UP Housing", "Non-UP Housing"];
 const DORM_STATUSES: DormStatus[] = ["Accepting", "Full", "Closed"];
 
 // Helpers
@@ -108,17 +108,21 @@ export function EditDormModal({
   const managerDisplayValue =
     query !== "" ? query : (selectedManager?.name ?? "");
 
-  function handleSave() {
-    onSave(dorm.id, {
-      name: name.trim() || dorm.name,
-      dormAddress: address.trim() || undefined,
-      type,
-      capacity: capacity ? Number(capacity) : undefined,
-      monthlyRate: rate ? Number(rate) : undefined,
-      description: description.trim() || undefined,
-      status,
-      dormitory: selectedManager?.name ?? undefined,
-      managerEmail: selectedManager?.email ?? undefined,
+  async function handleSave() {
+    const res = await fetch(`/api/housing/${dorm.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        housing_name: name.trim(),
+        housing_address: address.trim(),
+        housing_type: type,
+        rent_price: rate ? Number(rate) : null,
+
+        manager_account_number: selectedManager?.id ?? null,
+        landlord_account_number: selectedLandlord?.id ?? null,
+      }),
     });
     onClose();
   }
@@ -181,10 +185,10 @@ export function EditDormModal({
               </div>
               {/* Status badge on hero */}
               <span className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border
-                ${dorm.type === "Female Only"
-                  ? "bg-pink-50 text-pink-700 border-pink-200"
-                  : dorm.type === "Male Only"
-                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                ${dorm.type === "UP Housing"
+                  ? "bg-pink-50 text-green-700 border-brown-200"
+                  : dorm.type === "Non-UP Housing"
+                  ? "bg-blue-50 text-green-700 border-brown-200"
                   : "bg-purple-50 text-purple-700 border-purple-200"
                 }`}>
                 {dorm.type ?? "Co-ed"}
@@ -249,19 +253,6 @@ export function EditDormModal({
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-[#1a2332]/60">
-                    Capacity (beds)
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={capacity}
-                    onChange={(e) => setCapacity(e.target.value)}
-                    placeholder="e.g. 30"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#1a2332]/60">
                     Monthly Rate (₱)
                   </label>
                   <input
@@ -273,6 +264,22 @@ export function EditDormModal({
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
                   />
                 </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#1a2332]/60">
+                    Type
+                  </label>
+                  <select
+                    value={type}
+                    onChange={(e) => setType(e.target.value as DormType)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors appearance-none cursor-pointer"
+                  >
+                    {DORM_TYPES.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+
               </div>
             </div>
 
