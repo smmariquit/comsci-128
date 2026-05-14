@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import type { Feedback, NewFeedback, FeedbackType } from "@/lib/models/feedback"
+import { error } from "console";
 
 async function create(content: NewFeedback): Promise<NewFeedback | null> {
     const { data, error } = await supabase
@@ -91,6 +92,18 @@ async function getOwnFeedbacks(userId: number): Promise<Partial<Feedback>[]> {
     return data || [];
 }
 
+async function updateStatus(feedbackId: number, newStatus: string): Promise<Partial<Feedback> | null> {
+    const { data, error } = await supabase
+        .from("feedback")
+        .update({ status: newStatus })
+        .eq("id", feedbackId)
+        .select("id, text, feedback_type, category, created_at, status");
+
+    if (error) throw new Error(`Update Feedback Status Error: ${error.message}`);
+
+    return data && data.length > 0 ? data[0] : null;
+}
+
 export const feedbackData = {
 	create,
 	findById,
@@ -98,5 +111,6 @@ export const feedbackData = {
 	getAllByManagerId,
 	getAllByHousingId,
     getAllAppFeedback,
-    getOwnFeedbacks
+    getOwnFeedbacks,
+    updateStatus
 }
