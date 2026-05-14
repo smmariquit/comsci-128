@@ -137,10 +137,11 @@ const assignApplicantToRoom = async (
       const label = studentName || `Student ${studentAccountNumber}`;
       const housingLabel = appDetail?.housing_name || "housing";
       await createAuditLog(
-        landlordAccountNumber,
+        studentAccountNumber,
         "",
         "Assign Room",
         `Assigned ${label} to room ${roomId} for ${housingLabel}`,
+        landlordAccountNumber,
       );
     }
 
