@@ -357,15 +357,7 @@ export default function AuditLogsPage({
   if (loading) {
     return (
       <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar
-          user={user}
-          onLogout={
-            onLogout ??
-            (() => {
-              window.location.href = "/";
-            })
-          }
-        />
+        <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
@@ -380,15 +372,7 @@ export default function AuditLogsPage({
   if (error) {
     return (
       <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar
-          user={user}
-          onLogout={
-            onLogout ??
-            (() => {
-              window.location.href = "/";
-            })
-          }
-        />
+        <Sidebar/>
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
             <p className="text-red-600 font-semibold mb-2">
@@ -410,15 +394,7 @@ export default function AuditLogsPage({
   return (
     <div className="flex min-h-screen bg-[#eae8e1]">
       {/* Sidebar */}
-      <Sidebar
-        user={user}
-        onLogout={
-          onLogout ??
-          (() => {
-            window.location.href = "/";
-          })
-        }
-      />
+      <Sidebar />
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-auto">
