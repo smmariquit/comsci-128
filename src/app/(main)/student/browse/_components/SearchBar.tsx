@@ -21,6 +21,7 @@ export default function SearchBar() {
         } else {
         params.delete(key);
         }
+        params.set('page', '1');
         replace(`${pathname}?${params.toString()}`);
     }
 
@@ -39,9 +40,11 @@ export default function SearchBar() {
                     <div className="absolute left-0 mt-4 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-2 text-black">
                         <button onClick={() => { updateURL('type', 'UP Housing'); setIsFilterOpen(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">UP Housing</button>
                         <button onClick={() => { updateURL('type', 'Non-UP Housing'); setIsFilterOpen(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Non-UP Housing</button>
-                        <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Men's</button>
-                        <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Women's</button>
-                        <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">Coed</button>
+                        
+                        <button onClick={() => { updateURL('room', 'Men Only'); setIsFilterOpen(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Men's</button>
+                        <button onClick={() => { updateURL('room', 'Women Only'); setIsFilterOpen(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Women's</button>
+                        <button onClick={() => { updateURL('room', 'Co-ed'); setIsFilterOpen(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100">Coed</button>
+
                         <button onClick={() => { updateURL('type', null); setIsFilterOpen(false); }} className="block w-full text-left px-4 py-2 text-red-500">Clear Filter</button>
                     </div>
                 )}

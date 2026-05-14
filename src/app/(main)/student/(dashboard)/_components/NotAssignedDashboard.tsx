@@ -67,7 +67,7 @@ export default function NotAssignedDashboard(userName: String, dashboardData: Ob
           <span className={`${tStyle} font-semibold `}>Room Details</span>
           <ul className={`${tStyle} pb-4 px-4`}>
             <li><span className="font-bold">Room ID:</span> {getApplication()?.room_id}</li>
-            <li><span className="font-bold">Room Type:</span> {getApplication()?.room.room_type}</li>
+            <li><span className="font-bold">Room Type:</span> {getApplication()?.room_type}</li>
           </ul>
           <span className={tStyle}><span className={`${tStyle} font-semibold `}>Expected Move Out Date:</span> {getApplication()?.expected_moveout_date}</span>
         </div>

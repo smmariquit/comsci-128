@@ -6,6 +6,7 @@ import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 import type { Metadata } from "next";
 import StateMessage from "@/app/components/ui/state-message";
+import Pagination from "./_components/pagination";
 
 export const metadata: Metadata = {
     title: "Browse Housing",
@@ -54,13 +55,29 @@ export default async function DormBrowsePage({
         );
     }
 
-    //get housing names to put on cards
-    const cards = allHousing.map((item) => ({
+    // pagination
+    const CARDS_PER_PAGE = 4;
+    const currentPage = parseInt(params?.page || '1');
+    const totalPages = Math.ceil(allHousing.length / CARDS_PER_PAGE);
+    const start = (currentPage - 1) * CARDS_PER_PAGE;
+    
+    const cards = allHousing.slice(start, start + CARDS_PER_PAGE).map((item) => ({
         id: item.housing_id,
         name: item.housing_name,
         type: item.housing_type,
         price: item.rent_price,
     }));
+    
+
+    
+
+    // //get housing names to put on cards
+    // const cards = allHousing.map((item) => ({
+    //     id: item.housing_id,
+    //     name: item.housing_name,
+    //     type: item.housing_type,
+    //     price: item.rent_price,
+    // }));
 
     return (
         <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
@@ -79,7 +96,11 @@ export default async function DormBrowsePage({
                         description="Try changing your filters or search query."
                     />
                 ) : (
+                    <>
                     <HousingCards cards={cards} />
+                    <Pagination currentPage={currentPage} totalPages={totalPages} />
+                </>
+                    
                 )}
             </div>
         </div>
