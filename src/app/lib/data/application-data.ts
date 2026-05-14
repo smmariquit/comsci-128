@@ -6,6 +6,14 @@ import {
 	UpdateApplication,
 } from "@/models/application";
 
+interface FilterOptions {
+	sort_by_created_at?: "asc" | "desc";
+	sort_by_expected_moveout_date?: "asc" | "desc";
+	application_status?: "Pending Manager Approval" | "Pending Admin Approval" | "Approved" | "Cancelled" | "Rejected";
+	room_type?: "Women Only" | "Men Only" | "Co-ed";
+	approved_unassigned?: boolean;
+}
+
 async function create(application: NewApplication): Promise<Application> {
 	const { data, error } = await supabase
 		.from("application")
@@ -18,50 +26,74 @@ async function create(application: NewApplication): Promise<Application> {
 }
 
 // READ ALL APPLICATIONS
-async function getAll(page = 1) {
-	const totalPageRows = 5;
-	const from = (page - 1) * totalPageRows;
-	const to = from + totalPageRows - 1;
+async function getAll(page = 1, filters?: FilterOptions) {
+	try {
+		const totalPageRows = 5;
+		const from = (page - 1) * totalPageRows;
+		const to = from + totalPageRows - 1;
 
-	const { data, count, error } = await supabase
-		.from("application")
-		.select(
-			`
-		application_id,
-		housing_name,
-		preferred_room_type,
-		expected_moveout_date,
-		application_status,
-		student:student!student_account_number (
-			housing_status,
-			user:user!account_number (
-				first_name,
-				last_name
+		let query = supabase
+			.from("application")
+			.select(
+				`
+			application_id,
+			housing_name,
+			preferred_room_type,
+			expected_moveout_date,
+			application_status,
+			student:student!student_account_number (
+				housing_status,
+				user:user!account_number (
+					first_name,
+					last_name
+				)
 			)
-		)
-	`, { count: "exact"}
-		)
-		.eq("is_deleted", false)
-		.order("expected_moveout_date", { ascending: true })
-		.range(from, to);
+			`, { count: "exact"}
+			)
+			.eq("is_deleted", false)
 
-	if (error) throw error;
+		if (filters?.application_status){
+			query = query.eq("application_status", filters.application_status);
+		}
+		if (filters?.approved_unassigned){
+			query = query.eq("application_status", "Approved").is("assigned_manager", null);
+		}
+		if (filters?.sort_by_created_at){
+			query = query.order("created_at", { ascending: filters.sort_by_created_at === "asc"} );
+		}
+		if (filters?.sort_by_expected_moveout_date){
+			query = query.order("expected_moveout_date", { ascending: filters.sort_by_expected_moveout_date} );
+		}
 
-	const totalPages = Math.ceil(count / totalPageRows);
-	return {
-		data, totalPages, currentPage: page
-	};
+		query.range(from, to);
+
+		const { data, count, error } = await query;
+		if (error) throw error;
+
+		const totalPages = Math.ceil(count / totalPageRows);
+		return {
+			data, totalPages, currentPage: page
+		};
+	} catch (error: any){
+		console.error("Error fetching application due to: ", error);
+	}
 }
 
 async function getById(applicationId: number): Promise<Application | null> {
-	const { data, count, error } = await supabase
-		.from("application")
-		.select("*", { count: "exact"})
-		.eq("application_id", applicationId)
+	try {
+		let query = supabase
+			.from("application")
+			.select("*")
+			.eq("application_id", applicationId);
 
-	if (error) throw error;
+		const { data, error } = await query;
+		if (error) throw error;
 
-	return data && data.length > 0 ? data[0] : null;
+		return data && data.length > 0 ? data[0] : null;
+
+	} catch (error: any) {
+		console.error("Error fetching application due to: ", error);
+	}
 }
 
 async function getByManager(

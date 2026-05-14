@@ -1,27 +1,71 @@
 import { supabase } from "../supabase";
-import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill"
+import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill";
+
+interface FilterOptions {
+	sort_by_due_date?: "asc" | "desc";
+	sort_by_amount?: "asc" | "desc";
+	sort_by_issue_date?: "asc" | "desc";
+
+	status?: "Pending" | "Paid" | "Overdue";
+	bill_type?: "Rent" | "Utility" | "WiFi"; 
+}
 
 const create = async (billData: Bill) => {
 	return await supabase.from("bill").insert([billData]).select().single();
 };
 
 // TODO: TO FIX ALL INNER JOINS
-const getAll = async () => {
-	return await supabase
-		.from("bill")
-		.select(`
-            *,
-            student (
-                user ( first_name, last_name ),
-                application (
-                    room (
-                        housing ( housing_name )
-                    )
-                )
-            )
-        `)
-		.eq("is_deleted", false);
-};
+const getAll = async (page = 1, filters?: FilterOptions) => {
+	try {
+		const totalPageRows = 5;
+		const from = (page - 1) * totalPageRows;
+		const to = from + totalPageRows - 1;
+
+		let query = supabase
+			.from("bill")
+			.select(`
+            	*,
+            	student (
+                	user ( first_name, last_name ),
+                	application (
+                    	room (
+                        	housing ( housing_name )
+                    	)
+                	)
+            	)
+        	`, { count: "exact"} )
+			.eq("is_deleted", false);
+
+		if (filters?.status){
+			query = query.eq("status", filters.status);
+		} 
+		if (filters?.bill_type){
+			query = query.eq("bill_type", filters.bill_type);
+		}
+		if (filters?.sort_by_due_date){
+			query = query.eq("due_date", filters.sort_by_due_date);
+		}
+		if (filters?.sort_by_amount){
+			query = query.eq("amount", filters.sort_by_amount);
+		}
+		if (filters?.sort_by_issue_date){
+			query = query.eq("issue_date", filters.sort_by_issue_date);
+		}
+
+		query = query.range(from, to);
+
+		const { data, count, error } = await query;
+		if (error) throw error;
+
+		const totalPages = Math.ceil(count / totalPageRows);
+		return {
+			data, totalPages, currentPage: page
+		};
+	} catch (error: any){
+		console.error("Error fetching bill due to: ", error);
+	}
+}
+
 
 const getById = async (transactionId: number) => {
 	return await supabase
