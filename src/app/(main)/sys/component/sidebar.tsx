@@ -35,7 +35,7 @@ const navItems = [
   { label: "Role Management", href: "/sys/roles", icon: ShieldCheck },
   { label: "Dorm Management", href: "/sys/dorms", icon: BedDouble },
   { label: "Audit Logs", href: "/sys/logs", icon: ClipboardList },
-  { label: "System Configuration", href: "/sys/config", icon: Settings },
+  // System Configuration removed - page was empty
 ];
 
 // Main Sidebar component
