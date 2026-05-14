@@ -25,6 +25,18 @@ async function findById(feedbackId: number): Promise<Feedback | null> {
     return data && data.length > 0 ? data[0] : null;
 }
 
+async function getAll(): Promise<Feedback[]> {
+    // get all feedbacks in the system (sysadmin view)
+
+    const { data, error } = await supabase
+        .from("feedback")
+        .select("*");
+
+    if (error) throw new Error(`Get All Feedback Error: ${error.message}`);
+
+    return data || [];
+}
+
 async function getAllByManagerId(managerId: number): Promise<Partial<Feedback>[]> {
     // get the feedback associated with the provided manager ID
 
@@ -82,6 +94,7 @@ async function getOwnFeedbacks(userId: number): Promise<Partial<Feedback>[]> {
 export const feedbackData = {
 	create,
 	findById,
+    getAll,
 	getAllByManagerId,
 	getAllByHousingId,
     getAllAppFeedback,
