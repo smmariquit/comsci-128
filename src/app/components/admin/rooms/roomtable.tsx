@@ -251,7 +251,7 @@ export default function RoomTable({
               </tr>
             ) : (
               data.map((row, i) => {
-                const isOccupied = row.occupancy_status === "Fully Occupied";
+              const isOccupied = row.occupancy_status !== "Empty";
 
                 return (
                   <tr
