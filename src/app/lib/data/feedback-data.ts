@@ -66,7 +66,7 @@ async function getAllAppFeedback(): Promise<Partial<Feedback>[]> {
     return data || [];
 }
 
-async function getAllByUserId(userId: number): Promise<Partial<Feedback>[]> {
+async function getOwnFeedbacks(userId: number): Promise<Partial<Feedback>[]> {
     // get the feedbacks of a user by their account number
     
     const { data, error } = await supabase
@@ -85,5 +85,5 @@ export const feedbackData = {
 	getAllByManagerId,
 	getAllByHousingId,
     getAllAppFeedback,
-    getAllByUserId
+    getOwnFeedbacks
 }
