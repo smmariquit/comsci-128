@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase"
 import type { Feedback, NewFeedback, FeedbackType } from "@/lib/models/feedback"
-import { error } from "console";
 
 async function create(content: NewFeedback): Promise<NewFeedback | null> {
     const { data, error } = await supabase
