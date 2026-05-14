@@ -13,19 +13,39 @@ export default function LoginPage() {
     password: "",
   });
   const [status, setStatus] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    
+    if (name === "email") {
+      if (value && !emailRegex.test(value)) {
+        setEmailError("Invalid email format");
+      } else {
+        setEmailError("");
+      }
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    
+    if (emailError) {
+      setStatus("Please enter a valid email");
+      setStatusType("error");
+      return;
+    }
+    
     setStatus("");
+    setStatusType("");
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -34,9 +54,11 @@ export default function LoginPage() {
 
     if (error) {
       setStatus(error.message);
+      setStatusType("error");
       setLoading(false);
     } else {
       setStatus("Signed in successfully");
+      setStatusType("success");
       setCurrentUser(data.user);
 
       const { data: profile } = await supabase
@@ -122,16 +144,25 @@ export default function LoginPage() {
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
           Login
         </h2>
-        {status && <div className="text-red-400 text-center">{status}</div>}
-        <input
-          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
+        {status && (
+          <div className={`text-center ${statusType === "success" ? "text-green-400" : "text-red-400"}`}>
+            {status}
+          </div>
+        )}
+        <div>
+          <input
+            className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+              emailError ? "border-red-500" : "border-stone-200"
+            }`}
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          {emailError && <p className="text-red-400 text-sm mt-1">{emailError}</p>}
+        </div>
         <input
           className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
           type="password"
