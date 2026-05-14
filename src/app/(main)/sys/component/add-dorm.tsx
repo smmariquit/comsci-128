@@ -51,6 +51,7 @@ export default function AddDormModal({
   const [securityDeposit, setSecurityDeposit] = useState('');
   const [managerId,       setManagerId]       = useState('');
   const [housingType, setHousingType] = useState<'UP Housing' | 'Non-UP Housing'>('UP Housing');
+  const [errors, setErrors] = useState<{ dormName?: string; landlord?: string }>({});
   const [landlordId, setLandlordId] = useState(''); 
   const [submitted, setSubmitted] = useState(false);
 
@@ -71,9 +72,20 @@ export default function AddDormModal({
   const handleSubmit = async () => {
     const manager    = (managers ?? []).find((m) => m.id === managerId);
 
-    setSubmitted(true); 
+    const newErrors: typeof errors = {};
 
-    if (!landlordId) return; 
+      if (!dormName.trim()) {
+        newErrors.dormName = 'Dorm name is required';
+      }
+
+      if (!landlordId) {
+        newErrors.landlord = 'Landlord is required';
+      }
+
+      setErrors(newErrors);
+
+      // stop if invalid
+      if (Object.keys(newErrors).length > 0) return;
 
     try {
         const response = await fetch('/api/housing', {
@@ -144,7 +156,11 @@ export default function AddDormModal({
                 placeholder="e.g. Sampaguita Dormitory"
                 value={dormName}
                 onChange={(e) => setDormName(e.target.value)}
+                className={errors.dormName ? 'border-red-300 bg-red-50' : ''}
               />
+              {submitted && errors.dormName && (
+                <p className="text-xs text-red-500 mt-1">{errors.dormName}</p>
+              )}
             </Field>
 
             <Field label="Complete Address">
@@ -169,14 +185,7 @@ export default function AddDormModal({
                   onChange={(e) => setMonthlyRate(e.target.value)}
                 />
               </Field>
-              <Field label="Security Deposit (₱)">
-                <TextInput
-                  type="number"
-                  placeholder="e.g. 6700"
-                  value={securityDeposit}
-                  onChange={(e) => setSecurityDeposit(e.target.value)}
-                />
-              </Field>
+         
             </div>
 
           </Section>
@@ -238,7 +247,7 @@ export default function AddDormModal({
                 value={landlordId}
                 onChange={(e) => setLandlordId(e.target.value)}
                 className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer ${
-                  submitted && !landlordId ? 'border-red-300 bg-red-50 text-red-400' : ''  // ✅ Only red after submit
+                  submitted && !landlordId ? 'border-red-300 bg-red-50 text-red-400' : ''  
                 }`}
               >
                 <option value="">Select a landlord...</option>
@@ -253,7 +262,7 @@ export default function AddDormModal({
                 }`}
               />
             </div>
-            {submitted && !landlordId && (  // ✅ Only show error after submit
+            {submitted && errors.landlord && (  // ✅ Only show error after submit
               <p className="text-xs text-red-500 mt-1">Landlord is required</p>
             )}
           </Field>

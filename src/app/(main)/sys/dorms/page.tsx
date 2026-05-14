@@ -113,8 +113,7 @@ export default function DormManagementPage({
   });
   const [managersList, setManagersList] = useState<{ id: string; name: string; email: string }[]>([]);
   const [landlordList, setLandlordList] = useState<LandlordOption[]>([]);
-  
-  useEffect(() => {
+
   const fetchDorms = async () => {
     try {
       setLoading(true);
@@ -200,8 +199,10 @@ export default function DormManagementPage({
     }
   };
 
-  fetchDorms();
-}, []);
+  
+  useEffect(() => {
+    fetchDorms();
+  }, []);
 
   const [page, setPage] = useState(1);
 
@@ -426,16 +427,23 @@ export default function DormManagementPage({
         landlords={landlordList}
         onClose={() => setEditingDorm(null)}
         onSave={(id, updates) => {
-          setDormList((prev) =>
-            prev.map((d) =>
-              Number(d.id) === Number(id)
-                ? { ...d, ...updates }
-                : d
-            )
-          );
+        const { id: _ignored, ...safeUpdates } = updates as any;
 
-          setEditingDorm(null);
-        }}
+        setDormList((prev) =>
+          prev.map((d) =>
+            d.id === String(id)
+              ? {
+                  ...d,
+                  name: safeUpdates.housing_name ?? d.name,
+                  dormAddress: safeUpdates.housing_address ?? d.dormAddress,
+                  type: safeUpdates.housing_type ?? d.type,
+                  managerEmail: d.managerEmail, // unchanged unless you recompute
+                }
+              : d
+          )
+        );
+        setEditingDorm(null);
+      }}
       />
     )}
     </div>
