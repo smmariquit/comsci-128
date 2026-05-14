@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import { supabase } from "@/app/lib/supabase";
 
 function ForgotPasswordForm() {
@@ -12,9 +12,7 @@ function ForgotPasswordForm() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
 
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const exchanged = useRef(false);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -26,21 +24,15 @@ function ForgotPasswordForm() {
       return;
     }
 
-    const code = searchParams.get("code");
-    if (!code || exchanged.current) return;
-    exchanged.current = true;
-
-    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-      if (error) {
-        setError("Reset link is invalid or expired.");
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
         setStep(3);
         window.history.replaceState(null, "", "/forgot-password");
       }
     });
-  }, [searchParams]);
 
-
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
