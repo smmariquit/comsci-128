@@ -48,9 +48,7 @@ export default function NotificationBell({
     if (!accountNumber) return;
     getNotificationsForUser(accountNumber, role).then((raw) => {
       const readIds = getReadIds();
-      setNotifList(
-        raw.map((n) => ({ ...n, read: readIds.has(n.id) })),
-      );
+      setNotifList(raw.map((n) => ({ ...n, read: readIds.has(n.id) })));
     });
   }, [accountNumber, role]);
 
@@ -145,15 +143,6 @@ export default function NotificationBell({
             <div className="px-5 py-3 border-t border-[#1a2332]/6">
               <Link
                 href={logsHref}
-ssName="px-5 py-3 border-t border-[#1a2332]/6">
-              <Link
-                href="/sys/logs"
-sName="px-5 py-3 border-t border-[#1a2332]/6">
-              <Link
-                href="/sys/logs"
-ssName="px-5 py-3 border-t border-[#1a2332]/6">
-              <Link
-                href="/sys/logs"
                 onClick={() => setNotifOpen(false)}
                 className="text-xs text-[#1a2332]/40 hover:text-[#d4622a] transition-colors flex items-center gap-1"
               >
