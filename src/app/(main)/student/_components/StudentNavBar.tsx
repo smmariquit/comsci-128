@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import Logo from "@/app/components/Logo";
+import Avatar from "@/app/components/Avatar";
 
 interface StudentNavbarProps {
   path: string;
@@ -66,8 +67,12 @@ export default function StudentNavBar({
                   {userName}
                 </span>
               )}
-              <div className="h-8 w-8 rounded-full bg-[#567375] flex items-center justify-center text-[#EDE9DE] text-xs font-bold cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all">
-                {getInitials(userName)}
+              <div>
+                <Avatar
+                  firstName={userName?.split(" ")[0]}
+                  lastName={userName?.split(" ").slice(-1)[0]}
+                  size={32}
+                />
               </div>
             </Link>
           </div>
