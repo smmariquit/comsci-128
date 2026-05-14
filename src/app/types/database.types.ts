@@ -237,6 +237,7 @@ export type Database = {
           id: number
           involved_housing_id: number | null
           involved_manager_id: number | null
+          status: Database["public"]["Enums"]["FeedbackStatus"]
           text: string
         }
         Insert: {
@@ -247,6 +248,7 @@ export type Database = {
           id?: number
           involved_housing_id?: number | null
           involved_manager_id?: number | null
+          status: Database["public"]["Enums"]["FeedbackStatus"]
           text: string
         }
         Update: {
@@ -257,6 +259,7 @@ export type Database = {
           id?: number
           involved_housing_id?: number | null
           involved_manager_id?: number | null
+          status?: Database["public"]["Enums"]["FeedbackStatus"]
           text?: string
         }
         Relationships: [
