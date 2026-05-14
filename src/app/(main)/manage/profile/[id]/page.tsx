@@ -322,7 +322,7 @@ export default function ManagerProfilePage() {
                         const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
                         deleteCookie(name);
                     });
-					console.log("Confirmed logout"); // place logout backend code here
+					window.location.href = "/";
 				}}
 			/>
 		</div>
