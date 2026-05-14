@@ -5,6 +5,7 @@ import Logo from "@/app/components/Logo";
 import Breadcrumbs from "./components/Breadcrumbs";
 import Avatar from "@/app/components/Avatar";
 import { getManagerAccountNumber } from "@/app/lib/auth";
+import { userData } from "@/app/lib/data/user-data";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -17,8 +18,10 @@ export default async function ManageLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-  const accountNumber = await getManagerAccountNumber()
+  const accountNumber = await getManagerAccountNumber();
+  const managerUser = accountNumber
+    ? await userData.findById(accountNumber)
+    : null;
 
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
@@ -80,8 +83,8 @@ export default async function ManageLayout({
 
             <div className="py-2">
               <Avatar
-                firstName={null}
-                lastName={null}
+                firstName={managerUser?.first_name}
+                lastName={managerUser?.last_name}
                 size={32}
                 href={`/manage/profile/${accountNumber}`}
               />
