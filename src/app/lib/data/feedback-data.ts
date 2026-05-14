@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import type { Feedback, NewFeedback, FeedbackType } from "@/lib/models/feedback"
+import { get } from "http";
 
 async function create(content: NewFeedback): Promise<NewFeedback | null> {
     const { data, error } = await supabase
@@ -31,7 +32,8 @@ async function getAllByManagerId(managerId: number): Promise<Partial<Feedback>[]
     const { data, error } = await supabase
         .from("feedback")
         .select("id, text, feedback_type, category, created_at")
-        .eq("manager_id", managerId);
+        .eq("involved_manager_id", managerId)
+        .eq("feedback_type", "Manager");
 
     if (error) throw new Error(`Get All Feedback by Manager ID Error: ${error.message}`);
 
@@ -44,7 +46,8 @@ async function getAllByHousingId(housingId: number): Promise<Partial<Feedback>[]
     const { data, error } = await supabase
         .from("feedback")
         .select("id, text, feedback_type, category, created_at")
-        .eq("housing_id", housingId);
+        .eq("involved_housing_id", housingId)
+        .eq("feedback_type", "Housing");
 
     if (error) throw new Error(`Get All Feedback by housing ID Error: ${error.message}`);
 
