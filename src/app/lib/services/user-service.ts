@@ -7,9 +7,10 @@ import type { NewUser, UpdateUser, User } from "@/models/user";
 import type { Role } from "../models/audit_log";
 import { AppAction } from "../models/permissions";
 import { validateAction } from "./authorization-service";
+import { createAuditLog } from "./audit-log-service";
 
 type ServiceResponse<T> = { data?: T; error?: string };
-type Public<T> = Omit<T, "account_number" | "password">;
+type Public<T> = Omit<T, "password">;
 
 const _allowedSex = ["Female", "Male", "Prefer not to say"];
 
@@ -19,6 +20,17 @@ type GoogleProfile = {
   firstName: string;
   lastName: string;
 };
+
+function formatUserName(user: {
+  first_name?: string | null;
+  last_name?: string | null;
+  account_email?: string | null;
+}): string {
+  const first = user.first_name?.trim() ?? "";
+  const last = user.last_name?.trim() ?? "";
+  const full = `${first} ${last}`.trim();
+  return full || user.account_email?.trim() || "";
+}
 
 function normalizeGoogleProfile(googleUser: any): GoogleProfile {
   const email = googleUser.email || googleUser.user_metadata?.email || "";
@@ -66,6 +78,15 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
 
     const createdUser = await userData.create(userDetails);
 
+    const userName = formatUserName(createdUser);
+    const label = userName || createdUser.account_email || "Unknown user";
+    await createAuditLog(
+      createdUser.account_number,
+      userName,
+      "Auth Register",
+      `User ${label} registered`,
+    );
+
     return createdUser;
   } catch (error) {
     console.error("Error: ", error);
@@ -79,9 +100,9 @@ const getUser = async (userId: number): Promise<Public<User> | null> => {
 
     if (!userProfile) return null;
 
-    const { account_number, password, ...nonSensitiveInfo } = userProfile;
+    const { password, ...publicInfo } = userProfile;
 
-    return nonSensitiveInfo;
+    return publicInfo;
   } catch (error: any) {
     console.error("Error: ", error.message);
     throw new Error("Error");
@@ -96,8 +117,8 @@ const getAllUser = async (): Promise<Public<User>[] | null> => {
 
     const publicInfos: Public<User>[] = [];
     userProfiles.forEach((userDetails) => {
-      const { account_number, password, ...nonSensitiveInfo } = userDetails;
-      publicInfos.push(nonSensitiveInfo);
+      const { password, ...publicInfo } = userDetails;
+      publicInfos.push(publicInfo);
     });
     return publicInfos;
   } catch (error) {
@@ -120,12 +141,20 @@ const updateUser = async (
       return { error: "User not found" };
     }
 
+    const userName = formatUserName(updatedUser);
+    const label = userName || updatedUser.account_email || "Unknown user";
+    await createAuditLog(
+      updatedUser.account_number!,
+      userName,
+      "Update User Details",
+      `User ${label} updated details`,
+    );
+
     const {
-      account_number: _,
       password: __,
-      ...nonSensitiveInfo
+      ...publicInfo
     } = updatedUser;
-    return { data: nonSensitiveInfo };
+    return { data: publicInfo };
   } catch (error: any) {
     console.error("Error: ", error.message);
     throw new Error("Error");
@@ -142,10 +171,18 @@ const deactivateUser = async (
     const updatedUser = await userData.deactivate(email);
     if (!updatedUser) return null;
 
-    // TODO: reevaluate returning data for disable or not
-    // Currently returns data
-    const { account_number, password, ...nonSensitiveInfo } = updatedUser;
-    return nonSensitiveInfo;
+    const { password, ...publicInfo } = updatedUser;
+    
+    const userName = formatUserName(updatedUser);
+    const label = userName || updatedUser.account_email || "Unknown user";
+    await createAuditLog(
+        updatedUser.account_number!,
+        userName,
+        "Delete Account",
+        `User ${label} deactivated`,
+    );
+
+    return publicInfo;
   } catch (error) {
     console.error("Error: ", error);
     throw new Error("Error");
@@ -189,6 +226,15 @@ const _promoteUserType = async (
     if (!updatedUser) {
       return { error: "User not found" };
     }
+
+    const userName = formatUserName(updatedUser);
+    const label = userName || updatedUser.account_email || "Unknown user";
+    await createAuditLog(
+      updatedUser.account_number!,
+      userName,
+      "Update User Role",
+      `User ${label} role updated to ${userType}`,
+    );
 
     // Insert in the table of the current role
     if (userType === "Student") {
@@ -292,7 +338,16 @@ const finalizeGoogleSignup = async (
     is_deleted: false,
   };
 
-  return await userData.create(userDetails);
+  const createdUser = await userData.create(userDetails);
+  const userName = formatUserName(createdUser);
+  const label = userName || createdUser.account_email || "Unknown user";
+  await createAuditLog(
+    createdUser.account_number,
+    userName,
+    "Auth Register",
+    `User ${label} registered via Google`,
+  );
+  return createdUser;
 };
 
 const deleteGooglePlaceholderUser = async (
