@@ -8,10 +8,6 @@ export interface NewDorm {
   id: string;
   name: string;
   dormAddress: string;
-  description?: string;
-  rooms: number;
-  capacity: number;
-  capacityPerRoom: number;
   monthlyRate: number;
   securityDeposit: number;
   managerEmail?: string;
@@ -72,29 +68,24 @@ export default function AddDormModal({
   onAdd,
   managers = STUB_MANAGERS,
 }: AddDormModalProps) {
-  const [dormName, setDormName] = useState("");
-  const [address, setAddress] = useState("");
-  const [description, setDescription] = useState("");
-  const [totalRooms, setTotalRooms] = useState("");
-  const [capacityPerRoom, setCapacityPerRoom] = useState("");
-  const [monthlyRate, setMonthlyRate] = useState("");
-  const [securityDeposit, setSecurityDeposit] = useState("");
-  const [managerId, setManagerId] = useState("");
-  const [status, setStatus] = useState<InitialStatus>("Active");
+  const [dormName,        setDormName]        = useState('');
+  const [address,         setAddress]         = useState('');
+  const [monthlyRate,     setMonthlyRate]     = useState('');
+  const [securityDeposit, setSecurityDeposit] = useState('');
+  const [managerId,       setManagerId]       = useState('');
+  const [housingType, setHousingType] = useState<'UP Housing' | 'Non-UP Housing'>('UP Housing');
+  const [landlordId, setLandlordId] = useState(''); 
+  const [submitted, setSubmitted] = useState(false);
 
   if (!open) return null;
 
   // Reset all form fields to initial values
   const reset = () => {
-    setDormName("");
-    setAddress("");
-    setDescription("");
-    setTotalRooms("");
-    setCapacityPerRoom("");
-    setMonthlyRate("");
-    setSecurityDeposit("");
-    setManagerId("");
-    setStatus("Active");
+    setDormName(''); setAddress(''); 
+    setMonthlyRate(''); setSecurityDeposit('');
+    setHousingType('UP Housing');
+    setLandlordId('');
+    setSubmitted(false);
   };
 
   const handleClose = () => {
@@ -102,31 +93,50 @@ export default function AddDormModal({
     onClose();
   };
 
-  // Submit handler
-  const handleSubmit = () => {
-    const manager = managers.find((m) => m.id === managerId);
-    const rooms = parseInt(totalRooms) || 0;
-    const capPerRoom = parseInt(capacityPerRoom) || 0;
+// Submit handler
+  const handleSubmit = async () => {
+    const manager    = (managers ?? []).find((m) => m.id === managerId);
 
-    const newDorm: NewDorm = {
-      id: Date.now().toString(),
-      name: dormName,
-      dormAddress: address,
-      description: description || undefined,
-      rooms,
-      capacity: rooms * capPerRoom,
-      capacityPerRoom: capPerRoom,
-      monthlyRate: parseFloat(monthlyRate) || 0,
-      securityDeposit: parseFloat(securityDeposit) || 0,
-      managerEmail: manager?.email,
-      dormitory: manager?.name ?? "",
-      // Map Active → Accepting; anything else → Disabled (matches User.status)
-      status: status === "Active" ? "Accepting" : "Disabled",
-      occupied: 0,
-    };
+    setSubmitted(true); 
 
-    onAdd(newDorm);
-    handleClose();
+    if (!landlordId) return; 
+
+    try {
+        const response = await fetch('/api/housing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                housing_name:    dormName,
+                housing_address: address,
+                housing_type:    housingType,    
+                rent_price:      parseFloat(monthlyRate) || 0,
+                manager_account_number:  managerId  ? Number(managerId)  : undefined,  // nullable
+                landlord_account_number: Number(landlordId)  
+            }),
+        });
+
+        if (!response.ok) throw new Error('Failed to add dormitory');
+
+        const data = await response.json();
+
+        // Build local state object from API response
+        const newDorm: NewDorm = {
+            id:              String(data.data?.housing_id || Date.now()),
+            name:            dormName,
+            dormAddress:     address,
+            monthlyRate:     parseFloat(monthlyRate)     || 0,
+            securityDeposit: parseFloat(securityDeposit) || 0,
+            dormitory:       manager?.name ?? '',
+            status:          'Accepting',
+            occupied:        0,
+        };
+
+        onAdd(newDorm);
+        handleClose();
+    } catch (err) {
+        console.error('Error adding dorm:', err);
+        alert('Failed to add dormitory');
+    }
   };
   return (
     /* Backdrop */
@@ -152,76 +162,120 @@ export default function AddDormModal({
             </button>
           </div>
 
-          <div className="px-6 pb-6 flex flex-col gap-6">
-            {/* Dorm Information */}
-            <Section label="Dorm Information">
-              <Field label="Dorm Name">
-                <TextInput
-                  placeholder="e.g. Sampaguita Dormitory"
-                  value={dormName}
-                  onChange={(e) => setDormName(e.target.value)}
-                />
-              </Field>
+        <div className="px-6 pb-6 flex flex-col gap-6">
 
-              <Field label="Complete Address">
-                <TextInput
-                  placeholder="e.g. 123 Roxas St, Diliman, Quezon City"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
-              </Field>
+          {/* Dorm Information */}
+          <Section label="Dorm Information">
 
-              <Field label="Description" optional>
-                <textarea
-                  placeholder="Brief description of the dormitory..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  className={TEXTAREA_CLS}
+            <Field label="Dorm Name">
+              <TextInput
+                placeholder="e.g. Sampaguita Dormitory"
+                value={dormName}
+                onChange={(e) => setDormName(e.target.value)}
+              />
+            </Field>
+
+            <Field label="Complete Address">
+              <TextInput
+                placeholder="e.g. 123 Roxas St, Diliman, Quezon City"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </Field>
+
+          </Section>
+
+          {/* Capacity & rooms */}
+          <Section label="Capacity & Rooms">
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Monthly Rate (₱)">
+                <TextInput
+                  type="number"
+                  placeholder="e.g. 6700"
+                  value={monthlyRate}
+                  onChange={(e) => setMonthlyRate(e.target.value)}
                 />
               </Field>
             </Section>
 
-            {/* Capacity & rooms */}
-            <Section label="Capacity & Rooms">
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Total Rooms">
-                  <TextInput
-                    type="number"
-                    placeholder="e.g. 30"
-                    value={totalRooms}
-                    onChange={(e) => setTotalRooms(e.target.value)}
-                  />
-                </Field>
-                <Field label="Capacity per Room" hint="Max tenants per room">
-                  <TextInput
-                    type="number"
-                    placeholder="e.g. 2"
-                    value={capacityPerRoom}
-                    onChange={(e) => setCapacityPerRoom(e.target.value)}
-                  />
-                </Field>
+          </Section>
+
+
+          <Field label="Housing Type">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setHousingType('UP Housing')}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
+                  housingType === 'UP Housing'
+                    ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
+                    : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                }`}
+              >
+                UP Housing
+              </button>
+              <button
+                type="button"
+                onClick={() => setHousingType('Non-UP Housing')}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
+                  housingType === 'Non-UP Housing'
+                    ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
+                    : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                }`}
+              >
+                Non-UP Housing
+              </button>
+            </div>
+          </Field>
+
+          {/* Assignment & Status */}
+          <Section label="Assignment & Status">
+
+            <Field label="Assign Manager">
+              {/* Wrapper for custom chevron icon */}
+              <div className="relative">
+                <select
+                  value={managerId}
+                  onChange={(e) => setManagerId(e.target.value)}
+                  className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer`}
+                >
+                  <option value="">Select a manager...</option>
+                  {(managers ?? []).map((m) => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={14}
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2332]/40"
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Monthly Rate (₱)">
-                  <TextInput
-                    type="number"
-                    placeholder="e.g. 6700"
-                    value={monthlyRate}
-                    onChange={(e) => setMonthlyRate(e.target.value)}
-                  />
-                </Field>
-                <Field label="Security Deposit (₱)">
-                  <TextInput
-                    type="number"
-                    placeholder="e.g. 6700"
-                    value={securityDeposit}
-                    onChange={(e) => setSecurityDeposit(e.target.value)}
-                  />
-                </Field>
-              </div>
-            </Section>
+           <Field label="Assign Landlord">
+            <div className="relative">
+              <select
+                value={landlordId}
+                onChange={(e) => setLandlordId(e.target.value)}
+                className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer ${
+                  submitted && !landlordId ? 'border-red-300 bg-red-50 text-red-400' : ''  // ✅ Only red after submit
+                }`}
+              >
+                <option value="">Select a landlord...</option>
+                {(landlords ?? []).map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+              <ChevronDown
+                size={14}
+                className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 ${
+                  submitted && !landlordId ? 'text-red-400' : 'text-[#1a2332]/40'  // ✅ Only red after submit
+                }`}
+              />
+            </div>
+            {submitted && !landlordId && (  // ✅ Only show error after submit
+              <p className="text-xs text-red-500 mt-1">Landlord is required</p>
+            )}
+          </Field>
 
             {/* Assignment & Status */}
             <Section label="Assignment & Status">
@@ -296,6 +350,25 @@ export default function AddDormModal({
             </button>
           </div>
         </div>
+
+        {/* ── Footer ── */}
+        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#1a2332]/6 bg-[#eae8e1]/30 rounded-b-2xl">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="px-5 py-2 text-sm font-semibold text-[#1a2332]/60 border border-[#1a2332]/15 rounded-xl hover:border-[#1a2332]/30 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="px-5 py-2 text-sm font-semibold text-white bg-[#e8622a] rounded-xl hover:bg-[#d4561f] transition-colors"
+          >
+            Add Dormitory
+          </button>
+        </div>
+
       </div>
     </div>
   );
