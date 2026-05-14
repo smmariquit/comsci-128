@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Logo from "@/app/components/Logo";
 import Breadcrumbs from "./components/Breadcrumbs";
+import Avatar from "@/app/components/Avatar";
 import { getManagerAccountNumber } from "@/app/lib/auth";
 
 export const metadata: Metadata = {
@@ -77,9 +78,14 @@ export default async function ManageLayout({
               <Bell size={22} strokeWidth={2} />
             </button>
 
-            <Link href={`/manage/profile/${accountNumber}`} className="py-2">
-              <div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all items-center justify-center"></div>
-            </Link>
+            <div className="py-2">
+              <Avatar
+                firstName={null}
+                lastName={null}
+                size={32}
+                href={`/manage/profile/${accountNumber}`}
+              />
+            </div>
           </div>
         </div>
       </header>

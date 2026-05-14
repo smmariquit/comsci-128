@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StudentNavBar from "../../_components/StudentNavBar";
+import Avatar from "@/app/components/Avatar";
 import { StudentProfile } from "@/app/lib/models/student";
 import { LogOut } from "lucide-react";
 import LogoutModal from "../../../../components/LogoutModal";
@@ -273,11 +274,13 @@ export default function StudentProfilePage() {
         {/* Left Card Sidebar */}
         <div className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-6 md:p-8 flex flex-col items-center shadow-sm h-fit">
           {/* Profile Circle */}
-          <div className="w-32 h-32 bg-[#1C2632] rounded-full mb-6 flex items-center justify-center">
-            <span className="text-[#EDE9DE] text-4xl font-bold">
-              {student?.first_name?.[0]}
-              {student?.last_name?.[0]}
-            </span>
+          <div className="w-32 h-32 mb-6">
+            <Avatar
+              firstName={student?.first_name}
+              lastName={student?.last_name}
+              size={128}
+              className=""
+            />
           </div>
 
           <h2 className="text-2xl font-bold text-[#1C2632] mb-1 text-center">
