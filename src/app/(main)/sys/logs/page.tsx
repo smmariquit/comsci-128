@@ -235,6 +235,13 @@ export default function AuditLogsPage({
   const [error, setError] = useState<string | null>(null);
   const [viewingLog, setViewingLog] = useState<AuditLog | null>(null); // view modal
 
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
+
   // Fetch audit logs from API
   useEffect(() => {
     const fetchLogs = async () => {
@@ -457,7 +464,8 @@ export default function AuditLogsPage({
             >
               Export PDF
             </button>
-            <NotificationBell notifications={notifications} />
+            <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
+
           </div>
         </div>
 

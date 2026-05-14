@@ -87,6 +87,13 @@ export default function UserManagementPage({
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [disableUser, setDisableUser] = useState<User | null>(null);
 
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
+
   // Fetch all users from API
   useEffect(() => {
     const fetchUsers = async () => {
@@ -247,7 +254,7 @@ export default function UserManagementPage({
               Manage tenants, managers, and administrators
             </p>
           </div>
-          <NotificationBell notifications={notifications} />
+          <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">

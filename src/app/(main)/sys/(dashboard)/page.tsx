@@ -173,6 +173,12 @@ export default function DashboardPage({
   ]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [occupancy, setOccupancy] = useState<OccupancyItem[]>([]);
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
 
   // Fetch recent activities and counts from API
   useEffect(() => {
@@ -381,7 +387,7 @@ export default function DashboardPage({
 
           {/* Notification bell */}
           <div className="relative">
-            <NotificationBell notifications={notifications} />
+            <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
           </div>
         </div>
         {/*Stat Cards*/}
