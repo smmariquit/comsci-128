@@ -84,8 +84,13 @@ export default function Sidebar() {
     }, []);
 
     const onLogout = () => {
-        // delete cookie
-        document.cookie = "account_number=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        // Delete all cookies
+        document.cookie.split(";").forEach((cookie) => {
+            const eqPos = cookie.indexOf("=");
+            const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
+            // Set cookie expiration to past date to delete it
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        });
 
         // redirect to login page
         window.location.href = "/";
