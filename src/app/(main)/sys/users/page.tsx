@@ -12,6 +12,19 @@ import { DisableAccountModal } from "@/app/(main)/sys//component/disable-account
 
 // User Data Types
 export interface User {
+	id: string;
+	name: string;
+	gender: string;
+	email: string;
+	role: 'Landlord' | 'Dorm Manager' | 'Student' | string;
+	status: 'Active' | 'Disabled' | string;
+	managerType?: string;
+	dormitory: string;
+	room: string;
+}
+
+// Dorm Data Types - showed in table
+export interface Dorm {
   id: string;
   name: string;
   gender: string;
@@ -87,22 +100,116 @@ export default function UserManagementPage({
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [disableUser, setDisableUser] = useState<User | null>(null);
 
-  // Fetch all users from API
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+	// Fetch all users from API
+	useEffect(() => {
+		const fetchUsers = async () => {
+			try {
+				setLoading(true);
+				setError(null);
+				
+				const [response, dormResponse, landlordResponse, housingAdminResponse] = await Promise.all([
+					fetch('/api/users'),
+					fetch('/api/housing'),
+					fetch('/api/landlord'),
+					fetch('/api/housing-admin'),
+				]);
+				
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				
+				const data = await response.json();
+				const dormData = await dormResponse.json();
+				const landlordData = await landlordResponse.json();
+				const housingAdminData = await housingAdminResponse.json();
 
-        const response = await fetch("/api/users");
+				const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
+				const rawHousingAdmins = Array.isArray(housingAdminData) ? housingAdminData : housingAdminData.data?.data ?? [];
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+				const landlordIds = new Set(rawLandlords.map((l: any) => String(l.account_number)));
+				const housingAdminIds = new Set(rawHousingAdmins.map((m: any) => String(m.account_number)));
 
-        const data = await response.json();
+				let rawDorms = [];
+				if (Array.isArray(dormData)) {
+					rawDorms = dormData;
+				} else if (dormData.data && Array.isArray(dormData.data)) {
+					rawDorms = dormData.data;
+				}
+		
+				const transformedDorms: Dorm[] = rawDorms.map((dorm: any) => ({
+					id: String(dorm.housing_id || dorm.id || ''),
+					name: dorm.housing_name || dorm.name || 'Unknown',
+					status: 'Accepting',
+					dormitory: dorm.housing_name || dorm.name || 'Unknown',
+					dormAddress: dorm.housing_address || dorm.address || undefined,
+					managerEmail: undefined,
+					capacity: dorm.rent_price || undefined,
+					rooms: dorm.total_rooms || undefined,
+					occupied: dorm.occupied_rooms || undefined,
+				}));
+				
+				// Ensure we always have an array
+				let rawUsers = [];
+				if (Array.isArray(data)) {
+					rawUsers = data;
+				} else if (data.users && Array.isArray(data.users)) {
+					rawUsers = data.users;
+				} else if (data.data && Array.isArray(data.data)) {
+					rawUsers = data.data;
+				} else {
+					console.warn('Unexpected API response format:', data);
+					rawUsers = [];
+				}
+				
+				// Transform the data to match User interface
+				const transformedUsers: User[] = rawUsers.map((user: any) => {
+				const userId = String(user.account_number);
+				
+				// ✅ Determine manager type
+				let role = user.user_type;
+				let managerType = undefined;
+				
+				if (user.user_type === 'Manager') {
+					if (landlordIds.has(userId)) {
+					managerType = 'Landlord';
+					role = 'Landlord';
+					} else if (housingAdminIds.has(userId)) {
+					managerType = 'Housing Administrator';
+					role = 'Housing Administrator';
+					}
+				}
 
-        console.log("Raw API data:", data); // Debug: see what you're getting
+				const history = user.student?.student_accommodation_history?.[0];
+				const room = history?.room;
+				const studentHousing = room?.housing;
+				const managerHousing = user.manager?.housing_admin?.housing?.[0];
+				const housing = studentHousing || managerHousing;
+
+				return {
+					id: userId,
+					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+					gender: user.sex,
+					email: user.account_email,
+					role,
+					managerType,
+					status: user.is_deleted ? 'Disabled' : 'Active',
+					dormitory: housing?.housing_name || '—',
+					room: room?.room_code ? String(room.room_code) : '—',
+				};
+				});
+								
+				console.log('Transformed users:', transformedUsers); 
+				
+				setUsers(transformedUsers);
+				setDormList(transformedDorms);
+			} catch (error) {
+				console.error('Error fetching users:', error);
+				setError(error instanceof Error ? error.message : 'Failed to fetch users');
+				setUsers([]);
+			} finally {
+				setLoading(false);
+			}
+		};
 
         // Ensure we always have an array
         let rawUsers = [];
@@ -431,40 +538,6 @@ export default function UserManagementPage({
                         {u.dormitory || "—"}
                       </td>
 
-                      {/* ROOM */}
-                      <td className="px-6 py-4 text-sm text-[#1a2332]/60">
-                        {u.room || "—"}
-                      </td>
-
-                      {/* ACTIONS */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setEditingUser(u)}
-                            className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              setDisableUser(u);
-                            }}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                              u.status === "Active"
-                                ? "text-red-500 border border-red-200 hover:bg-red-50"
-                                : "text-emerald-600 border border-emerald-200 hover:bg-emerald-50"
-                            }`}
-                          >
-                            {u.status === "Active" ? "Disable" : "Enable"}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
 
             <div className="flex items-center justify-between px-6 py-4 border-t border-[#1a2332]/6">
               <span className="text-xs text-[#1a2332]/40">
