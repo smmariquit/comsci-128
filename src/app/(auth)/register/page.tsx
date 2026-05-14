@@ -57,6 +57,29 @@ export default function RegisterPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  function validateNameFields(): boolean {
+    // Name fields must contain at least one letter
+    const hasLetter = (str: string) => /[a-zA-Z]/.test(str);
+    
+    if (!hasLetter(form.first_name.trim())) {
+      setError("First name must contain at least one letter.");
+      return false;
+    }
+    
+    if (form.middle_name && !hasLetter(form.middle_name.trim())) {
+      setError("Middle name must contain at least one letter.");
+      return false;
+    }
+    
+    if (!hasLetter(form.last_name.trim())) {
+      setError("Last name must contain at least one letter.");
+      return false;
+    }
+    
+    setError("");
+    return true;
+  }
+
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
@@ -152,6 +175,9 @@ export default function RegisterPage() {
             ? handleRegister
             : (e) => {
                 e.preventDefault();
+                if (step === 1 && !validateNameFields()) {
+                  return;
+                }
                 setStep(step + 1);
               }
         }
