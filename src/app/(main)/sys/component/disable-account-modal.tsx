@@ -37,8 +37,7 @@ export function DisableAccountModal({
   async function handleConfirm() {
     console.log("handleConfirm called");
     try {
-      const encodedEmail = encodeURIComponent(user.email);
-      const url = `/api/users/${encodedEmail}`;
+      const url = `/api/users/${user.id}`;
 
       const response = await fetch(url, {
         method: "DELETE",
