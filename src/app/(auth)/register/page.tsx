@@ -23,13 +23,38 @@ export default function RegisterPage() {
   });
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [nameErrors, setNameErrors] = useState({
     first_name: "",
     middle_name: "",
     last_name: "",
   });
+  const [passwordStrength, setPasswordStrength] = useState({
+    label: "Very weak",
+    bars: 1,
+  });
   const [loading, setLoading] = useState(false);
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function getPasswordStrength(password: string) {
+    let score = 0;
+
+    if (password.length >= 8) score += 1;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 1;
+    if (/\d/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+
+    if (password.length === 0) {
+      return { label: "Very weak", bars: 1 };
+    }
+
+    if (score <= 1) return { label: "Weak", bars: 1 };
+    if (score === 2) return { label: "Fair", bars: 2 };
+    if (score === 3) return { label: "Good", bars: 3 };
+    return { label: "Strong", bars: 4 };
+  }
 
   useEffect(() => {
     const googleData = sessionStorage.getItem("googleSignupData");
@@ -60,6 +85,18 @@ export default function RegisterPage() {
   ) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "email") {
+      setEmailError(
+        value && !emailRegex.test(value)
+          ? "Enter a valid email address."
+          : "",
+      );
+    }
+
+    if (name === "password") {
+      setPasswordStrength(getPasswordStrength(value));
+    }
 
     if (name === "first_name" || name === "middle_name" || name === "last_name") {
       const hasLetter = /[a-zA-Z]/.test(value.trim());
@@ -272,24 +309,82 @@ export default function RegisterPage() {
                 <p className="text-red-400 text-sm mt-1">{nameErrors.last_name}</p>
               )}
             </div>
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+            <div>
+              <input
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+                  emailError ? "border-red-500" : "border-stone-200"
+                }`}
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+              <div className="mt-1 flex items-center gap-2 text-xs">
+                <span
+                  className={`inline-flex h-2.5 w-2.5 rounded-full ${
+                    form.email === ""
+                      ? "bg-stone-400"
+                      : emailError
+                        ? "bg-red-400"
+                        : "bg-emerald-400"
+                  }`}
+                />
+                <span className={emailError ? "text-red-400" : "text-stone-400"}>
+                  {form.email === ""
+                    ? "Email will be checked as you type"
+                    : emailError || "Email looks valid"}
+                </span>
+              </div>
+            </div>
+            <div>
+              <input
+                className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center justify-between text-xs text-stone-400">
+                  <span>Password strength</span>
+                  <span
+                    className={`font-semibold ${
+                      passwordStrength.label === "Weak"
+                        ? "text-red-400"
+                        : passwordStrength.label === "Fair"
+                          ? "text-orange-300"
+                          : passwordStrength.label === "Good"
+                            ? "text-amber-300"
+                            : "text-emerald-400"
+                    }`}
+                  >
+                    {passwordStrength.label}
+                  </span>
+                </div>
+                <div className="flex gap-1">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-2 flex-1 rounded-full ${
+                        index < passwordStrength.bars
+                          ? index === 0
+                            ? "bg-red-400"
+                            : index === 1
+                              ? "bg-orange-300"
+                              : index === 2
+                                ? "bg-amber-300"
+                                : "bg-emerald-400"
+                          : "bg-stone-600"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </>
         )}
 
@@ -391,7 +486,7 @@ export default function RegisterPage() {
               type="button"
               className="flex-1 bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition disabled:opacity-60 disabled:cursor-not-allowed"
               onClick={() => {
-                if (step === 1 && !validateNameFields()) {
+                if (step === 1 && (!validateNameFields() || emailError)) {
                   return;
                 }
                 setStep(step + 1);
@@ -399,7 +494,7 @@ export default function RegisterPage() {
               disabled={
                 loading ||
                 (step === 1 &&
-                  (!!nameErrors.first_name || !!nameErrors.middle_name || !!nameErrors.last_name))
+                  (!!nameErrors.first_name || !!nameErrors.middle_name || !!nameErrors.last_name || !!emailError))
               }
             >
               Next
