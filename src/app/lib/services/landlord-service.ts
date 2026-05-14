@@ -1,21 +1,41 @@
 import { NewUser } from "@/models/user";
 import { landlordData } from "@/app/lib/data/landlord-data";
 import { NewManager } from "@/models/manager";
+import { createAuditLog } from "./audit-log-service";
 
-const addLandlord = async (
-  userDetails: NewUser,
-  managerDetails: NewManager,
-) => {
-  try {
-    const result = await landlordData.create(userDetails, managerDetails);
-    if (result?.error) {
-      throw new Error(result.error.message || "Failed to add landlord.");
+function formatUserName(user: {
+	first_name?: string | null;
+	last_name?: string | null;
+	account_email?: string | null;
+}): string {
+	const first = user.first_name?.trim() ?? "";
+	const last = user.last_name?.trim() ?? "";
+	const full = `${first} ${last}`.trim();
+	return full || user.account_email?.trim() || "";
+}
+
+const addLandlord = async (userDetails: NewUser, managerDetails: NewManager) => {
+    try {
+        const result = await landlordData.create(userDetails, managerDetails);
+        if (result?.error) {
+            throw new Error(result.error.message || "Failed to add landlord.");
+        }
+
+		if (result?.account_number) {
+			const userName = formatUserName(userDetails);
+			const label = userName || userDetails.account_email || "Unknown user";
+			await createAuditLog(
+				result.account_number,
+				userName,
+				"Update User Role",
+				`User ${label} promoted to Landlord`,
+			);
+		}
+        return result;
+    } catch (error) {
+        console.error("Error adding landlord:", error);
+        throw new Error("Failed to add landlord.");
     }
-    return result;
-  } catch (error) {
-    console.error("Error adding landlord:", error);
-    throw new Error("Failed to add landlord.");
-  }
 };
 
 const fetchAllHousingAdmins = async () => {

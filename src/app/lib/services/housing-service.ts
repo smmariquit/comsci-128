@@ -2,6 +2,7 @@ import { housingData } from "@/app/lib/data/housing-data";
 import { Housing, HousingWithRooms } from "@/models/housing";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
+import { createAuditLog } from "./audit-log-service";
 
 const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
   try {
@@ -11,11 +12,19 @@ const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 
     if (!housingDetail) return null;
 
-    return housingDetail;
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new Error("Error");
-  }
+        await createAuditLog(
+            housingDetail.landlord_account_number,
+            "",
+            "Create Housing",
+            `New Entity House ${HousingDetail.housing_name} created`,
+            housingDetail.manager_account_number
+        );
+
+		return housingDetail;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Error");
+	}
 };
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
@@ -67,11 +76,19 @@ const updateHousing = async (
 
     if (!updatedHousing) return null;
 
-    return updatedHousing;
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new Error("Failed to update housing");
-  }
+		await createAuditLog(
+			updatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${updatedHousing.housing_name} updated`,
+			updatedHousing.manager_account_number,
+		);
+
+		return updatedHousing;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to update housing");
+	}
 };
 
 const deactivateHousing = async (
@@ -95,12 +112,21 @@ const deactivateHousing = async (
      * add cascading soft delete for rooms of housing
      */
 
-    const deactivatedHousing = await housingData.deactivate(housingId);
-    return deactivatedHousing ?? null;
-  } catch (error: any) {
-    if (error.message.includes("not found")) {
-      throw error;
-    }
+		const deactivatedHousing = await housingData.deactivate(housingId);
+		if (!deactivatedHousing) return null;
+
+		await createAuditLog(
+			deactivatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${deactivatedHousing.housing_name} deactivated`,
+			deactivatedHousing.manager_account_number,
+		);
+		return deactivatedHousing;
+	} catch (error: any) {
+		if (error.message.includes("not found")) {
+			throw error;
+		}
 
     console.error("Service Error (removeHousing): ", error.message);
     throw new Error(
@@ -171,11 +197,21 @@ const uploadHousingImage = async (
     // OBAC
     await validateOwnership(housing.landlord_account_number);
 
-    return await housingData.uploadHousingImage(housingId, file);
-  } catch (error) {
-    console.error("Error: ", error);
-    throw new Error("Failed to upload housing image");
-  }
+		const updatedHousing = await housingData.uploadHousingImage(housingId, file);
+		if (!updatedHousing) return null;
+
+		await createAuditLog(
+			updatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${updatedHousing.housing_name} image updated`,
+			updatedHousing.manager_account_number,
+		);
+		return updatedHousing;
+	} catch (error) {
+		console.error("Error: ", error);
+		throw new Error("Failed to upload housing image");
+	}
 };
 
 const getOccupancyRate = async () => {
