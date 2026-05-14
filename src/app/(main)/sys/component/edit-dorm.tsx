@@ -6,7 +6,7 @@ import { X, AlertTriangle, Building2 } from "lucide-react";
 // Types
 
 type DormStatus = "Accepting" | "Full" | "Closed";
-type DormType = "Mixed" | "Male Only" | "Female Only";
+type DormType   = "Co-ed" | "Male Only" | "Female Only";
 
 export interface DormManager {
   id: string | number;
@@ -38,7 +38,7 @@ export interface EditDormModalProps {
 
 // Constants
 
-const DORM_TYPES: DormType[] = ["Mixed", "Male Only", "Female Only"];
+const DORM_TYPES: DormType[]   = ["Co-ed", "Male Only", "Female Only"];
 const DORM_STATUSES: DormStatus[] = ["Accepting", "Full", "Closed"];
 
 // Helpers
@@ -61,13 +61,11 @@ export function EditDormModal({
   onSave,
 }: EditDormModalProps) {
   // Editable field states
-  const [name, setName] = useState(dorm.name ?? "");
-  const [address, setAddress] = useState(dorm.dormAddress ?? "");
-  const [type, setType] = useState<DormType>(
-    (dorm.type as DormType) ?? "Mixed",
-  );
-  const [capacity, setCapacity] = useState<string>(String(dorm.capacity ?? ""));
-  const [rate, setRate] = useState<string>(String(dorm.monthlyRate ?? ""));
+  const [name,        setName]        = useState(dorm.name ?? "");
+  const [address,     setAddress]     = useState(dorm.dormAddress ?? "");
+  const [type,        setType]        = useState<DormType>((dorm.type as DormType) ?? "Co-ed");
+  const [capacity,    setCapacity]    = useState<string>(String(dorm.capacity ?? ""));
+  const [rate,        setRate]        = useState<string>(String(dorm.monthlyRate ?? ""));
   const [description, setDescription] = useState(dorm.description ?? "");
   const [status, setStatus] = useState<DormStatus>(
     (dorm.status as DormStatus) ?? "Accepting",
@@ -182,17 +180,14 @@ export function EditDormModal({
                 )}
               </div>
               {/* Status badge on hero */}
-              <span
-                className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border
-                ${
-                  dorm.type === "Female Only"
-                    ? "bg-pink-50 text-pink-700 border-pink-200"
-                    : dorm.type === "Male Only"
-                      ? "bg-blue-50 text-blue-700 border-blue-200"
-                      : "bg-purple-50 text-purple-700 border-purple-200"
-                }`}
-              >
-                {dorm.type ?? "Mixed"}
+              <span className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border
+                ${dorm.type === "Female Only"
+                  ? "bg-pink-50 text-pink-700 border-pink-200"
+                  : dorm.type === "Male Only"
+                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                  : "bg-purple-50 text-purple-700 border-purple-200"
+                }`}>
+                {dorm.type ?? "Co-ed"}
               </span>
             </div>
 
@@ -278,23 +273,6 @@ export function EditDormModal({
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
                   />
                 </div>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#1a2332]/60">
-                  Description{" "}
-                  <span className="font-normal text-[#1a2332]/30">
-                    (optional)
-                  </span>
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  placeholder="Enter a short description of this dormitory…"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors resize-none leading-relaxed"
-                />
               </div>
             </div>
 
