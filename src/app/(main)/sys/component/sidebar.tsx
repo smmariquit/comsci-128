@@ -43,9 +43,9 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
   const pathname = usePathname(); // Get current path for active link styling
   const [menuOpen, setMenuOpen] = useState(false); // State for user profile dropdown menu (Shows logout button)
   return (
-    <aside className="w-70 min-h-screen bg-[#1a2332] flex flex-col shrink-0">
+    <aside className="w-70 bg-[#1a2332] flex flex-col shrink-0 h-screen overflow-y-auto">
       {/* Logo, System Name, Tagline */}
-      <div className="flex items-center gap-3 px-6 py-7 border-b border-white/6">
+      <div className="flex items-center gap-3 px-6 py-7 border-b border-white/6 shrink-0">
         {/* Logo - Home icon in a circle */}
         <div className="w-10 h-10 bg-[#d4622a] rounded-xl flex items-center justify-center text-white shrink-0 overflow-hidden">
           <Logo size={32} showText={false} href={null} />
@@ -86,7 +86,7 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
       </nav>
 
       {/* User Profile and Logout */}
-      <div className="px-6 py-4 border-t border-white/6 relative">
+      <div className="px-6 py-4 border-t border-white/6 relative mt-auto shrink-0">
         <div
           onClick={() => setMenuOpen(!menuOpen)}
           className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/6 transition-colors duration-150"
