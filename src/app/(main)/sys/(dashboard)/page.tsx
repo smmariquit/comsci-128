@@ -109,70 +109,16 @@ const quickAccess = [
   { label: "Edit User", icon: Pencil, href: "/sys/users" },
 ];
 
-// Hardcoded stub data for now - to be replaced with real data from backend/API integration
-const stubUser: SidebarUser = {
-  name: "Luthelle Fernandez",
-  role: "System Admin",
-  initials: "LF",
-};
 
 export default function DashboardPage({
-  // Dummy data for now - to be replaced with real data from backend/API integration
-  user = stubUser,
-  notifications = [
-    {
-      id: "1",
-      title: "Maintenance tonight",
-      body: "02:00 UTC — brief downtime",
-      read: false,
-      time: "1h ago",
-    },
-    {
-      id: "2",
-      title: "New user registered",
-      body: "User Ivanne signed up for Dorm 1",
-      read: false,
-      time: "3h ago",
-    },
-    {
-      id: "3",
-      title: "Occupancy alert",
-      body: "Dorm 2 is at 95% capacity",
-      read: true,
-      time: "Yesterday",
-    },
-  ],
-  onLogout,
-}: Partial<DashboardProps>) {
-  const [userCount, setUserCount] = useState(0);
-  const [activeCount, setActiveCount] = useState(0);
-  const [managerCount, setManagerCount] = useState(0);
-  const [propertyCount, setPropertyCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<StatCardData[]>([
-    { label: "TOTAL USERS", value: 0, sub: "↑ 3 added this month", dark: true },
-    {
-      label: "ACTIVE USERS",
-      value: 0,
-      sub: "Hindi Deleted na Users",
-      dark: false,
-    },
-    {
-      label: "TOTAL MANAGERS",
-      value: 0,
-      sub: "↑ 79 added this month",
-      dark: false,
-    },
-    {
-      label: "TOTAL PROPERTIES",
-      value: 0,
-      sub: "Dormitories managed",
-      dark: false,
-    },
-  ]);
-  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
-  const [occupancy, setOccupancy] = useState<OccupancyItem[]>([]);
+	// Dummy data for now - to be replaced with real data from backend/API integration
+	  notifications = [
+		{ id: '1', title: 'Maintenance tonight',       body: '02:00 UTC — brief downtime',          read: false, time: '1h ago' },
+		{ id: '2', title: 'New user registered',        body: 'User Ivanne signed up for Dorm 1',   read: false, time: '3h ago' },
+		{ id: '3', title: 'Occupancy alert',            body: 'Dorm 2 is at 95% capacity',          read: true,  time: 'Yesterday' },
+	  ],
+	  onLogout,
+	}: Partial<DashboardProps>) {
 
   // Fetch recent activities and counts from API
   useEffect(() => {
@@ -285,35 +231,72 @@ export default function DashboardPage({
   const [showAddManager, setShowAddManager] = useState(false);
   const [showAddDorm, setShowAddDorm] = useState(false);
 
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+		// Loading state
+		if (loading) {
+			return (
+				<div className="flex min-h-screen bg-[#eae8e1]">
+					<Sidebar/>
+					<div className="flex-1 flex items-center justify-center">
+						<div className="text-center">
+							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
+							<p className="text-[#1a2332]/60">Loading dashboard...</p>
+						</div>
+					</div>
+				</div>
+			);
+		}
+	
+		// Error state
+		if (error) {
+			return (
+				<div className="flex min-h-screen bg-[#eae8e1]">
+					<Sidebar/>
+					<div className="flex-1 flex items-center justify-center">
+						<div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
+							<p className="text-red-600 font-semibold mb-2">Error Loading Dashboard</p>
+							<p className="text-red-500 text-sm mb-4">{error}</p>
+							<button 
+								onClick={() => window.location.reload()} 
+								className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+							>
+								Try Again
+							</button>
+						</div>
+					</div>
+				</div>
+			);
+		}
+		return (
+			<div className="flex min-h-screen bg-[#eae8e1]">
+				      {/* 'Add Manager' Modal */}
+					  <AddManagerModal
+						open={showAddManager}
+						onClose={() => setShowAddManager(false)}
+						onAdd={(newUser) => {
+							// no local table here, so just close — or call your API
+							setShowAddManager(false);
+						}}
+						dormOptions={['Dorm 1', 'Dorm 2', 'Dorm 3']}
+						/>
+						<AddDormModal
+							open={showAddDorm}
+							onClose={() => setShowAddDorm(false)}
+							onAdd={(newDorm: NewDorm) => {
+								setShowAddDorm(false);
+							}}
+							/>
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar
-          user={user}
-          onLogout={
-            onLogout ??
-            (() => {
-              window.location.href = "/";
-            })
-          }
-        />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
-            <p className="text-[#1a2332]/60">Loading dashboard...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+				{/*Sidebar */}
+				<Sidebar/>
+				
+				{/* Main Content */}
+				<div className="flex-1 flex flex-col overflow-auto">
+					{/* Header */}
+					<div className="flex items-start justify-between px-8 pt-8 pb-6">
+						<div>
+							<h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Dashboard</h1>
+							<p className="text-sm text-[#1a2332]/50 mt-1">{today}</p>
+						</div>
 
   // Error state
   if (error) {
