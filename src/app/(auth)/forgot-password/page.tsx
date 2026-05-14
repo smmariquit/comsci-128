@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { supabase } from "@/app/lib/supabase";
 
@@ -12,39 +12,39 @@ function ForgotPasswordForm() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
 
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
-    const code = searchParams.get("code");
-    if (!code) return;
+    const hash = window.location.hash;
+    if (hash.includes("error=")) {
+      const params = new URLSearchParams(hash.slice(1));
+      const desc = params.get("error_description");
+      setError(desc ? desc.replace(/\+/g, " ") : "Reset link is invalid or expired.");
+      window.history.replaceState(null, "", "/forgot-password");
+      return;
+    }
 
-    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-      if (error) {
-        setError("Reset Link is Invalid or Expired.");
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
         setStep(3);
-        router.replace("/forgot-password");
+        window.history.replaceState(null, "", "/forgot-password");
       }
     });
-  }, [searchParams, router]);
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setStatus("");
 
-    // Here you would trigger the email send
-    const res = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/forgot-password`,
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error ?? "Something went wrong.");
+    if (error) {
+      setError(error.message);
     } else {
       setStep(2);
       setStatus("Check your email for a reset link.");
@@ -100,6 +100,11 @@ function ForgotPasswordForm() {
               Send reset code
             </button>
           </>
+        )}
+        {step === 2 && (
+          <p className="text-stone-300 text-center">
+            Check your email and click the reset link.
+          </p>
         )}
         {step === 3 && (
           <>
