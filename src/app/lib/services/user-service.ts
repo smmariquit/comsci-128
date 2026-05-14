@@ -10,7 +10,7 @@ import { validateAction } from "./authorization-service";
 import { createAuditLog } from "./audit-log-service";
 
 type ServiceResponse<T> = { data?: T; error?: string };
-type Public<T> = Omit<T, "account_number" | "password">;
+type Public<T> = Omit<T, "password">;
 
 const _allowedSex = ["Female", "Male", "Prefer not to say"];
 
@@ -100,9 +100,9 @@ const getUser = async (userId: number): Promise<Public<User> | null> => {
 
     if (!userProfile) return null;
 
-    const { account_number, password, ...nonSensitiveInfo } = userProfile;
+    const { password, ...publicInfo } = userProfile;
 
-    return nonSensitiveInfo;
+    return publicInfo;
   } catch (error: any) {
     console.error("Error: ", error.message);
     throw new Error("Error");
@@ -117,8 +117,8 @@ const getAllUser = async (): Promise<Public<User>[] | null> => {
 
     const publicInfos: Public<User>[] = [];
     userProfiles.forEach((userDetails) => {
-      const { account_number, password, ...nonSensitiveInfo } = userDetails;
-      publicInfos.push(nonSensitiveInfo);
+      const { password, ...publicInfo } = userDetails;
+      publicInfos.push(publicInfo);
     });
     return publicInfos;
   } catch (error) {
@@ -144,18 +144,17 @@ const updateUser = async (
     const userName = formatUserName(updatedUser);
     const label = userName || updatedUser.account_email || "Unknown user";
     await createAuditLog(
-      account_number!,
+      updatedUser.account_number!,
       userName,
       "Update User Details",
       `User ${label} updated details`,
     );
 
     const {
-      account_number: _,
       password: __,
-      ...nonSensitiveInfo
+      ...publicInfo
     } = updatedUser;
-    return { data: nonSensitiveInfo };
+    return { data: publicInfo };
   } catch (error: any) {
     console.error("Error: ", error.message);
     throw new Error("Error");
@@ -172,18 +171,18 @@ const deactivateUser = async (
     const updatedUser = await userData.deactivate(email);
     if (!updatedUser) return null;
 
-    const { account_number, password, ...nonSensitiveInfo } = updatedUser;
+    const { password, ...publicInfo } = updatedUser;
     
     const userName = formatUserName(updatedUser);
     const label = userName || updatedUser.account_email || "Unknown user";
     await createAuditLog(
-        account_number!,
+        updatedUser.account_number!,
         userName,
         "Delete Account",
         `User ${label} deactivated`,
     );
 
-    return nonSensitiveInfo;
+    return publicInfo;
   } catch (error) {
     console.error("Error: ", error);
     throw new Error("Error");
