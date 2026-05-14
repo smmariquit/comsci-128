@@ -156,7 +156,7 @@ async function getHousingCardsData() {
       vacantRooms,
       occupancyRate,
       minRent: housing.rent_price,
-      imageUrl: housing.housing_image ?? undefined,
+      managerAccountNumber: housing.manager_account_number?.toString() || null, // ✅ Added
     };
   });
 }
