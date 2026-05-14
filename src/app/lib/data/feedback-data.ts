@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import type { Feedback, NewFeedback, FeedbackType } from "@/lib/models/feedback"
 
-async function create(content: NewFeedback): Promise<Feedback | null> {
+async function create(content: NewFeedback): Promise<NewFeedback | null> {
     const { data, error } = await supabase
         .from("feedback")
         .insert(content)
@@ -11,15 +11,14 @@ async function create(content: NewFeedback): Promise<Feedback | null> {
         throw new Error(`Error creating feedback: ${error.message}`);
     }
 
-    return data[0];
+    return data && data.length > 0 ? data[0] : null;
 }
 
 async function findById(feedbackId: number): Promise<Feedback | null> {
     const { data, error } = await supabase
         .from("feedback")
         .select("*")
-        .eq("id", feedbackId)
-        .eq("is_deleted", false);
+        .eq("id", feedbackId);
 
     if (error) throw new Error(`Find Feedback by ID Error: ${error.message}`);
 
