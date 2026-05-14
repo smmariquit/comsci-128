@@ -1,4 +1,7 @@
 import { feedbackData } from "../data/feedback-data";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { AppAction } from "../models/permissions";
+import { Feedback } from "../models/feedback";
 
 const createFeedback = async (feedbackDetails: any) => {
     try {
@@ -18,7 +21,27 @@ const findFeedbackById = async (feedbackId: number) => {
     }
 };
 
+const fetchAllFeedback = async (): Promise<Partial<Feedback>[]> => {
+    try {
+        const feedbacks = await feedbackData.getAll();
+        return feedbacks.map((feedback) => {
+            return {
+                id: feedback.id,
+                text: feedback.text,
+                feedback_type: feedback.feedback_type,
+                category: feedback.category,
+                created_at: feedback.created_at,
+                status: feedback.status,
+            };
+        });
+    } catch (error) {   
+        console.error("Service Error (fetchAllFeedback): ", error);
+        return [];
+    }
+}
+
 export const feedbackService = {
     createFeedback,
     findFeedbackById,
+    fetchAllFeedback
 };
