@@ -446,9 +446,39 @@ export default function UserManagementPage({
           user={editingUser as any} // paayos netoo
           dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
           onClose={() => setEditingUser(null)}
-          onSave={(id, role, dorm) => {
-            console.log("Updated:", id, role, dorm);
-            setEditingUser(null);
+          onSave={async (id, role, dorm) => {
+            try {
+              const response = await fetch(`/api/users/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  user_type: role,
+                  dormitory: dorm,
+                }),
+              });
+
+              if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Error response body:", errorText);
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const data = await response.json();
+              console.log("User updated:", data);
+
+              // Update local state
+              setUsers((prev) =>
+                prev.map((u) =>
+                  u.id === String(id)
+                    ? { ...u, role, dormitory: dorm || "—" }
+                    : u,
+                ),
+              );
+
+              setEditingUser(null);
+            } catch (err) {
+              console.error("Error updating user:", err);
+            }
           }}
         />
       )}
