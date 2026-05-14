@@ -23,6 +23,11 @@ export default function RegisterPage() {
   });
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
+  const [nameErrors, setNameErrors] = useState({
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+  });
   const [loading, setLoading] = useState(false);
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
 
@@ -55,27 +60,57 @@ export default function RegisterPage() {
   ) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "first_name" || name === "middle_name" || name === "last_name") {
+      const hasLetter = /[a-zA-Z]/.test(value.trim());
+
+      setNameErrors((prev) => ({
+        ...prev,
+        [name]:
+          name === "middle_name" && value.trim() === ""
+            ? ""
+            : hasLetter
+              ? ""
+              : `${name
+                  .replace("_", " ")
+                  .replace(/\b\w/g, (letter) => letter.toUpperCase())} must contain at least one letter.`,
+      }));
+    }
   }
 
   function validateNameFields(): boolean {
     // Name fields must contain at least one letter
     const hasLetter = (str: string) => /[a-zA-Z]/.test(str);
-    
-    if (!hasLetter(form.first_name.trim())) {
+    const nextErrors = {
+      first_name: hasLetter(form.first_name.trim())
+        ? ""
+        : "First name must contain at least one letter.",
+      middle_name:
+        form.middle_name.trim() === "" || hasLetter(form.middle_name.trim())
+          ? ""
+          : "Middle name must contain at least one letter.",
+      last_name: hasLetter(form.last_name.trim())
+        ? ""
+        : "Last name must contain at least one letter.",
+    };
+
+    setNameErrors(nextErrors);
+
+    if (nextErrors.first_name) {
       setError("First name must contain at least one letter.");
       return false;
     }
-    
-    if (form.middle_name && !hasLetter(form.middle_name.trim())) {
+
+    if (nextErrors.middle_name) {
       setError("Middle name must contain at least one letter.");
       return false;
     }
-    
-    if (!hasLetter(form.last_name.trim())) {
+
+    if (nextErrors.last_name) {
       setError("Last name must contain at least one letter.");
       return false;
     }
-    
+
     setError("");
     return true;
   }
@@ -190,32 +225,53 @@ export default function RegisterPage() {
 
         {step === 1 && (
           <>
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="text"
-              name="first_name"
-              placeholder="First name"
-              value={form.first_name}
-              onChange={handleChange}
-              required
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="text"
-              name="middle_name"
-              placeholder="Middle name (optional)"
-              value={form.middle_name}
-              onChange={handleChange}
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="text"
-              name="last_name"
-              placeholder="Last name"
-              value={form.last_name}
-              onChange={handleChange}
-              required
-            />
+            <div>
+              <input
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+                  nameErrors.first_name ? "border-red-500" : "border-stone-200"
+                }`}
+                type="text"
+                name="first_name"
+                placeholder="First name"
+                value={form.first_name}
+                onChange={handleChange}
+                required
+              />
+              {nameErrors.first_name && (
+                <p className="text-red-400 text-sm mt-1">{nameErrors.first_name}</p>
+              )}
+            </div>
+            <div>
+              <input
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+                  nameErrors.middle_name ? "border-red-500" : "border-stone-200"
+                }`}
+                type="text"
+                name="middle_name"
+                placeholder="Middle name (optional)"
+                value={form.middle_name}
+                onChange={handleChange}
+              />
+              {nameErrors.middle_name && (
+                <p className="text-red-400 text-sm mt-1">{nameErrors.middle_name}</p>
+              )}
+            </div>
+            <div>
+              <input
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+                  nameErrors.last_name ? "border-red-500" : "border-stone-200"
+                }`}
+                type="text"
+                name="last_name"
+                placeholder="Last name"
+                value={form.last_name}
+                onChange={handleChange}
+                required
+              />
+              {nameErrors.last_name && (
+                <p className="text-red-400 text-sm mt-1">{nameErrors.last_name}</p>
+              )}
+            </div>
             <input
               className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
               type="email"
@@ -333,9 +389,18 @@ export default function RegisterPage() {
           {step < 3 && (
             <button
               type="button"
-              className="flex-1 bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition"
-              onClick={() => setStep(step + 1)}
-              disabled={loading}
+              className="flex-1 bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={() => {
+                if (step === 1 && !validateNameFields()) {
+                  return;
+                }
+                setStep(step + 1);
+              }}
+              disabled={
+                loading ||
+                (step === 1 &&
+                  (!!nameErrors.first_name || !!nameErrors.middle_name || !!nameErrors.last_name))
+              }
             >
               Next
             </button>
