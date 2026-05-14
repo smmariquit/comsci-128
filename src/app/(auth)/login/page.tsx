@@ -119,7 +119,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+    <div
+      className="w-full min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage: "url('/images/login-bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <form
         className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
         onSubmit={handleSubmit}
@@ -139,15 +146,6 @@ export default function LoginPage() {
             {status}
           </div>
         )}
-            <div
-              className="w-full min-h-screen flex items-center justify-center"
-              style={{
-                backgroundImage:
-                  "url('/images/login-bg.jpg')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
         <input
           className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
           type="email"
