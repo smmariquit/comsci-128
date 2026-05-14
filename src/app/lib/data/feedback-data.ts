@@ -13,3 +13,20 @@ async function create(content: NewFeedback): Promise<Feedback | null> {
 
     return data[0];
 }
+
+async function findById(feedbackId: number): Promise<Feedback | null> {
+    const { data, error } = await supabase
+        .from("feedback")
+        .select("*")
+        .eq("id", feedbackId)
+        .eq("is_deleted", false);
+
+    if (error) throw new Error(`Find Feedback by ID Error: ${error.message}`);
+
+    return data && data.length > 0 ? data[0] : null;
+}
+
+export const feedbackData = {
+	create,
+	findById
+}
