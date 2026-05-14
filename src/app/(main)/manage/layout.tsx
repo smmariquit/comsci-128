@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Logo from "@/app/components/Logo";
 import Breadcrumbs from "./components/Breadcrumbs";
+import { getManagerAccountNumber } from "@/app/lib/auth";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -10,11 +11,14 @@ export const metadata: Metadata = {
     "Manager panel for managing properties, applications, and tenants.",
 };
 
-export default function ManageLayout({
+export default async function ManageLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const accountNumber = await getManagerAccountNumber()
+
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
       {/* NAV BAR */}
@@ -73,7 +77,7 @@ export default function ManageLayout({
               <Bell size={22} strokeWidth={2} />
             </button>
 
-            <Link href="/manage/profile/21" className="py-2">
+            <Link href={`/manage/profile/${accountNumber}`} className="py-2">
               <div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all items-center justify-center"></div>
             </Link>
           </div>
