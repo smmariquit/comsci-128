@@ -17,7 +17,8 @@ import { ViewDormModal } from "@/app/(main)/sys/component/view-dorm";
 export interface Dorm {
   id: string;
   name: string;
-  status: "Accepting" | "Disabled" | string;
+  type?: string;
+  status: 'Accepting' | 'Disabled' | string;
   dormitory: string;
   dormAddress?: string;
   managerName?: string; 
@@ -199,6 +200,7 @@ export default function DormManagementPage({
           id: housingId,
           name: housing.housing_name ?? 'Unknown',
           status: 'Accepting',
+          type: housing.housing_type,
           dormitory: manager?.name || 'Unassigned',
           dormAddress: housing.housing_address ?? '',
           managerName: manager?.name || undefined,
@@ -451,8 +453,14 @@ export default function DormManagementPage({
                       {u.occupied ?? "—"}
                     </span>
 
-                    {/* STATUS */}
-                    <span className="text-sm text-[#1a2332]/70">{u.occupied ?? 'Co-ed'}</span>
+                    {/* TYPE */}
+                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold w-fit ${
+                      u.type === 'non-up'
+                        ? 'bg-purple-100 text-red-700'
+                        : 'bg-blue-100 text-green-700'
+                    }`}>
+                      {u.type ? u.type.toUpperCase() : '—'}
+                    </span>
 
                     {/* ACTIONS */}
                     <div className="flex items-center gap-2">
