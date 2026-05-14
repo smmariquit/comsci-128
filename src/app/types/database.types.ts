@@ -753,6 +753,7 @@ export type Database = {
         | "Communication"
         | "Rules Enforcement"
         | "Other"
+      FeedbackStatus: "Pending" | "Reviewed" | "Resolved" | "Dismissed"
       FeedbackType: "App" | "Manager" | "Housing"
       HousingStatus: "Assigned" | "Not Assigned"
       HousingType: "Non-UP Housing" | "UP Housing"
@@ -935,6 +936,7 @@ export const Constants = {
         "Rules Enforcement",
         "Other",
       ],
+      FeedbackStatus: ["Pending", "Reviewed", "Resolved", "Dismissed"],
       FeedbackType: ["App", "Manager", "Housing"],
       HousingStatus: ["Assigned", "Not Assigned"],
       HousingType: ["Non-UP Housing", "UP Housing"],
