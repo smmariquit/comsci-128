@@ -30,7 +30,7 @@ async function getAllByManagerId(managerId: number): Promise<Partial<Feedback>[]
 
     const { data, error } = await supabase
         .from("feedback")
-        .select("id, text, feedback_type, category, created_at")
+        .select("id, text, feedback_type, category, created_at, status")
         .eq("involved_manager_id", managerId)
         .eq("feedback_type", "Manager");
 
@@ -44,7 +44,7 @@ async function getAllByHousingId(housingId: number): Promise<Partial<Feedback>[]
 
     const { data, error } = await supabase
         .from("feedback")
-        .select("id, text, feedback_type, category, created_at")
+        .select("id, text, feedback_type, category, created_at, status")
         .eq("involved_housing_id", housingId)
         .eq("feedback_type", "Housing");
 
@@ -58,7 +58,7 @@ async function getAllAppFeedback(): Promise<Partial<Feedback>[]> {
 
     const { data, error } = await supabase
         .from("feedback")
-        .select("id, text, feedback_type, category, created_at")
+        .select("id, text, feedback_type, category, created_at, status")
         .eq("feedback_type", "App");
 
     if (error) throw new Error(`Get All Application Feedback Error: ${error.message}`);
@@ -71,7 +71,7 @@ async function getAllByUserId(userId: number): Promise<Partial<Feedback>[]> {
     
     const { data, error } = await supabase
         .from("feedback")
-        .select("id, text, feedback_type, category, created_at")
+        .select("id, text, feedback_type, category, created_at, status")
         .eq("account_number", userId);
 
     if (error) throw new Error(`Get All Feedbacks of User Error: ${error.message}`);
