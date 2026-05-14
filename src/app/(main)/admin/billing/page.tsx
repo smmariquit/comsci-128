@@ -180,12 +180,14 @@ export default function BillingPage() {
   const [managedHousings, setManagedHousings] = useState<
     { housing_id: number; housing_name: string }[]
   >([]);
+  const [managerAccountNumber, setManagerAccountNumber] = useState<number>(0);
 
   // ── Fetch Data ─────────────────────────────────────────────────────────
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
     const accountNumber = match ? Number(decodeURIComponent(match[1])) : 0;
+    setManagerAccountNumber(accountNumber);
 
     if (!accountNumber) return;
     housingData.findbyLandlord(accountNumber).then((housings) => {
@@ -365,6 +367,7 @@ export default function BillingPage() {
             due_date: form.due_date,
             issue_date: form.issue_date,
             status: "Pending",
+            manager_account_number: managerAccountNumber,
           });
         });
 
