@@ -22,11 +22,6 @@ export interface SidebarUser {
     initials: string;
 }
 
-export interface SidebarProps {
-    user: SidebarUser; // Authenticated user info for display in the sidebar footer
-    onLogout?: () => void;
-}
-
 // Navigation items and routing for the sidebar
 const navItems = [
     { label: 'Dashboard',            href: '/sys',        icon: LayoutDashboard },
@@ -37,7 +32,7 @@ const navItems = [
 ];
 
 // Main Sidebar component
-export default function Sidebar({ onLogout }: SidebarProps) {
+export default function Sidebar() {
     const pathname = usePathname(); // Get current path for active link styling
     const [menuOpen, setMenuOpen] = useState(false); // State for user profile dropdown menu (Shows logout button) 
     const [accountNumber, setAccountNumber] = useState<number>(0);
@@ -87,6 +82,14 @@ export default function Sidebar({ onLogout }: SidebarProps) {
 
         fetchUser();
     }, []);
+
+    const onLogout = () => {
+        // delete cookie
+        document.cookie = "account_number=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+        // redirect to login page
+        window.location.href = "/";
+    };
 
     return (
         <aside className="w-70 min-h-screen bg-[#1a2332] flex flex-col shrink-0">
