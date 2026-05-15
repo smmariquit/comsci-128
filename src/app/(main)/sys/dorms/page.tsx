@@ -290,7 +290,7 @@ export default function DormManagementPage({
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Dorm Management</h1>
             <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Assign and manage roles for Dorms and dormitory managers</p>
           </div>
-          <NotificationBell notifications={notifications} />
+          <NotificationBell/>
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">

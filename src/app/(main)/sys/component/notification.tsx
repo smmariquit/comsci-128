@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Bell, ChevronRight, X } from 'lucide-react';
 
@@ -12,17 +12,75 @@ export interface Notification {
 	time: string;
 }
 
-export interface NotificationBellProps {
-	notifications?: Notification[];
-}
 
-export default function NotificationBell({ notifications = [] }: NotificationBellProps) {
+export default function NotificationBell() {
 	const [notifOpen, setNotifOpen] = useState(false);
+	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const [notifList, setNotifList] = useState(notifications);
 
+	useEffect(() => {
+		const fetchNotifications = async () => {
+			try {
+			const response = await fetch('/api/audit-log');
+
+			if (!response.ok) {
+				throw new Error('Failed to fetch audit logs');
+			}
+
+			const data = await response.json();
+
+			const rawLogs = Array.isArray(data) ? data : data.data ?? [];
+
+			const savedRead = JSON.parse(
+				localStorage.getItem('readNotifications') || '[]'
+			);
+
+			const transformed: Notification[] = rawLogs.map((log: any) => ({
+				id: String(log.audit_id),
+
+				title: log.action_type,
+
+				body:
+					log.audit_description ||
+					`${log.user_name} performed ${log.action_type}`,
+
+				read: savedRead.includes(String(log.audit_id)),
+
+				time: new Date(log.timestamp).toLocaleString('en-PH', {
+					month: 'short',
+					day: 'numeric',
+					hour: '2-digit',
+					minute: '2-digit',
+				}),
+			}));
+			
+			setNotifList(transformed);
+
+			setNotifications(transformed);
+			} catch (error) {
+			console.error(error);
+			}
+		};
+
+		fetchNotifications();
+	}, []);
+
 	const unreadCount = notifList.filter((n) => !n.read).length;
-	const markAllRead = () => setNotifList((prev) => prev.map((n) => ({ ...n, read: true })));
+	const markAllRead = () => {
+		const ids = notifList.map((n) => n.id);
+
+		localStorage.setItem(
+			'readNotifications',
+			JSON.stringify(ids)
+		);
+
+		setNotifList((prev) =>
+			prev.map((n) => ({ ...n, read: true }))
+		);
+	};
 	const dismissNotif = (id: string) => setNotifList((prev) => prev.filter((n) => n.id !== id));
+
+
 
 	return (
 		<>
