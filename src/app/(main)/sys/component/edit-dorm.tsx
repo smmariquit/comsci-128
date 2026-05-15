@@ -85,6 +85,13 @@ export function EditDormModal({
   const [landlordOpen, setLandlordOpen] = useState(false);
   const managerRef = useRef<HTMLDivElement>(null);
   const landlordRef = useRef<HTMLDivElement>(null);
+  const [errors, setErrors] = useState<{
+    dormName?: string;
+    address?: string;
+    monthlyRate?: string;
+    landlord?: string;
+  }>({});
+  const [submitted, setSubmitted] = useState(false);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -133,6 +140,36 @@ export function EditDormModal({
     query !== "" ? query : (selectedManager?.name ?? "");
 
   async function handleSave() {
+    const newErrors: typeof errors = {};
+
+    // Validate name
+    if (!name.trim()) {
+      newErrors.dormName = 'Dorm name is required';
+    }
+
+    // Validate address
+    if (!address.trim()) {
+      newErrors.address = 'Address is required';
+    }
+
+    // Validate monthly rate
+    if (!rate || rate.trim() === '') {
+      newErrors.monthlyRate = 'Monthly rate is required';
+    } else if (Number(rate) < 0) {
+      newErrors.monthlyRate = 'Monthly rate cannot be negative';
+    }
+
+    // Validate landlord
+    if (!selectedLandlord) {
+      newErrors.landlord = 'Landlord is required';
+    }
+
+    setErrors(newErrors);
+    setSubmitted(true);
+
+    // Stop if invalid
+    if (Object.keys(newErrors).length > 0) return;
+
     const res = await fetch(`/api/housing/${dorm.id}`, {
       method: "PATCH",
       headers: {
@@ -227,21 +264,25 @@ export function EditDormModal({
               </p>
 
               {/* Dorm Name */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#1a2332]/60">
-                  Dormitory Name
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter dormitory name"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#1a2332]/60">
+                    Dormitory Name
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter dormitory name"
+                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                      submitted && errors.dormName ? 'border-red-300 bg-red-50' : ''
+                    }`}
+                  />
+                  {submitted && errors.dormName && (
+                    <p className="text-xs text-red-500 mt-1">{errors.dormName}</p>
+                  )}
+                </div>
 
-              {/* Location + Rate */}
-              <div className="grid grid-cols-2 gap-3">
+                {/* Location / Address */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-[#1a2332]/60">
                     Location / Address
@@ -251,10 +292,16 @@ export function EditDormModal({
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="e.g. 123 Roxas St, QC"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
+                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                      submitted && errors.address ? 'border-red-300 bg-red-50' : ''
+                    }`}
                   />
+                  {submitted && errors.address && (
+                    <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+                  )}
                 </div>
 
+                {/* Monthly Rate */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-[#1a2332]/60">
                     Monthly Rate (₱)
@@ -265,10 +312,14 @@ export function EditDormModal({
                     value={rate}
                     onChange={(e) => setRate(e.target.value)}
                     placeholder="e.g. 3500"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
+                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                      submitted && errors.monthlyRate ? 'border-red-300 bg-red-50' : ''
+                    }`}
                   />
+                  {submitted && errors.monthlyRate && (
+                    <p className="text-xs text-red-500 mt-1">{errors.monthlyRate}</p>
+                  )}
                 </div>
-              </div>
 
               {/* Housing Type */}
               <div className="space-y-1.5">
@@ -459,8 +510,13 @@ export function EditDormModal({
                     setLandlordOpen(true);
                   }}
                   placeholder="Search landlord by name or email…"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-blue-400 transition-colors"
+                  className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-blue-400 transition-colors ${
+                    submitted && errors.landlord ? 'border-red-300 bg-red-50' : ''
+                  }`}
                 />
+                {submitted && errors.landlord && (
+                  <p className="text-xs text-red-500 mt-1">{errors.landlord}</p>
+                )}
 
                 {/* Dropdown */}
                 {landlordOpen && (
