@@ -25,42 +25,6 @@ export interface AddDormModalProps {
 
 type InitialStatus = "Active" | "Inactive" | "Maintenance";
 
-// List of Managers for the dropdown - hardcoded for now, but to be fetched from the real database
-const STUB_MANAGERS = [
-  { id: "1", name: "Luis Dela Rosa", email: "ldelarosa@up.edu.ph" },
-  { id: "2", name: "Justine Antonio", email: "jiantonio@up.edu.ph" },
-  { id: "3", name: "Paul Fababeir", email: "phfababeir@up.edu.ph" },
-  { id: "4", name: "Jun Paul Omamos", email: "jpomamos@up.edu.ph" },
-  { id: "5", name: "Joy Guevarra", email: "jguevarra@up.edu.ph" },
-  { id: "6", name: "Haira Espinocilla", email: "hespinocilla@up.edu.ph" },
-  { id: "7", name: "Althea Fernandez", email: "alfernandez@up.edu.ph" },
-];
-
-// Status display - radio buttons
-const STATUS_CONFIG: Record<
-  InitialStatus,
-  { dot: string; border: string; bg: string; text: string }
-> = {
-  Active: {
-    dot: "bg-emerald-500",
-    border: "border-emerald-400",
-    bg: "bg-emerald-50/60",
-    text: "text-emerald-700",
-  },
-  Inactive: {
-    dot: "bg-blue-400",
-    border: "border-blue-300",
-    bg: "bg-blue-50/60",
-    text: "text-blue-700",
-  },
-  Maintenance: {
-    dot: "bg-amber-400",
-    border: "border-amber-300",
-    bg: "bg-amber-50/60",
-    text: "text-amber-700",
-  },
-};
-
 // Main component - modal dialog for adding a new dormitory
 export default function AddDormModal({
   open,
