@@ -75,7 +75,7 @@ export default async function DormBrowsePage({
       <SearchBar />
 
       {/* HOUSING CARDS CONTAINER */}
-      <div className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner">
+     <div className="w-full max-w-7xl mx-auto mt-1 md:mt-2 flex-1 bg-[#EDE9DE] px-6 pb-6 pt-3 md:px-10 md:pb-10 md:pt-4 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner">
         {cards.length === 0 ? (
           <StateMessage
             title="No housing results"
