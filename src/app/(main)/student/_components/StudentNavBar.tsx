@@ -1,13 +1,28 @@
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import Logo from "@/app/components/Logo";
+import Avatar from "@/app/components/Avatar";
 
 interface StudentNavbarProps {
-	path: string;
-	userId?: number;
+  path: string;
+  userId?: number;
+  userName?: string;
 }
 
-export default function StudentNavBar({ path, userId }: StudentNavbarProps) {
+function getInitials(name?: string) {
+  if (!name) return "S";
+  const parts = name.split(" ").filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  if (parts.length > 1)
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  return "S";
+}
+
+export default function StudentNavBar({
+  path,
+  userId,
+  userName,
+}: StudentNavbarProps) {
 	return (
 		<>
 			{/* NAV BAR */}
@@ -28,8 +43,11 @@ export default function StudentNavBar({ path, userId }: StudentNavbarProps) {
 					</div>
 
 				<div className="flex items-center gap-6">
-					<button className="flex items-center justify-center text-[#EDE9DE] hover:opacity-80 transition-opacity">
-						<Bell className="h-6 w-6" strokeWidth={2} />
+					<button 
+						suppressHydrationWarning
+						className="flex items-center justify-center text-[#EDE9DE] hover:opacity-80 transition-opacity"
+						>
+							<Bell className="h-6 w-6" strokeWidth={2} />
 					</button>
 
 					<Link href={`/student/profile/${userId}`} className="flex items-center">

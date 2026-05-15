@@ -1,28 +1,28 @@
 import { ApplicationReportRow } from "@/app/components/admin/user/approval_table_wrapper";
 import { supabase } from "@/app/lib/supabase";
 import {
-	Application,
-	NewApplication,
-	UpdateApplication,
+  Application,
+  NewApplication,
+  UpdateApplication,
 } from "@/models/application";
 
 async function create(application: NewApplication): Promise<Application> {
-	const { data, error } = await supabase
-		.from("application")
-		.insert([application])
-		.select("*");
+  const { data, error } = await supabase
+    .from("application")
+    .insert([application])
+    .select("*");
 
-	if (error) throw error;
+  if (error) throw error;
 
-	return data[0];
+  return data[0];
 }
 
 // READ ALL APPLICATIONS
 async function getAll() {
-	const { data, error } = await supabase
-		.from("application")
-		.select(
-			`
+  const { data, error } = await supabase
+    .from("application")
+    .select(
+      `
 		application_id,
 		housing_name,
 		preferred_room_type,
@@ -36,114 +36,136 @@ async function getAll() {
 			)
 		)
 	`,
-		)
-		.eq("is_deleted", false);
+    )
+    .eq("is_deleted", false);
 }
 
 async function getById(applicationId: number): Promise<Application | null> {
-	const { data, error } = await supabase
-		.from("application")
-		.select("*")
-		.eq("application_id", applicationId);
-	if (error) throw error;
+  const { data, error } = await supabase
+    .from("application")
+    .select("*")
+    .eq("application_id", applicationId);
+  if (error) throw error;
 
-	return data && data.length > 0 ? data[0] : null;
+  return data && data.length > 0 ? data[0] : null;
 }
 
 async function getByManager(
-	managerAccountNumber: number,
+  managerAccountNumber: number,
 ): Promise<Application[]> {
-	const { data, error } = await supabase
-		.from("application")
-		.select("*")
-		.eq("manager.account_number", managerAccountNumber)
-		.eq("application.is_deleted", false);
+  const { data, error } = await supabase
+    .from("application")
+    .select("*")
+    .eq("manager.account_number", managerAccountNumber)
+    .eq("application.is_deleted", false);
 
-	if (error) throw error;
-	return data ?? [];
+  if (error) throw error;
+  return data ?? [];
+}
+
+async function getByLandlord(
+  landlordAccountNumber: number,
+): Promise<Application[]> {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
+			*,
+			student:student_account_number (
+				account_number,
+				user:user!account_number(
+				first_name,
+				middle_name,
+				last_name
+				)
+			)
+		`)
+    .eq("landlord_account_number", landlordAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) throw error;
+  return data ?? [];
 }
 
 async function getByHousing(housingId: number) {
-	const { data, error } = await supabase
-		.from("application")
-		.select(`*, room!inner(housing_id)`)
-		.eq("room.housing_id", housingId);
-	if (error) throw error;
-	return data;
+  const { data, error } = await supabase
+    .from("application")
+    .select(`*, room!inner(housing_id)`)
+    .eq("room.housing_id", housingId);
+  if (error) throw error;
+  return data;
 }
 
 async function update(
-	applicationId: number,
-	updatedFields: Partial<Application>,
+  applicationId: number,
+  updatedFields: Partial<Application>,
 ) {
-	const { data, error } = await supabase
-		.from("application")
-		.update(updatedFields)
-		.eq("application_id", applicationId)
-		.eq("is_deleted", false)
-		.select();
-	if (error) throw error;
-	return data;
+  const { data, error } = await supabase
+    .from("application")
+    .update(updatedFields)
+    .eq("application_id", applicationId)
+    .eq("is_deleted", false)
+    .select();
+  if (error) throw error;
+  return data;
 }
 
 async function remove(applicationId: number) {
-	const { data, error } = await supabase
-		.from("application")
-		.update({ is_deleted: true })
-		.eq("application_id", applicationId)
-		.select();
-	if (error) throw error;
-	return data;
+  const { data, error } = await supabase
+    .from("application")
+    .update({ is_deleted: true })
+    .eq("application_id", applicationId)
+    .select();
+  if (error) throw error;
+  return data;
 }
 
 async function getDocuments(applicationId: number) {
-	// get the documents uploaded under the application
-	// only contains the links of the images/files to the storage in Supabase
+  // get the documents uploaded under the application
+  // only contains the links of the images/files to the storage in Supabase
 
-	const { data, error } = await supabase
-		.from("application")
-		.select("*, document!inner(*)")
-		.eq("application.application_id", applicationId);
+  const { data, error } = await supabase
+    .from("application")
+    .select("*, document!inner(*)")
+    .eq("application.application_id", applicationId);
 
-	if (error)
-		throw new Error(
-			`Get Submitted Documents under Application Error: ${error.message}`,
-		);
+  if (error)
+    throw new Error(
+      `Get Submitted Documents under Application Error: ${error.message}`,
+    );
 
-	return data;
+  return data;
 }
 
 // GET SELECTED STATS FOR MANAGER DASHBOARD
-async function getApplicationStats() {
-	const { data, error } = await supabase
-		.from("application")
-		.select("application_status")
-		.eq("is_deleted", false);
+async function getApplicationStats(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("application")
+    .select("application_status")
+    .eq("is_deleted", false)
+    .eq("landlord_account_number", managerAccountNumber);
 
-	if (error) {
-		console.error("Error fetching applications stats: ", error);
-		throw new Error("Failed to fetch application stats");
-	}
+  if (error) {
+    console.error("Error fetching applications stats: ", error);
+    throw new Error("Failed to fetch application stats");
+  }
 
-	const total = data.length;
-	const pending = data.filter(
-		(a) => a.application_status === "Pending",
-	).length;
-	const approved = data.filter(
-		(a) => a.application_status === "Approved",
-	).length;
-	const rejected = data.filter(
-		(a) => a.application_status === "Rejected",
-	).length;
+  const total = data.length;
+  const pending = data.filter((a) => a.application_status === "Pending").length;
+  const approved = data.filter(
+    (a) => a.application_status === "Approved",
+  ).length;
+  const rejected = data.filter(
+    (a) => a.application_status === "Rejected",
+  ).length;
 
-	return { total, pending, approved, rejected };
+  return { total, pending, approved, rejected };
 }
 
 // APPLICATION DATA JOINED WITH STUDENT ACCOUNT NUMBER
 async function getApplicationsWithStudentDetails() {
-	const { data, error } = await supabase
-		.from("application")
-		.select(`
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
 			application_id,
 			housing_name,
 			application_status,
@@ -158,25 +180,24 @@ async function getApplicationsWithStudentDetails() {
 				last_name
 				)
 			)
-			`,
-		)
-		.eq("is_deleted", false)
-		.order("application_id", { ascending: false });
+			`)
+    .eq("is_deleted", false)
+    .order("application_id", { ascending: false });
 
-	if (error) {
-		console.error("Error fetching applications with students: ", error);
-		throw new Error("Failed to fetch applications");
-	}
+  if (error) {
+    console.error("Error fetching applications with students: ", error);
+    throw new Error("Failed to fetch applications");
+  }
 
-	return data ?? [];
+  return data ?? [];
 }
 
 // SINGLE APPLICATION DETAIL BY ID
 async function getApplicationDetailById(applicationId: number) {
-	const { data, error } = await supabase
-		.from("application")
-		.select(
-			`
+  const { data, error } = await supabase
+    .from("application")
+    .select(
+      `
       application_id,
       housing_name,
       application_status,
@@ -192,46 +213,46 @@ async function getApplicationDetailById(applicationId: number) {
         )
       )
     `,
-		)
-		.eq("application_id", applicationId)
-		.eq("is_deleted", false)
-		.single();
+    )
+    .eq("application_id", applicationId)
+    .eq("is_deleted", false)
+    .single();
 
-	if (error) throw error;
-	return data;
+  if (error) throw error;
+  return data;
 }
 
 // RETRIEVE DOCUMENTS BY APPLICATION ID
 async function getDocumentsByApplicationId(applicationId: number) {
-	const { data, error } = await supabase
-		.from("document")
-		.select("document_id, type, storage_link")
-		.eq("application_id", applicationId);
+  const { data, error } = await supabase
+    .from("document")
+    .select("document_id, type, storage_link")
+    .eq("application_id", applicationId);
 
-	if (error) throw error;
-	return data;
+  if (error) throw error;
+  return data;
 }
 
 // ASSIGN ROOM ID FOR AN APPLICATION ENTRY
 async function assignRoomToApplication(applicationId: number, roomId: number) {
-	const { data, error } = await supabase
-		.from("application")
-		.update({ room_id: roomId })
-		.eq("application_id", applicationId)
-		.eq("is_deleted", false)
-		.select()
-		.single();
+  const { data, error } = await supabase
+    .from("application")
+    .update({ room_id: roomId })
+    .eq("application_id", applicationId)
+    .eq("is_deleted", false)
+    .select()
+    .single();
 
-	if (error) throw new Error(error.message);
-	return data;
+  if (error) throw new Error(error.message);
+  return data;
 }
 
 //FETCH APPROVED APPLICATIONS WITH NULL ROOM ID
 async function getApprovedUnassignedByHousingName(housingName: string) {
-	const { data, error } = await supabase
-		.from("application")
-		.select(
-			`
+  const { data, error } = await supabase
+    .from("application")
+    .select(
+      `
       application_id,
       housing_name,
       expected_moveout_date,
@@ -245,20 +266,22 @@ async function getApprovedUnassignedByHousingName(housingName: string) {
         )
       )
     `,
-		)
-		.eq("application_status", "Approved")
-		.eq("housing_name", housingName)
-		.eq("is_deleted", false)
-		.is("room_id", null);
+    )
+    .eq("application_status", "Approved")
+    .eq("housing_name", housingName)
+    .eq("is_deleted", false)
+    .is("room_id", null);
 
-	if (error) throw new Error(error.message);
-	return data ?? [];
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
-async function getApplicationsForApproval(managedHousingIds: number[]): Promise<ApplicationReportRow[]> {
-    const { data: applications, error } = await supabase
-        .from("application")
-        .select(`
+async function getApplicationsForApproval(
+  managedHousingIds: number[],
+): Promise<ApplicationReportRow[]> {
+  const { data: applications, error } = await supabase
+    .from("application")
+    .select(`
             application_id,
             housing_name,
             preferred_room_type,
@@ -276,50 +299,58 @@ async function getApplicationsForApproval(managedHousingIds: number[]): Promise<
             ),
             room!inner ( housing_id, room_code )
         `)
-        .in("room.housing_id", managedHousingIds)
-        .eq("is_deleted", false);
+    .in("room.housing_id", managedHousingIds)
+    .eq("is_deleted", false);
 
-    if (error) throw new Error("Failed to fetch applications for approval: " + error.message);
+  if (error)
+    throw new Error(
+      "Failed to fetch applications for approval: " + error.message,
+    );
 
-    return (applications || []).map((app: any) => {
-        const studentObj = Array.isArray(app.student) ? app.student[0] : app.student;
-        const userObj = Array.isArray(studentObj?.user) ? studentObj.user[0] : studentObj?.user;
-        const roomObj = Array.isArray(app.room) ? app.room[0] : app.room;
+  return (applications || []).map((app: any) => {
+    const studentObj = Array.isArray(app.student)
+      ? app.student[0]
+      : app.student;
+    const userObj = Array.isArray(studentObj?.user)
+      ? studentObj.user[0]
+      : studentObj?.user;
+    const roomObj = Array.isArray(app.room) ? app.room[0] : app.room;
 
-        const firstName = userObj?.first_name || "";
-        const lastName = userObj?.last_name || "";
+    const firstName = userObj?.first_name || "";
+    const lastName = userObj?.last_name || "";
 
-        return {
-            application_id: app.application_id,
-            account_number: app.student_account_number, 
-            housing_id: roomObj?.housing_id,            
-            room_id: app.room_id,
-			room_code: roomObj?.room_code,                       
-            student_name: `${firstName} ${lastName}`.trim() || "Unknown Student",
-            student_number: studentObj?.student_number?.toString() || "N/A",
-            housing_name: app.housing_name || "Unknown Property",
-            preferred_room_type: app.preferred_room_type,
-            application_status: app.application_status,
-            expected_moveout_date: app.expected_moveout_date,
-            actual_moveout_date: app.actual_moveout_date || undefined,
-        };
-    });
+    return {
+      application_id: app.application_id,
+      account_number: app.student_account_number,
+      housing_id: roomObj?.housing_id,
+      room_id: app.room_id,
+      room_code: roomObj?.room_code,
+      student_name: `${firstName} ${lastName}`.trim() || "Unknown Student",
+      student_number: studentObj?.student_number?.toString() || "N/A",
+      housing_name: app.housing_name || "Unknown Property",
+      preferred_room_type: app.preferred_room_type,
+      application_status: app.application_status,
+      expected_moveout_date: app.expected_moveout_date,
+      actual_moveout_date: app.actual_moveout_date || undefined,
+    };
+  });
 }
 
 export const applicationData = {
-	create,
-	getAll,
-	getById,
-	getByManager,
-	getByHousing,
-	update,
-	remove,
-	getDocuments,
-	getApplicationStats,
-	getApplicationsWithStudentDetails,
-	getApplicationDetailById,
-	getDocumentsByApplicationId,
-	assignRoomToApplication,
-	getApprovedUnassignedByHousingName,
-	getApplicationsForApproval
+  create,
+  getAll,
+  getById,
+  getByManager,
+  getByLandlord,
+  getByHousing,
+  update,
+  remove,
+  getDocuments,
+  getApplicationStats,
+  getApplicationsWithStudentDetails,
+  getApplicationDetailById,
+  getDocumentsByApplicationId,
+  assignRoomToApplication,
+  getApprovedUnassignedByHousingName,
+  getApplicationsForApproval,
 };

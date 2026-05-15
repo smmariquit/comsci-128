@@ -7,33 +7,27 @@ import { managerData } from "@/app/lib/data/manager-data";
 async function create(userDetails: NewUser, managerDetails: NewManager) {
   // managerDetails.manager_type must already be set to "Housing Admin"
 
-  const newManagerData = await managerData.create(
-		userDetails,
-    managerDetails,
-	);
+  const newManagerData = await managerData.create(userDetails, managerDetails);
 
-  managerDetails.account_number = newManagerData.account_number
+  managerDetails.account_number = newManagerData.account_number;
 
-	// Insert into housing_admin
-	const { data, error: adminError } = await supabase
-		.from("housing_admin")
-		.insert([managerDetails])
-		.select();
+  // Insert into housing_admin
+  const { data, error: adminError } = await supabase
+    .from("housing_admin")
+    .insert([managerDetails])
+    .select();
 
-	if (adminError) {
-		console.error(
-			"Error inserting into housing_admin:",
-			adminError.message,
-		);
-		return { data: null, error: adminError };
-	}
+  if (adminError) {
+    console.error("Error inserting into housing_admin:", adminError.message);
+    return { data: null, error: adminError };
+  }
 
-	return data[0];
+  return data[0];
 }
 
 // Read all housing admins with user details
 async function getAll() {
-	const { data, error } = await supabase.from("housing_admin").select(`
+  const { data, error } = await supabase.from("housing_admin").select(`
       account_number,
       manager!inner(
         manager_type,
@@ -53,20 +47,20 @@ async function getAll() {
       )
     `);
 
-	if (error) {
-		console.error("Error fetching housing admins:", error.message);
-		return { data: null, error };
-	}
+  if (error) {
+    console.error("Error fetching housing admins:", error.message);
+    return { data: null, error };
+  }
 
-	return { data, error: null };
+  return { data, error: null };
 }
 
 // Read single housing admin with user details by account_number
 async function getById(accountNumber: number) {
-	const { data, error } = await supabase
-		.from("housing_admin")
-		.select(
-			`
+  const { data, error } = await supabase
+    .from("housing_admin")
+    .select(
+      `
       account_number,
       manager!inner (
         manager_type,
@@ -86,16 +80,16 @@ async function getById(accountNumber: number) {
         )
       )
     `,
-		)
-		.eq("account_number", accountNumber)
-		.single();
+    )
+    .eq("account_number", accountNumber)
+    .single();
 
-	if (error) {
-		console.error("Error fetching housing admin:", error.message);
-		return { data: null, error };
-	}
+  if (error) {
+    console.error("Error fetching housing admin:", error.message);
+    return { data: null, error };
+  }
 
-	return { data, error: null };
+  return { data, error: null };
 }
 
 // List of pending applications based on managed housings of a manager
@@ -129,7 +123,10 @@ async function getPendingManagerApplications(managerAccountNumber: number) {
     .eq("is_deleted", false);
 
   if (error) {
-    console.error("Error fetching pending applications by manager:", error.message);
+    console.error(
+      "Error fetching pending applications by manager:",
+      error.message,
+    );
     return { data: null, error };
   }
 
@@ -140,5 +137,5 @@ export const housingAdminData = {
   create,
   getAll,
   getById,
-  getPendingManagerApplications
+  getPendingManagerApplications,
 };
