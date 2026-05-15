@@ -104,36 +104,6 @@ function formatDate(iso: string) {
     year: "numeric",
   });
 }
-
-const ACTION_STYLES: Record<ActionType, string> = {
-  "Application Status":
-    "bg-blue-50      text-blue-700      ring-1 ring-blue-200",
-  "Bill Status": "bg-amber-50     text-amber-700     ring-1 ring-amber-200",
-  "Auth Register": "bg-emerald-50   text-emerald-700   ring-1 ring-emerald-200",
-  "Auth Login": "bg-orange-50    text-orange-600    ring-1 ring-orange-200",
-  "Change Auth Password":
-    "bg-yellow-50    text-yellow-700    ring-1 ring-yellow-200",
-  "Delete Account": "bg-rose-50      text-rose-600      ring-1 ring-rose-200",
-  "Update User Role":
-    "bg-purple-50    text-purple-700    ring-1 ring-purple-200",
-  "Submit Application":
-    "bg-sky-50       text-sky-700       ring-1 ring-sky-200",
-  "Update Application Status":
-    "bg-indigo-50    text-indigo-700    ring-1 ring-indigo-200",
-  "Withdraw Application":
-    "bg-red-50       text-red-600       ring-1 ring-red-200",
-  "Create Housing": "bg-teal-50      text-teal-700      ring-1 ring-teal-200",
-  "Update Housing": "bg-cyan-50      text-cyan-700      ring-1 ring-cyan-200",
-  "Assign Room": "bg-lime-50      text-lime-700      ring-1 ring-lime-200",
-  "Assign Bill": "bg-orange-50    text-orange-700    ring-1 ring-orange-200",
-  "Update Bill Status":
-    "bg-amber-50     text-amber-600     ring-1 ring-amber-200",
-  "Issue Bill Refund":
-    "bg-green-50     text-green-700     ring-1 ring-green-200",
-  "Update User Details":
-    "bg-purple-50    text-purple-700    ring-1 ring-purple-200",
-};
-
 const ACTION_DOT: Record<ActionType, string> = {
   "Application Status": "bg-blue-500",
   "Bill Status": "bg-amber-500",
@@ -152,6 +122,26 @@ const ACTION_DOT: Record<ActionType, string> = {
   "Update Bill Status": "bg-amber-600",
   "Issue Bill Refund": "bg-green-500",
   "Update User Details": "bg-purple-500",
+};
+
+const ACTION_STYLES: Record<ActionType, string> = {
+  "Application Status": "bg-blue-100 text-blue-700",
+  "Bill Status": "bg-amber-100 text-amber-700",
+  "Auth Register": "bg-emerald-100 text-emerald-700",
+  "Auth Login": "bg-orange-100 text-orange-700",
+  "Change Auth Password": "bg-yellow-100 text-yellow-700",
+  "Delete Account": "bg-rose-100 text-rose-700",
+  "Update User Role": "bg-purple-100 text-purple-700",
+  "Submit Application": "bg-sky-100 text-sky-700",
+  "Update Application Status": "bg-indigo-100 text-indigo-700",
+  "Withdraw Application": "bg-red-100 text-red-700",
+  "Create Housing": "bg-teal-100 text-teal-700",
+  "Update Housing": "bg-cyan-100 text-cyan-700",
+  "Assign Room": "bg-lime-100 text-lime-700",
+  "Assign Bill": "bg-orange-100 text-orange-700",
+  "Update Bill Status": "bg-amber-100 text-amber-700",
+  "Issue Bill Refund": "bg-green-100 text-green-700",
+  "Update User Details": "bg-purple-100 text-purple-700",
 };
 
 // Format of Action baadge

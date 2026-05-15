@@ -1,30 +1,36 @@
 import { C } from "@/lib/palette";
-import type { AuditLogRow, ActionType } from "./audit";
+import type { AuditLogRow } from "./audit";
+import { ActionType } from "@/app/lib/models/audit_log";
 
 // ── Action Badge ──────────────────────────────────────────────────────────────
 
-const ACTION_STYLE: Record<ActionType, { bg: string; text: string }> = {
-  LOGIN: { bg: "rgba(86,115,117,0.13)", text: C.teal },
-  APPROVE_APPLICATION: { bg: "rgba(86,115,117,0.18)", text: C.teal },
-  ASSIGN_ROOM: { bg: "rgba(28,38,50,0.08)", text: C.navy },
-  BILL_UPDATE: { bg: "rgba(201,100,42,0.13)", text: C.orange },
-  LOGOUT: { bg: "rgba(227,175,100,0.18)", text: "#A07820" },
+const ACTION_STYLES: Record<ActionType, string> = {
+  "Application Status": "bg-blue-100 text-blue-700",
+  "Bill Status": "bg-amber-100 text-amber-700",
+  "Auth Register": "bg-emerald-100 text-emerald-700",
+  "Auth Login": "bg-orange-100 text-orange-700",
+  "Change Auth Password": "bg-yellow-100 text-yellow-700",
+  "Delete Account": "bg-rose-100 text-rose-700",
+  "Update User Role": "bg-purple-100 text-purple-700",
+  "Submit Application": "bg-sky-100 text-sky-700",
+  "Update Application Status": "bg-indigo-100 text-indigo-700",
+  "Withdraw Application": "bg-red-100 text-red-700",
+  "Create Housing": "bg-teal-100 text-teal-700",
+  "Update Housing": "bg-cyan-100 text-cyan-700",
+  "Assign Room": "bg-lime-100 text-lime-700",
+  "Assign Bill": "bg-orange-100 text-orange-700",
+  "Update Bill Status": "bg-amber-100 text-amber-700",
+  "Issue Bill Refund": "bg-green-100 text-green-700",
+  "Update User Details": "bg-purple-100 text-purple-700",
 };
 
+
 function ActionBadge({ type }: { type: ActionType }) {
-  const s = ACTION_STYLE[type];
   return (
     <span
-      style={{
-        background: s.bg,
-        color: s.text,
-        fontSize: 10,
-        fontWeight: 600,
-        padding: "2px 8px",
-        borderRadius: 6,
-      }}
+      className={`inline-flex items-center px-2 py-1 rounded-md text-[11px] font-semibold ${ACTION_STYLES[type]}`}
     >
-      {type.replaceAll("_", " ")}
+      {type}
     </span>
   );
 }
@@ -116,7 +122,7 @@ export default function AuditLogTable({ data, onView }: Props) {
 
               {/* Action */}
               <td style={{ padding: "8px 14px", color: C.navy }}>
-                <ActionBadge type={row.action_type} />
+              <ActionBadge type={row.action_type} />
               </td>
 
               {/* Description */}
