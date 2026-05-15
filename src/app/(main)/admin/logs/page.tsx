@@ -5,9 +5,27 @@ import AuditStatCard from "@/components/admin/audits/stat_card";
 import AuditLogFilters from "@/components/admin/audits/filters";
 import AuditLogTable from "@/components/admin/audits/auditlogtable";
 import StateMessage from "@/app/components/ui/state-message";
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 import Link from "next/link";
+
+const actionOptions = [
+  "Application Status",
+  "Bill Status",
+  "Auth Register",
+  "Auth Login",
+  "Change Auth Password",
+  "Delete Account",
+  "Update User Role",
+  "Update User Details",
+  "Submit Application",
+  "Update Application Status",
+  "Withdraw Application",
+  "Create Housing",
+  "Update Housing",
+  "Assign Room",
+  "Assign Bill",
+  "Issue Bill Refund",
+  "Update Bill Status",
+];
 
 export default function Page() {
   // ── State ───────────────────────────────────────────────────────────────────
@@ -21,6 +39,7 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
 
   // ── Fetch Audit Logs ────────────────────────────────────────────────────────
+
   useEffect(() => {
     const fetchAuditLogs = async () => {
       try {
@@ -28,7 +47,21 @@ export default function Page() {
         const response = await fetch("/api/audit-log");
         if (!response.ok) throw new Error("Failed to fetch audit logs");
         const data = await response.json();
-        setAuditLogs(data);
+
+        // Transform data
+        const transformed = data.map((log: any) => ({
+          audit_id: log.audit_id,
+          timestamp: log.timestamp,
+          action_type: log.action_type,
+          audit_description: log.audit_description,
+          user_name: log.user_name,
+          partial_ip: log.partial_ip,
+          account_number: log.account_number,
+          assigned_manager: log.assigned_manager,
+        }));
+
+        console.log("Transformed data:", transformed);
+        setAuditLogs(transformed);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error");
@@ -41,12 +74,10 @@ export default function Page() {
     fetchAuditLogs();
   }, []);
 
-
-
   // ── Filtering Logic ─────────────────────────────────────────────────────────
 
   const filteredData = useMemo(() => {
-    return MOCK_AUDIT_LOGS.filter((log) => {
+    return auditLogs.filter((log) => {
       // Search
       const matchesSearch =
         log.user_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -59,30 +90,27 @@ export default function Page() {
 
       // Date Range
       const logDate = new Date(log.timestamp).getTime();
-
       const matchesFrom = !dateFrom || logDate >= new Date(dateFrom).getTime();
-
       const matchesTo = !dateTo || logDate <= new Date(dateTo).getTime();
 
       return matchesSearch && matchesAction && matchesFrom && matchesTo;
     });
-  }, [search, actionType, dateFrom, dateTo]);
+  }, [auditLogs, search, actionType, dateFrom, dateTo]);
 
   // ── Stats (derived from data) ────────────────────────────────────────────────
 
   const stats = useMemo(() => {
     return {
-      total: MOCK_AUDIT_LOGS.length,
-      login: MOCK_AUDIT_LOGS.filter((l) => l.action_type === "LOGIN").length,
-      approval: MOCK_AUDIT_LOGS.filter(
-        (l) => l.action_type === "APPROVE_APPLICATION",
+      total: auditLogs.length,
+      login: auditLogs.filter((l) => l.action_type === "Auth Login").length,
+      approval: auditLogs.filter(
+        (l) => l.action_type === "Update Application Status"
       ).length,
-      assignment: MOCK_AUDIT_LOGS.filter((l) => l.action_type === "ASSIGN_ROOM")
+      assignment: auditLogs.filter((l) => l.action_type === "Assign Room")
         .length,
-      billing: MOCK_AUDIT_LOGS.filter((l) => l.action_type === "BILL_UPDATE")
-        .length,
+      billing: auditLogs.filter((l) => l.action_type === "Assign Bill").length,
     };
-  }, []);
+  }, [auditLogs]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -93,7 +121,26 @@ export default function Page() {
 
   // ── UI ──────────────────────────────────────────────────────────────────────
 
-  if (!Array.isArray(MOCK_AUDIT_LOGS)) {
+  if (loading) {
+  return (
+    <StateMessage
+      title="Loading audit logs"
+      description="Please wait..."
+    />
+  );
+}
+
+  if (error) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load audit logs"
+        description={error}
+      />
+    );
+  }
+
+  if (!Array.isArray(auditLogs)) {
     return (
       <StateMessage
         variant="error"
@@ -117,11 +164,15 @@ export default function Page() {
     >
       {/* ── Stat Cards ───────────────────────────────────────────────────────── */}
       <div style={{ display: "flex", gap: 10 }}>
-        <AuditStatCard type="total" value={stats.total} />
-        <AuditStatCard type="login" value={stats.login} />
-        <AuditStatCard type="approval" value={stats.approval} />
-        <AuditStatCard type="assignment" value={stats.assignment} />
-        <AuditStatCard type="billing" value={stats.billing} />
+        {stats && (
+          <>
+            <AuditStatCard type="total" value={stats.total} />
+            <AuditStatCard type="login" value={stats.login} />
+            <AuditStatCard type="approval" value={stats.approval} />
+            <AuditStatCard type="assignment" value={stats.assignment} />
+            <AuditStatCard type="billing" value={stats.billing} />
+          </>
+        )}
       </div>
 
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
