@@ -16,28 +16,26 @@ export default function StudentNavBar({ path, userId }: StudentNavbarProps) {
 					<div className="flex items-center gap-4 md:gap-8">
 						<Logo size={28} href="/" />
 
-						<nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
-							<a href="/student" className="text-[#EDE9DE] hover:opacity-80 transition-opacity">
+						<nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 h-7 font-[family-name:var(--font-geist-sans)]">
+							<Link href="/student" className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center h-full text-m leading-none">
 								Dashboard
-							</a>
-							<a
-								href="/student/browse"
-								className="text-[#EDE9DE] hover:opacity-80 transition-opacity"
-							>
+							</Link>
+							<Link href="/student/browse" className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center h-full text-m leading-none">
 								Browse
-							</a>
+							</Link>
 						</nav>
+						
 					</div>
 
 				<div className="flex items-center gap-6">
-					<button className="text-[#EDE9DE]">
+					<button className="flex items-center justify-center text-[#EDE9DE] hover:opacity-80 transition-opacity">
 						<Bell className="h-6 w-6" strokeWidth={2} />
 					</button>
 
-						<Link href={`/student/profile/${userId}`}>
-							<div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all"></div>
-						</Link>
-					</div>
+					<Link href={`/student/profile/${userId}`} className="flex items-center">
+						<div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all"></div>
+					</Link>
+                </div>
 				</div>
 			</header>
 
