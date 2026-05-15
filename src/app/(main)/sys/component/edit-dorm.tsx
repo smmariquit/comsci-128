@@ -154,7 +154,6 @@ export function EditDormModal({
         housing_address: address.trim(),
         housing_type: type,
         rent_price: rate ? Number(rate) : null,
-
         manager_account_number: selectedManager?.id ?? null,
         landlord_account_number: selectedLandlord?.id ?? null,
       }),
