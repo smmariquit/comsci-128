@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import AuditStatCard from "@/components/admin/audits/stat_card";
 import AuditLogFilters from "@/components/admin/audits/filters";
 import AuditLogTable from "@/components/admin/audits/auditlogtable";
-import { MOCK_AUDIT_LOGS } from "@/components/admin/audits/audit";
 import StateMessage from "@/app/components/ui/state-message";
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -17,6 +16,32 @@ export default function Page() {
   const [actionType, setActionType] = useState("All");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // ── Fetch Audit Logs ────────────────────────────────────────────────────────
+  useEffect(() => {
+    const fetchAuditLogs = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/audit-log");
+        if (!response.ok) throw new Error("Failed to fetch audit logs");
+        const data = await response.json();
+        setAuditLogs(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+        setAuditLogs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAuditLogs();
+  }, []);
+
+
 
   // ── Filtering Logic ─────────────────────────────────────────────────────────
 
