@@ -17,10 +17,8 @@ export interface ViewDormData {
   monthlyRate?: number;
   description?: string;
   status: string;
-  /** Manager name */
   dormitory?: string;
   managerEmail?: string;
-  /** Landlord info */
   landlordName?: string;
   landlordEmail?: string;
   dateAdded?: string;
@@ -246,7 +244,6 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
               <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                 <InfoCell label="Location" value={dorm.dormAddress} />
                 <InfoCell label="Housing Type" value={dorm.housingType ?? "UP Housing"} />
-                <InfoCell label="Date Added" value={dorm.dateAdded} />
                 <InfoCell
                   label="Monthly Rate"
                   value={
@@ -255,7 +252,6 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                       : undefined
                   }
                 />
-                <InfoCell label="Status" value={dorm.status} />
               </div>
             </div>
 
