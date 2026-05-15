@@ -25,18 +25,6 @@ export interface AddDormModalProps {
 }
 
 
-// List of Managers for the dropdown - hardcoded for now, but to be fetched from the real database
-const STUB_MANAGERS = [
-  { id: '1', name: 'Luis Dela Rosa',    email: 'ldelarosa@up.edu.ph'    },
-  { id: '2', name: 'Justine Antonio',   email: 'jiantonio@up.edu.ph'    },
-  { id: '3', name: 'Paul Fababeir',     email: 'phfababeir@up.edu.ph'   },
-  { id: '4', name: 'Jun Paul Omamos',   email: 'jpomamos@up.edu.ph'     },
-  { id: '5', name: 'Joy Guevarra',      email: 'jguevarra@up.edu.ph'    },
-  { id: '6', name: 'Haira Espinocilla', email: 'hespinocilla@up.edu.ph' },
-  { id: '7', name: 'Althea Fernandez',  email: 'alfernandez@up.edu.ph'  },
-];
-
-
 // Main component - modal dialog for adding a new dormitory
 export default function AddDormModal({
   open,
