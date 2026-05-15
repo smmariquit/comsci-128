@@ -42,9 +42,9 @@ export default function SearchBar() {
 
           {isFilterOpen && (
             <>
+              
               <div className="fixed inset-0 z-40" onClick={() => setIsFilterOpen(false)}></div>
               
-              {/* UPDATED FILTER DROPDOWN DESIGN */}
               <div className="absolute left-0 top-full mt-3 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 text-[#1C2632] overflow-hidden">
                 
                 {/* Header 1: Type */}
@@ -95,7 +95,17 @@ export default function SearchBar() {
                 {/* Footer: Clear */}
                 {(searchParams.get("type") || searchParams.get("sex")) && (
                   <button
-                    onClick={() => { updateURL("type", null); updateURL("sex", null); setIsFilterOpen(false); }}
+                    onClick={() => {
+                      // Create a fresh instance using the native window URL if available,
+                      // or clean it up sequentially using a unified string builder
+                      const params = new URLSearchParams(window.location.search);
+                      params.delete("type");
+                      params.delete("sex");
+                      
+                      // Update the URL in one single, clean push
+                      replace(`${pathname}?${params.toString()}`);
+                      setIsFilterOpen(false);
+                    }}
                     className="w-full text-center mt-1 pt-2 border-t border-gray-100 text-xs text-red-500 hover:text-red-700 font-medium pb-1"
                   >
                     Clear All Filters
