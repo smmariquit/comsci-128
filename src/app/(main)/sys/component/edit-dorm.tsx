@@ -26,8 +26,9 @@ export interface EditDormData {
   dormAddress?: string;
   housingType?: DormType;
   monthlyRate?: number;
-  /** Manager name currently displayed in the table (dormitory field) */
   dormitory?: string;
+  landlordName?: string;
+  landlordId?: string | number;
 }
 
 export interface EditDormModalProps {
@@ -71,13 +72,17 @@ export function EditDormModal({
   const [housingType, setHousingType] = useState<DormType>((dorm.housingType as DormType) ?? "UP Housing");
   const [rate,        setRate]        = useState<string>(String(dorm.monthlyRate ?? ""));
 
-  // Manager searchable dropdown — mirrors "Assign to Dormitory" in EditUserModal
+  // Manager searchable dropdown 
   const [selectedManager, setSelectedManager] = useState<DormManager | null>(
     () => (managers ?? []).find((m) => m.name === dorm.dormitory) ?? null
   );
   const [selectedLandlord, setSelectedLandlord] = useState<DormLandlord | null>(
-    () => (landlords ?? []).find((l) => l.name === dorm.dormitory) ?? null
-  );
+  () => {
+    // Try to find landlord by name or ID from dorm data
+    if (!landlords) return null;
+    return (landlords as any).find((l: any) => l.name === (dorm as any).landlordName) ?? null;
+      }
+    );
   const [managerQuery, setManagerQuery] = useState("");
   const [managerOpen, setManagerOpen] = useState(false);
 

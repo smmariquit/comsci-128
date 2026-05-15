@@ -14,14 +14,18 @@ export interface Dorm {
   id: string;
   name: string;
   type?: string;
+  housingType?: 'UP Housing' | 'Non-UP Housing';
   status: 'Accepting' | 'Disabled' | string;
   dormitory: string;
   dormAddress?: string;
   managerName?: string; 
   managerEmail?: string;
+  landlordName?: string;
+  landlordEmail?: string;
   capacity?: number;
   rooms?: number;
   occupied?: number;
+  monthlyRate?: number;
 }
 
 interface LandlordOption {
@@ -154,26 +158,6 @@ export default function DormManagementPage({
 
       // Use housing as base, map occupancy data onto it
       const rawHousing = Array.isArray(housingData) ? housingData : housingData.data ?? [];
-      const transformed: Dorm[] = rawHousing.map((housing: any) => {
-        const housingId = String(housing.housing_id ?? '');
-        const occupancy = occupancyMap.get(housingId) as any;
-        const managerId = String(housing.manager_account_number ?? '');
-        const manager = managerMap.get(managerId) as { id: string; name: string; email: string } | undefined;
-
-        return {
-          id: housingId,
-          name: housing.housing_name ?? 'Unknown',
-          status: 'Accepting',
-          type: housing.housing_type,
-          dormitory: manager?.name || 'Unassigned',
-          dormAddress: housing.housing_address ?? '',
-          managerName: manager?.name || undefined,
-          managerEmail: manager?.email || undefined,
-          capacity: occupancy?.totalRooms ?? 0,
-          rooms: occupancy?.totalRooms ?? 0,
-          occupied: occupancy?.occupiedRooms ?? 0,
-        };
-      });
 
       // Transform landlords
       const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
@@ -186,6 +170,32 @@ export default function DormManagementPage({
         };
       });
 
+      const transformed: Dorm[] = rawHousing.map((housing: any) => {
+        const housingId = String(housing.housing_id ?? '');
+        const occupancy = occupancyMap.get(housingId) as any;
+        const managerId = String(housing.manager_account_number ?? '');
+        const landlordId = String(housing.landlord_account_number ?? '');
+        const manager = managerMap.get(managerId) as { id: string; name: string; email: string } | undefined;
+        const landlord = transformedLandlords.find((l) => l.id === landlordId);
+
+        return {
+          id: housingId,
+          name: housing.housing_name ?? 'Unknown',
+          status: 'Accepting',
+          type: housing.housing_type,
+          housingType: (housing.housing_type as 'UP Housing' | 'Non-UP Housing') || 'UP Housing',
+          dormitory: manager?.name || 'Unassigned',
+          dormAddress: housing.housing_address ?? '',
+          managerName: manager?.name || undefined,
+          managerEmail: manager?.email || undefined,
+          landlordName: landlord?.name || undefined,
+          landlordEmail: landlord?.email || undefined,
+          capacity: occupancy?.totalRooms ?? 0,
+          rooms: occupancy?.totalRooms ?? 0,
+          occupied: occupancy?.occupiedRooms ?? 0,
+          monthlyRate: housing.rent_price ?? undefined,
+        };
+      });
       setDormList(transformed);
       setLandlordList(transformedLandlords);
       setManagersList(transformedManagers);
@@ -415,11 +425,18 @@ export default function DormManagementPage({
       </div>
       {viewingDorm && (
         <ViewDormModal
-          dorm={viewingDorm}
+          dorm={{
+            ...viewingDorm,
+            housingType: viewingDorm.housingType,
+            landlordName: viewingDorm.landlordName,
+            landlordEmail: viewingDorm.landlordEmail,
+            monthlyRate: viewingDorm.monthlyRate,
+          }}
           onClose={() => setViewingDorm(null)}
           onEdit={() => setEditingDorm(viewingDorm)}
         />
       )}
+
       {editingDorm && (
       <EditDormModal
         dorm={editingDorm as any}
