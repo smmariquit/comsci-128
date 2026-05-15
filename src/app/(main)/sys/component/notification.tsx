@@ -29,7 +29,14 @@ export default function NotificationBell() {
 
 			const data = await response.json();
 
-			const rawLogs = Array.isArray(data) ? data : data.data ?? [];
+			// First three logs
+			const rawLogs = (Array.isArray(data) ? data : data.data ?? [])
+				.sort(
+					(a: any, b: any) =>
+						new Date(b.timestamp).getTime() -
+						new Date(a.timestamp).getTime()
+				)
+			.slice(0, 3);
 
 			const savedRead = JSON.parse(
 				localStorage.getItem('readNotifications') || '[]'
@@ -53,7 +60,7 @@ export default function NotificationBell() {
 					minute: '2-digit',
 				}),
 			}));
-			
+
 			setNotifList(transformed);
 
 			setNotifications(transformed);

@@ -51,7 +51,12 @@ export default function AddDormModal({
   const [securityDeposit, setSecurityDeposit] = useState('');
   const [managerId,       setManagerId]       = useState('');
   const [housingType, setHousingType] = useState<'UP Housing' | 'Non-UP Housing'>('UP Housing');
-  const [errors, setErrors] = useState<{ dormName?: string; landlord?: string }>({});
+  const [errors, setErrors] = useState<{
+    dormName?: string;
+    address?: string;
+    monthlyRate?: string;
+    landlord?: string;
+  }>({});
   const [landlordId, setLandlordId] = useState(''); 
   const [submitted, setSubmitted] = useState(false);
 
@@ -59,10 +64,14 @@ export default function AddDormModal({
 
   // Reset all form fields to initial values
   const reset = () => {
-    setDormName(''); setAddress(''); 
-    setMonthlyRate(''); setSecurityDeposit('');
+    setDormName('');
+    setAddress('');
+    setMonthlyRate('');
+    setSecurityDeposit('');
     setHousingType('UP Housing');
     setLandlordId('');
+    setManagerId('');
+    setErrors({});
     setSubmitted(false);
   };
 
@@ -70,22 +79,31 @@ export default function AddDormModal({
 
 // Submit handler
   const handleSubmit = async () => {
-    const manager    = (managers ?? []).find((m) => m.id === managerId);
-
+    const manager = (managers ?? []).find((m) => m.id === managerId);
     const newErrors: typeof errors = {};
 
-      if (!dormName.trim()) {
-        newErrors.dormName = 'Dorm name is required';
-      }
+    if (!dormName.trim()) {
+      newErrors.dormName = 'Dorm name is required';
+    }
 
-      if (!landlordId) {
-        newErrors.landlord = 'Landlord is required';
-      }
+    if (!address.trim()) {
+      newErrors.address = 'Address is required';
+    }
 
-      setErrors(newErrors);
+    if (!landlordId) {
+      newErrors.landlord = 'Landlord is required';
+    }
 
-      // stop if invalid
-      if (Object.keys(newErrors).length > 0) return;
+    if (!monthlyRate || monthlyRate.trim() === '') {
+      newErrors.monthlyRate = 'Monthly rate is required';
+    } else if (Number(monthlyRate) < 0) {
+      newErrors.monthlyRate = 'Monthly rate cannot be negative';
+    }
+
+    setErrors(newErrors);
+    setSubmitted(true);
+
+    if (Object.keys(newErrors).length > 0) return;
 
     try {
         const response = await fetch('/api/housing', {
@@ -168,11 +186,15 @@ export default function AddDormModal({
                 placeholder="e.g. 123 Roxas St, Diliman, Quezon City"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
+                className={submitted && errors.address ? 'border-red-300 bg-red-50' : ''}
               />
+              {submitted && errors.address && (
+                <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+              )}
             </Field>
 
           </Section>
-
+          
           {/* Capacity & rooms */}
           <Section label="Capacity & Rooms">
 
@@ -183,7 +205,11 @@ export default function AddDormModal({
                   placeholder="e.g. 6700"
                   value={monthlyRate}
                   onChange={(e) => setMonthlyRate(e.target.value)}
+                  className={submitted && errors.monthlyRate ? 'border-red-300 bg-red-50' : ''}
                 />
+                {submitted && errors.monthlyRate && (
+                  <p className="text-xs text-red-500 mt-1">{errors.monthlyRate}</p>
+                )}
               </Field>
          
             </div>
