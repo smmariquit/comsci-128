@@ -4,24 +4,35 @@ function SkeletonBlock({ style }: { style: React.CSSProperties }) {
 
 export default function Loading() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 980 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        maxWidth: 980,
+      }}
+    >
       <SkeletonBlock
         style={{
           height: 180,
           borderRadius: 18,
-          background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+          background:
+            "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
           backgroundSize: "200% 100%",
           animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
           outline: "1px solid #CEC7B0",
           outlineOffset: -1,
         }}
       />
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 16 }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 16 }}
+      >
         <SkeletonBlock
           style={{
             height: 360,
             borderRadius: 18,
-            background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+            background:
+              "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
             backgroundSize: "200% 100%",
             animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
             outline: "1px solid #CEC7B0",
@@ -33,7 +44,8 @@ export default function Loading() {
             style={{
               height: 160,
               borderRadius: 18,
-              background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+              background:
+                "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
               backgroundSize: "200% 100%",
               animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
               outline: "1px solid #CEC7B0",
@@ -44,7 +56,8 @@ export default function Loading() {
             style={{
               height: 184,
               borderRadius: 18,
-              background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+              background:
+                "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
               backgroundSize: "200% 100%",
               animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
               outline: "1px solid #CEC7B0",

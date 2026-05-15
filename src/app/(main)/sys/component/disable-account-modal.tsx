@@ -32,35 +32,33 @@ export function DisableAccountModal({
   onClose,
   onConfirm,
 }: DisableAccountModalProps) {
-
   const isDisabling = user.status === "Active";
 
   async function handleConfirm() {
-  console.log('handleConfirm called');
-  try {
-    const encodedEmail = encodeURIComponent(user.email);
-    const url = `/api/users/${encodedEmail}`;
-    
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error response body:', errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
+    console.log("handleConfirm called");
+    try {
+      const url = `/api/users/${user.id}`;
+
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response body:", errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("User status updated:", data);
+
+      onConfirm(user.id);
+      onClose();
+    } catch (err) {
+      console.error("Error updating user:", err);
     }
-    
-    const data = await response.json();
-    console.log('User status updated:', data);
-    
-    onConfirm(user.id);
-    onClose();
-  } catch (err) {
-    console.error('Error updating user:', err);
   }
-}
 
   return (
     <>
@@ -73,19 +71,22 @@ export function DisableAccountModal({
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl max-w-500px shadow-2xl flex flex-col">
-
           {/* Header */}
           <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-start justify-between gap-4">
             <div className="flex items-center gap-3.5">
               {/* Icon badge */}
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
-                isDisabling
-                  ? "bg-[#fdf0e8] border border-[#f0c8a8]"
-                  : "bg-emerald-50 border border-emerald-200"
-              }`}>
+              <div
+                className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                  isDisabling
+                    ? "bg-[#fdf0e8] border border-[#f0c8a8]"
+                    : "bg-emerald-50 border border-emerald-200"
+                }`}
+              >
                 <MinusCircle
                   size={20}
-                  className={isDisabling ? "text-[#b85c28]" : "text-emerald-600"}
+                  className={
+                    isDisabling ? "text-[#b85c28]" : "text-emerald-600"
+                  }
                 />
               </div>
               <div>
@@ -108,7 +109,6 @@ export function DisableAccountModal({
 
           {/* Body */}
           <div className="px-6 py-5 flex flex-col gap-5">
-
             {/* User card */}
             <div className="flex items-center gap-3.5 p-4 bg-[#f3f4f5] rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-full bg-[#2e4a50] flex items-center justify-center shrink-0">
@@ -117,8 +117,12 @@ export function DisableAccountModal({
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[#1a2332] text-sm leading-tight">{user.name}</p>
-                <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">{user.email}</p>
+                <p className="font-bold text-[#1a2332] text-sm leading-tight">
+                  {user.name}
+                </p>
+                <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">
+                  {user.email}
+                </p>
               </div>
               <span className="shrink-0 px-3.5 py-1.5 text-xs font-semibold rounded-full bg-[#2e4a50] text-white">
                 {user.role}
@@ -130,7 +134,9 @@ export function DisableAccountModal({
 
             {/* What will happen */}
             <div>
-              <p className="text-sm font-bold text-[#1a2332] mb-3">What will happen</p>
+              <p className="text-sm font-bold text-[#1a2332] mb-3">
+                What will happen
+              </p>
               <ul className="flex flex-col gap-2">
                 {(isDisabling
                   ? [
@@ -147,9 +153,11 @@ export function DisableAccountModal({
                     ]
                 ).map((item, i) => (
                   <li key={i} className="flex items-start gap-2.5">
-                    <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${
-                      isDisabling ? "bg-[#b85c28]" : "bg-emerald-500"
-                    }`} />
+                    <span
+                      className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${
+                        isDisabling ? "bg-[#b85c28]" : "bg-emerald-500"
+                      }`}
+                    />
                     <span className="text-sm text-[#1a2332]/70">{item}</span>
                   </li>
                 ))}
@@ -157,22 +165,25 @@ export function DisableAccountModal({
             </div>
 
             {/* Warning strip */}
-            <div className={`flex items-start gap-3 px-4 py-3 rounded-xl border ${
-              isDisabling
-                ? "bg-[#fdf0e8] border-[#f0c8a8]"
-                : "bg-emerald-50 border-emerald-200"
-            }`}>
+            <div
+              className={`flex items-start gap-3 px-4 py-3 rounded-xl border ${
+                isDisabling
+                  ? "bg-[#fdf0e8] border-[#f0c8a8]"
+                  : "bg-emerald-50 border-emerald-200"
+              }`}
+            >
               <AlertTriangle
                 size={15}
                 className={`shrink-0 mt-0.5 ${isDisabling ? "text-[#b85c28]" : "text-emerald-600"}`}
               />
-              <p className={`text-xs font-mono ${isDisabling ? "text-[#b85c28]" : "text-emerald-700"}`}>
+              <p
+                className={`text-xs font-mono ${isDisabling ? "text-[#b85c28]" : "text-emerald-700"}`}
+              >
                 {isDisabling
                   ? "The user will lose all system access immediately upon confirmation."
                   : "The user will regain full system access immediately upon confirmation."}
               </p>
             </div>
-
           </div>
 
           {/* Footer */}
@@ -194,7 +205,6 @@ export function DisableAccountModal({
               {isDisabling ? "Disable Account" : "Enable Account"}
             </button>
           </div>
-
         </div>
       </div>
     </>

@@ -129,7 +129,7 @@ async function getHousingCardsData() {
             *,
             room!inner(*)
         `)
-  .eq("is_deleted", false)
+    .eq("is_deleted", false)
     .order("housing_name", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -273,13 +273,13 @@ async function getStudentsByRoom(roomId: number) {
     `)
     .eq("room_id", roomId)
     //.eq("application_status", "Approved")
-    .is("moveout_date", null);
+    .gt("moveout_date", new Date().toISOString().split("T")[0]);
 
   if (error) throw new Error(`failed to fetch students: ${error.message}`);
 
   return (data || []).map((app: any) => ({
     account_number: app.account_number,
-    full_name: `${app.student.user.first_name} ${app.student.user.last_name}`
+    full_name: `${app.student.user.first_name} ${app.student.user.last_name}`,
   }));
 }
 
@@ -290,7 +290,8 @@ async function findbyLandlord(landlordId: number): Promise<Housing[] | []> {
     .eq("landlord_account_number", landlordId)
     .eq("is_deleted", false);
 
-  if (error) throw new Error ("Failed to fetch housing by landlord: " + error.message);
+  if (error)
+    throw new Error("Failed to fetch housing by landlord: " + error.message);
 
   return data ?? [];
 }
@@ -346,6 +347,36 @@ async function getStudentsHoused(managerId: number, housingId: number) {
   return data;
 }
 
+async function findAllByManager(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select("*")
+    .eq("is_deleted", false)
+    .eq("landlord_account_number", managerAccountNumber);
+
+  if (error) {
+    console.error("Error fetching housing by manager: ", error);
+    throw new Error("Failed to fetch housing");
+  }
+
+  return data;
+}
+
+async function findAllWithRoomsByManager(managerAccountNumber: number) {
+  const { data, error } = await supabase
+    .from("housing")
+    .select("*, room(*)")
+    .eq("is_deleted", false)
+    .eq("landlord_account_number", managerAccountNumber);
+
+  if (error) {
+    console.error("Error fetching housing with rooms by manager: ", error);
+    throw new Error("Failed to fetch housing with rooms");
+  }
+
+  return data;
+}
+
 export const housingData = {
   create,
   findAll,
@@ -363,4 +394,6 @@ export const housingData = {
   findbyLandlord,
   getOccupancyRate,
   getStudentsHoused,
+  findAllByManager,
+  findAllWithRoomsByManager,
 };

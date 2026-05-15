@@ -9,7 +9,8 @@ export default function Loading() {
         style={{
           height: 54,
           borderRadius: 12,
-          background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+          background:
+            "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
           backgroundSize: "200% 100%",
           animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
           outline: "1px solid #CEC7B0",
@@ -20,7 +21,8 @@ export default function Loading() {
         style={{
           height: 420,
           borderRadius: 12,
-          background: "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
+          background:
+            "linear-gradient(90deg, #ece8e0 25%, #f5f3ef 50%, #ece8e0 75%)",
           backgroundSize: "200% 100%",
           animation: "adminSkeletonPulse 1.4s ease-in-out infinite",
           outline: "1px solid #CEC7B0",

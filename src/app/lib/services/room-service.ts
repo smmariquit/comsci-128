@@ -1,10 +1,11 @@
-"use server"
+"use server";
 
 import { roomData } from "@/app/lib/data/room-data";
 import type { Room, RoomInsert, RoomType, RoomUpdate } from "@/models/room";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
 import { housingData } from "../data/housing-data";
+import { createAuditLog } from "./audit-log-service";
 
 export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
   try {
@@ -14,7 +15,7 @@ export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
     // housing check
     const housing = await housingData.findById(data.housing_id);
     if (!housing) {
-      throw new Error("Housng Not Found.");
+      throw new Error("Housing Not Found.");
     }
 
     // OBAC
@@ -22,6 +23,14 @@ export const addRoom = async (data: RoomInsert): Promise<Room | null> => {
 
     const newRoom = await roomData.create(data);
     if (!newRoom) return null;
+
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Update Housing",
+      `Room ${newRoom.room_code} created for ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
     return newRoom;
   } catch (error) {
     console.error("Error: ", error);
@@ -54,7 +63,6 @@ export const updateRoom = async (
   updates: RoomUpdate,
 ): Promise<{ data?: Room; error?: string }> => {
   try {
-
     // rbac
     await validateAction(AppAction.UPDATE_HOUSING);
 
@@ -66,19 +74,19 @@ export const updateRoom = async (
     // housing check
     const housing = await housingData.findById(existingRoom.housing_id);
     if (!housing) {
-      return { error: "Housing Not Found."};
+      return { error: "Housing Not Found." };
     }
 
     // obac
     await validateOwnership(housing.landlord_account_number);
 
-		const validRoomTypes: RoomType[] = ["Women Only", "Men Only", "Co-ed"];
-		if (
-			updates.room_type &&
-			!validRoomTypes.includes(updates.room_type as RoomType)
-		) {
-			return { error: "Invalid Room Type." };
-		}
+    const validRoomTypes: RoomType[] = ["Women Only", "Men Only", "Co-ed"];
+    if (
+      updates.room_type &&
+      !validRoomTypes.includes(updates.room_type as RoomType)
+    ) {
+      return { error: "Invalid Room Type." };
+    }
 
     const incomingMax =
       updates.maximum_occupants ?? existingRoom.maximum_occupants;
@@ -91,6 +99,13 @@ export const updateRoom = async (
       return { error: "Update failed." };
     }
 
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Update Housing",
+      `Room ${updatedRoom.room_code} details updated for ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
     console.log(`Log: Room ${roomId} details updated.`);
     return { data: updatedRoom };
   } catch (error) {
@@ -113,7 +128,7 @@ export const deactivateRoom = async (roomId: number): Promise<Room | null> => {
     // Housing Check
     const housing = await housingData.findById(room.housing_id);
     if (!housing) {
-      throw new Error ("Housing Not Found.");
+      throw new Error("Housing Not Found.");
     }
 
     // OBAC
@@ -126,7 +141,16 @@ export const deactivateRoom = async (roomId: number): Promise<Room | null> => {
     }
 
     const deletedRoom = await roomData.deactivate(roomId);
-    return deletedRoom ?? null;
+    if (!deletedRoom) return null;
+
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Update Housing",
+      `Room ${deletedRoom.room_code} deactivated for ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
+    return deletedRoom;
   } catch (error: any) {
     console.error("Service Error (removeRoom): ", error.message);
     throw new Error(error.message || "Failed to remove room.");
@@ -134,28 +158,35 @@ export const deactivateRoom = async (roomId: number): Promise<Room | null> => {
 };
 
 export const assignRoom = async (roomId: number, studentId: string) => {
-	try {
-
+  try {
     // rbac
     await validateAction(AppAction.ASSIGN_ROOM);
 
     // room check
     const room = await roomData.findByRoomId(roomId);
-    if (!room) throw new Error ("Room Not Found!");
+    if (!room) throw new Error("Room Not Found!");
 
     // housing check
     const housing = await housingData.findById(room.housing_id);
-    if (!housing) throw new Error ("Housing Not Found!");
+    if (!housing) throw new Error("Housing Not Found!");
 
     // obac
     await validateOwnership(housing.landlord_account_number);
 
-    // room assignment 
-		const account_number = await roomData.getAccountbyStudentNumber(studentId);
+    // room assignment
+    const account_number = parseInt(studentId);
 
-		await roomData.insertAccommodation(roomId, account_number);
-		await roomData.getOccupantCount(roomId, 1);
-		await roomData.updateStudentHousingStatus(account_number, 'Assigned');
+    await roomData.insertAccommodation(roomId, account_number);
+    await roomData.getOccupantCount(roomId, 1);
+    await roomData.updateStudentHousingStatus(account_number, "Assigned");
+
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Assign Room",
+      `Student ${account_number} assigned to room ${room.room_code} in ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
 
 		return { success: true };
 	} catch (error: any) {
@@ -164,37 +195,52 @@ export const assignRoom = async (roomId: number, studentId: string) => {
 	}
 };
 
-export const unassignRoom = async (roomId: number, studentIdOrAccount: string | number) => {
-	try {
+export const unassignRoom = async (
+  roomId: number,
+  studentIdOrAccount: string | number,
+) => {
+  try {
     // rbac
     await validateAction(AppAction.ASSIGN_ROOM);
 
     // room check
     const room = await roomData.findByRoomId(roomId);
-    if (!room) throw new Error ("Room Not Found!");
+    if (!room) throw new Error("Room Not Found!");
 
     // housing check
     const housing = await housingData.findById(room.housing_id);
-    if (!housing) throw new Error ("Housing Not Found!");
+    if (!housing) throw new Error("Housing Not Found!");
 
     // obac
     await validateOwnership(housing.landlord_account_number);
 
     // room unassignment
-		let account_number: number;
+    let account_number: number;
 
-		if (typeof studentIdOrAccount === "string" && studentIdOrAccount.length > 5) {
-      account_number = await roomData.getAccountbyStudentNumber(studentIdOrAccount);
+    if (
+      typeof studentIdOrAccount === "string" &&
+      studentIdOrAccount.length > 5
+    ) {
+      account_number =
+        await roomData.getAccountbyStudentNumber(studentIdOrAccount);
     } else {
       // If it's the internal ID from the 'Remove' button, just use it
       account_number = Number(studentIdOrAccount);
     }
 
-		if (isNaN(account_number)) throw new Error("Invalid account number");
+    if (isNaN(account_number)) throw new Error("Invalid account number");
 
-		await roomData.endAccommodation(roomId, account_number);
-		await roomData.getOccupantCount(roomId, -1)
-		await roomData.updateStudentHousingStatus(account_number, 'Not Assigned');
+    await roomData.endAccommodation(roomId, account_number);
+    await roomData.getOccupantCount(roomId, -1);
+    await roomData.updateStudentHousingStatus(account_number, "Not Assigned");
+
+    await createAuditLog(
+      housing.landlord_account_number,
+      "",
+      "Assign Room",
+      `Student ${account_number} unassigned from room ${room.room_code} in ${housing.housing_name}`,
+      housing.manager_account_number,
+    );
 
 		return { success: true }
 	} catch (error: any) {
@@ -203,49 +249,54 @@ export const unassignRoom = async (roomId: number, studentIdOrAccount: string | 
 	}
 };
 
-export const getEligibleStudents = async (roomType: string) => {
-	try {
-		const allStudents = await roomData.findUnassignedStudents(roomType);
+export const getEligibleStudents = async (
+  roomType: string,
+  adminId: number,
+) => {
+  try {
+    const allStudents = await roomData.findUnassignedStudents(
+      roomType,
+      adminId,
+    );
 
-		const rooms = await roomData.findAllRoomDetailed();
-		const assignedIds = new Set(
-			rooms.flatMap(r => r.assigned_tenants?.map((t: any) => t.id))	
-		);
+    return allStudents;
+  } catch (error: any) {
+    console.error("Service Error (getElligibleStudents): ", error.message);
+    //throw new Error(error.message || "Failed to fetch unassigned students.");
+    return [];
+  }
+};
 
-		return allStudents.filter(s => !assignedIds.has(s.id));
-	} catch (error: any) {
-		console.error("Service Error (getElligibleStudents): ", error.message);
-		//throw new Error(error.message || "Failed to fetch unassigned students.");
-		return [];
-	}
-}
-
-export const getRoomStats = async () => {
-	try {
-		return await roomData.getRoomStats();
-	} catch (error: any) {
-		console.error("Service Error (getRoomStats): ", error.message);
-		throw new Error(error.message || "Failed to fetch room stats.");
-	}
+export const getRoomStats = async (managerAccountNumber: number) => {
+  try {
+    return await roomData.getRoomStats(managerAccountNumber);
+  } catch (error: any) {
+    console.error("Service Error (getRoomStats): ", error.message);
+    throw new Error(error.message || "Failed to fetch room stats.");
+  }
 };
 
 /*
  * Fetches rooms for a specific housing facility and filters them
  * by the student's preferred room type and available bed space.
  */
-export async function getAvailableRoomsForAssignment(housingId: number, roomType: string) {
-    const allRooms = await roomData.findAllRoomDetailed([housingId]);
+export async function getAvailableRoomsForAssignment(
+  housingId: number,
+  roomType: string,
+) {
+  const allRooms = await roomData.findAllRoomDetailed([housingId]);
 
-    const availableRooms = allRooms
-        .filter(room => 
-            room.room_type === roomType && 
-            room.current_occupants < room.maximum_occupants
-        )
-        .map(room => ({
-            room_id: room.room_id,
-            room_code: room.room_code,
-            available_beds: room.maximum_occupants - room.current_occupants
-        }));
+  const availableRooms = allRooms
+    .filter(
+      (room) =>
+        room.room_type === roomType &&
+        room.current_occupants < room.maximum_occupants,
+    )
+    .map((room) => ({
+      room_id: room.room_id,
+      room_code: room.room_code,
+      available_beds: room.maximum_occupants - room.current_occupants,
+    }));
 
-    return availableRooms;
+  return availableRooms;
 }

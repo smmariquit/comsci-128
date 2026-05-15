@@ -6,7 +6,7 @@ import { X, AlertTriangle, Building2 } from "lucide-react";
 // Types
 
 type DormStatus = "Accepting" | "Full" | "Closed";
-type DormType   = "Mixed" | "Male Only" | "Female Only";
+type DormType = "Mixed" | "Male Only" | "Female Only";
 
 export interface DormManager {
   id: string | number;
@@ -38,7 +38,7 @@ export interface EditDormModalProps {
 
 // Constants
 
-const DORM_TYPES: DormType[]   = ["Mixed", "Male Only", "Female Only"];
+const DORM_TYPES: DormType[] = ["Mixed", "Male Only", "Female Only"];
 const DORM_STATUSES: DormStatus[] = ["Accepting", "Full", "Closed"];
 
 // Helpers
@@ -60,28 +60,34 @@ export function EditDormModal({
   onClose,
   onSave,
 }: EditDormModalProps) {
-
   // Editable field states
-  const [name,        setName]        = useState(dorm.name ?? "");
-  const [address,     setAddress]     = useState(dorm.dormAddress ?? "");
-  const [type,        setType]        = useState<DormType>((dorm.type as DormType) ?? "Mixed");
-  const [capacity,    setCapacity]    = useState<string>(String(dorm.capacity ?? ""));
-  const [rate,        setRate]        = useState<string>(String(dorm.monthlyRate ?? ""));
+  const [name, setName] = useState(dorm.name ?? "");
+  const [address, setAddress] = useState(dorm.dormAddress ?? "");
+  const [type, setType] = useState<DormType>(
+    (dorm.type as DormType) ?? "Mixed",
+  );
+  const [capacity, setCapacity] = useState<string>(String(dorm.capacity ?? ""));
+  const [rate, setRate] = useState<string>(String(dorm.monthlyRate ?? ""));
   const [description, setDescription] = useState(dorm.description ?? "");
-  const [status,      setStatus]      = useState<DormStatus>((dorm.status as DormStatus) ?? "Accepting");
+  const [status, setStatus] = useState<DormStatus>(
+    (dorm.status as DormStatus) ?? "Accepting",
+  );
 
   // Manager searchable dropdown — mirrors "Assign to Dormitory" in EditUserModal
   const [selectedManager, setSelectedManager] = useState<DormManager | null>(
-    () => managers.find((m) => m.name === dorm.dormitory) ?? null
+    () => managers.find((m) => m.name === dorm.dormitory) ?? null,
   );
-  const [query,    setQuery]    = useState("");
-  const [open,     setOpen]     = useState(false);
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
         setQuery("");
       }
@@ -96,23 +102,24 @@ export function EditDormModal({
     return managers.filter(
       (m) =>
         m.name.toLowerCase().includes(query.toLowerCase()) ||
-        m.email.toLowerCase().includes(query.toLowerCase())
+        m.email.toLowerCase().includes(query.toLowerCase()),
     );
   }, [query, managers]);
 
   // What's shown in the manager input field
-  const managerDisplayValue = query !== "" ? query : (selectedManager?.name ?? "");
+  const managerDisplayValue =
+    query !== "" ? query : (selectedManager?.name ?? "");
 
   function handleSave() {
     onSave(dorm.id, {
-      name:        name.trim() || dorm.name,
+      name: name.trim() || dorm.name,
       dormAddress: address.trim() || undefined,
       type,
-      capacity:    capacity ? Number(capacity) : undefined,
-      monthlyRate: rate     ? Number(rate)     : undefined,
+      capacity: capacity ? Number(capacity) : undefined,
+      monthlyRate: rate ? Number(rate) : undefined,
       description: description.trim() || undefined,
       status,
-      dormitory:   selectedManager?.name  ?? undefined,
+      dormitory: selectedManager?.name ?? undefined,
       managerEmail: selectedManager?.email ?? undefined,
     });
     onClose();
@@ -130,7 +137,6 @@ export function EditDormModal({
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl max-w-500px h-[90vh] shadow-2xl flex flex-col">
-
           {/* Header */}
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4">
@@ -140,7 +146,9 @@ export function EditDormModal({
                   <Building2 size={18} className="text-[#b85c28]" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-[#1a2332]">Edit Dormitory</h2>
+                  <h2 className="text-xl font-bold text-[#1a2332]">
+                    Edit Dormitory
+                  </h2>
                   <p className="text-sm text-[#1a2332]/50 font-mono mt-0.5">
                     Update details and settings for this dorm
                   </p>
@@ -158,26 +166,32 @@ export function EditDormModal({
 
           {/* ── Scrollable body ── */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-
             {/* Dorm hero strip */}
             <div className="flex items-center gap-3.5 p-4 bg-[#f3f4f5] rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-xl bg-[#1a2332] flex items-center justify-center shrink-0">
                 <Building2 size={20} className="text-white/80" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[#1a2332] text-sm leading-tight truncate">{dorm.name}</p>
+                <p className="font-bold text-[#1a2332] text-sm leading-tight truncate">
+                  {dorm.name}
+                </p>
                 {dorm.dormAddress && (
-                  <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">{dorm.dormAddress}</p>
+                  <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">
+                    {dorm.dormAddress}
+                  </p>
                 )}
               </div>
               {/* Status badge on hero */}
-              <span className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border
-                ${dorm.type === "Female Only"
-                  ? "bg-pink-50 text-pink-700 border-pink-200"
-                  : dorm.type === "Male Only"
-                  ? "bg-blue-50 text-blue-700 border-blue-200"
-                  : "bg-purple-50 text-purple-700 border-purple-200"
-                }`}>
+              <span
+                className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border
+                ${
+                  dorm.type === "Female Only"
+                    ? "bg-pink-50 text-pink-700 border-pink-200"
+                    : dorm.type === "Male Only"
+                      ? "bg-blue-50 text-blue-700 border-blue-200"
+                      : "bg-purple-50 text-purple-700 border-purple-200"
+                }`}
+              >
                 {dorm.type ?? "Mixed"}
               </span>
             </div>
@@ -186,7 +200,9 @@ export function EditDormModal({
 
             {/* Basic Information*/}
             <div className="space-y-4">
-              <p className="text-sm font-bold text-[#1a2332]">Basic Information</p>
+              <p className="text-sm font-bold text-[#1a2332]">
+                Basic Information
+              </p>
 
               {/* Dorm Name */}
               <div className="space-y-1.5">
@@ -226,7 +242,9 @@ export function EditDormModal({
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors appearance-none cursor-pointer"
                   >
                     {DORM_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -265,7 +283,10 @@ export function EditDormModal({
               {/* Description */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-[#1a2332]/60">
-                  Description <span className="font-normal text-[#1a2332]/30">(optional)</span>
+                  Description{" "}
+                  <span className="font-normal text-[#1a2332]/30">
+                    (optional)
+                  </span>
                 </label>
                 <textarea
                   value={description}
@@ -281,7 +302,9 @@ export function EditDormModal({
 
             {/* Manager & Status */}
             <div className="space-y-4">
-              <p className="text-sm font-bold text-[#1a2332]">Manager &amp; Status</p>
+              <p className="text-sm font-bold text-[#1a2332]">
+                Manager &amp; Status
+              </p>
 
               {/* Assign Manager — searchable, mirrors "Assign to Dormitory" in EditUserModal */}
               <div ref={containerRef} className="relative space-y-1.5">
@@ -298,8 +321,12 @@ export function EditDormModal({
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-[#b85c28] truncate">{selectedManager.name}</p>
-                      <p className="text-[10px] text-[#b85c28]/60 font-mono truncate">{selectedManager.email}</p>
+                      <p className="text-xs font-bold text-[#b85c28] truncate">
+                        {selectedManager.name}
+                      </p>
+                      <p className="text-[10px] text-[#b85c28]/60 font-mono truncate">
+                        {selectedManager.email}
+                      </p>
                     </div>
                     {/* Clear selection */}
                     <button
@@ -346,13 +373,19 @@ export function EditDormModal({
                             ${m.id === selectedManager?.id ? "bg-[#fdf0e8]" : ""}`}
                         >
                           <div className="w-7 h-7 rounded-full bg-[#2e4a50] flex items-center justify-center shrink-0">
-                            <span className="text-[10px] font-bold text-white">{getInitials(m.name)}</span>
+                            <span className="text-[10px] font-bold text-white">
+                              {getInitials(m.name)}
+                            </span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
+                            <p
+                              className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}
+                            >
                               {m.name}
                             </p>
-                            <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">{m.email}</p>
+                            <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">
+                              {m.email}
+                            </p>
                           </div>
                         </button>
                       ))
@@ -379,17 +412,19 @@ export function EditDormModal({
               </div>
 
               {/* Status */}
-              
             </div>
 
             {/* Warning */}
             <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
-              <AlertTriangle size={15} className="text-[#b85c28] shrink-0 mt-0.5" />
+              <AlertTriangle
+                size={15}
+                className="text-[#b85c28] shrink-0 mt-0.5"
+              />
               <p className="text-xs text-[#b85c28] font-mono">
-                Changes to capacity and status will be reflected immediately across the system.
+                Changes to capacity and status will be reflected immediately
+                across the system.
               </p>
             </div>
-
           </div>
 
           {/* ── Footer ── */}
@@ -407,7 +442,6 @@ export function EditDormModal({
               Save Changes
             </button>
           </div>
-
         </div>
       </div>
     </>
