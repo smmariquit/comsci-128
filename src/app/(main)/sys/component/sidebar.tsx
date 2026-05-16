@@ -42,7 +42,7 @@ export default function Sidebar() {
         const fetchUser = async () => {
             // read account_number from cookies on mount
             const getCookie = (name: string) => {
-                const match = document.cookie.split(";").find((c) => c.startsWith(name + "="));
+                const match = document.cookie.split(";").find((c) => c.trim().startsWith(name + "="));
                 return match ? decodeURIComponent(match.split("=")[1]) : null;
             };
 
@@ -62,11 +62,12 @@ export default function Sidebar() {
                 }
 
                 const userData = await userResponse.json();
+                const fullName = `${userData.first_name} ${userData.last_name}`;
 
                 setUser({
-                    name: userData.name,
-                    role: userData.role,
-                    initials: userData.name
+                    name: fullName,
+                    role: userData.user_type,
+                    initials: fullName
                         .split(" ")
                         .map((n: string) => n[0])
                         .join("")
