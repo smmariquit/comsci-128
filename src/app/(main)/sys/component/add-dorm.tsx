@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { X, ChevronDown } from "lucide-react";
+import { useState } from 'react';
+import { X, ChevronDown } from 'lucide-react';
 
 // Dorm data type for new dorm entries
 export interface NewDorm {
@@ -12,7 +12,7 @@ export interface NewDorm {
   securityDeposit: number;
   managerEmail?: string;
   dormitory: string;
-  status: "Accepting" | "Disabled";
+  status: 'Accepting' | 'Disabled';
   occupied: number;
 }
 
@@ -20,17 +20,18 @@ export interface AddDormModalProps {
   open: boolean;
   onClose: () => void;
   onAdd: (dorm: NewDorm) => void;
-  managers?: { id: string; name: string; email: string }[];
+  managers?: { id: string; name: string}[];
+  landlords?: { id: string; name: string }[];
 }
 
-type InitialStatus = "Active" | "Inactive" | "Maintenance";
 
 // Main component - modal dialog for adding a new dormitory
 export default function AddDormModal({
   open,
   onClose,
   onAdd,
-  managers = STUB_MANAGERS,
+  managers,
+  landlords
 }: AddDormModalProps) {
   const [dormName,        setDormName]        = useState('');
   const [address,         setAddress]         = useState('');
@@ -62,10 +63,7 @@ export default function AddDormModal({
     setSubmitted(false);
   };
 
-  const handleClose = () => {
-    reset();
-    onClose();
-  };
+  const handleClose = () => { reset(); onClose(); };
 
 // Submit handler
   const handleSubmit = async () => {
@@ -135,26 +133,24 @@ export default function AddDormModal({
   return (
     /* Backdrop */
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+
       {/* Modal */}
-      <div className="bg-white rounded-2xl max-w-500px max-h-[90vh] overflow-hidden shadow-2xl">
+     <div className="bg-white rounded-2xl max-w-500px max-h-[90vh] overflow-hidden shadow-2xl">
         <div className="overflow-y-auto max-h-[90vh]">
-          {/* Header */}
-          <div className="flex items-start justify-between px-6 pt-6 pb-4">
-            <div>
-              <h2 className="text-xl font-bold text-[#1a2332]">
-                Add Dormitory
-              </h2>
-              <p className="text-sm text-[#1a2332]/50 mt-0.5">
-                Register a new dormitory to the system
-              </p>
-            </div>
-            <button
-              onClick={handleClose}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#1a2332]/15 text-[#1a2332]/40 hover:text-[#1a2332] hover:border-[#1a2332]/30 transition-colors"
-            >
-              <X size={15} />
-            </button>
+
+        {/* Header */}
+        <div className="flex items-start justify-between px-6 pt-6 pb-4">
+          <div>
+            <h2 className="text-xl font-bold text-[#1a2332]">Add Dormitory</h2>
+            <p className="text-sm text-[#1a2332]/50 mt-0.5">Register a new dormitory to the system</p>
           </div>
+          <button
+            onClick={handleClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#1a2332]/15 text-[#1a2332]/40 hover:text-[#1a2332] hover:border-[#1a2332]/30 transition-colors"
+          >
+            <X size={15} />
+          </button>
+        </div>
 
         <div className="px-6 pb-6 flex flex-col gap-6">
 
@@ -257,6 +253,7 @@ export default function AddDormModal({
                   className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2332]/40"
                 />
               </div>
+            </Field>
 
            <Field label="Assign Landlord">
             <div className="relative">
@@ -284,78 +281,7 @@ export default function AddDormModal({
             )}
           </Field>
 
-            {/* Assignment & Status */}
-            <Section label="Assignment & Status">
-              <Field
-                label="Assign Manager"
-                hint="Only users with Manager or Landlord role are listed"
-              >
-                {/* Wrapper for custom chevron icon */}
-                <div className="relative">
-                  <select
-                    value={managerId}
-                    onChange={(e) => setManagerId(e.target.value)}
-                    className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer`}
-                  >
-                    <option value="">Select a manager...</option>
-                    {managers.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown
-                    size={14}
-                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2332]/40"
-                  />
-                </div>
-              </Field>
-
-              <Field label="Initial Status">
-                <div className="grid grid-cols-3 gap-2">
-                  {(
-                    ["Active", "Inactive", "Maintenance"] as InitialStatus[]
-                  ).map((s) => {
-                    const cfg = STATUS_CONFIG[s];
-                    const isActive = s === status;
-                    return (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => setStatus(s)}
-                        className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-sm font-medium transition-colors ${
-                          isActive
-                            ? `${cfg.border} ${cfg.bg} ${cfg.text}`
-                            : "border-[#1a2332]/10 text-[#1a2332]/50 hover:border-[#1a2332]/20"
-                        }`}
-                      >
-                        <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                        {s}
-                      </button>
-                    );
-                  })}
-                </div>
-              </Field>
-            </Section>
-          </div>
-
-          {/* ── Footer ── */}
-          <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#1a2332]/6 bg-[#eae8e1]/30 rounded-b-2xl">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="px-5 py-2 text-sm font-semibold text-[#1a2332]/60 border border-[#1a2332]/15 rounded-xl hover:border-[#1a2332]/30 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="px-5 py-2 text-sm font-semibold text-white bg-[#e8622a] rounded-xl hover:bg-[#d4561f] transition-colors"
-            >
-              Add Dormitory
-            </button>
-          </div>
+          </Section>
         </div>
 
         {/* ── Footer ── */}
@@ -378,15 +304,17 @@ export default function AddDormModal({
 
       </div>
     </div>
+    </div>
   );
 }
 
 const INPUT_CLS =
-  "w-full px-3.5 py-2.5 rounded-xl bg-[#eae8e1]/60 border border-transparent " +
-  "text-sm text-[#1a2332] placeholder:text-[#1a2332]/30 " +
-  "focus:outline-none focus:border-[#1a2332]/30 transition-colors";
+  'w-full px-3.5 py-2.5 rounded-xl bg-[#eae8e1]/60 border border-transparent ' +
+  'text-sm text-[#1a2332] placeholder:text-[#1a2332]/30 ' +
+  'focus:outline-none focus:border-[#1a2332]/30 transition-colors';
 
-const TEXTAREA_CLS = INPUT_CLS + " resize-none";
+const TEXTAREA_CLS =
+  INPUT_CLS + ' resize-none';
 
 // Section Wrapper with label
 function Section({
@@ -429,7 +357,9 @@ function Field({
         )}
       </label>
       {children}
-      {hint && <p className="text-[11px] text-[#1a2332]/40">{hint}</p>}
+      {hint && (
+        <p className="text-[11px] text-[#1a2332]/40">{hint}</p>
+      )}
     </div>
   );
 }
