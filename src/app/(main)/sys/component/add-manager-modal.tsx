@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
-import type { User } from "@/app/(main)/sys/roles/page";
+import { User } from "../users/page";
 
 interface AddManagerModalProps {
   open: boolean;
