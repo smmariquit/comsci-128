@@ -27,26 +27,28 @@ async function create(userDetails: NewUser, managerDetails: NewManager) {
 
 // Read all housing admins with user details
 async function getAll() {
-  const { data, error } = await supabase.from("housing_admin").select(`
-      account_number,
-      manager!inner(
-        manager_type,
-        user!inner(
-          account_number,
-          account_email,
-          first_name,
-          middle_name,
-          last_name,
-          sex,
-          birthday,
-          home_address,
-          phone_number,
-          contact_email,
-          user_type,
+  const { data, error } = await supabase
+      .from("housing_admin")
+      .select(`
+        account_number,
+        manager(
+          manager_type,
+          user(
+            account_number,
+            account_email,
+            first_name,
+            middle_name,
+            last_name,
+            sex,
+            birthday,
+            home_address,
+            phone_number,
+            contact_email,
+            user_type
+          )
         )
-      )
-    `)
-    .eq("is_deleted", false); 
+      `)
+      .eq("is_deleted", false);
 
   if (error) {
     console.error("Error fetching housing admins:", error.message);
