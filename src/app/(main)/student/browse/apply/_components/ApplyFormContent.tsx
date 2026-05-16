@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
 
+
 export function ApplyFormContent() {
   const dateNow = new Date(Date.now()).toISOString().split("T")[0];
   const router = useRouter();
@@ -79,6 +80,15 @@ export function ApplyFormContent() {
       });
 
       if (response) {
+        await fetch("/api/notifications/application-submitted", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+              studentEmail: dormData?.student_email,
+              studentName: dormData?.student_name,
+              housingName: dormData?.housing_name,
+          }),
+      });
         setStatus({
           message:
             "Application submitted successfully! Redirecting to dashboard...",

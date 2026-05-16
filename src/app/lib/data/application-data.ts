@@ -209,7 +209,8 @@ async function getApplicationDetailById(applicationId: number) {
         user:user!account_number (
           first_name,
           middle_name,
-          last_name
+          last_name,
+          account_email
         )
       )
     `,

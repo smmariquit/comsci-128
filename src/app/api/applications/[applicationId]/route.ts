@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { applicationService } from "@/app/lib/services/application-service";
+import { applicationData } from "@/app/lib/data/application-data";
+import { sendApplicationStatusEmail } from "@/app/lib/services/email-service";
 
 export async function PATCH(
   request: NextRequest,
@@ -55,6 +57,31 @@ export async function PATCH(
         { status: 404 },
       );
     }
+    //email
+    try {
+      const detail = await applicationData.getApplicationDetailById(application_Id);
+      const user = (detail?.student as any)?.user;
+      const studentEmail = user?.email;
+      const studentName = `${user?.first_name} ${user?.last_name}`;
+      const housingName = detail?.housing_name ?? "the housing";
+
+      if (
+        studentEmail &&
+        (application_status === "Pending Admin Approval" ||
+          application_status === "Rejected")
+      ) {
+        await sendApplicationStatusEmail(
+          studentEmail,
+          studentName,
+          housingName,
+          application_status,
+        );
+      }
+    } catch (emailError) {
+      console.error("Email notification failed:", emailError);
+      // don't block the response if email fails
+    }
+
 
     return NextResponse.json(
       { message: `Application processed successfully.` },
