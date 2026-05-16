@@ -491,4 +491,5 @@ export const studentData = {
 	getBillingHistory,
 	getUnpaidBills,
 	deactivate,
+    deleteByAccountNumber
 };
