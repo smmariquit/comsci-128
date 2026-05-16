@@ -59,15 +59,18 @@ export default function HousingCards({ cards }: { cards: any[] }) {
             onClick={() => handleCardClick(card.id)}
             className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02]"
           >
-            <Image
-              src={
-                card.image || "/assets/placeholders/housing-414x264.svg"
-              }
-              alt={`${card.name} placeholder`}
-              width={414}
-              height={264}
-              className="block h-auto w-full"
-            />
+            <div className="relative w-full h-48 bg-gray-100">
+              <Image
+                src={
+                  card.image || "/assets/placeholders/housing-414x264.svg"
+                }
+                alt={`${card.name}`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover"
+                priority={false}
+              />
+            </div>
             <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1.5 font-[family-name:var(--font-geist-sans)]">
               <div className="text-sm font-bold text-[#C9642A] truncate">
                 {card.name}

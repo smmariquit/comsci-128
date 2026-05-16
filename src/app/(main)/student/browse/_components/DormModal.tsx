@@ -13,6 +13,7 @@ interface DormModalProps {
     price: number | string;
     appli_start: string;
     appli_end: string;
+    image?: string | null;
   } | null;
   onClose: () => void;
 }
@@ -27,9 +28,11 @@ export default function DormModal({ dorm, onClose }: DormModalProps) {
         {/* TOP SECTION: Image and Overlay */}
         <div className="relative h-[240px] w-full">
           <Image
-            src="/assets/placeholders/housing-414x264.svg"
+            /* 2. UPDATED: Dynamic image URL with your placeholder fallback */
+            src={dorm.image || "/assets/placeholders/housing-414x264.svg"}
             alt={dorm.name}
             fill
+            sizes="(max-width: 500px) 100vw, 500px"
             className="object-cover"
           />
           {/* Gradient Overlay */}
