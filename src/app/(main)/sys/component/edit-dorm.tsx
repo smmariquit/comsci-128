@@ -14,6 +14,12 @@ export interface DormManager {
   email: string;
 }
 
+export interface DormLandlord {
+  id: string | number;
+  name: string;
+  email: string;
+}
+
 export interface EditDormData {
   id: number;
   name: string;
@@ -21,7 +27,6 @@ export interface EditDormData {
   housingType?: DormType;
   monthlyRate?: number;
   dormitory?: string;
-  managerEmail?: string;
   landlordName?: string;
   landlordId?: string | number;
 }
@@ -32,6 +37,7 @@ export interface EditDormModalProps {
   onClose: () => void;
   onSave: (id: string, updates: Partial<EditDormData>) => void;
   managers?: DormManager[];
+  landlords?: DormLandlord[];
 }
 
 // Constants
@@ -54,10 +60,12 @@ function getInitials(name: string) {
 
 export function EditDormModal({
   dorm,
-  managers = [],
+  managers,
+  landlords,
   onClose,
   onSave,
 }: EditDormModalProps) {
+
   // Editable field states
   const [name,        setName]        = useState(dorm.name ?? "");
   const [address,     setAddress]     = useState(dorm.dormAddress ?? "");
@@ -66,11 +74,8 @@ export function EditDormModal({
 
   // Manager searchable dropdown 
   const [selectedManager, setSelectedManager] = useState<DormManager | null>(
-    () => managers.find((m) => m.name === dorm.dormitory) ?? null,
+    () => (managers ?? []).find((m) => m.name === dorm.dormitory) ?? null
   );
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [selectedLandlord, setSelectedLandlord] = useState<DormLandlord | null>(
   () => {
     // Try to find landlord by name or ID from dorm data
@@ -96,14 +101,19 @@ export function EditDormModal({
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false);
-        setQuery("");
+      const target = e.target as Node;
+
+      if (managerRef.current && !managerRef.current.contains(target)) {
+        setManagerOpen(false);
+        setManagerQuery("");
+      }
+
+      if (landlordRef.current && !landlordRef.current.contains(target)) {
+        setLandlordOpen(false);
+        setLandlordQuery("");
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -136,8 +146,8 @@ export function EditDormModal({
   }, [landlordQuery, landlords]);
 
   // What's shown in the manager input field
-  const managerDisplayValue =
-    query !== "" ? query : (selectedManager?.name ?? "");
+  const managerDisplayValue = managerQuery !== "" ? managerQuery : (selectedManager?.name ?? "");
+  const landlordDisplayValue = landlordQuery !== "" ? landlordQuery : (selectedLandlord?.name ?? "");
 
   async function handleSave() {
     const newErrors: typeof errors = {};
@@ -184,6 +194,12 @@ export function EditDormModal({
         landlord_account_number: selectedLandlord?.id ?? null,
       }),
     });
+
+    if (!res.ok) {
+      console.error("Failed to update housing");
+      return;
+    }
+
     onClose();
   }
 
@@ -199,6 +215,7 @@ export function EditDormModal({
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl max-w-500px h-[90vh] shadow-2xl flex flex-col">
+
           {/* Header */}
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4">
@@ -208,9 +225,7 @@ export function EditDormModal({
                   <Building2 size={18} className="text-[#b85c28]" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-[#1a2332]">
-                    Edit Dormitory
-                  </h2>
+                  <h2 className="text-xl font-bold text-[#1a2332]">Edit Dormitory</h2>
                   <p className="text-sm text-[#1a2332]/50 font-mono mt-0.5">
                     Update details and settings for this dorm
                   </p>
@@ -228,19 +243,16 @@ export function EditDormModal({
 
           {/* ── Scrollable body ── */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+
             {/* Dorm hero strip */}
             <div className="flex items-center gap-3.5 p-4 bg-[#f3f4f5] rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-xl bg-[#1a2332] flex items-center justify-center shrink-0">
                 <Building2 size={20} className="text-white/80" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[#1a2332] text-sm leading-tight truncate">
-                  {dorm.name}
-                </p>
+                <p className="font-bold text-[#1a2332] text-sm leading-tight truncate">{dorm.name}</p>
                 {dorm.dormAddress && (
-                  <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">
-                    {dorm.dormAddress}
-                  </p>
+                  <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">{dorm.dormAddress}</p>
                 )}
               </div>
               {/* Status badge on hero */}
@@ -259,9 +271,7 @@ export function EditDormModal({
 
             {/* Basic Information*/}
             <div className="space-y-4">
-              <p className="text-sm font-bold text-[#1a2332]">
-                Basic Information
-              </p>
+              <p className="text-sm font-bold text-[#1a2332]">Basic Information</p>
 
               {/* Dorm Name */}
                 <div className="space-y-1.5">
@@ -360,7 +370,7 @@ export function EditDormModal({
               <p className="text-sm font-bold text-[#1a2332]">Manager &amp; Landlord</p>
 
               {/* Assign Manager — searchable, mirrors "Assign to Dormitory" in EditUserModal */}
-              <div ref={containerRef} className="relative space-y-1.5">
+              <div ref={managerRef} className="relative space-y-1.5">
                 <label className="block text-xs font-semibold text-[#b85c28]">
                   Assign Manager
                 </label>
@@ -374,12 +384,7 @@ export function EditDormModal({
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-[#b85c28] truncate">
-                        {selectedManager.name}
-                      </p>
-                      <p className="text-[10px] text-[#b85c28]/60 font-mono truncate">
-                        {selectedManager.email}
-                      </p>
+                      <p className="text-xs font-bold text-[#b85c28] truncate">{selectedManager.name}</p>
                     </div>
                     {/* Clear selection */}
                     <button
@@ -396,20 +401,20 @@ export function EditDormModal({
                 <input
                   value={managerDisplayValue}
                   onChange={(e) => {
-                    setQuery(e.target.value);
+                    setManagerQuery(e.target.value);
                     setSelectedManager(null);
-                    setOpen(true);
+                    setManagerOpen(true);
                   }}
                   onFocus={() => {
-                    setQuery("");
-                    setOpen(true);
+                    setManagerQuery("");
+                    setManagerOpen(true);
                   }}
                   placeholder="Search by name or email…"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
                 />
 
                 {/* Dropdown */}
-                {open && (
+                {managerOpen && (
                   <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-52 overflow-y-auto">
                     {filteredManagers.length > 0 ? (
                       filteredManagers.map((m) => (
@@ -419,21 +424,17 @@ export function EditDormModal({
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
                             setSelectedManager(m);
-                            setQuery("");
-                            setOpen(false);
+                            setManagerQuery("");
+                            setManagerOpen(false);
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-200
                             ${m.id === selectedManager?.id ? "bg-[#fdf0e8]" : ""}`}
                         >
                           <div className="w-7 h-7 rounded-full bg-[#2e4a50] flex items-center justify-center shrink-0">
-                            <span className="text-[10px] font-bold text-white">
-                              {getInitials(m.name)}
-                            </span>
+                            <span className="text-[10px] font-bold text-white">{getInitials(m.name)}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p
-                              className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}
-                            >
+                            <p className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
                               {m.name}
                             </p>
                             <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">
@@ -453,8 +454,8 @@ export function EditDormModal({
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
                         setSelectedManager(null);
-                        setQuery("");
-                        setOpen(false);
+                        setManagerQuery("");
+                        setManagerOpen(false);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-[#1a2332]/40 italic hover:bg-gray-200 border-t border-gray-200 transition-colors"
                     >
@@ -577,14 +578,12 @@ export function EditDormModal({
 
             {/* Warning */}
             <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
-              <AlertTriangle
-                size={15}
-                className="text-[#b85c28] shrink-0 mt-0.5"
-              />
+              <AlertTriangle size={15} className="text-[#b85c28] shrink-0 mt-0.5" />
               <p className="text-xs text-[#b85c28] font-mono">
                 Changes will be reflected immediately across the system.
               </p>
             </div>
+
           </div>
 
           {/* ── Footer ── */}
@@ -602,6 +601,7 @@ export function EditDormModal({
               Save Changes
             </button>
           </div>
+
         </div>
       </div>
     </>
