@@ -25,9 +25,10 @@ interface DormModalProps {
     has_utilities_included: boolean;
   } | null;
   onClose: () => void;
+  onViewMap?: () => void;
 }
 
-export default function DormModal({ dorm, onClose }: DormModalProps) {
+export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) {
   if (!dorm) return null;
 
   return (
@@ -111,7 +112,15 @@ export default function DormModal({ dorm, onClose }: DormModalProps) {
           </div>
 
           {/* Action Button */}
-          <div className="flex justify-end pt-6">
+          <div className="flex justify-end pt-6 gap-3">
+            {onViewMap && (
+              <button
+                onClick={onViewMap}
+                className="rounded-full bg-gray-100 px-6 py-2.5 font-bold text-[#1C2632] hover:bg-gray-200 transition-colors font-[family-name:var(--font-geist-sans)]"
+              >
+                View 3D Map
+              </button>
+            )}
             <Link
               href={`/student/browse/apply?id=${dorm.id}`} // Passing the ID via query param
               className="rounded-full bg-[#C9642A] px-10 py-2.5 font-bold text-white transition-transform hover:scale-105 active:scale-95 font-[family-name:var(--font-geist-sans)]"
