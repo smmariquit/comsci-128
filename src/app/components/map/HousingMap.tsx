@@ -148,10 +148,10 @@ export default function HousingMap({
     for (const housing of housings) {
       if (!housing.lat || !housing.lng) continue;
 
+      // Minimal marker element — just the pin circle, nothing else
       const el = document.createElement("div");
       el.className = "casa-map-marker";
       el.dataset.housingId = String(housing.id);
-
       el.innerHTML = `
         <div class="marker-pin">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -159,15 +159,34 @@ export default function HousingMap({
             <polyline points="9 22 9 12 15 12 15 22"/>
           </svg>
         </div>
-        <div class="marker-label">${housing.name}</div>
       `;
+
+      // Tooltip popup for the label (not part of marker element)
+      const popup = new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 20,
+        className: "casa-marker-popup",
+      }).setHTML(`<span>${housing.name}</span>`);
+
+      el.addEventListener("mouseenter", () => {
+        popup.setLngLat([housing.lng, housing.lat]).addTo(map);
+      });
+      el.addEventListener("mouseleave", () => {
+        popup.remove();
+      });
 
       el.addEventListener("click", (e) => {
         e.stopPropagation();
         onMarkerClick?.(housing.id);
       });
 
-      const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+      const marker = new maplibregl.Marker({
+        element: el,
+        anchor: "center",
+        pitchAlignment: "viewport",
+        rotateAlignment: "viewport",
+      })
         .setLngLat([housing.lng, housing.lat])
         .addTo(map);
 
@@ -402,13 +421,11 @@ export default function HousingMap({
           color: white;
         }
 
-        /* Markers — stable positioning via intrinsic sizing (same as room-tba) */
+        /* Markers — minimal element for stable positioning */
         .casa-map-marker {
           line-height: 0;
           cursor: pointer;
-          position: relative;
           z-index: 1;
-          overflow: visible;
         }
 
         .casa-map-marker.active {
@@ -435,44 +452,25 @@ export default function HousingMap({
 
         .casa-map-marker.active .marker-pin {
           background: ${BRAND_DARK};
-        }
-
-        .casa-map-marker.active .marker-pin::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
           outline: 2.5px solid ${BRAND_ORANGE};
           outline-offset: 2px;
         }
 
-        .marker-label {
-          line-height: normal;
-          position: absolute;
-          bottom: calc(100% + 0.5rem);
-          left: 50%;
-          translate: -50% 0;
+        /* Popup tooltip for marker hover */
+        .casa-marker-popup .maplibregl-popup-content {
           background: white;
           color: ${BRAND_DARK};
           border-radius: 0.5rem;
           padding: 0.25rem 0.625rem;
-          font-size: 0.7rem;
+          font-size: 0.75rem;
           font-weight: 600;
           font-family: var(--font-geist-sans), sans-serif;
           white-space: nowrap;
-          width: max-content;
           box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.2s;
         }
 
-        .casa-map-marker:hover .marker-label,
-        .casa-map-marker.active .marker-label {
-          opacity: 1;
+        .casa-marker-popup .maplibregl-popup-tip {
+          border-top-color: white;
         }
 
         /* Override MapLibre defaults for CASA branding */
