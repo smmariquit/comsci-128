@@ -2,10 +2,11 @@
 
 import { useState, useCallback, useMemo, type ReactNode } from "react";
 import Image from "next/image";
+import { Sparkles, X, Map, LayoutGrid, Wifi, Armchair, Clock, Zap } from "lucide-react";
 import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
+import Isolated3DViewer from "@/app/components/map/Isolated3DViewer";
 import DormModal from "./DormModal";
 import { getDormDetails } from "../_actions";
-import { Map, LayoutGrid, Sparkles, X, Wifi, Armchair, Clock, Zap } from "lucide-react";
 
 /* ────────────────────── Types ────────────────────── */
 
@@ -256,6 +257,7 @@ export default function BrowseContent({
   const [showMap, setShowMap] = useState(true);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [mapViewTrigger, setMapViewTrigger] = useState(0);
+  const [isolatedDorm, setIsolatedDorm] = useState<HousingCard | null>(null);
 
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
@@ -534,11 +536,21 @@ export default function BrowseContent({
           dorm={selectedDorm} 
           onClose={() => setSelectedDorm(null)}
           onViewMap={() => {
-            setShowMap(true);
-            setSelectedCardId(selectedDorm.id);
-            setMapViewTrigger(Date.now());
+            setIsolatedDorm(selectedDorm);
             setSelectedDorm(null);
           }}
+        />
+      )}
+
+      {/* Isolated 3D Viewer */}
+      {isolatedDorm && (
+        <Isolated3DViewer 
+          housing={{
+            name: isolatedDorm.name,
+            lng: isolatedDorm.lng!,
+            lat: isolatedDorm.lat!
+          }}
+          onClose={() => setIsolatedDorm(null)} 
         />
       )}
 
