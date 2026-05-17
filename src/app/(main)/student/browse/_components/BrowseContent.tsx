@@ -203,6 +203,7 @@ export default function BrowseContent({
         .browse-map-panel {
           width: 100%;
           height: 45vh;
+          min-height: 280px;
           position: relative;
         }
 
@@ -280,33 +281,32 @@ export default function BrowseContent({
         }
 
         /* ═══════════════════════════════════════
-           DESKTOP: Full-bleed split layout
+           DESKTOP: Map fixed left, content right
            ═══════════════════════════════════════ */
 
         @media (min-width: 1024px) {
           .browse-root.map-visible {
-            display: grid;
-            grid-template-columns: 50% 50%;
-            height: calc(100vh - 5.5rem);
-            overflow: hidden;
+            position: relative;
           }
 
+          /* Map: pinned to left half of viewport, never stretches */
           .browse-map-panel {
-            height: 100%;
-            position: sticky;
-            top: 0;
+            position: fixed;
+            top: 5.5rem; /* below navbar + breadcrumb */
+            left: 0;
+            width: 50%;
+            height: calc(100vh - 5.5rem);
+            z-index: 2;
           }
 
+          /* Content: offset to right half */
           .browse-content-panel {
-            height: 100%;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            margin-left: 50%;
+            width: 50%;
+            min-height: calc(100vh - 5.5rem);
           }
 
           .browse-cards-scroll {
-            flex: 1;
-            overflow-y: auto;
             padding: 1rem 1.5rem 2rem;
           }
 
@@ -335,8 +335,13 @@ export default function BrowseContent({
         }
 
         @media (min-width: 1440px) {
-          .browse-root.map-visible {
-            grid-template-columns: 55% 45%;
+          .browse-map-panel {
+            width: 55%;
+          }
+
+          .browse-root.map-visible .browse-content-panel {
+            margin-left: 55%;
+            width: 45%;
           }
 
           .browse-cards-grid {
