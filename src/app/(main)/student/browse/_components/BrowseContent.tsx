@@ -283,35 +283,32 @@ export default function BrowseContent({
         }
 
         /* ═══════════════════════════════════════
-           DESKTOP: Flex split, map doesn't scroll
+           DESKTOP: Flex split, map sticks on scroll
            ═══════════════════════════════════════ */
 
         @media (min-width: 1024px) {
           .browse-root.map-visible {
             display: flex;
             flex-direction: row;
-            height: calc(100vh - 5.5rem);
-            overflow: hidden;
+            align-items: flex-start;
           }
 
+          /* Map: sticks to viewport while cards scroll */
           .browse-map-panel {
             width: 50%;
-            height: 100%;
+            height: calc(100vh - 5.5rem);
             flex-shrink: 0;
             overflow: hidden;
+            position: sticky;
+            top: 5.5rem;
           }
 
           .browse-content-panel {
             width: 50%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            min-height: calc(100vh - 5.5rem);
           }
 
           .browse-cards-scroll {
-            flex: 1;
-            overflow-y: auto;
             padding: 1rem 1.5rem 2rem;
           }
 
