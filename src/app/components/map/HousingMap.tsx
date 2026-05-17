@@ -134,59 +134,105 @@ export default function HousingMap({
         );
       }
 
-      // Housing markers — GeoJSON source + circle layer (rendered in WebGL)
+      // Create house icon via canvas for crisp rendering
+      const size = 48;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d")!;
+
+      // White circle background with border
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+      ctx.fillStyle = BRAND_ORANGE;
+      ctx.fill();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // House icon (simplified path)
+      const cx = size / 2;
+      const cy = size / 2;
+      const s = 10; // icon scale
+
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      // Roof
+      ctx.beginPath();
+      ctx.moveTo(cx - s, cy);
+      ctx.lineTo(cx, cy - s);
+      ctx.lineTo(cx + s, cy);
+      ctx.closePath();
+      ctx.fill();
+
+      // House body
+      ctx.fillRect(cx - s * 0.7, cy - 1, s * 1.4, s * 0.9);
+
+      // Door
+      ctx.fillStyle = BRAND_ORANGE;
+      ctx.fillRect(cx - s * 0.2, cy + s * 0.2, s * 0.4, s * 0.7);
+
+      const imageData = ctx.getImageData(0, 0, size, size);
+      map.addImage("casa-house-icon", imageData, { pixelRatio: 2 });
+
+      // Also create selected variant
+      const canvas2 = document.createElement("canvas");
+      canvas2.width = size;
+      canvas2.height = size;
+      const ctx2 = canvas2.getContext("2d")!;
+
+      ctx2.beginPath();
+      ctx2.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+      ctx2.fillStyle = BRAND_DARK;
+      ctx2.fill();
+      ctx2.strokeStyle = BRAND_ORANGE;
+      ctx2.lineWidth = 3;
+      ctx2.stroke();
+
+      ctx2.fillStyle = "#ffffff";
+      ctx2.beginPath();
+      ctx2.moveTo(cx - s, cy);
+      ctx2.lineTo(cx, cy - s);
+      ctx2.lineTo(cx + s, cy);
+      ctx2.closePath();
+      ctx2.fill();
+      ctx2.fillRect(cx - s * 0.7, cy - 1, s * 1.4, s * 0.9);
+      ctx2.fillStyle = BRAND_DARK;
+      ctx2.fillRect(cx - s * 0.2, cy + s * 0.2, s * 0.4, s * 0.7);
+
+      const imageData2 = ctx2.getImageData(0, 0, size, size);
+      map.addImage("casa-house-icon-selected", imageData2, { pixelRatio: 2 });
+
+      // Housing markers — GeoJSON source + symbol layer
       map.addSource(MARKERS_SOURCE_ID, {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
       });
 
-      // Outer white ring
-      map.addLayer({
-        id: MARKERS_CIRCLE_LAYER + "-ring",
-        source: MARKERS_SOURCE_ID,
-        type: "circle",
-        paint: {
-          "circle-radius": ["case", ["==", ["get", "selected"], 1], 14, 12],
-          "circle-color": "#ffffff",
-          "circle-stroke-width": 0,
-        },
-      });
-
-      // Inner colored circle
-      map.addLayer({
-        id: MARKERS_CIRCLE_LAYER,
-        source: MARKERS_SOURCE_ID,
-        type: "circle",
-        paint: {
-          "circle-radius": ["case", ["==", ["get", "selected"], 1], 11, 9],
-          "circle-color": [
-            "case",
-            ["==", ["get", "selected"], 1],
-            BRAND_DARK,
-            BRAND_ORANGE,
-          ],
-          "circle-stroke-width": 0,
-        },
-      });
-
-      // House icon as text label (using unicode)
+      // Single symbol layer with data-driven icon
       map.addLayer({
         id: MARKERS_ICON_LAYER,
         source: MARKERS_SOURCE_ID,
         type: "symbol",
         layout: {
-          "text-field": "⌂",
-          "text-size": ["case", ["==", ["get", "selected"], 1], 18, 14],
-          "text-allow-overlap": true,
-          "text-ignore-placement": true,
-        },
-        paint: {
-          "text-color": "#ffffff",
+          "icon-image": [
+            "case",
+            ["==", ["get", "selected"], 1],
+            "casa-house-icon-selected",
+            "casa-house-icon",
+          ],
+          "icon-size": ["case", ["==", ["get", "selected"], 1], 1.2, 0.9],
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
         },
       });
 
       // Click handler
-      map.on("click", MARKERS_CIRCLE_LAYER, (e) => {
+      map.on("click", MARKERS_ICON_LAYER, (e) => {
         const feature = e.features?.[0];
         if (feature?.properties?.id) {
           onMarkerClick?.(feature.properties.id);
@@ -194,7 +240,7 @@ export default function HousingMap({
       });
 
       // Hover cursor + popup
-      map.on("mouseenter", MARKERS_CIRCLE_LAYER, (e) => {
+      map.on("mouseenter", MARKERS_ICON_LAYER, (e) => {
         map.getCanvas().style.cursor = "pointer";
         const feature = e.features?.[0];
         if (feature && feature.geometry.type === "Point") {
@@ -214,7 +260,7 @@ export default function HousingMap({
         }
       });
 
-      map.on("mouseleave", MARKERS_CIRCLE_LAYER, () => {
+      map.on("mouseleave", MARKERS_ICON_LAYER, () => {
         map.getCanvas().style.cursor = "";
         if (popupRef.current) {
           popupRef.current.remove();
