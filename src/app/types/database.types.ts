@@ -297,13 +297,23 @@ export type Database = {
       }
       housing: {
         Row: {
+          allows_visitors: boolean | null
           end_application_date: string | null
+          has_aircon: boolean | null
+          has_kitchen: boolean | null
+          has_laundry: boolean | null
+          has_no_curfew: boolean | null
+          has_parking: boolean | null
+          has_security: boolean | null
+          has_utilities_included: boolean | null
+          has_wifi: boolean | null
           housing_address: string
           housing_id: number
           housing_image: string | null
           housing_name: string
           housing_type: Database["public"]["Enums"]["HousingType"]
           is_deleted: boolean | null
+          is_furnished: boolean | null
           landlord_account_number: number
           latitude: number | null
           longitude: number | null
@@ -312,13 +322,23 @@ export type Database = {
           start_application_date: string | null
         }
         Insert: {
+          allows_visitors?: boolean | null
           end_application_date?: string | null
+          has_aircon?: boolean | null
+          has_kitchen?: boolean | null
+          has_laundry?: boolean | null
+          has_no_curfew?: boolean | null
+          has_parking?: boolean | null
+          has_security?: boolean | null
+          has_utilities_included?: boolean | null
+          has_wifi?: boolean | null
           housing_address: string
           housing_id?: number
           housing_image?: string | null
           housing_name: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
+          is_furnished?: boolean | null
           landlord_account_number: number
           latitude?: number | null
           longitude?: number | null
@@ -327,13 +347,23 @@ export type Database = {
           start_application_date?: string | null
         }
         Update: {
+          allows_visitors?: boolean | null
           end_application_date?: string | null
+          has_aircon?: boolean | null
+          has_kitchen?: boolean | null
+          has_laundry?: boolean | null
+          has_no_curfew?: boolean | null
+          has_parking?: boolean | null
+          has_security?: boolean | null
+          has_utilities_included?: boolean | null
+          has_wifi?: boolean | null
           housing_address?: string
           housing_id?: number
           housing_image?: string | null
           housing_name?: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
+          is_furnished?: boolean | null
           landlord_account_number?: number
           latitude?: number | null
           longitude?: number | null

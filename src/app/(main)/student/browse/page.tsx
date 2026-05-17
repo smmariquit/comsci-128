@@ -64,6 +64,17 @@ export default async function DormBrowsePage({
     image: item.housing_image,
     lat: item.latitude ?? null,
     lng: item.longitude ?? null,
+    // Amenities
+    has_wifi: item.has_wifi ?? false,
+    has_aircon: item.has_aircon ?? false,
+    has_laundry: item.has_laundry ?? false,
+    has_parking: item.has_parking ?? false,
+    has_no_curfew: item.has_no_curfew ?? false,
+    allows_visitors: item.allows_visitors ?? false,
+    is_furnished: item.is_furnished ?? false,
+    has_kitchen: item.has_kitchen ?? false,
+    has_security: item.has_security ?? false,
+    has_utilities_included: item.has_utilities_included ?? false,
   }));
 
   return (
