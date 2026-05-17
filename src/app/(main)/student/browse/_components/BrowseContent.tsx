@@ -294,52 +294,53 @@ export default function BrowseContent({
             overflow: hidden;
           }
 
-          .browse-map-panel {
+          .browse-root.map-visible .browse-map-panel {
             width: 50%;
-            height: 100%;
+            height: calc(100vh - 5.5rem);
+            min-height: 0;
             flex-shrink: 0;
           }
 
-          .browse-content-panel {
+          .browse-root.map-visible .browse-content-panel {
             width: 50%;
-            height: 100%;
+            height: calc(100vh - 5.5rem);
             display: flex;
             flex-direction: column;
             overflow: hidden;
           }
 
-          .browse-cards-scroll {
+          .browse-root.map-visible .browse-cards-scroll {
             flex: 1;
             overflow-y: auto;
             padding: 1rem 1.5rem 2rem;
           }
 
-          .browse-cards-grid {
+          .browse-root.map-visible .browse-cards-grid {
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 0.75rem;
           }
 
-          .browse-cards-scroll::-webkit-scrollbar {
+          .browse-root.map-visible .browse-cards-scroll::-webkit-scrollbar {
             width: 6px;
           }
-          .browse-cards-scroll::-webkit-scrollbar-track {
+          .browse-root.map-visible .browse-cards-scroll::-webkit-scrollbar-track {
             background: transparent;
           }
-          .browse-cards-scroll::-webkit-scrollbar-thumb {
+          .browse-root.map-visible .browse-cards-scroll::-webkit-scrollbar-thumb {
             background: rgba(28, 38, 50, 0.15);
             border-radius: 3px;
           }
-          .browse-cards-scroll::-webkit-scrollbar-thumb:hover {
+          .browse-root.map-visible .browse-cards-scroll::-webkit-scrollbar-thumb:hover {
             background: rgba(28, 38, 50, 0.3);
           }
 
-          .browse-toolbar {
+          .browse-root.map-visible .browse-toolbar {
             padding: 0.5rem 1.5rem;
           }
         }
 
         @media (min-width: 1440px) {
-          .browse-map-panel {
+          .browse-root.map-visible .browse-map-panel {
             width: 55%;
           }
 
@@ -347,7 +348,7 @@ export default function BrowseContent({
             width: 45%;
           }
 
-          .browse-cards-grid {
+          .browse-root.map-visible .browse-cards-grid {
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
           }
         }
@@ -361,10 +362,15 @@ export default function BrowseContent({
           flex-direction: column;
         }
 
+        .browse-root.map-hidden .browse-content-panel {
+          width: 100%;
+        }
+
         .browse-root.map-hidden .browse-cards-scroll {
           max-width: 80rem;
           margin: 0 auto;
           width: 100%;
+          padding: 1rem 1.5rem 2rem;
         }
 
         .browse-root.map-hidden .browse-toolbar {
