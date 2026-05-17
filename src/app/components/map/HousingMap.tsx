@@ -402,13 +402,13 @@ export default function HousingMap({
           color: white;
         }
 
-        /* Markers */
+        /* Markers — stable positioning via intrinsic sizing (same as room-tba) */
         .casa-map-marker {
+          line-height: 0;
           cursor: pointer;
           position: relative;
           z-index: 1;
-          width: 2.25rem;
-          height: 2.25rem;
+          overflow: visible;
         }
 
         .casa-map-marker.active {
@@ -416,36 +416,45 @@ export default function HousingMap({
         }
 
         .marker-pin {
-          display: flex;
+          line-height: 0;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 2.25rem;
-          height: 2.25rem;
+          padding: 0.4rem;
           border-radius: 50%;
           background: ${BRAND_ORANGE};
           border: 2.5px solid white;
           color: white;
           box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-          transition: transform 0.2s, background-color 0.2s;
+          transition: background-color 0.2s;
         }
 
-        .casa-map-marker:hover .marker-pin,
-        .casa-map-marker.active .marker-pin {
-          transform: scale(1.2);
+        .casa-map-marker:hover .marker-pin {
           background: #a8511e;
         }
 
         .casa-map-marker.active .marker-pin {
           background: ${BRAND_DARK};
+        }
+
+        .casa-map-marker.active .marker-pin::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
           outline: 2.5px solid ${BRAND_ORANGE};
           outline-offset: 2px;
         }
 
         .marker-label {
+          line-height: normal;
           position: absolute;
-          bottom: calc(100% + 0.4rem);
+          bottom: calc(100% + 0.5rem);
           left: 50%;
-          transform: translateX(-50%);
+          translate: -50% 0;
           background: white;
           color: ${BRAND_DARK};
           border-radius: 0.5rem;
@@ -454,6 +463,7 @@ export default function HousingMap({
           font-weight: 600;
           font-family: var(--font-geist-sans), sans-serif;
           white-space: nowrap;
+          width: max-content;
           box-shadow: 0 2px 8px rgba(0,0,0,0.15);
           opacity: 0;
           pointer-events: none;
