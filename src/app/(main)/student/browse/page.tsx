@@ -1,7 +1,6 @@
-import Image from "next/image";
 import SearchBar from "./_components/SearchBar";
 import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";
-import HousingCards from "./_components/HousingCards";
+import BrowseContent from "./_components/BrowseContent";
 import { userData } from "@/app/lib/data/user-data";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 import type { Metadata } from "next";
@@ -9,7 +8,8 @@ import StateMessage from "@/app/components/ui/state-message";
 
 export const metadata: Metadata = {
   title: "Browse Housing",
-  description: "Explore available dormitories and housing options.",
+  description:
+    "Explore available dormitories and housing options near UPLB campus.",
 };
 
 export default async function DormBrowsePage({
@@ -56,13 +56,14 @@ export default async function DormBrowsePage({
     );
   }
 
-  //get housing names to put on cards
   const cards = allHousing.map((item) => ({
     id: item.housing_id,
     name: item.housing_name,
     type: item.housing_type,
     price: item.rent_price,
     image: item.housing_image,
+    lat: item.latitude ?? null,
+    lng: item.longitude ?? null,
   }));
 
   return (
@@ -72,19 +73,18 @@ export default async function DormBrowsePage({
         userId={currUser?.account_number}
       />
 
-      <SearchBar />
-
-      {/* HOUSING CARDS CONTAINER */}
-      <div className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner">
-        {cards.length === 0 ? (
-          <StateMessage
-            title="No housing results"
-            description="Try changing your filters or search query."
-          />
-        ) : (
-          <HousingCards cards={cards} />
-        )}
-      </div>
+      <BrowseContent
+        cards={cards}
+        searchBar={<SearchBar />}
+        emptyState={
+          cards.length === 0 ? (
+            <StateMessage
+              title="No housing results"
+              description="Try changing your filters or search query."
+            />
+          ) : null
+        }
+      />
     </div>
   );
 }
