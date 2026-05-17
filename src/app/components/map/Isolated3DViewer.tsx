@@ -109,14 +109,6 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
           }
         });
       }
-
-      // Add a marker for the dorm itself
-      const dormEl = document.createElement("div");
-      dormEl.className = "px-2 py-1 bg-red-600 text-white text-[10px] font-bold rounded-full shadow-lg border-2 border-white whitespace-nowrap z-20";
-      dormEl.textContent = housing.name;
-      new maplibregl.Marker({ element: dormEl })
-        .setLngLat([housing.lng, housing.lat])
-        .addTo(map);
     });
 
     mapRef.current = map;
