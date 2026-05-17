@@ -550,7 +550,8 @@ export default function BrowseContent({
           housing={{
             name: isolatedDorm.name,
             lng: isolatedDorm.longitude || 0,
-            lat: isolatedDorm.latitude || 0
+            lat: isolatedDorm.latitude || 0,
+            rooms: (isolatedDorm as any).room || [], // pass the real db rooms
           }}
           onClose={() => setIsolatedDorm(null)} 
         />
