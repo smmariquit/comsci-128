@@ -149,6 +149,7 @@ async function getHousingCardsData() {
 
     return {
       housingId: housing.housing_id.toString(),
+      housingIdNum: housing.housing_id,
       name: housing.housing_name,
       address: housing.housing_address,
       totalRooms,
@@ -156,7 +157,11 @@ async function getHousingCardsData() {
       vacantRooms,
       occupancyRate,
       minRent: housing.rent_price,
-      managerAccountNumber: housing.manager_account_number?.toString() || null, // ✅ Added
+      managerAccountNumber: housing.manager_account_number?.toString() || null,
+      latitude: housing.latitude,
+      longitude: housing.longitude,
+      image: housing.housing_image,
+      housingType: housing.housing_type,
     };
   });
 }

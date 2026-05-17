@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, useMemo } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, Map, LayoutGrid } from "lucide-react";
+import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
 
 import type { Database } from "@/app/types/database.types";
 
@@ -150,6 +151,24 @@ export default function AccommodationsPage({
 }) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("name-asc");
+  const [showMap, setShowMap] = useState(false);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  const markers: HousingMarker[] = useMemo(
+    () =>
+      housings
+        .filter((h) => h.latitude && h.longitude)
+        .map((h) => ({
+          id: h.housing_id,
+          name: h.housing_name,
+          type: h.housing_type,
+          price: h.rent_price,
+          lat: h.latitude!,
+          lng: h.longitude!,
+          image: h.housing_image,
+        })),
+    [housings]
+  );
 
   const filtered = useMemo(() => {
     let result = [...housings];
@@ -198,9 +217,20 @@ export default function AccommodationsPage({
   return (
     <main className="min-h-screen flex flex-col p-6 gap-6 bg-[var(--cream)]">
       <section className="flex flex-col gap-4 px-5">
-        <h1 className="text-3xl text-[var(--dark-orange)] font-semibold">
-          Accommodations
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl text-[var(--dark-orange)] font-semibold">
+            Accommodations
+          </h1>
+          {markers.length > 0 && (
+            <button
+              onClick={() => setShowMap(!showMap)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--dark-blue)] text-white text-sm font-semibold hover:opacity-90 transition shadow-md"
+            >
+              {showMap ? <LayoutGrid size={16} /> : <Map size={16} />}
+              {showMap ? "Hide Map" : "Show Map"}
+            </button>
+          )}
+        </div>
         <FilterBar
           search={search}
           onSearchChange={setSearch}
@@ -209,6 +239,19 @@ export default function AccommodationsPage({
           resultCount={filtered.length}
         />
       </section>
+
+      {showMap && markers.length > 0 && (
+        <section className="px-5">
+          <div className="w-full rounded-xl overflow-hidden shadow-lg" style={{ height: "400px" }}>
+            <HousingMap
+              housings={markers}
+              selectedId={selectedId}
+              onMarkerClick={(id) => setSelectedId(id)}
+            />
+          </div>
+        </section>
+      )}
+
       <section className="px-5 overflow-x-auto">
         {filtered.length === 0 ? (
           <p className="text-gray-500">No accommodations found.</p>

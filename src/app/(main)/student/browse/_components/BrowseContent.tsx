@@ -2,7 +2,7 @@
 
 import { useState, useCallback, type ReactNode } from "react";
 import Image from "next/image";
-import HousingMap, { type HousingMarker } from "./HousingMap";
+import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
 import DormModal from "./DormModal";
 import { getDormDetails } from "../_actions";
 import { Map, LayoutGrid } from "lucide-react";
@@ -149,16 +149,18 @@ export default function BrowseContent({
                     className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md
                       ${selectedCardId === card.id ? "ring-2 ring-[#C9642A] ring-offset-2 scale-[1.01]" : ""}`}
                   >
-                    <Image
-                      src={
-                        card.image ||
-                        "/assets/placeholders/housing-414x264.svg"
-                      }
-                      alt={`${card.name} placeholder`}
-                      width={414}
-                      height={264}
-                      className="block h-auto w-full"
-                    />
+                    <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
+                      <Image
+                        src={
+                          card.image ||
+                          "/assets/placeholders/housing-414x264.svg"
+                        }
+                        alt={card.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 300px"
+                        className="object-cover"
+                      />
+                    </div>
                     <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1.5 font-[family-name:var(--font-geist-sans)]">
                       <div className="text-sm font-bold text-[#C9642A] truncate">
                         {card.name}
