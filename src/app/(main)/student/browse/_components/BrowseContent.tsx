@@ -440,32 +440,35 @@ export default function BrowseContent({
             </div>
           </div>
 
-          {/* Active filters indicator */}
-          {(quizAnswers || boundsFilter) && (
-            <div className="flex items-center gap-2 px-4 py-1.5 text-xs">
-              {quizAnswers && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#C9642A]/10 text-[#C9642A] font-medium">
-                  <Sparkles size={10} />
-                  Quiz active · {processedCards.length} results
-                </span>
-              )}
-              {boundsFilter && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
-                  <Map size={10} />
-                  Area filter · {processedCards.length} in bounds
-                  <button
-                    onClick={() => setBoundsFilter(null)}
-                    className="ml-1 hover:text-blue-900"
-                  >
-                    <X size={10} />
-                  </button>
-                </span>
-              )}
-            </div>
-          )}
+
 
           {/* Scrollable cards area */}
-          <div className="browse-cards-scroll">
+          <div className="browse-cards-scroll relative">
+            
+            {/* Active filters floating indicator */}
+            {(quizAnswers || boundsFilter) && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 text-xs pointer-events-none">
+                {quizAnswers && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur border border-[#C9642A]/20 text-[#C9642A] font-medium shadow-sm pointer-events-auto">
+                    <Sparkles size={12} />
+                    Quiz active ({processedCards.length})
+                  </span>
+                )}
+                {boundsFilter && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur border border-[#1C2632]/20 text-[#1C2632] font-medium shadow-sm pointer-events-auto">
+                    <Map size={12} />
+                    Area filtered ({processedCards.length})
+                    <button
+                      onClick={() => setBoundsFilter(null)}
+                      className="ml-1 hover:text-red-500 bg-gray-100 rounded-full p-0.5 transition-colors"
+                    >
+                      <X size={10} strokeWidth={3} />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
+            
             {emptyState && processedCards.length === 0 && !quizAnswers && !boundsFilter ? (
               <div className="p-6">{emptyState}</div>
             ) : processedCards.length === 0 ? (
