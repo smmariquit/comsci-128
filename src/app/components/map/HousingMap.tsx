@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Layers, Navigation, X } from "lucide-react";
@@ -54,8 +54,8 @@ export default function HousingMap({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [is3D, setIs3D] = useState(true);
 
-  /* ── Build GeoJSON from housing data ── */
-  const geojson: GeoJSON.FeatureCollection = {
+  /* ── Build GeoJSON from housing data (memoized to avoid infinite loops) ── */
+  const geojson = useMemo<GeoJSON.FeatureCollection>(() => ({
     type: "FeatureCollection",
     features: housings
       .filter((h) => h.lat && h.lng)
@@ -73,7 +73,7 @@ export default function HousingMap({
           selected: h.id === selectedId ? 1 : 0,
         },
       })),
-  };
+  }), [housings, selectedId]);
 
   /* ── Initialize map ── */
   useEffect(() => {
@@ -99,6 +99,9 @@ export default function HousingMap({
     );
 
     map.on("load", () => {
+      // Force resize so canvas matches container
+      map.resize();
+
       // 3D building extrusions
       if (!map.getLayer(BUILDING_LAYER_ID)) {
         const layers = map.getStyle().layers;
@@ -222,6 +225,12 @@ export default function HousingMap({
       setMapLoaded(true);
     });
 
+    // Auto-resize when container dimensions change
+    const ro = new ResizeObserver(() => {
+      map.resize();
+    });
+    ro.observe(mapContainerRef.current);
+
     // Stop rotation on interaction
     const stopRotation = () => {
       if (rotationFrameRef.current !== null) {
@@ -237,6 +246,7 @@ export default function HousingMap({
 
     return () => {
       stopRotation();
+      ro.disconnect();
       map.remove();
       mapRef.current = null;
     };
