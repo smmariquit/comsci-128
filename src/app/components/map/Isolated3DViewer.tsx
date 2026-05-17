@@ -23,20 +23,32 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
       style: "/map-style.json",
       center: [housing.lng, housing.lat],
       zoom: 18.5,
-      pitch: 65,
-      bearing: 0,
+      pitch: 60,
+      bearing: -20,
       interactive: true,
       attributionControl: false,
     });
 
     map.on("load", () => {
-      // Hide all standard layers to create an isolated void
-      const layers = map.getStyle().layers;
-      layers.forEach((layer) => {
-        if (layer.type === "background") {
-          map.setPaintProperty(layer.id, "background-color", "#0f0f11"); // Extremely dark background
-        } else if (layer.type === "symbol" || layer.type === "line" || layer.type === "fill" || layer.type === "fill-extrusion") {
-           map.setLayoutProperty(layer.id, "visibility", "none");
+      // Re-add standard 3D building layer from openmaptiles
+      if (!map.getSource("openmaptiles")) {
+        map.addSource("openmaptiles", {
+          type: "vector",
+          url: "https://api.maptiler.com/tiles/v3/tiles.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+        });
+      }
+
+      map.addLayer({
+        id: "3d-buildings",
+        source: "openmaptiles",
+        "source-layer": "building",
+        type: "fill-extrusion",
+        minzoom: 14,
+        paint: {
+          "fill-extrusion-color": "#e0d5c1", // match screenshot's beige/brownish tint
+          "fill-extrusion-height": ["get", "render_height"],
+          "fill-extrusion-base": ["get", "render_min_height"],
+          "fill-extrusion-opacity": 0.6, // semi-transparent to see markers inside
         }
       });
 
@@ -48,7 +60,7 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
         const cy = 14.160900;
         const m = 0.000009; // ~1 meter
 
-        // Define the 4 units (cross layout around the center)
+        // Define the 4 units and their approximate real-world centroids
         const units = [
           { id: 1, label: "Unit 1", x: cx, y: cy + 30 * m, horizontal: true },
           { id: 2, label: "Unit 2", x: cx + 30 * m, y: cy, horizontal: false },
@@ -56,133 +68,48 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
           { id: 4, label: "Unit 4", x: cx - 30 * m, y: cy, horizontal: false },
         ];
 
-        const roomFeatures: any[] = [];
-        const shellFeatures: any[] = [];
-
         units.forEach(unit => {
-          // Add a floating label for the unit
-          const el = document.createElement("div");
-          el.className = "px-3 py-1.5 bg-black/90 text-white text-[10px] font-bold tracking-widest uppercase rounded border border-white/10 shadow-[0_0_15px_rgba(201,100,42,0.3)] backdrop-blur-md transition-transform hover:scale-110 cursor-pointer";
-          el.textContent = unit.label;
-          new maplibregl.Marker({ element: el })
-            .setLngLat([unit.x, unit.y])
-            .addTo(map);
-
-          // Building shell footprint (covers all rooms)
-          const shellW = unit.horizontal ? 35 * m : 8 * m;
-          const shellH = unit.horizontal ? 8 * m : 35 * m;
-          
-          shellFeatures.push({
-            type: "Feature",
-            properties: { height: 10, base: 0 }, // 3 floors * 3m + roof
-            geometry: {
-              type: "Polygon",
-              coordinates: [[
-                [unit.x - shellW/2, unit.y - shellH/2],
-                [unit.x + shellW/2, unit.y - shellH/2],
-                [unit.x + shellW/2, unit.y + shellH/2],
-                [unit.x - shellW/2, unit.y + shellH/2],
-                [unit.x - shellW/2, unit.y - shellH/2],
-              ]]
+          // Generate room markers for Floor 1 only to avoid clutter for now, or just some sample rooms
+          // 3101 to 3116 (16 rooms)
+          const floor = 1;
+          for (let room = 1; room <= 16; room++) {
+            const roomId = unit.id * 1000 + floor * 100 + room;
+            
+            // Hallway layout: 8 rooms per side
+            const row = Math.floor((room - 1) / 2); // 0 to 7
+            const col = (room - 1) % 2; // 0 or 1
+            
+            let localX, localY;
+            if (unit.horizontal) {
+              localX = (row - 3.5) * 4; // spread along X (4m per room)
+              localY = (col === 0 ? -2 : 2); // offset from Y center
+            } else {
+              localX = (col === 0 ? -2 : 2); // offset from X center
+              localY = (row - 3.5) * 4; // spread along Y
             }
-          });
 
-          // Generate rooms per floor
-          for (let floor = 1; floor <= 3; floor++) {
-            for (let room = 1; room <= 16; room++) {
-              const roomId = unit.id * 1000 + floor * 100 + room;
-              
-              // Hallway layout: 8 rooms per side
-              const row = Math.floor((room - 1) / 2); // 0 to 7
-              const col = (room - 1) % 2; // 0 or 1
-              
-              let localX, localY;
-              if (unit.horizontal) {
-                localX = (row - 3.5) * 4; // spread along X (4m per room)
-                localY = (col === 0 ? -1.5 : 1.5) * 2; // offset from Y center
-              } else {
-                localX = (col === 0 ? -1.5 : 1.5) * 2; // offset from X center
-                localY = (row - 3.5) * 4; // spread along Y
-              }
-
-              const roomCx = unit.x + localX * m;
-              const roomCy = unit.y + localY * m;
-              
-              // 3.5m x 3.5m room size
-              const s = 1.7 * m;
-              const polygon = [
-                [roomCx - s, roomCy - s],
-                [roomCx + s, roomCy - s],
-                [roomCx + s, roomCy + s],
-                [roomCx - s, roomCy + s],
-                [roomCx - s, roomCy - s]
-              ];
-              
-              const baseHeight = (floor - 1) * 3;
-              const height = baseHeight + 2.8; // 0.2m gap for floors
-              
-              // Simulate occupancy for cool visual effect
-              const isOccupied = Math.random() > 0.4;
-              
-              roomFeatures.push({
-                type: "Feature",
-                properties: {
-                  room_id: roomId,
-                  base_height: baseHeight,
-                  height: height,
-                  color: isOccupied ? BRAND_ORANGE : "#222225",
-                  opacity: isOccupied ? 0.9 : 0.6
-                },
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [polygon]
-                }
-              });
-            }
-          }
-        });
-
-        // Add procedural sources and layers
-        map.addSource("mrh-rooms", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: roomFeatures }
-        });
-
-        // The solid glowing rooms
-        map.addLayer({
-          id: "mrh-rooms-layer",
-          type: "fill-extrusion",
-          source: "mrh-rooms",
-          paint: {
-            "fill-extrusion-color": ["get", "color"],
-            "fill-extrusion-height": ["get", "height"],
-            "fill-extrusion-base": ["get", "base_height"],
-            "fill-extrusion-opacity": ["get", "opacity"],
+            const roomCx = unit.x + localX * m;
+            const roomCy = unit.y + localY * m;
+            
+            // Create custom label like the screenshot
+            const el = document.createElement("div");
+            el.className = "px-1.5 py-0.5 bg-white text-black text-[9px] font-bold rounded shadow-sm border border-gray-300 whitespace-nowrap z-10 hover:bg-orange-100 hover:border-orange-400 cursor-pointer transition-colors";
+            el.textContent = `${roomId}`;
+            
+            new maplibregl.Marker({ element: el })
+              .setLngLat([roomCx, roomCy])
+              .addTo(map);
           }
         });
       }
 
-      // Spin the model
-      let bearing = map.getBearing();
-      let lastTs = 0;
-      let frameId: number;
-
-      const rotate = (ts: number) => {
-        if (!lastTs) lastTs = ts;
-        const delta = ts - lastTs;
-        lastTs = ts;
-        bearing = (bearing + delta / 40) % 360;
-        map.rotateTo(bearing, { duration: 0 });
-        frameId = requestAnimationFrame(rotate);
-      };
-
-      frameId = requestAnimationFrame(rotate);
-
-      // Stop spin on interaction
-      const stopSpin = () => cancelAnimationFrame(frameId);
-      map.on("mousedown", stopSpin);
-      map.on("touchstart", stopSpin);
-      map.on("wheel", stopSpin);
+      // Add a marker for the dorm itself
+      const dormEl = document.createElement("div");
+      dormEl.className = "px-2 py-1 bg-red-600 text-white text-[10px] font-bold rounded-full shadow-lg border-2 border-white whitespace-nowrap z-20";
+      dormEl.textContent = housing.name;
+      new maplibregl.Marker({ element: dormEl })
+        .setLngLat([housing.lng, housing.lat])
+        .addTo(map);
     });
 
     mapRef.current = map;
@@ -193,19 +120,49 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
   }, [housing]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md">
-      <div className="relative w-full max-w-4xl aspect-video bg-[#1a1a1a] rounded-xl overflow-hidden shadow-2xl border border-white/10">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="relative w-full max-w-5xl h-[80vh] bg-white rounded-xl overflow-hidden shadow-2xl border border-gray-200 flex">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/80 text-white rounded-full transition-colors"
+          className="absolute top-4 right-4 z-10 p-2 bg-white/80 hover:bg-gray-200 text-black rounded-full transition-colors shadow-sm"
         >
-          <X size={24} />
+          <X size={20} />
         </button>
-        <div className="absolute top-4 left-4 z-10">
-          <h2 className="text-xl font-bold text-white drop-shadow-md">{housing.name}</h2>
-          <p className="text-white/70 text-sm">3D Model Explorer</p>
+        
+        {/* Left Sidebar (like Room TBA) */}
+        <div className="w-64 bg-[#f8f9fa] border-r border-gray-200 p-4 overflow-y-auto flex flex-col z-10">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">{housing.name}</h2>
+          <p className="text-xs text-gray-500 mb-6">3D model fabricated from OpenStreetMap footprint - mock room positions</p>
+          
+          <div className="mb-4">
+            <h3 className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wider">Floor</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-50">All floors</span>
+              <span className="px-2 py-1 bg-[#8c3123] text-white rounded text-xs cursor-pointer">Floor 1</span>
+              <span className="px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-50">Floor 2</span>
+              <span className="px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-50">Floor 3</span>
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Rooms</h3>
+              <span className="text-xs text-gray-500">64</span>
+            </div>
+            <div className="space-y-1">
+              {/* Example room list */}
+              {Array.from({length: 10}).map((_, i) => (
+                <div key={i} className="flex justify-between items-center py-2 border-b border-gray-100 hover:bg-gray-100 px-2 cursor-pointer rounded">
+                  <span className="text-sm font-medium text-gray-800">Room 110{i+1}</span>
+                  <span className="text-xs text-gray-400">F1</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <div ref={mapContainerRef} className="w-full h-full" />
+
+        {/* Map Container */}
+        <div ref={mapContainerRef} className="flex-1 h-full bg-[#f0f0f0]" />
       </div>
     </div>
   );
