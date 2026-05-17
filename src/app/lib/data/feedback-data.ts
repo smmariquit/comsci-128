@@ -124,13 +124,23 @@ async function getAllAppFeedback(sortList: SortOrder[]): Promise<Partial<Feedbac
     return data || [];
 }
 
-async function getOwnFeedbacks(userId: number): Promise<Partial<Feedback>[]> {
+async function getOwnFeedbacks(userId: number, sortList: SortOrder[], filterList: FilterOptions[]): Promise<Partial<Feedback>[]> {
     // get the feedbacks of a user by their account number
     
-    const { data, error } = await supabase
+    let query = supabase
         .from("feedback")
         .select("id, text, feedback_type, category, created_at, status")
         .eq("account_number", userId);
+
+    sortList.forEach(item => {
+        query = query.order(item.column, { ascending: item.isAscending });
+    });
+
+    filterList.forEach(filter => {
+        query = query.eq(filter.column, filter.value);
+    });
+    
+    const { data, error } = await query;
 
     if (error) throw new Error(`Get All Feedbacks of User Error: ${error.message}`);
     
