@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useCallback, type ReactNode } from "react";
+import { useState, useCallback, useMemo, type ReactNode } from "react";
 import Image from "next/image";
 import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
 import DormModal from "./DormModal";
 import { getDormDetails } from "../_actions";
-import { Map, LayoutGrid } from "lucide-react";
+import { Map, LayoutGrid, Sparkles, X, Wifi, Armchair, Clock, Zap } from "lucide-react";
 
 /* ────────────────────── Types ────────────────────── */
 
@@ -17,6 +17,17 @@ interface HousingCard {
   image?: string | null;
   lat: number | null;
   lng: number | null;
+  // Amenities
+  has_wifi: boolean;
+  has_aircon: boolean;
+  has_laundry: boolean;
+  has_parking: boolean;
+  has_no_curfew: boolean;
+  allows_visitors: boolean;
+  is_furnished: boolean;
+  has_kitchen: boolean;
+  has_security: boolean;
+  has_utilities_included: boolean;
 }
 
 interface BrowseContentProps {
@@ -25,7 +36,216 @@ interface BrowseContentProps {
   emptyState: ReactNode | null;
 }
 
-/* ────────────────────── Component ────────────────────── */
+interface QuizAnswers {
+  budget: string | null;        // "<3000" | "3000-5000" | "5000-8000" | "8000+"
+  mustHave: string | null;      // "wifi" | "furnished" | "kitchen" | "aircon"
+  curfew: string | null;        // "no_curfew" | "curfew_ok"
+  visitors: string | null;      // "visitors_yes" | "visitors_no"
+}
+
+interface BoundsFilter {
+  minLat: number;
+  maxLat: number;
+  minLng: number;
+  maxLng: number;
+}
+
+/* ────────────────────── Quiz Scoring ────────────────────── */
+
+function scoreHousing(card: HousingCard, answers: QuizAnswers): number {
+  let score = 0;
+  let total = 0;
+
+  // Budget match
+  if (answers.budget) {
+    total += 40; // Budget is heavily weighted
+    const price = typeof card.price === "string" ? parseFloat(card.price) : card.price;
+    switch (answers.budget) {
+      case "<3000": if (price <= 3000) score += 40; else if (price <= 4000) score += 20; break;
+      case "3000-5000": if (price >= 3000 && price <= 5000) score += 40; else if (price <= 6000) score += 20; break;
+      case "5000-8000": if (price >= 5000 && price <= 8000) score += 40; else if (price <= 9000) score += 20; break;
+      case "8000+": if (price >= 8000) score += 40; else if (price >= 6000) score += 20; break;
+    }
+  }
+
+  // Must-have amenity
+  if (answers.mustHave) {
+    total += 25;
+    switch (answers.mustHave) {
+      case "wifi": if (card.has_wifi) score += 25; break;
+      case "furnished": if (card.is_furnished) score += 25; break;
+      case "kitchen": if (card.has_kitchen) score += 25; break;
+      case "aircon": if (card.has_aircon) score += 25; break;
+    }
+  }
+
+  // Curfew preference
+  if (answers.curfew) {
+    total += 20;
+    if (answers.curfew === "no_curfew" && card.has_no_curfew) score += 20;
+    else if (answers.curfew === "curfew_ok") score += 20; // Either way is fine
+  }
+
+  // Visitors preference
+  if (answers.visitors) {
+    total += 15;
+    if (answers.visitors === "visitors_yes" && card.allows_visitors) score += 15;
+    else if (answers.visitors === "visitors_no" && !card.allows_visitors) score += 15;
+    else score += 5; // Partial
+  }
+
+  return total > 0 ? Math.round((score / total) * 100) : 0;
+}
+
+/* ────────────────────── Amenity Badges ────────────────────── */
+
+function AmenityBadges({ card }: { card: HousingCard }) {
+  const badges: { icon: ReactNode; label: string }[] = [];
+  if (card.has_wifi) badges.push({ icon: <Wifi size={10} />, label: "WiFi" });
+  if (card.is_furnished) badges.push({ icon: <Armchair size={10} />, label: "Furnished" });
+  if (card.has_no_curfew) badges.push({ icon: <Clock size={10} />, label: "No Curfew" });
+  if (card.has_utilities_included) badges.push({ icon: <Zap size={10} />, label: "Bills Incl." });
+
+  if (badges.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1 mt-1">
+      {badges.slice(0, 4).map((b) => (
+        <span
+          key={b.label}
+          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-[#C9642A]/20 text-[#C9642A]"
+        >
+          {b.icon}
+          {b.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* ────────────────────── Quiz Modal ────────────────────── */
+
+function QuizModal({
+  onComplete,
+  onClose,
+}: {
+  onComplete: (answers: QuizAnswers) => void;
+  onClose: () => void;
+}) {
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<QuizAnswers>({
+    budget: null,
+    mustHave: null,
+    curfew: null,
+    visitors: null,
+  });
+
+  const questions = [
+    {
+      title: "💰 What's your monthly budget?",
+      key: "budget" as const,
+      options: [
+        { value: "<3000", label: "Under ₱3,000", emoji: "🪙" },
+        { value: "3000-5000", label: "₱3,000 – ₱5,000", emoji: "💵" },
+        { value: "5000-8000", label: "₱5,000 – ₱8,000", emoji: "💳" },
+        { value: "8000+", label: "₱8,000+", emoji: "💎" },
+      ],
+    },
+    {
+      title: "⭐ What's your #1 must-have?",
+      key: "mustHave" as const,
+      options: [
+        { value: "wifi", label: "WiFi", emoji: "📶" },
+        { value: "furnished", label: "Furnished Room", emoji: "🛏️" },
+        { value: "kitchen", label: "Kitchen Access", emoji: "🍳" },
+        { value: "aircon", label: "Air Conditioning", emoji: "❄️" },
+      ],
+    },
+    {
+      title: "🕐 How do you feel about curfews?",
+      key: "curfew" as const,
+      options: [
+        { value: "no_curfew", label: "No curfew please!", emoji: "🦉" },
+        { value: "curfew_ok", label: "Curfew is fine", emoji: "🌙" },
+      ],
+    },
+    {
+      title: "👋 Visitors policy?",
+      key: "visitors" as const,
+      options: [
+        { value: "visitors_yes", label: "Visitors welcome!", emoji: "🎉" },
+        { value: "visitors_no", label: "Privacy is key", emoji: "🔒" },
+      ],
+    },
+  ];
+
+  const handleSelect = (key: keyof QuizAnswers, value: string) => {
+    const newAnswers = { ...answers, [key]: value };
+    setAnswers(newAnswers);
+
+    if (step < questions.length - 1) {
+      setTimeout(() => setStep(step + 1), 200);
+    } else {
+      setTimeout(() => onComplete(newAnswers), 300);
+    }
+  };
+
+  const q = questions[step];
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-md overflow-hidden animate-[fadeInUp_0.3s_ease]">
+        {/* Header */}
+        <div className="bg-[#1C2632] px-5 py-4 flex justify-between items-center">
+          <div>
+            <h3 className="text-white font-bold text-lg">Find My Housing</h3>
+            <p className="text-white/50 text-xs">Step {step + 1} of {questions.length}</p>
+          </div>
+          <button onClick={onClose} className="text-white/60 hover:text-white transition">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Progress bar */}
+        <div className="h-1 bg-gray-100">
+          <div
+            className="h-full bg-[#C9642A] transition-all duration-300"
+            style={{ width: `${((step + 1) / questions.length) * 100}%` }}
+          />
+        </div>
+
+        {/* Question */}
+        <div className="p-5">
+          <h4 className="text-lg font-semibold text-[#1C2632] mb-4">{q.title}</h4>
+          <div className="flex flex-col gap-2">
+            {q.options.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => handleSelect(q.key, opt.value)}
+                className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all
+                  ${answers[q.key] === opt.value
+                    ? "border-[#C9642A] bg-[#C9642A]/10 text-[#C9642A] font-semibold"
+                    : "border-gray-200 hover:border-[#C9642A]/50 hover:bg-gray-50"}`}
+              >
+                <span className="mr-2">{opt.emoji}</span>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ────────────────────── Main Component ────────────────────── */
 
 export default function BrowseContent({
   cards,
@@ -37,8 +257,43 @@ export default function BrowseContent({
   const [showMap, setShowMap] = useState(true);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
 
+  // Quiz state
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState<QuizAnswers | null>(null);
+
+  // Map bounds filter state
+  const [boundsFilter, setBoundsFilter] = useState<BoundsFilter | null>(null);
+
+  // Score + filter cards
+  const processedCards = useMemo(() => {
+    let result = cards.map((card) => ({
+      ...card,
+      matchScore: quizAnswers ? scoreHousing(card, quizAnswers) : null,
+    }));
+
+    // Filter by map bounds if active
+    if (boundsFilter) {
+      result = result.filter(
+        (c) =>
+          c.lat !== null &&
+          c.lng !== null &&
+          c.lat >= boundsFilter.minLat &&
+          c.lat <= boundsFilter.maxLat &&
+          c.lng >= boundsFilter.minLng &&
+          c.lng <= boundsFilter.maxLng
+      );
+    }
+
+    // Sort by match score if quiz is active
+    if (quizAnswers) {
+      result.sort((a, b) => (b.matchScore ?? 0) - (a.matchScore ?? 0));
+    }
+
+    return result;
+  }, [cards, quizAnswers, boundsFilter]);
+
   // Build map markers from real DB coordinates
-  const markers: HousingMarker[] = cards
+  const markers: HousingMarker[] = processedCards
     .filter((card) => card.lat !== null && card.lng !== null)
     .map((card) => ({
       id: card.id,
@@ -91,6 +346,19 @@ export default function BrowseContent({
     [handleCardClick]
   );
 
+  const handleBoundsChange = useCallback((bounds: BoundsFilter | null) => {
+    setBoundsFilter(bounds);
+  }, []);
+
+  const handleQuizComplete = (answers: QuizAnswers) => {
+    setQuizAnswers(answers);
+    setShowQuiz(false);
+  };
+
+  const clearQuiz = () => {
+    setQuizAnswers(null);
+  };
+
   return (
     <>
       {/* Fetching overlay */}
@@ -108,6 +376,7 @@ export default function BrowseContent({
               housings={markers}
               selectedId={selectedCardId}
               onMarkerClick={handleMarkerClick}
+              onBoundsDrawn={handleBoundsChange}
             />
           </div>
         )}
@@ -117,32 +386,84 @@ export default function BrowseContent({
           {/* Search bar + toggle */}
           <div className="browse-toolbar">
             <div className="browse-search-area">{searchBar}</div>
-            <button
-              onClick={() => setShowMap(!showMap)}
-              className="browse-toggle-btn"
-              id="toggle-map-view"
-            >
-              {showMap ? (
-                <>
-                  <LayoutGrid size={16} />
-                  <span className="hidden sm:inline">Cards Only</span>
-                </>
+            <div className="flex gap-2 flex-shrink-0">
+              {/* Quiz button */}
+              {!quizAnswers ? (
+                <button
+                  onClick={() => setShowQuiz(true)}
+                  className="browse-quiz-btn"
+                  id="find-my-housing"
+                >
+                  <Sparkles size={14} />
+                  <span className="hidden sm:inline">Find My Housing</span>
+                </button>
               ) : (
-                <>
-                  <Map size={16} />
-                  <span className="hidden sm:inline">Show Map</span>
-                </>
+                <button
+                  onClick={clearQuiz}
+                  className="browse-quiz-btn browse-quiz-active"
+                  id="clear-quiz"
+                >
+                  <X size={14} />
+                  <span className="hidden sm:inline">Clear Quiz</span>
+                </button>
               )}
-            </button>
+              {/* Map toggle */}
+              <button
+                onClick={() => setShowMap(!showMap)}
+                className="browse-toggle-btn"
+                id="toggle-map-view"
+              >
+                {showMap ? (
+                  <>
+                    <LayoutGrid size={16} />
+                    <span className="hidden sm:inline">Cards Only</span>
+                  </>
+                ) : (
+                  <>
+                    <Map size={16} />
+                    <span className="hidden sm:inline">Show Map</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
+
+          {/* Active filters indicator */}
+          {(quizAnswers || boundsFilter) && (
+            <div className="flex items-center gap-2 px-4 py-1.5 text-xs">
+              {quizAnswers && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#C9642A]/10 text-[#C9642A] font-medium">
+                  <Sparkles size={10} />
+                  Quiz active · {processedCards.length} matches
+                </span>
+              )}
+              {boundsFilter && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
+                  <Map size={10} />
+                  Area filter · {processedCards.length} in bounds
+                  <button
+                    onClick={() => setBoundsFilter(null)}
+                    className="ml-1 hover:text-blue-900"
+                  >
+                    <X size={10} />
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Scrollable cards area */}
           <div className="browse-cards-scroll">
-            {emptyState ? (
+            {emptyState && processedCards.length === 0 && !quizAnswers && !boundsFilter ? (
               <div className="p-6">{emptyState}</div>
+            ) : processedCards.length === 0 ? (
+              <div className="p-6 text-center text-gray-500">
+                <p className="text-lg font-semibold">No housing matches</p>
+                <p className="text-sm mt-1">Try adjusting your quiz answers or clearing the area filter.</p>
+              </div>
             ) : (
               <div className="browse-cards-grid">
-                {cards.map((card) => (
+                {processedCards.map((card) => (
                   <div
                     key={card.id}
                     onClick={() => handleCardClick(card.id)}
@@ -160,8 +481,18 @@ export default function BrowseContent({
                         sizes="(max-width: 768px) 100vw, 300px"
                         className="object-cover"
                       />
+                      {/* Match score badge */}
+                      {card.matchScore !== null && (
+                        <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-bold shadow
+                          ${card.matchScore >= 80 ? "bg-green-500 text-white"
+                            : card.matchScore >= 50 ? "bg-yellow-400 text-gray-900"
+                            : "bg-gray-200 text-gray-600"}`}
+                        >
+                          {card.matchScore}% match
+                        </div>
+                      )}
                     </div>
-                    <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1.5 font-[family-name:var(--font-geist-sans)]">
+                    <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1 font-[family-name:var(--font-geist-sans)]">
                       <div className="text-sm font-bold text-[#C9642A] truncate">
                         {card.name}
                       </div>
@@ -173,6 +504,7 @@ export default function BrowseContent({
                           ₱{card.price}/mo
                         </span>
                       </div>
+                      <AmenityBadges card={card} />
                     </div>
                   </div>
                 ))}
@@ -182,7 +514,15 @@ export default function BrowseContent({
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Quiz Modal */}
+      {showQuiz && (
+        <QuizModal
+          onComplete={handleQuizComplete}
+          onClose={() => setShowQuiz(false)}
+        />
+      )}
+
+      {/* Dorm Modal */}
       {selectedDorm && (
         <DormModal dorm={selectedDorm} onClose={() => setSelectedDorm(null)} />
       )}
@@ -239,7 +579,8 @@ export default function BrowseContent({
           padding: 0.5rem 0 !important;
         }
 
-        .browse-toggle-btn {
+        .browse-toggle-btn,
+        .browse-quiz-btn {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -261,11 +602,28 @@ export default function BrowseContent({
           flex-shrink: 0;
         }
 
+        .browse-quiz-btn {
+          background: #C9642A;
+        }
+
+        .browse-quiz-btn:hover {
+          background: #b5572a;
+        }
+
+        .browse-quiz-active {
+          background: #8AABAC;
+        }
+
+        .browse-quiz-active:hover {
+          background: #7a9a9b;
+        }
+
         .browse-toggle-btn:hover {
           background: #2a3a4e;
         }
 
-        .browse-toggle-btn:active {
+        .browse-toggle-btn:active,
+        .browse-quiz-btn:active {
           transform: scale(0.95);
         }
 

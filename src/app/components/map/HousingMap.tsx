@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Layers, Navigation, X } from "lucide-react";
+import { Layers, Navigation, X, PenTool, Trash2 } from "lucide-react";
 
 /* ────────────────────── Types ────────────────────── */
 
@@ -17,10 +17,18 @@ export interface HousingMarker {
   image?: string | null;
 }
 
+interface BoundsFilter {
+  minLat: number;
+  maxLat: number;
+  minLng: number;
+  maxLng: number;
+}
+
 interface HousingMapProps {
   housings: HousingMarker[];
   selectedId?: number | null;
   onMarkerClick?: (id: number) => void;
+  onBoundsDrawn?: (bounds: BoundsFilter | null) => void;
   onClose?: () => void;
 }
 
@@ -33,8 +41,10 @@ const DEFAULT_BEARING = -30;
 
 const BUILDING_LAYER_ID = "building-3d";
 const MARKERS_SOURCE_ID = "casa-housing-markers";
-const MARKERS_CIRCLE_LAYER = "casa-markers-circle";
 const MARKERS_ICON_LAYER = "casa-markers-icon";
+const DRAW_SOURCE_ID = "casa-draw-bounds";
+const DRAW_FILL_LAYER = "casa-draw-fill";
+const DRAW_LINE_LAYER = "casa-draw-line";
 
 const BRAND_ORANGE = "#C9642A";
 const BRAND_DARK = "#1C2632";
@@ -45,6 +55,7 @@ export default function HousingMap({
   housings,
   selectedId,
   onMarkerClick,
+  onBoundsDrawn,
   onClose,
 }: HousingMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -53,6 +64,12 @@ export default function HousingMap({
   const rotationFrameRef = useRef<number | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [is3D, setIs3D] = useState(true);
+
+  // Draw mode state
+  const [isDrawMode, setIsDrawMode] = useState(false);
+  const [hasDrawnBounds, setHasDrawnBounds] = useState(false);
+  const drawStartRef = useRef<[number, number] | null>(null);
+  const isDrawingRef = useRef(false);
 
   /* ── Build GeoJSON from housing data (memoized to avoid infinite loops) ── */
   const geojson = useMemo<GeoJSON.FeatureCollection>(() => ({
@@ -231,6 +248,33 @@ export default function HousingMap({
         },
       });
 
+      // Draw bounds source + layers
+      map.addSource(DRAW_SOURCE_ID, {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+
+      map.addLayer({
+        id: DRAW_FILL_LAYER,
+        source: DRAW_SOURCE_ID,
+        type: "fill",
+        paint: {
+          "fill-color": BRAND_ORANGE,
+          "fill-opacity": 0.15,
+        },
+      });
+
+      map.addLayer({
+        id: DRAW_LINE_LAYER,
+        source: DRAW_SOURCE_ID,
+        type: "line",
+        paint: {
+          "line-color": BRAND_ORANGE,
+          "line-width": 2.5,
+          "line-dasharray": [3, 2],
+        },
+      });
+
       // Click handler
       map.on("click", MARKERS_ICON_LAYER, (e) => {
         const feature = e.features?.[0];
@@ -298,6 +342,106 @@ export default function HousingMap({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* ── Draw mode handlers ── */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded) return;
+
+    const canvas = map.getCanvas();
+
+    const onMouseDown = (e: maplibregl.MapMouseEvent) => {
+      if (!isDrawMode) return;
+      e.preventDefault();
+
+      // Disable map dragging while drawing
+      map.dragPan.disable();
+      map.dragRotate.disable();
+
+      drawStartRef.current = [e.lngLat.lng, e.lngLat.lat];
+      isDrawingRef.current = true;
+    };
+
+    const onMouseMove = (e: maplibregl.MapMouseEvent) => {
+      if (!isDrawingRef.current || !drawStartRef.current) return;
+
+      const [startLng, startLat] = drawStartRef.current;
+      const endLng = e.lngLat.lng;
+      const endLat = e.lngLat.lat;
+
+      // Update the rectangle preview
+      const rectGeoJSON: GeoJSON.FeatureCollection = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [startLng, startLat],
+                  [endLng, startLat],
+                  [endLng, endLat],
+                  [startLng, endLat],
+                  [startLng, startLat],
+                ],
+              ],
+            },
+            properties: {},
+          },
+        ],
+      };
+
+      const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
+      if (source) source.setData(rectGeoJSON);
+    };
+
+    const onMouseUp = (e: maplibregl.MapMouseEvent) => {
+      if (!isDrawingRef.current || !drawStartRef.current) return;
+
+      isDrawingRef.current = false;
+      map.dragPan.enable();
+      map.dragRotate.enable();
+
+      const [startLng, startLat] = drawStartRef.current;
+      const endLng = e.lngLat.lng;
+      const endLat = e.lngLat.lat;
+      drawStartRef.current = null;
+
+      // Only trigger if the rect is meaningful (not a click)
+      const dlng = Math.abs(endLng - startLng);
+      const dlat = Math.abs(endLat - startLat);
+      if (dlng < 0.0002 && dlat < 0.0002) return;
+
+      const bounds: BoundsFilter = {
+        minLat: Math.min(startLat, endLat),
+        maxLat: Math.max(startLat, endLat),
+        minLng: Math.min(startLng, endLng),
+        maxLng: Math.max(startLng, endLng),
+      };
+
+      setHasDrawnBounds(true);
+      setIsDrawMode(false);
+      onBoundsDrawn?.(bounds);
+      canvas.style.cursor = "";
+    };
+
+    if (isDrawMode) {
+      canvas.style.cursor = "crosshair";
+      map.on("mousedown", onMouseDown);
+      map.on("mousemove", onMouseMove);
+      map.on("mouseup", onMouseUp);
+    } else {
+      canvas.style.cursor = "";
+    }
+
+    return () => {
+      map.off("mousedown", onMouseDown);
+      map.off("mousemove", onMouseMove);
+      map.off("mouseup", onMouseUp);
+      canvas.style.cursor = "";
+    };
+  }, [isDrawMode, mapLoaded, onBoundsDrawn]);
 
   /* ── Update GeoJSON source when data or selection changes ── */
   useEffect(() => {
@@ -389,6 +533,38 @@ export default function HousingMap({
     });
   }, []);
 
+  /* ── Clear drawn bounds ── */
+  const clearBounds = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
+    if (source) {
+      source.setData({ type: "FeatureCollection", features: [] });
+    }
+
+    setHasDrawnBounds(false);
+    setIsDrawMode(false);
+    onBoundsDrawn?.(null);
+  }, [onBoundsDrawn]);
+
+  /* ── Toggle draw mode ── */
+  const toggleDrawMode = useCallback(() => {
+    if (isDrawMode) {
+      setIsDrawMode(false);
+    } else {
+      // Clear any existing bounds first
+      const map = mapRef.current;
+      if (map) {
+        const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
+        if (source) source.setData({ type: "FeatureCollection", features: [] });
+      }
+      setHasDrawnBounds(false);
+      onBoundsDrawn?.(null);
+      setIsDrawMode(true);
+    }
+  }, [isDrawMode, onBoundsDrawn]);
+
   return (
     <div className="housing-map-wrapper">
       {/* Loading */}
@@ -401,6 +577,14 @@ export default function HousingMap({
 
       {/* Map canvas */}
       <div ref={mapContainerRef} className="map-container" />
+
+      {/* Draw mode overlay hint */}
+      {isDrawMode && (
+        <div className="map-draw-hint">
+          <PenTool size={14} />
+          Click and drag to draw an area
+        </div>
+      )}
 
       {/* Controls */}
       <div className="map-controls">
@@ -427,6 +611,29 @@ export default function HousingMap({
         >
           <Navigation size={18} />
         </button>
+
+        {/* Draw bounds controls */}
+        {onBoundsDrawn && (
+          <>
+            <div className="map-control-divider" />
+            <button
+              onClick={toggleDrawMode}
+              className={`map-control-btn ${isDrawMode ? "active" : ""}`}
+              title={isDrawMode ? "Cancel drawing" : "Draw area filter"}
+            >
+              <PenTool size={18} />
+            </button>
+            {hasDrawnBounds && (
+              <button
+                onClick={clearBounds}
+                className="map-control-btn map-clear-btn"
+                title="Clear area filter"
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
+          </>
+        )}
       </div>
 
       <style>{`
@@ -472,6 +679,33 @@ export default function HousingMap({
           to { transform: rotate(360deg); }
         }
 
+        /* Draw mode hint */
+        .map-draw-hint {
+          position: absolute;
+          top: 0.75rem;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 15;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          background: ${BRAND_ORANGE};
+          color: white;
+          border-radius: 9999px;
+          font-size: 0.8125rem;
+          font-weight: 600;
+          font-family: var(--font-geist-sans), sans-serif;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          animation: fadeIn 0.2s ease;
+          pointer-events: none;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateX(-50%) translateY(-5px); }
+          to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
         /* Controls */
         .map-controls {
           position: absolute;
@@ -481,6 +715,13 @@ export default function HousingMap({
           flex-direction: column;
           gap: 0.5rem;
           z-index: 5;
+        }
+
+        .map-control-divider {
+          width: 100%;
+          height: 1px;
+          background: rgba(255,255,255,0.15);
+          margin: 0.125rem 0;
         }
 
         .map-control-btn {
@@ -517,6 +758,15 @@ export default function HousingMap({
         .map-close-btn:hover {
           background: rgba(200, 50, 50, 0.95);
           color: white;
+        }
+
+        .map-clear-btn {
+          background: rgba(180, 40, 40, 0.75);
+          color: white;
+        }
+
+        .map-clear-btn:hover {
+          background: rgba(200, 50, 50, 0.95);
         }
 
         /* Popup tooltip */
