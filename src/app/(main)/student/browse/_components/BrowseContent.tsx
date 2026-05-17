@@ -255,6 +255,7 @@ export default function BrowseContent({
   const [isFetching, setIsFetching] = useState(false);
   const [showMap, setShowMap] = useState(true);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+  const [mapViewTrigger, setMapViewTrigger] = useState(0);
 
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
@@ -385,6 +386,7 @@ export default function BrowseContent({
             <HousingMap
               housings={markers}
               selectedId={selectedCardId}
+              viewTrigger={mapViewTrigger}
               onMarkerClick={handleMarkerClick}
               onBoundsDrawn={handleBoundsChange}
             />
@@ -531,6 +533,7 @@ export default function BrowseContent({
           onViewMap={() => {
             setShowMap(true);
             setSelectedCardId(selectedDorm.id);
+            setMapViewTrigger(Date.now());
             setSelectedDorm(null);
           }}
         />

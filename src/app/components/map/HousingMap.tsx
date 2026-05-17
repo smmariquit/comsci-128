@@ -30,6 +30,7 @@ interface HousingMapProps {
   onMarkerClick?: (id: number) => void;
   onBoundsDrawn?: (bounds: BoundsFilter | null) => void;
   onClose?: () => void;
+  viewTrigger?: number;
 }
 
 /* ────────────────────── Constants ────────────────────── */
@@ -57,6 +58,7 @@ export default function HousingMap({
   onMarkerClick,
   onBoundsDrawn,
   onClose,
+  viewTrigger,
 }: HousingMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -68,7 +70,7 @@ export default function HousingMap({
   // Draw mode state
   const [isDrawMode, setIsDrawMode] = useState(false);
   const [hasDrawnBounds, setHasDrawnBounds] = useState(false);
-  const drawStartRef = useRef<[number, number] | null>(null);
+  const drawPointsRef = useRef<[number, number][]>([]);
   const isDrawingRef = useRef(false);
 
   /* ── Build GeoJSON from housing data (memoized to avoid infinite loops) ── */
@@ -455,67 +457,76 @@ export default function HousingMap({
       map.dragPan.disable();
       map.dragRotate.disable();
 
-      drawStartRef.current = [e.lngLat.lng, e.lngLat.lat];
+      drawPointsRef.current = [[e.lngLat.lng, e.lngLat.lat]];
       isDrawingRef.current = true;
     };
 
     const onMouseMove = (e: maplibregl.MapMouseEvent) => {
-      if (!isDrawingRef.current || !drawStartRef.current) return;
+      if (!isDrawingRef.current || drawPointsRef.current.length === 0) return;
 
-      const [startLng, startLat] = drawStartRef.current;
-      const endLng = e.lngLat.lng;
-      const endLat = e.lngLat.lat;
+      drawPointsRef.current.push([e.lngLat.lng, e.lngLat.lat]);
+      const pts = drawPointsRef.current;
 
-      // Update the rectangle preview
-      const rectGeoJSON: GeoJSON.FeatureCollection = {
+      // Update the freeform polygon preview
+      let feature: GeoJSON.Feature;
+      if (pts.length < 3) {
+        feature = {
+          type: "Feature",
+          geometry: { type: "LineString", coordinates: pts },
+          properties: {},
+        };
+      } else {
+        feature = {
+          type: "Feature",
+          geometry: { type: "Polygon", coordinates: [[...pts, pts[0]]] },
+          properties: {},
+        };
+      }
+
+      const drawGeoJSON: GeoJSON.FeatureCollection = {
         type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "Polygon",
-              coordinates: [
-                [
-                  [startLng, startLat],
-                  [endLng, startLat],
-                  [endLng, endLat],
-                  [startLng, endLat],
-                  [startLng, startLat],
-                ],
-              ],
-            },
-            properties: {},
-          },
-        ],
+        features: [feature],
       };
 
       const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
-      if (source) source.setData(rectGeoJSON);
+      if (source) source.setData(drawGeoJSON);
     };
 
     const onMouseUp = (e: maplibregl.MapMouseEvent) => {
-      if (!isDrawingRef.current || !drawStartRef.current) return;
+      if (!isDrawingRef.current || drawPointsRef.current.length === 0) return;
 
       isDrawingRef.current = false;
       map.dragPan.enable();
       map.dragRotate.enable();
 
-      const [startLng, startLat] = drawStartRef.current;
-      const endLng = e.lngLat.lng;
-      const endLat = e.lngLat.lat;
-      drawStartRef.current = null;
+      const pts = drawPointsRef.current;
+      drawPointsRef.current = [];
 
-      // Only trigger if the rect is meaningful (not a click)
-      const dlng = Math.abs(endLng - startLng);
-      const dlat = Math.abs(endLat - startLat);
-      if (dlng < 0.0002 && dlat < 0.0002) return;
+      // Calculate bounding box of the drawn shape
+      let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+      for (const [lng, lat] of pts) {
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+      }
 
-      const bounds: BoundsFilter = {
-        minLat: Math.min(startLat, endLat),
-        maxLat: Math.max(startLat, endLat),
-        minLng: Math.min(startLng, endLng),
-        maxLng: Math.max(startLng, endLng),
-      };
+      // Only trigger if they actually drew an area (more than just a click)
+      if (pts.length < 3) {
+        const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
+        if (source) source.setData({ type: "FeatureCollection", features: [] });
+        return;
+      }
+
+      const dlng = Math.abs(maxLng - minLng);
+      const dlat = Math.abs(maxLat - minLat);
+      if (dlng < 0.0002 && dlat < 0.0002) {
+        const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
+        if (source) source.setData({ type: "FeatureCollection", features: [] });
+        return;
+      }
+
+      const bounds: BoundsFilter = { minLat, maxLat, minLng, maxLng };
 
       setHasDrawnBounds(true);
       setIsDrawMode(false);
@@ -564,10 +575,12 @@ export default function HousingMap({
       rotationFrameRef.current = null;
     }
 
+    const isMRH = housing.name === "Men's Residence Hall" || housing.name === "Makiling Residence Hall";
+
     map.flyTo({
       center: [housing.lng, housing.lat],
-      zoom: 17.5,
-      pitch: 60,
+      zoom: isMRH ? 18.5 : 17.5,
+      pitch: isMRH ? 65 : 60,
       duration: 1500,
       essential: true,
     });
@@ -583,14 +596,14 @@ export default function HousingMap({
         if (!lastTs) lastTs = ts;
         const delta = ts - lastTs;
         lastTs = ts;
-        bearing = (bearing + delta / 150) % 360;
+        bearing = (bearing + delta / (isMRH ? 100 : 150)) % 360;
         map.rotateTo(bearing, { duration: 0 });
         rotationFrameRef.current = requestAnimationFrame(rotate);
       };
 
       rotationFrameRef.current = requestAnimationFrame(rotate);
     });
-  }, [selectedId, mapLoaded, housings]);
+  }, [selectedId, mapLoaded, housings, viewTrigger]);
 
   /* ── Toggle 3D ── */
   const toggle3D = useCallback(() => {
