@@ -142,17 +142,20 @@ export default function HousingMap({
             minzoom: 14,
             paint: {
               "fill-extrusion-color": [
-                "match",
-                ["get", "name"],
+                "case",
                 [
-                  "Unit 1",
-                  "Unit 2",
-                  "Unit 3",
-                  "Unit 4",
-                  "Unit 5",
-                  "Makiling Residence Hall",
-                  "Men's Residence Hall",
-                  "MRH",
+                  "any",
+                  ...[
+                    "osm-w96323120", // unit 1
+                    "osm-w96323127", // unit 2
+                    "osm-w96323117", // main office / lounge
+                    "osm-w96323124", // hallway
+                    "osm-w96323123", // unit 3
+                    "osm-w96323116", // unit 4
+                  ].flatMap((id) => [
+                    ["==", ["id"], id],
+                    ["==", ["get", "id"], id]
+                  ])
                 ],
                 BRAND_ORANGE,
                 "rgba(247, 242, 235, 1)", // default
@@ -301,11 +304,21 @@ export default function HousingMap({
       // Click handler for 3D buildings (MRH units)
       map.on("click", BUILDING_LAYER_ID, (e) => {
         const feature = e.features?.[0];
-        if (!feature || !feature.properties?.name) return;
+        if (!feature) return;
         
-        const mrhUnits = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5", "Makiling Residence Hall", "Men's Residence Hall", "MRH"];
+        const mrhIds = [
+          "osm-w96323120",
+          "osm-w96323127",
+          "osm-w96323117",
+          "osm-w96323124",
+          "osm-w96323123",
+          "osm-w96323116",
+        ];
         
-        if (mrhUnits.includes(feature.properties.name)) {
+        // check both feature.id and feature.properties.id
+        const featureId = feature.id?.toString() || feature.properties?.id;
+        
+        if (mrhIds.includes(featureId)) {
           // Orbit around the clicked building
           const coordinates = e.lngLat;
           
@@ -345,9 +358,20 @@ export default function HousingMap({
       // Hover cursor for buildings
       map.on("mouseenter", BUILDING_LAYER_ID, (e) => {
         const feature = e.features?.[0];
-        if (!feature || !feature.properties?.name) return;
-        const mrhUnits = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5", "Makiling Residence Hall", "Men's Residence Hall", "MRH"];
-        if (mrhUnits.includes(feature.properties.name)) {
+        if (!feature) return;
+        
+        const mrhIds = [
+          "osm-w96323120",
+          "osm-w96323127",
+          "osm-w96323117",
+          "osm-w96323124",
+          "osm-w96323123",
+          "osm-w96323116",
+        ];
+        
+        const featureId = feature.id?.toString() || feature.properties?.id;
+        
+        if (mrhIds.includes(featureId)) {
           map.getCanvas().style.cursor = "pointer";
         }
       });
