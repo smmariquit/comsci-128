@@ -105,13 +105,19 @@ async function getAllByHousingId(housingId: number, sortList: SortOrder[], filte
     return data || [];
 }
 
-async function getAllAppFeedback(): Promise<Partial<Feedback>[]> {
-    // get the feedbacks for the application
+async function getAllAppFeedback(sortList: SortOrder[]): Promise<Partial<Feedback>[]> {
+    // get the feedbacks for the application (system admin view)
 
-    const { data, error } = await supabase
+    let query = supabase
         .from("feedback")
         .select("id, text, feedback_type, category, created_at, status")
         .eq("feedback_type", "App");
+
+    sortList.forEach(item => {
+        query = query.order(item.column, { ascending: item.isAscending });
+    });
+
+    const { data, error } = await query;
 
     if (error) throw new Error(`Get All Application Feedback Error: ${error.message}`);
 
