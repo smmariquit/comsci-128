@@ -344,6 +344,8 @@ export default function BrowseContent({
           has_kitchen: data.has_kitchen ?? false,
           has_security: data.has_security ?? false,
           has_utilities_included: data.has_utilities_included ?? false,
+          latitude: data.latitude,
+          longitude: data.longitude,
         });
       }
     } finally {
@@ -547,8 +549,8 @@ export default function BrowseContent({
         <Isolated3DViewer 
           housing={{
             name: isolatedDorm.name,
-            lng: isolatedDorm.lng!,
-            lat: isolatedDorm.lat!
+            lng: isolatedDorm.longitude || 0,
+            lat: isolatedDorm.latitude || 0
           }}
           onClose={() => setIsolatedDorm(null)} 
         />
