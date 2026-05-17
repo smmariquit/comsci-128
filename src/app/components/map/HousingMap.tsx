@@ -141,7 +141,22 @@ export default function HousingMap({
             type: "fill-extrusion",
             minzoom: 14,
             paint: {
-              "fill-extrusion-color": "rgba(247, 242, 235, 1)",
+              "fill-extrusion-color": [
+                "match",
+                ["get", "name"],
+                [
+                  "Unit 1",
+                  "Unit 2",
+                  "Unit 3",
+                  "Unit 4",
+                  "Unit 5",
+                  "Makiling Residence Hall",
+                  "Men's Residence Hall",
+                  "MRH",
+                ],
+                BRAND_ORANGE,
+                "rgba(247, 242, 235, 1)", // default
+              ],
               "fill-extrusion-height": ["get", "render_height"],
               "fill-extrusion-base": ["get", "render_min_height"],
               "fill-extrusion-opacity": 0.85,
@@ -275,12 +290,70 @@ export default function HousingMap({
         },
       });
 
-      // Click handler
+      // Click handler for housing markers
       map.on("click", MARKERS_ICON_LAYER, (e) => {
         const feature = e.features?.[0];
         if (feature?.properties?.id) {
           onMarkerClick?.(feature.properties.id);
         }
+      });
+
+      // Click handler for 3D buildings (MRH units)
+      map.on("click", BUILDING_LAYER_ID, (e) => {
+        const feature = e.features?.[0];
+        if (!feature || !feature.properties?.name) return;
+        
+        const mrhUnits = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5", "Makiling Residence Hall", "Men's Residence Hall", "MRH"];
+        
+        if (mrhUnits.includes(feature.properties.name)) {
+          // Orbit around the clicked building
+          const coordinates = e.lngLat;
+          
+          if (rotationFrameRef.current !== null) {
+            cancelAnimationFrame(rotationFrameRef.current);
+            rotationFrameRef.current = null;
+          }
+
+          map.flyTo({
+            center: coordinates,
+            zoom: 18.5,
+            pitch: 65,
+            duration: 1500,
+            essential: true,
+          });
+
+          map.once("moveend", () => {
+            if (!mapRef.current) return;
+            let bearing = map.getBearing();
+            let lastTs = 0;
+
+            const rotate = (ts: number) => {
+              if (!mapRef.current) return;
+              if (!lastTs) lastTs = ts;
+              const delta = ts - lastTs;
+              lastTs = ts;
+              bearing = (bearing + delta / 100) % 360;
+              map.rotateTo(bearing, { duration: 0 });
+              rotationFrameRef.current = requestAnimationFrame(rotate);
+            };
+
+            rotationFrameRef.current = requestAnimationFrame(rotate);
+          });
+        }
+      });
+
+      // Hover cursor for buildings
+      map.on("mouseenter", BUILDING_LAYER_ID, (e) => {
+        const feature = e.features?.[0];
+        if (!feature || !feature.properties?.name) return;
+        const mrhUnits = ["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5", "Makiling Residence Hall", "Men's Residence Hall", "MRH"];
+        if (mrhUnits.includes(feature.properties.name)) {
+          map.getCanvas().style.cursor = "pointer";
+        }
+      });
+
+      map.on("mouseleave", BUILDING_LAYER_ID, () => {
+        map.getCanvas().style.cursor = "";
       });
 
       // Hover cursor + popup
