@@ -577,6 +577,18 @@ export default function HousingMap({
 
     const isMRH = housing.name === "Men's Residence Hall" || housing.name === "Makiling Residence Hall";
 
+    // Show popup immediately
+    if (popupRef.current) popupRef.current.remove();
+    popupRef.current = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 16,
+      className: "casa-marker-popup",
+    })
+      .setLngLat([housing.lng, housing.lat])
+      .setHTML(`<span>${housing.name}</span>`)
+      .addTo(map);
+
     map.flyTo({
       center: [housing.lng, housing.lat],
       zoom: isMRH ? 18.5 : 17.5,
