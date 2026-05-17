@@ -37,7 +37,7 @@ async function findById(feedbackId: number): Promise<Feedback | null> {
     return data && data.length > 0 ? data[0] : null;
 }
 
-async function getAll(selectedColumn: SortFilterColumns, sortList: SortOrder[], filterList: FilterOptions[]): Promise<Partial<Feedback>[]> {
+async function getAll(sortList: SortOrder[], filterList: FilterOptions[]): Promise<Partial<Feedback>[]> {
     // get all feedbacks in the system (sysadmin view)
 
     let query = supabase
