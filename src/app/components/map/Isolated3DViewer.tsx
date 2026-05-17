@@ -20,7 +20,7 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
-      style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+      style: "/map-style.json",
       center: [housing.lng, housing.lat],
       zoom: 18.5,
       pitch: 65,
@@ -33,31 +33,26 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
       // Hide all standard layers to create an isolated void
       const layers = map.getStyle().layers;
       layers.forEach((layer) => {
-        if (layer.type === "symbol" || layer.type === "line" || layer.type === "fill") {
+        if (layer.type === "background") {
+          map.setPaintProperty(layer.id, "background-color", "#1a1a1a");
+        } else if (layer.type === "symbol" || layer.type === "line" || layer.type === "fill" || layer.type === "fill-extrusion") {
            map.setLayoutProperty(layer.id, "visibility", "none");
         }
       });
 
-      // mrhIds
-      const mrhIds = [
-        "osm-w96323120",
-        "osm-w96323127",
-        "osm-w96323117",
-        "osm-w96323124",
-        "osm-w96323123",
-        "osm-w96323116",
+      // MRH Data from user
+      const mrhData = [
+        { id: "osm-w96323120", label: "Unit 1" },
+        { id: "osm-w96323127", label: "Unit 2" },
+        { id: "osm-w96323117", label: "Main Office" },
+        { id: "osm-w96323124", label: "Hallway" },
+        { id: "osm-w96323123", label: "Unit 3" },
+        { id: "osm-w96323116", label: "Unit 4" },
       ];
 
       const isMRH = housing.name === "Men's Residence Hall" || housing.name === "Makiling Residence Hall";
 
       // Re-add the building layer but ONLY for this building
-      if (!map.getSource("openmaptiles")) {
-        map.addSource("openmaptiles", {
-          type: "vector",
-          url: "https://api.maptiler.com/tiles/v3/tiles.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
-        });
-      }
-
       map.addLayer({
         id: "isolated-building",
         type: "fill-extrusion",
@@ -66,9 +61,11 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
         filter: isMRH 
           ? [
               "any",
-              ...mrhIds.flatMap((id) => [
-                ["==", ["id"], id],
-                ["==", ["get", "id"], id],
+              ...mrhData.flatMap((d) => [
+                ["==", ["id"], d.id],
+                ["==", ["get", "id"], d.id],
+                // Fallback in case IDs don't match but names do
+                ["==", ["get", "name"], d.label],
               ]),
               ["==", ["get", "name"], "Men's Residence Hall"],
               ["==", ["get", "name"], "Makiling Residence Hall"]
@@ -78,9 +75,52 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
           "fill-extrusion-color": BRAND_ORANGE,
           "fill-extrusion-height": ["get", "render_height"],
           "fill-extrusion-base": ["get", "render_min_height"],
-          "fill-extrusion-opacity": 1.0,
+          "fill-extrusion-opacity": 0.9,
         },
       });
+
+      // Add labels dynamically once tiles load
+      if (isMRH) {
+        const addedLabels = new Set();
+        
+        map.on("idle", () => {
+          const features = map.queryRenderedFeatures({ layers: ["isolated-building"] });
+          
+          features.forEach((feature) => {
+            const featId = feature.id?.toString() || feature.properties?.id;
+            const featName = feature.properties?.name;
+            
+            const matchedData = mrhData.find(d => d.id === featId || d.label === featName);
+            
+            if (matchedData && !addedLabels.has(matchedData.label)) {
+              addedLabels.add(matchedData.label);
+              
+              // Approximate centroid from geometry
+              let lng = 0, lat = 0, pts = 0;
+              const geom = feature.geometry as any;
+              if (geom.coordinates) {
+                const ring = geom.type === "Polygon" ? geom.coordinates[0] : geom.coordinates[0][0];
+                ring.forEach((coord: number[]) => {
+                  lng += coord[0];
+                  lat += coord[1];
+                  pts++;
+                });
+                lng /= pts;
+                lat /= pts;
+                
+                // Create custom label
+                const el = document.createElement("div");
+                el.className = "px-2 py-1 bg-black/80 text-white text-xs font-bold rounded shadow-lg border border-white/20";
+                el.textContent = matchedData.label;
+                
+                new maplibregl.Marker({ element: el })
+                  .setLngLat([lng, lat])
+                  .addTo(map);
+              }
+            }
+          });
+        });
+      }
 
       // Spin the model
       let bearing = map.getBearing();
