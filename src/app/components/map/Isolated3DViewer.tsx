@@ -60,18 +60,18 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
         const cy = 14.160900;
         const m = 0.000009; // ~1 meter
 
-        // Define the 4 units and their approximate real-world centroids
+        // Use exact OSM coordinates for the 4 units of MRH
         const units = [
-          { id: 1, label: "Unit 1", x: cx, y: cy + 30 * m, horizontal: true },
-          { id: 2, label: "Unit 2", x: cx + 30 * m, y: cy, horizontal: false },
-          { id: 3, label: "Unit 3", x: cx, y: cy - 30 * m, horizontal: true },
-          { id: 4, label: "Unit 4", x: cx - 30 * m, y: cy, horizontal: false },
+          { id: 1, label: "Unit 1", x: 121.2408994, y: 14.1606542, horizontal: false },
+          { id: 2, label: "Unit 2", x: 121.2410742, y: 14.1609494, horizontal: true },
+          { id: 3, label: "Unit 3", x: 121.2402095, y: 14.1615652, horizontal: true },
+          { id: 4, label: "Unit 4", x: 121.2407589, y: 14.1613733, horizontal: false },
         ];
 
         units.forEach(unit => {
-          // Generate room markers for Floor 1 only to avoid clutter for now, or just some sample rooms
-          // 3101 to 3116 (16 rooms)
-          const floor = 1;
+          // Generate room markers for Floor 1 (rooms 01-16) and Floor 2 (rooms 01-16)
+          // To prevent visual clutter, we currently only render Floor 1 markers
+          const floor = 1; 
           for (let room = 1; room <= 16; room++) {
             const roomId = unit.id * 1000 + floor * 100 + room;
             
@@ -79,17 +79,24 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
             const row = Math.floor((room - 1) / 2); // 0 to 7
             const col = (room - 1) % 2; // 0 or 1
             
+            // Tweak the spread to fit inside the OSM building geometries perfectly
+            const spread = 0.00002;
             let localX, localY;
             if (unit.horizontal) {
-              localX = (row - 3.5) * 4; // spread along X (4m per room)
-              localY = (col === 0 ? -2 : 2); // offset from Y center
+              localX = (row - 3.5) * spread; 
+              localY = (col === 0 ? -0.00001 : 0.00001); 
             } else {
-              localX = (col === 0 ? -2 : 2); // offset from X center
-              localY = (row - 3.5) * 4; // spread along Y
+              localX = (col === 0 ? -0.00001 : 0.00001); 
+              localY = (row - 3.5) * spread; 
             }
 
-            const roomCx = unit.x + localX * m;
-            const roomCy = unit.y + localY * m;
+            // Adjust angle to match the slight rotation of MRH buildings (~-20 deg)
+            const angle = -20 * (Math.PI / 180);
+            const rotX = localX * Math.cos(angle) - localY * Math.sin(angle);
+            const rotY = localX * Math.sin(angle) + localY * Math.cos(angle);
+
+            const roomCx = unit.x + rotX;
+            const roomCy = unit.y + rotY;
             
             // Create custom label like the screenshot
             const el = document.createElement("div");
@@ -138,25 +145,26 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
             <h3 className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wider">Floor</h3>
             <div className="flex flex-wrap gap-2">
               <span className="px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-50">All floors</span>
-              <span className="px-2 py-1 bg-[#8c3123] text-white rounded text-xs cursor-pointer">Floor 1</span>
+              <span className="px-2 py-1 bg-[#8c3123] text-white rounded text-xs cursor-pointer shadow-inner">Floor 1</span>
               <span className="px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-50">Floor 2</span>
-              <span className="px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-700 cursor-pointer hover:bg-gray-50">Floor 3</span>
             </div>
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Rooms</h3>
-              <span className="text-xs text-gray-500">64</span>
+              <span className="text-xs text-gray-500">128</span>
             </div>
             <div className="space-y-1">
-              {/* Example room list */}
-              {Array.from({length: 10}).map((_, i) => (
-                <div key={i} className="flex justify-between items-center py-2 border-b border-gray-100 hover:bg-gray-100 px-2 cursor-pointer rounded">
-                  <span className="text-sm font-medium text-gray-800">Room 110{i+1}</span>
-                  <span className="text-xs text-gray-400">F1</span>
-                </div>
-              ))}
+              {/* Example room list (Units 1-4, Floor 1, Rooms 01-16) */}
+              {[1, 2, 3, 4].flatMap(unit => 
+                Array.from({length: 16}).map((_, i) => (
+                  <div key={`${unit}-${i}`} className="flex justify-between items-center py-2 border-b border-gray-100 hover:bg-gray-100 px-2 cursor-pointer rounded">
+                    <span className="text-sm font-medium text-gray-800">Room {unit}1{(i+1).toString().padStart(2, '0')}</span>
+                    <span className="text-xs text-gray-400">F1</span>
+                  </div>
+                ))
+              ).slice(0, 16) /* Only show first 16 for demo scroll */}
             </div>
           </div>
         </div>
