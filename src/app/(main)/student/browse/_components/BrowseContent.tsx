@@ -7,6 +7,7 @@ import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap"
 import Isolated3DViewer from "@/app/components/map/Isolated3DViewer";
 import DormModal from "./DormModal";
 import { getDormDetails } from "../_actions";
+import { usePGliteHousing } from "@/app/hooks/usePGliteHousing";
 
 /* ────────────────────── Types ────────────────────── */
 
@@ -259,6 +260,8 @@ export default function BrowseContent({
   const [mapViewTrigger, setMapViewTrigger] = useState(0);
   const [isolatedDorm, setIsolatedDorm] = useState<HousingCard | null>(null);
 
+  const { isOffline, getOfflineDormDetails, saveDormDetailsLocally } = usePGliteHousing();
+
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswers | null>(null);
@@ -311,7 +314,14 @@ export default function BrowseContent({
     setSelectedCardId(id);
     setIsFetching(true);
     try {
-      const data = await getDormDetails(id);
+      let data = null;
+      if (isOffline) {
+        data = await getOfflineDormDetails(id);
+      } else {
+        data = await getDormDetails(id);
+        if (data) await saveDormDetailsLocally(data);
+      }
+      
       if (data) {
         setSelectedDorm({
           id: data.housing_id,
@@ -351,7 +361,7 @@ export default function BrowseContent({
     } finally {
       setIsFetching(false);
     }
-  }, []);
+  }, [isOffline, getOfflineDormDetails, saveDormDetailsLocally]);
 
   const handleMarkerClick = useCallback(
     (id: number) => {
@@ -444,7 +454,17 @@ export default function BrowseContent({
             </div>
           </div>
 
-
+        {/* Offline Indicator */}
+        {isOffline && (
+          <div className="bg-orange-100 border-l-4 border-[#C9642A] text-orange-800 p-3 mx-4 lg:mx-8 mt-2 rounded shadow-sm flex items-center justify-between">
+            <div className="flex items-center">
+              <Wifi className="h-5 w-5 mr-2 text-[#C9642A]" />
+              <p className="text-sm">
+                <strong>Offline Mode.</strong> Map and housing data are running from your local device database and are not syncing live changes.
+              </p>
+            </div>
+          </div>
+        )}
 
           {/* Scrollable cards area */}
           <div className="browse-cards-scroll relative">
