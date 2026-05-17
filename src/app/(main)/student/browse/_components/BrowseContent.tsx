@@ -283,32 +283,35 @@ export default function BrowseContent({
         }
 
         /* ═══════════════════════════════════════
-           DESKTOP: Map fixed left, content right
+           DESKTOP: Flex split, map doesn't scroll
            ═══════════════════════════════════════ */
 
         @media (min-width: 1024px) {
           .browse-root.map-visible {
-            position: relative;
-          }
-
-          /* Map: pinned to left half of viewport, never stretches */
-          .browse-map-panel {
-            position: fixed;
-            top: 5.5rem; /* below navbar + breadcrumb */
-            left: 0;
-            width: 50%;
+            display: flex;
+            flex-direction: row;
             height: calc(100vh - 5.5rem);
-            z-index: 2;
+            overflow: hidden;
           }
 
-          /* Content: offset to right half */
-          .browse-content-panel {
-            margin-left: 50%;
+          .browse-map-panel {
             width: 50%;
-            min-height: calc(100vh - 5.5rem);
+            height: 100%;
+            flex-shrink: 0;
+            overflow: hidden;
+          }
+
+          .browse-content-panel {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
           }
 
           .browse-cards-scroll {
+            flex: 1;
+            overflow-y: auto;
             padding: 1rem 1.5rem 2rem;
           }
 
@@ -342,7 +345,6 @@ export default function BrowseContent({
           }
 
           .browse-root.map-visible .browse-content-panel {
-            margin-left: 55%;
             width: 45%;
           }
 
