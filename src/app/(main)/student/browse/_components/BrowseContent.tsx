@@ -283,32 +283,34 @@ export default function BrowseContent({
         }
 
         /* ═══════════════════════════════════════
-           DESKTOP: Flex split, map sticks on scroll
+           DESKTOP: Both panels locked to viewport
            ═══════════════════════════════════════ */
 
         @media (min-width: 1024px) {
           .browse-root.map-visible {
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
+            height: calc(100vh - 5.5rem);
+            overflow: hidden;
           }
 
-          /* Map: sticks to viewport while cards scroll */
           .browse-map-panel {
             width: 50%;
-            height: calc(100vh - 5.5rem);
+            height: 100%;
             flex-shrink: 0;
-            overflow: hidden;
-            position: sticky;
-            top: 5.5rem;
           }
 
           .browse-content-panel {
             width: 50%;
-            min-height: calc(100vh - 5.5rem);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
           }
 
           .browse-cards-scroll {
+            flex: 1;
+            overflow-y: auto;
             padding: 1rem 1.5rem 2rem;
           }
 
