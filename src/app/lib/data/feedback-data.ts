@@ -1,6 +1,18 @@
 import { supabase } from "@/lib/supabase"
 import type { Feedback, NewFeedback, FeedbackType } from "@/lib/models/feedback"
 
+type SortFilterColumns = "subject" | "feedback_type" | "category" | "created_at" | "status";
+
+type SortOrder = {
+    column: SortFilterColumns,
+    isAscending: boolean
+};
+
+type FilterOptions = {
+    column: SortFilterColumns,
+    value: string
+}
+
 async function create(content: NewFeedback): Promise<NewFeedback | null> {
     const { data, error } = await supabase
         .from("feedback")
@@ -25,12 +37,22 @@ async function findById(feedbackId: number): Promise<Feedback | null> {
     return data && data.length > 0 ? data[0] : null;
 }
 
-async function getAll(): Promise<Feedback[]> {
+async function getAll(selectedColumn: SortFilterColumns, sortList: SortOrder[], filterList: FilterOptions[]): Promise<Partial<Feedback>[]> {
     // get all feedbacks in the system (sysadmin view)
 
-    const { data, error } = await supabase
+    let query = supabase
         .from("feedback")
         .select("*");
+
+    sortList.forEach(item => {
+        query = query.order(item.column, { ascending: item.isAscending });
+    });
+
+    filterList.forEach(filter => {
+        query = query.eq(filter.column, filter.value);
+    });
+
+    const { data, error } = await query;
 
     if (error) throw new Error(`Get All Feedback Error: ${error.message}`);
 
