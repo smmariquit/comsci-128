@@ -82,14 +82,23 @@ async function getAllByManagerId(managerId: number, sortList: SortOrder[], filte
     return data || [];
 }
 
-async function getAllByHousingId(housingId: number): Promise<Partial<Feedback>[]> {
+async function getAllByHousingId(housingId: number, sortList: SortOrder[], filterList: FilterOptions[]): Promise<Partial<Feedback>[]> {
     // get the feedback associated with the provided housing ID
 
-    const { data, error } = await supabase
+    let query = supabase
         .from("feedback")
         .select("id, text, feedback_type, category, created_at, status")
         .eq("involved_housing_id", housingId)
-        .eq("feedback_type", "Housing");
+
+    sortList.forEach(item => {
+        query = query.order(item.column, { ascending: item.isAscending });
+    });
+
+    filterList.forEach(filter => {
+        query = query.eq(filter.column, filter.value);
+    });
+
+    const { data, error } = await query;
 
     if (error) throw new Error(`Get All Feedback by housing ID Error: ${error.message}`);
 
