@@ -143,30 +143,12 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
         });
 
         // Add procedural sources and layers
-        map.addSource("mrh-shells", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: shellFeatures }
-        });
-        
         map.addSource("mrh-rooms", {
           type: "geojson",
           data: { type: "FeatureCollection", features: roomFeatures }
         });
 
-        // 1. The transparent glass shell of the buildings
-        map.addLayer({
-          id: "mrh-shell-layer",
-          type: "fill-extrusion",
-          source: "mrh-shells",
-          paint: {
-            "fill-extrusion-color": "#ffffff",
-            "fill-extrusion-height": ["get", "height"],
-            "fill-extrusion-base": ["get", "base"],
-            "fill-extrusion-opacity": 0.05, // very subtle glass effect
-          }
-        });
-
-        // 2. The solid glowing rooms inside
+        // The solid glowing rooms
         map.addLayer({
           id: "mrh-rooms-layer",
           type: "fill-extrusion",
