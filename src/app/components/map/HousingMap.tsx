@@ -62,6 +62,8 @@ export default function HousingMap({
 }: HousingMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const popupRef = useRef<maplibregl.Popup | null>(null);
+  const selectedPopupRef = useRef<maplibregl.Popup | null>(null);
   const rotationFrameRef = useRef<number | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [is3D, setIs3D] = useState(true);
@@ -170,6 +172,102 @@ export default function HousingMap({
         );
       }
 
+      // Create house icon via canvas for crisp rendering
+      const size = 48;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d")!;
+
+      // White circle background with border
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+      ctx.fillStyle = BRAND_ORANGE;
+      ctx.fill();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // House icon (simplified path)
+      const cx = size / 2;
+      const cy = size / 2;
+      const s = 10; // icon scale
+
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      // Roof
+      ctx.beginPath();
+      ctx.moveTo(cx - s, cy);
+      ctx.lineTo(cx, cy - s);
+      ctx.lineTo(cx + s, cy);
+      ctx.closePath();
+      ctx.fill();
+
+      // House body
+      ctx.fillRect(cx - s * 0.7, cy - 1, s * 1.4, s * 0.9);
+
+      // Door
+      ctx.fillStyle = BRAND_ORANGE;
+      ctx.fillRect(cx - s * 0.2, cy + s * 0.2, s * 0.4, s * 0.7);
+
+      const imageData = ctx.getImageData(0, 0, size, size);
+      map.addImage("casa-house-icon", imageData, { pixelRatio: 2 });
+
+      // Also create selected variant
+      const canvas2 = document.createElement("canvas");
+      canvas2.width = size;
+      canvas2.height = size;
+      const ctx2 = canvas2.getContext("2d")!;
+
+      ctx2.beginPath();
+      ctx2.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+      ctx2.fillStyle = BRAND_DARK;
+      ctx2.fill();
+      ctx2.strokeStyle = BRAND_ORANGE;
+      ctx2.lineWidth = 3;
+      ctx2.stroke();
+
+      ctx2.fillStyle = "#ffffff";
+      ctx2.beginPath();
+      ctx2.moveTo(cx - s, cy);
+      ctx2.lineTo(cx, cy - s);
+      ctx2.lineTo(cx + s, cy);
+      ctx2.closePath();
+      ctx2.fill();
+      ctx2.fillRect(cx - s * 0.7, cy - 1, s * 1.4, s * 0.9);
+      ctx2.fillStyle = BRAND_DARK;
+      ctx2.fillRect(cx - s * 0.2, cy + s * 0.2, s * 0.4, s * 0.7);
+
+      const imageData2 = ctx2.getImageData(0, 0, size, size);
+      map.addImage("casa-house-icon-selected", imageData2, { pixelRatio: 2 });
+
+      // Housing markers — GeoJSON source + symbol layer
+      map.addSource(MARKERS_SOURCE_ID, {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+
+      // Single symbol layer with data-driven icon
+      map.addLayer({
+        id: MARKERS_ICON_LAYER,
+        source: MARKERS_SOURCE_ID,
+        type: "symbol",
+        layout: {
+          "icon-image": [
+            "case",
+            ["==", ["get", "selected"], 1],
+            "casa-house-icon-selected",
+            "casa-house-icon",
+          ],
+          "icon-size": ["case", ["==", ["get", "selected"], 1], 1.2, 0.9],
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
+      });
 
       // Draw bounds source + layers
       map.addSource(DRAW_SOURCE_ID, {
@@ -198,7 +296,13 @@ export default function HousingMap({
         },
       });
 
-
+      // Click handler for housing markers
+      map.on("click", MARKERS_ICON_LAYER, (e) => {
+        const feature = e.features?.[0];
+        if (feature?.properties?.id) {
+          onMarkerClick?.(feature.properties.id);
+        }
+      });
 
       // Click handler for 3D buildings (MRH units)
       map.on("click", BUILDING_LAYER_ID, (e) => {
@@ -279,6 +383,34 @@ export default function HousingMap({
         map.getCanvas().style.cursor = "";
       });
 
+      // Hover cursor + popup
+      map.on("mouseenter", MARKERS_ICON_LAYER, (e) => {
+        map.getCanvas().style.cursor = "pointer";
+        const feature = e.features?.[0];
+        if (feature && feature.geometry.type === "Point") {
+          const coords = feature.geometry.coordinates as [number, number];
+          const name = feature.properties?.name ?? "";
+
+          if (popupRef.current) popupRef.current.remove();
+          popupRef.current = new maplibregl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            offset: 16,
+            className: "casa-marker-popup",
+          })
+            .setLngLat(coords)
+            .setHTML(`<span>${name}</span>`)
+            .addTo(map);
+        }
+      });
+
+      map.on("mouseleave", MARKERS_ICON_LAYER, () => {
+        map.getCanvas().style.cursor = "";
+        if (popupRef.current) {
+          popupRef.current.remove();
+          popupRef.current = null;
+        }
+      });
 
       setMapLoaded(true);
     });
@@ -420,67 +552,16 @@ export default function HousingMap({
     };
   }, [isDrawMode, mapLoaded, onBoundsDrawn]);
 
-  const markersRef = useRef<{ [id: number]: maplibregl.Marker }>({});
-
-  /* ── Manage HTML Markers ── */
+  /* ── Update GeoJSON source when data or selection changes ── */
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
 
-    const currentIds = new Set(housings.map(h => h.id));
-
-    // Remove stale markers
-    for (const idStr of Object.keys(markersRef.current)) {
-      const id = Number(idStr);
-      if (!currentIds.has(id)) {
-        markersRef.current[id].remove();
-        delete markersRef.current[id];
-      }
+    const source = map.getSource(MARKERS_SOURCE_ID) as maplibregl.GeoJSONSource;
+    if (source) {
+      source.setData(geojson);
     }
-
-    // Add or update markers
-    for (const h of housings) {
-      if (h.lat === null || h.lng === null) continue;
-
-      let marker = markersRef.current[h.id];
-      const isActive = h.id === selectedId;
-
-      if (!marker) {
-        // Create custom HTML element
-        const el = document.createElement("div");
-        el.className = `casa-pin ${isActive ? "active" : ""}`;
-        el.title = h.name;
-        
-        el.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-          <div class="casa-pin-label ${isActive ? "active" : ""}">${h.name}</div>
-        `;
-
-        el.addEventListener("click", (e) => {
-          e.stopPropagation();
-          onMarkerClick?.(h.id);
-        });
-
-        marker = new maplibregl.Marker({ element: el })
-          .setLngLat([h.lng, h.lat])
-          .addTo(map);
-
-        markersRef.current[h.id] = marker;
-      } else {
-        // Update existing element
-        const el = marker.getElement();
-        if (isActive) {
-          el.classList.add("active");
-          const label = el.querySelector(".casa-pin-label");
-          if (label) label.classList.add("active");
-        } else {
-          el.classList.remove("active");
-          const label = el.querySelector(".casa-pin-label");
-          if (label) label.classList.remove("active");
-        }
-      }
-    }
-  }, [housings, mapLoaded, selectedId, onMarkerClick]);
+  }, [geojson, mapLoaded]);
 
   /* ── Fly to selected housing ── */
   useEffect(() => {
@@ -497,6 +578,17 @@ export default function HousingMap({
 
     const isMRH = housing.name === "Men's Residence Hall" || housing.name === "Makiling Residence Hall";
 
+    // Show popup immediately
+    if (selectedPopupRef.current) selectedPopupRef.current.remove();
+    selectedPopupRef.current = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 16,
+      className: "casa-marker-popup",
+    })
+      .setLngLat([housing.lng, housing.lat])
+      .setHTML(`<span>${housing.name}</span>`)
+      .addTo(map);
 
     map.flyTo({
       center: [housing.lng, housing.lat],
@@ -607,66 +699,7 @@ export default function HousingMap({
       )}
 
       {/* Map canvas */}
-      <div ref={mapContainerRef} style={{ width: "100%", height: "100%" }} />
-      <style>{`
-        .casa-pin {
-          line-height: 0;
-          padding: 0.25rem;
-          color: white;
-          background-color: #C9642A;
-          border: 2px solid white;
-          border-radius: 50%;
-          cursor: pointer;
-          position: relative;
-          box-shadow: 0 2px 0.25rem rgba(0, 0, 0, 0.3);
-          transition: transform 0.2s, scale 1.5s;
-          z-index: 50;
-        }
-        .casa-pin:hover {
-          background-color: #a84f1d;
-          z-index: 60;
-        }
-        .casa-pin.active {
-          z-index: 60;
-        }
-        .casa-pin.active::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          outline: 0.125rem solid #a84f1d;
-          outline-offset: 0.125rem;
-        }
-        .casa-pin .casa-pin-label {
-          line-height: initial;
-          color: black;
-          position: absolute;
-          bottom: calc(100% + 0.5rem);
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: white;
-          border-radius: 0.5rem;
-          padding: 0.25rem 0.75rem;
-          width: max-content;
-          font-size: 0.875rem;
-          font-weight: 600;
-          opacity: 0;
-          transition: opacity 0.2s;
-          pointer-events: none;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        .casa-pin.active .casa-pin-label,
-        .casa-pin:hover .casa-pin-label {
-          opacity: 1;
-        }
-        .casa-pin.active .casa-pin-label {
-          background-color: #C9642A;
-          color: white;
-        }
-      `}</style>
+      <div ref={mapContainerRef} className="map-container" />
 
       {/* Draw mode overlay hint */}
       {isDrawMode && (
