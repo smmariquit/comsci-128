@@ -241,6 +241,7 @@ export type Database = {
           status: Database["public"]["Enums"]["FeedbackStatus"]
           subject: string
           text: string
+          updated_at: string | null
         }
         Insert: {
           account_number: number
@@ -254,6 +255,7 @@ export type Database = {
           status: Database["public"]["Enums"]["FeedbackStatus"]
           subject: string
           text: string
+          updated_at?: string | null
         }
         Update: {
           account_number?: number
@@ -267,6 +269,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["FeedbackStatus"]
           subject?: string
           text?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -302,6 +305,8 @@ export type Database = {
           housing_type: Database["public"]["Enums"]["HousingType"]
           is_deleted: boolean | null
           landlord_account_number: number
+          latitude: number | null
+          longitude: number | null
           manager_account_number: number | null
           rent_price: number
           start_application_date: string | null
@@ -315,6 +320,8 @@ export type Database = {
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
           landlord_account_number: number
+          latitude?: number | null
+          longitude?: number | null
           manager_account_number?: number | null
           rent_price: number
           start_application_date?: string | null
@@ -328,6 +335,8 @@ export type Database = {
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
           landlord_account_number?: number
+          latitude?: number | null
+          longitude?: number | null
           manager_account_number?: number | null
           rent_price?: number
           start_application_date?: string | null
