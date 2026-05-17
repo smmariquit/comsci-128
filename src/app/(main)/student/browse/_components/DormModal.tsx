@@ -9,10 +9,20 @@ interface DormModalProps {
     id: number;
     name: string;
     address: string;
-    housing_type: string; // Ensure this matches
+    housing_type: string;
     price: number | string;
     appli_start: string;
     appli_end: string;
+    has_wifi: boolean;
+    has_aircon: boolean;
+    has_laundry: boolean;
+    has_parking: boolean;
+    has_no_curfew: boolean;
+    allows_visitors: boolean;
+    is_furnished: boolean;
+    has_kitchen: boolean;
+    has_security: boolean;
+    has_utilities_included: boolean;
   } | null;
   onClose: () => void;
 }
@@ -27,17 +37,21 @@ export default function DormModal({ dorm, onClose }: DormModalProps) {
         {/* TOP SECTION: Image and Overlay */}
         <div className="relative h-[240px] w-full">
           <Image
-            src="/assets/placeholders/housing-414x264.svg"
+            src={
+              dorm.name === "Makiling Residence Hall"
+                ? "/assets/placeholders/makiling.png" // assuming the image is different in prod, fallback
+                : "/assets/placeholders/housing-414x264.svg"
+            }
             alt={dorm.name}
             fill
             className="object-cover"
           />
           {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1C2632]/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1C2632]/90 via-[#1C2632]/20 to-transparent" />
 
           {/* Housing Name Overlay */}
-          <div className="absolute bottom-6 left-6">
-            <h2 className="text-[28px] font-semibold text-white font-[family-name:var(--font-geist-sans)]">
+          <div className="absolute bottom-6 left-6 pr-6">
+            <h2 className="text-[28px] leading-tight font-semibold text-white font-[family-name:var(--font-geist-sans)] drop-shadow-md">
               {dorm.name}
             </h2>
           </div>
@@ -52,24 +66,48 @@ export default function DormModal({ dorm, onClose }: DormModalProps) {
         </div>
 
         {/* BOTTOM SECTION: Details */}
-        <div className="p-8 font-[family-name:var(--font-geist-mono)] text-[14px] space-y-3 text-[#1C2632]">
-          <div className="flex gap-2">
-            <span className="font-bold">Address:</span>
-            <span>{dorm.address}</span>
+        <div className="p-8 font-[family-name:var(--font-geist-mono)] text-[14px] text-[#1C2632]">
+          
+          <div className="space-y-3 mb-6">
+            <div className="flex gap-2">
+              <span className="font-bold min-w-[120px]">Address:</span>
+              <span className="text-[#1C2632]/80">{dorm.address}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="font-bold min-w-[120px]">Housing Type:</span>
+              <span className="text-[#1C2632]/80">{dorm.housing_type}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="font-bold min-w-[120px]">Price:</span>
+              <span className="text-[#1C2632]/80 font-semibold text-[#C9642A]">₱{dorm.price}/month</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="font-bold min-w-[120px]">Applications:</span>
+              <span className="text-[#1C2632]/80">
+                {dorm.appli_start} — {dorm.appli_end}
+              </span>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <span className="font-bold">Housing Type:</span>
-            <span>{dorm.housing_type}</span>
-          </div>
-          <div className="flex gap-2">
-            <span className="font-bold">Price:</span>
-            <span>{dorm.price}/month</span>
-          </div>
-          <div className="flex gap-2">
-            <span className="font-bold">Application period:</span>
-            <span>
-              {dorm.appli_start} - {dorm.appli_end}
-            </span>
+
+          {/* Amenities Section */}
+          <div className="pt-5 border-t border-gray-100">
+            <span className="block font-bold mb-3">Amenities provided:</span>
+            <div className="flex flex-wrap gap-2">
+              {dorm.has_wifi && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">📶 WiFi</span>}
+              {dorm.has_aircon && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">❄️ Aircon</span>}
+              {dorm.is_furnished && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">🛏️ Furnished</span>}
+              {dorm.has_kitchen && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">🍳 Kitchen</span>}
+              {dorm.has_laundry && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">🧺 Laundry</span>}
+              {dorm.has_parking && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">🚗 Parking</span>}
+              {dorm.has_security && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">🛡️ Security</span>}
+              {dorm.has_utilities_included && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">⚡ Utilities Incl.</span>}
+              {dorm.has_no_curfew && <span className="px-2.5 py-1 rounded-md bg-[#C9642A]/15 text-[#C9642A] font-semibold text-xs">🦉 No Curfew</span>}
+              {dorm.allows_visitors && <span className="px-2.5 py-1 rounded-md bg-[#C9642A]/15 text-[#C9642A] font-semibold text-xs">👋 Visitors Allowed</span>}
+              
+              {!dorm.has_wifi && !dorm.has_aircon && !dorm.is_furnished && !dorm.has_kitchen && !dorm.has_laundry && !dorm.has_parking && !dorm.has_security && !dorm.has_utilities_included && !dorm.has_no_curfew && !dorm.allows_visitors && (
+                <span className="text-gray-400 text-sm italic">No amenities listed.</span>
+              )}
+            </div>
           </div>
 
           {/* Action Button */}
