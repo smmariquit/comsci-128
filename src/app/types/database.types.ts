@@ -237,7 +237,9 @@ export type Database = {
           id: number
           involved_housing_id: number | null
           involved_manager_id: number | null
+          screenshot_url: string | null
           status: Database["public"]["Enums"]["FeedbackStatus"]
+          subject: string
           text: string
         }
         Insert: {
@@ -248,7 +250,9 @@ export type Database = {
           id?: number
           involved_housing_id?: number | null
           involved_manager_id?: number | null
+          screenshot_url?: string | null
           status: Database["public"]["Enums"]["FeedbackStatus"]
+          subject: string
           text: string
         }
         Update: {
@@ -259,7 +263,9 @@ export type Database = {
           id?: number
           involved_housing_id?: number | null
           involved_manager_id?: number | null
+          screenshot_url?: string | null
           status?: Database["public"]["Enums"]["FeedbackStatus"]
+          subject?: string
           text?: string
         }
         Relationships: [
@@ -346,12 +352,15 @@ export type Database = {
       housing_admin: {
         Row: {
           account_number: number
+          is_deleted: boolean
         }
         Insert: {
           account_number: number
+          is_deleted?: boolean
         }
         Update: {
           account_number?: number
+          is_deleted?: boolean
         }
         Relationships: [
           {
@@ -366,12 +375,15 @@ export type Database = {
       landlord: {
         Row: {
           account_number: number
+          is_deleted: boolean
         }
         Insert: {
           account_number: number
+          is_deleted?: boolean
         }
         Update: {
           account_number?: number
+          is_deleted?: boolean
         }
         Relationships: [
           {
