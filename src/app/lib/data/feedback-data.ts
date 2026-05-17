@@ -37,7 +37,7 @@ async function findById(feedbackId: number): Promise<Feedback | null> {
     return data && data.length > 0 ? data[0] : null;
 }
 
-async function getAll(sortList: SortOrder[], filterList: FilterOptions[]): Promise<Partial<Feedback>[]> {
+async function getAll(sortList: SortOrder[], filterList: FilterOptions[]): Promise<Feedback[]> {
     // get all feedbacks in the system (sysadmin view)
 
     let query = supabase
@@ -59,14 +59,23 @@ async function getAll(sortList: SortOrder[], filterList: FilterOptions[]): Promi
     return data || [];
 }
 
-async function getAllByManagerId(managerId: number): Promise<Partial<Feedback>[]> {
+async function getAllByManagerId(managerId: number, sortList: SortOrder[], filterList: FilterOptions[]): Promise<Partial<Feedback>[]> {
     // get the feedback associated with the provided manager ID
 
-    const { data, error } = await supabase
+    let query = supabase
         .from("feedback")
         .select("id, text, feedback_type, category, created_at, status")
         .eq("involved_manager_id", managerId)
-        .eq("feedback_type", "Manager");
+
+    sortList.forEach(item => {
+        query = query.order(item.column, { ascending: item.isAscending });
+    });
+
+    filterList.forEach(filter => {
+        query = query.eq(filter.column, filter.value);
+    });
+
+    const { data, error } = await query;
 
     if (error) throw new Error(`Get All Feedback by Manager ID Error: ${error.message}`);
 
