@@ -535,6 +535,8 @@ export type Database = {
         Row: {
           housing_id: number
           is_deleted: boolean | null
+          latitude: number | null
+          longitude: number | null
           maximum_occupants: number | null
           occupancy_status:
             | Database["public"]["Enums"]["OccupancyStatus"]
@@ -548,6 +550,8 @@ export type Database = {
         Insert: {
           housing_id: number
           is_deleted?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           maximum_occupants?: number | null
           occupancy_status?:
             | Database["public"]["Enums"]["OccupancyStatus"]
@@ -561,6 +565,8 @@ export type Database = {
         Update: {
           housing_id?: number
           is_deleted?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           maximum_occupants?: number | null
           occupancy_status?:
             | Database["public"]["Enums"]["OccupancyStatus"]
