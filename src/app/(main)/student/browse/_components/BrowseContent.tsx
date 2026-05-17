@@ -525,7 +525,15 @@ export default function BrowseContent({
 
       {/* Dorm Modal */}
       {selectedDorm && (
-        <DormModal dorm={selectedDorm} onClose={() => setSelectedDorm(null)} />
+        <DormModal 
+          dorm={selectedDorm} 
+          onClose={() => setSelectedDorm(null)}
+          onViewMap={() => {
+            setShowMap(true);
+            setSelectedCardId(selectedDorm.id);
+            setSelectedDorm(null);
+          }}
+        />
       )}
 
       <style>{`
