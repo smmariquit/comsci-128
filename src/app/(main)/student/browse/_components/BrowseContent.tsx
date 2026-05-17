@@ -142,39 +142,39 @@ function QuizModal({
 
   const questions = [
     {
-      title: "💰 What's your monthly budget?",
+      title: "What is your monthly budget?",
       key: "budget" as const,
       options: [
-        { value: "<3000", label: "Under ₱3,000", emoji: "🪙" },
-        { value: "3000-5000", label: "₱3,000 – ₱5,000", emoji: "💵" },
-        { value: "5000-8000", label: "₱5,000 – ₱8,000", emoji: "💳" },
-        { value: "8000+", label: "₱8,000+", emoji: "💎" },
+        { value: "<3000", label: "Under ₱3,000" },
+        { value: "3000-5000", label: "₱3,000 – ₱5,000" },
+        { value: "5000-8000", label: "₱5,000 – ₱8,000" },
+        { value: "8000+", label: "₱8,000+" },
       ],
     },
     {
-      title: "⭐ What's your #1 must-have?",
+      title: "What is your primary required amenity?",
       key: "mustHave" as const,
       options: [
-        { value: "wifi", label: "WiFi", emoji: "📶" },
-        { value: "furnished", label: "Furnished Room", emoji: "🛏️" },
-        { value: "kitchen", label: "Kitchen Access", emoji: "🍳" },
-        { value: "aircon", label: "Air Conditioning", emoji: "❄️" },
+        { value: "wifi", label: "WiFi" },
+        { value: "furnished", label: "Furnished Room" },
+        { value: "kitchen", label: "Kitchen Access" },
+        { value: "aircon", label: "Air Conditioning" },
       ],
     },
     {
-      title: "🕐 How do you feel about curfews?",
+      title: "Do you have a curfew preference?",
       key: "curfew" as const,
       options: [
-        { value: "no_curfew", label: "No curfew please!", emoji: "🦉" },
-        { value: "curfew_ok", label: "Curfew is fine", emoji: "🌙" },
+        { value: "no_curfew", label: "No curfew required" },
+        { value: "curfew_ok", label: "Curfew is acceptable" },
       ],
     },
     {
-      title: "👋 Visitors policy?",
+      title: "What is your preference for visitors?",
       key: "visitors" as const,
       options: [
-        { value: "visitors_yes", label: "Visitors welcome!", emoji: "🎉" },
-        { value: "visitors_no", label: "Privacy is key", emoji: "🔒" },
+        { value: "visitors_yes", label: "Visitors allowed" },
+        { value: "visitors_no", label: "No visitors allowed" },
       ],
     },
   ];
@@ -227,7 +227,6 @@ function QuizModal({
                     ? "border-[#C9642A] bg-[#C9642A]/10 text-[#C9642A] font-semibold"
                     : "border-gray-200 hover:border-[#C9642A]/50 hover:bg-gray-50"}`}
               >
-                <span className="mr-2">{opt.emoji}</span>
                 {opt.label}
               </button>
             ))}
@@ -331,6 +330,17 @@ export default function BrowseContent({
                 year: "numeric",
               })
             : "TBA",
+          // Amenities
+          has_wifi: data.has_wifi ?? false,
+          has_aircon: data.has_aircon ?? false,
+          has_laundry: data.has_laundry ?? false,
+          has_parking: data.has_parking ?? false,
+          has_no_curfew: data.has_no_curfew ?? false,
+          allows_visitors: data.allows_visitors ?? false,
+          is_furnished: data.is_furnished ?? false,
+          has_kitchen: data.has_kitchen ?? false,
+          has_security: data.has_security ?? false,
+          has_utilities_included: data.has_utilities_included ?? false,
         });
       }
     } finally {
@@ -434,7 +444,7 @@ export default function BrowseContent({
               {quizAnswers && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#C9642A]/10 text-[#C9642A] font-medium">
                   <Sparkles size={10} />
-                  Quiz active · {processedCards.length} matches
+                  Quiz active · {processedCards.length} results
                 </span>
               )}
               {boundsFilter && (
@@ -481,16 +491,7 @@ export default function BrowseContent({
                         sizes="(max-width: 768px) 100vw, 300px"
                         className="object-cover"
                       />
-                      {/* Match score badge */}
-                      {card.matchScore !== null && (
-                        <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-bold shadow
-                          ${card.matchScore >= 80 ? "bg-green-500 text-white"
-                            : card.matchScore >= 50 ? "bg-yellow-400 text-gray-900"
-                            : "bg-gray-200 text-gray-600"}`}
-                        >
-                          {card.matchScore}% match
-                        </div>
-                      )}
+
                     </div>
                     <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1 font-[family-name:var(--font-geist-sans)]">
                       <div className="text-sm font-bold text-[#C9642A] truncate">
