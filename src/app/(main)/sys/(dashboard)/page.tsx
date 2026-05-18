@@ -308,10 +308,6 @@ export default function DashboardPage({
   								{s.label === 'TOTAL USERS' ? userCount : s.value}
 							</p>
 							
-							<p className={`text-xs flex items-center gap-1 ${s.dark ? 'text-white/50' : 'text-[#1a2332]/50'}`}>
-								{s.sub.startsWith('↑') && <TrendingUp size={12} className="text-[#d4622a]" />}
-								{s.sub}
-							</p>
 							</div>
 						))}
 					</div>
