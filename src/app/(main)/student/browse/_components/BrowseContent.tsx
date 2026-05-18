@@ -525,7 +525,14 @@ export default function BrowseContent({
                   <div
                     key={card.id}
                     onClick={() => handleCardClick(card.id)}
-                    className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleCardClick(card.id);
+                      }
+                    }}
+                    tabIndex={0}
+                    className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2
                       ${selectedCardId === card.id ? "ring-2 ring-[#C9642A] ring-offset-2 scale-[1.01]" : ""}`}
                   >
                     <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
