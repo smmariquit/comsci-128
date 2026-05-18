@@ -138,9 +138,10 @@ export default function Sidebar() {
 
             {/* User Profile and Logout */}
             <div className="px-6 py-4 border-t border-white/6 relative">
-                <div
+                <button
+                    type="button"
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/6 transition-colors duration-150"
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/6 transition-colors duration-150"
                 >
                     <div className="relative shrink-0">
                         <div className="w-9 h-9 bg-[#2e3f55] rounded-full flex items-center justify-center text-xs font-bold text-white/75 tracking-wider">
@@ -156,7 +157,7 @@ export default function Sidebar() {
                         size={14}
                         className={`text-white/30 shrink-0 transition-transform duration-200 ${menuOpen ? 'rotate-90' : ''}`}
                     />
-                    </div>
+                </button>
 
                     {/* Popup menu */}
                     {menuOpen && (
