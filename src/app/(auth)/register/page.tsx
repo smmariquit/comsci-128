@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
 import PageLoading from "@/app/components/ui/page-loading";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function RegisterPage() {
     last_name: "",
     email: "",
     password: "",
+    confirm_password: "",
     birthday: "",
     home_address: "",
     phone_number: "",
@@ -35,6 +37,8 @@ export default function RegisterPage() {
     label: "Start typing",
     bars: 0,
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
   const draftKey = "register-form-draft";
@@ -216,6 +220,11 @@ export default function RegisterPage() {
       return false;
     }
 
+    if (form.password !== form.confirm_password) {
+      setError("Passwords do not match.");
+      return false;
+    }
+
     setError("");
     return true;
   }
@@ -393,6 +402,8 @@ export default function RegisterPage() {
     form.last_name.trim() !== "" &&
     form.email.trim() !== "" &&
     form.password !== "" &&
+    form.confirm_password !== "" &&
+    form.password === form.confirm_password &&
     passwordStrength.bars >= 3 &&
     !nameErrors.first_name &&
     !nameErrors.middle_name &&
@@ -504,15 +515,25 @@ export default function RegisterPage() {
               </div>
             </div>
             <div>
-              <input
-                className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
-                required
-              />
+              <div className="relative">
+                <input
+                  className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
               <div className="mt-2 space-y-2">
                 <div className="flex items-center justify-between text-xs text-stone-400">
                   <span>Password strength</span>
@@ -532,6 +553,27 @@ export default function RegisterPage() {
                     />
                   ))}
                 </div>
+              </div>
+            </div>
+            <div>
+              <div className="relative mt-2">
+                <input
+                  className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirm_password"
+                  placeholder="Confirm password"
+                  value={form.confirm_password}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
           </>
