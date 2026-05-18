@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
 import { useAutoSave } from "@/app/hooks/useAutoSave";
+import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
 
 export function ApplyFormContent() {
   const dateNow = new Date(Date.now()).toISOString().split("T")[0];
@@ -18,14 +19,12 @@ export function ApplyFormContent() {
   type PreferredRoomType = (typeof room_types)[number];
 
   // Auto-save form state
-  const [formData, setFormData, clearSaved, hasSavedData] = useAutoSave(
-    `casa-apply-${dormId ?? "new"}`,
-    {
+  const [formData, setFormData, clearSaved, hasSavedData, saveState] =
+    useAutoSave(`casa-apply-${dormId ?? "new"}`, {
       selectedRoomType: "" as string,
       moveOutDate: "" as string,
       fileName: "" as string,
-    }
-  );
+    });
 
   const [status, setStatus] = useState<{
     message: string;
@@ -153,6 +152,12 @@ export function ApplyFormContent() {
           </button>
         </div>
       )}
+
+      <AutosaveStatus
+        saveState={saveState}
+        variant="light"
+        className="mb-4"
+      />
 
       {status.message && (
         <div

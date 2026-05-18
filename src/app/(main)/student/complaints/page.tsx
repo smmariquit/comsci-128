@@ -5,12 +5,11 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useAutoSave } from "@/app/hooks/useAutoSave";
 import { Save } from "lucide-react";
+import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
 
 export default function StudentComplaintsPage() {
-  const [formData, setFormData, clearSaved, hasSavedData] = useAutoSave(
-    "casa-complaint",
-    { subject: "", description: "" }
-  );
+  const [formData, setFormData, clearSaved, hasSavedData, saveState] =
+    useAutoSave("casa-complaint", { subject: "", description: "" });
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [showDraftNotice, setShowDraftNotice] = useState(hasSavedData);
@@ -52,6 +51,11 @@ export default function StudentComplaintsPage() {
         <h1 className="text-2xl font-bold mb-4 text-[#1C2632]">
           Submit a Formal Complaint
         </h1>
+        <AutosaveStatus
+          saveState={saveState}
+          variant="light"
+          className="mb-3"
+        />
 
         {showDraftNotice && (
           <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium">
