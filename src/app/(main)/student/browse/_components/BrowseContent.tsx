@@ -10,6 +10,16 @@ import DormModal from "./DormModal";
 import { getDormDetails } from "../_actions";
 import { usePGliteHousing } from "@/app/hooks/usePGliteHousing";
 
+const PopupCloseButton = ({ onClick }: { onClick: () => void }) => (
+  <button 
+    onClick={onClick} 
+    className="flex items-center justify-center h-6 w-6 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5"
+    aria-label="Close notification"
+  >
+    <X className="h-3.5 w-3.5" />
+  </button>
+);
+
 /* ────────────────────── Types ────────────────────── */
 
 interface HousingCard {
@@ -523,9 +533,7 @@ export default function BrowseContent({
                   <h4 className="text-sm font-semibold">
                     {isSyncing ? "Syncing Catalog" : "Offline Ready"}
                   </h4>
-                  <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                  <PopupCloseButton onClick={() => setDismissSync(true)} />
                 </div>
                 {isSyncing ? (
                   <div className="w-full mt-1.5">
@@ -553,9 +561,7 @@ export default function BrowseContent({
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <h4 className="text-sm font-semibold">You're Offline</h4>
-                  <button onClick={() => setDismissOffline(true)} className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                  <PopupCloseButton onClick={() => setDismissOffline(true)} />
                 </div>
                 <p className="text-[11px] text-white/70 mt-0.5">
                   Maps and housing cards are running from local device memory. Live data is not syncing.
@@ -573,9 +579,7 @@ export default function BrowseContent({
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <h4 className="text-sm font-semibold">Connection Restored</h4>
-                  <button onClick={() => setShowOnlineToast(false)} className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                  <PopupCloseButton onClick={() => setShowOnlineToast(false)} />
                 </div>
                 <p className="text-[11px] text-white/70 mt-0.5">
                   You are back online. Live data has been automatically refreshed.
