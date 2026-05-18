@@ -7,6 +7,7 @@ import NotificationBell from '@/app/(main)/sys/component/notification';
 import AddManagerModal from '@/app/(main)/sys/component/add-manager-modal';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
 import { AuditLog } from '@/app/lib/models/audit_log';
+import StateMessage from '@/app/components/ui/state-message';
 
 import {
 	TrendingUp,
@@ -235,16 +236,21 @@ export default function DashboardPage({
 			return (
 				<div className="flex min-h-screen bg-[#eae8e1]">
 					<Sidebar/>
-					<div className="flex-1 flex items-center justify-center">
-						<div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
-							<p className="text-red-600 font-semibold mb-2">Error Loading Dashboard</p>
-							<p className="text-red-500 text-sm mb-4">{error}</p>
-							<button 
-								onClick={() => window.location.reload()} 
-								className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-							>
-								Try Again
-							</button>
+					<div className="flex-1 flex items-center justify-center p-6">
+						<div className="max-w-md w-full">
+							<StateMessage
+								variant="error"
+								title="Unable to load dashboard"
+								description="You appear to be offline or our servers are temporarily unreachable."
+							/>
+							<div className="mt-4 text-center">
+								<button 
+									onClick={() => window.location.reload()} 
+									className="px-4 py-2 bg-[#d4622a] text-white font-medium rounded-lg hover:bg-[#d4622a]/90 transition-colors"
+								>
+									Try Again
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>

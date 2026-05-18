@@ -19,9 +19,12 @@ export default async function ManageLayout({
   children: React.ReactNode;
 }) {
   const accountNumber = await getManagerAccountNumber();
-  const managerUser = accountNumber
-    ? await userData.findById(accountNumber)
-    : null;
+  let managerUser = null;
+  try {
+    managerUser = accountNumber ? await userData.findById(accountNumber) : null;
+  } catch (error) {
+    console.warn("Offline: Could not load manager user for layout.");
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
