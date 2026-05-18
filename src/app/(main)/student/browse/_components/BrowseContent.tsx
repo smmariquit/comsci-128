@@ -274,7 +274,7 @@ export default function BrowseContent({
           price: item.rent_price,
           lat: item.latitude,
           lng: item.longitude,
-          image: null,
+          image: item.housing_image || null,
           has_wifi: false,
           has_aircon: false,
           has_laundry: false,
@@ -489,30 +489,31 @@ export default function BrowseContent({
           
           {/* Sync Indicator */}
           {!isOffline && !dismissSync && (isSyncing || syncComplete) && (
-            <div className="bg-white/95 backdrop-blur-md border border-[#1C2632]/10 p-4 rounded-xl shadow-2xl pointer-events-auto transition-all duration-500 ease-in-out">
-              <div className="flex items-center w-full">
+            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-start transition-all duration-500 ease-in-out">
+              <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-3 flex items-center justify-center h-8 w-8 shrink-0">
                 {isSyncing ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-3 text-[#C9642A] animate-spin flex-shrink-0" />
-                    <div className="flex-1 mr-3">
-                      <p className="text-xs text-[#1C2632] font-semibold mb-1.5 uppercase tracking-wide">Fetching Offline Data</p>
-                      <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                        <div className="bg-[#C9642A] h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-[#1C2632]/50">{syncProgress}%</span>
-                  </>
+                  <Loader2 className="h-4 w-4 text-[#C9642A] animate-spin flex-shrink-0" />
                 ) : (
-                  <>
-                    <CheckCircle2 className="h-5 w-5 mr-3 text-[#5FD068] flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-sm text-[#1C2632] font-semibold">Offline Ready</p>
-                      <p className="text-[10px] text-[#1C2632]/60 mt-0.5">Map data saved to device</p>
-                    </div>
-                    <button onClick={() => setDismissSync(true)} className="p-1.5 ml-2 hover:bg-[#1C2632]/5 rounded-md text-[#1C2632]/40 hover:text-[#1C2632] transition-colors">
-                      <X className="h-4 w-4" />
+                  <CheckCircle2 className="h-4 w-4 text-[#C9642A] flex-shrink-0" />
+                )}
+              </div>
+              <div className="flex-1 mt-0.5">
+                <div className="flex justify-between items-center mb-1">
+                  <h4 className="text-sm font-semibold">{isSyncing ? "Syncing Catalog" : "Offline Ready"}</h4>
+                  {isSyncing ? (
+                    <span className="text-[10px] font-bold text-white/50">{syncProgress}%</span>
+                  ) : (
+                    <button onClick={() => setDismissSync(true)} className="p-0.5 hover:bg-white/10 rounded-md text-white/40 hover:text-white transition-colors">
+                      <X className="h-3 w-3" />
                     </button>
-                  </>
+                  )}
+                </div>
+                {isSyncing ? (
+                  <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden mt-2">
+                    <div className="bg-[#C9642A] h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-white/70 leading-relaxed">Map data saved to device.</p>
                 )}
               </div>
             </div>
@@ -521,7 +522,7 @@ export default function BrowseContent({
           {/* Offline Indicator */}
           {isOffline && (
             <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-start">
-              <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-3">
+              <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-3 flex items-center justify-center h-8 w-8 shrink-0">
                 <Wifi className="h-4 w-4 text-[#C9642A] flex-shrink-0" />
               </div>
               <div className="flex-1 mt-0.5">

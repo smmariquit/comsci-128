@@ -31,9 +31,35 @@ async function getDB() {
         longitude DOUBLE PRECISION
       );
     `);
+    // Migration: Add image_base64 column if it doesn't exist
+    try {
+      await dbInstance.exec(`ALTER TABLE housing ADD COLUMN image_base64 TEXT;`);
+    } catch (e) {
+      // Column likely already exists
+    }
   }
   return dbInstance;
 }
+
+const generateLowResBase64 = async (url: string | null): Promise<string | null> => {
+  if (!url) return null;
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const bitmap = await createImageBitmap(blob);
+    const canvas = document.createElement("canvas");
+    const MAX = 200; // Generate extremely lightweight thumbnail
+    const scale = Math.min(MAX / bitmap.width, MAX / bitmap.height, 1);
+    canvas.width = bitmap.width * scale;
+    canvas.height = bitmap.height * scale;
+    const ctx = canvas.getContext("2d");
+    ctx?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.3);
+  } catch (e) {
+    console.error("Failed to generate low-res base64", e);
+    return null;
+  }
+};
 
 export function usePGliteHousing() {
   const [isOffline, setIsOffline] = useState(false);
@@ -80,14 +106,16 @@ export function usePGliteHousing() {
       if (data && data.length > 0) {
         let count = 0;
         for (const h of data) {
+          const base64 = await generateLowResBase64(h.housing_image);
           await db.query(
-            `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude) 
-             VALUES ($1, $2, $3, $4, $5, $6)
+            `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude, image_base64) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
              ON CONFLICT (housing_id) DO UPDATE SET 
              housing_name = EXCLUDED.housing_name, 
              latitude = EXCLUDED.latitude, 
-             longitude = EXCLUDED.longitude`,
-            [h.housing_id, h.housing_name, h.housing_address, h.rent_price, h.latitude, h.longitude]
+             longitude = EXCLUDED.longitude,
+             image_base64 = EXCLUDED.image_base64`,
+            [h.housing_id, h.housing_name, h.housing_address, h.rent_price, h.latitude, h.longitude, base64]
           );
           count++;
           setSyncProgress(Math.round((count / data.length) * 100));
@@ -118,13 +146,14 @@ export function usePGliteHousing() {
       rent_price: h.rent_price,
       latitude: h.latitude,
       longitude: h.longitude,
+      housing_image: h.image_base64, // Provide the base64 as the image!
       room: roomsRes.rows // matches the Supabase relation format
     };
   };
 
   const getAllOfflineDorms = async () => {
     const db = await getDB();
-    const housingRes = await db.query(`SELECT * FROM housing`);
+    const housingRes = await db.query(`SELECT housing_id, housing_name, housing_address, rent_price, latitude, longitude, image_base64 as housing_image FROM housing`);
     return housingRes.rows;
   };
   
@@ -133,12 +162,13 @@ export function usePGliteHousing() {
     if (!dorm) return;
     const db = await getDB();
     
+    const base64 = await generateLowResBase64(dorm.housing_image);
     await db.query(
-      `INSERT INTO housing (housing_id, housing_name, housing_address, latitude, longitude) 
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO housing (housing_id, housing_name, housing_address, latitude, longitude, image_base64) 
+       VALUES ($1, $2, $3, $4, $5, $6)
        ON CONFLICT (housing_id) DO UPDATE SET 
-       housing_name = EXCLUDED.housing_name, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude`,
-      [dorm.housing_id, dorm.housing_name, dorm.housing_address, dorm.latitude, dorm.longitude]
+       housing_name = EXCLUDED.housing_name, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, image_base64 = EXCLUDED.image_base64`,
+      [dorm.housing_id, dorm.housing_name, dorm.housing_address, dorm.latitude, dorm.longitude, base64]
     );
     
     if (dorm.room && dorm.room.length > 0) {
