@@ -4,6 +4,7 @@ import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import AvatarUploadModal from "../../../../components/AvatarUploadModal";
+import LogoutModal from "../../../../components/LogoutModal";
 import Avatar from "@/app/components/Avatar";
 import { LogOut, Camera } from "lucide-react";
 import StateMessage from "@/app/components/ui/state-message";
