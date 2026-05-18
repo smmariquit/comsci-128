@@ -222,7 +222,9 @@ export default function Sidebar({
           position: "relative",
         }}
       >
-        <div
+        <button
+          className="rounded-lg text-left"
+          type="button"
           style={{
             width: 286,
             height: 51,
@@ -233,6 +235,9 @@ export default function Sidebar({
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
+            background: "transparent",
+            border: "none",
+            padding: 0,
           }}
         >
           {/* Avatar */}
@@ -280,12 +285,11 @@ export default function Sidebar({
               {userRole}
             </div>
           </div>
-
           {/* Chevron */}
           <div style={{ marginRight: 10 }}>
             <ChevronRight size={14} color="rgba(237,233,222,0.30)" />
           </div>
-        </div>
+        </button>
       </div>
     </aside>
   );
