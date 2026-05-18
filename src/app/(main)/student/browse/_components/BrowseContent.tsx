@@ -487,26 +487,27 @@ export default function BrowseContent({
           {/* Scrollable cards area */}
           <div className="browse-cards-scroll relative">
             
-            {/* Active filters floating indicator */}
+            {/* Active Filters (Static layout, no overlap) */}
             {(quizAnswers || boundsFilter) && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 text-[11px] font-[family-name:var(--font-geist-mono)] tracking-wider pointer-events-none">
+              <div className="flex items-center flex-wrap gap-2 text-[11px] font-[family-name:var(--font-geist-mono)] tracking-wider px-6 pt-4 pb-2 w-full">
                 {quizAnswers && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#C9642A]/90 backdrop-blur-sm border border-white/10 text-white font-bold shadow-lg pointer-events-auto">
-                    <Sparkles size={12} />
-                    QUIZ ACTIVE ({processedCards.length})
-                  </span>
+                  <div className="inline-flex items-center h-8 px-3 rounded-full bg-[#C9642A] text-white font-bold shadow-sm">
+                    <Sparkles size={12} className="mr-2" />
+                    <span>QUIZ ACTIVE ({processedCards.length})</span>
+                  </div>
                 )}
                 {boundsFilter && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C2632]/90 backdrop-blur-sm border border-white/10 text-white font-bold shadow-lg pointer-events-auto">
-                    <Map size={12} />
-                    AREA FILTERED ({processedCards.length})
+                  <div className="inline-flex items-center h-8 pl-3 pr-1 rounded-full bg-[#1C2632] text-white font-bold shadow-sm">
+                    <Map size={12} className="mr-2" />
+                    <span>AREA FILTERED ({processedCards.length})</span>
                     <button
                       onClick={() => setBoundsFilter(null)}
-                      className="ml-1.5 hover:bg-white/20 text-white/60 hover:text-white rounded-full p-0.5 transition-colors"
+                      className="ml-2 h-6 w-6 flex items-center justify-center hover:bg-white/20 text-white/60 hover:text-white rounded-full transition-colors"
+                      aria-label="Clear area filter"
                     >
-                      <X size={10} strokeWidth={3} />
+                      <X size={12} strokeWidth={2.5} />
                     </button>
-                  </span>
+                  </div>
                 )}
               </div>
             )}
