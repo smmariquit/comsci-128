@@ -8,6 +8,7 @@ import LogoutModal from "../../../../components/LogoutModal";
 import Avatar from "@/app/components/Avatar";
 import { LogOut, Camera } from "lucide-react";
 import StateMessage from "@/app/components/ui/state-message";
+import AccountSettings from "@/app/components/ui/AccountSettings";
 import { deleteCookie } from "@/app/lib/utils";
 
 export default function ManagerProfilePage() {
@@ -226,7 +227,7 @@ export default function ManagerProfilePage() {
 
           {/* Manager Specific Tabs */}
           <div className="w-full space-y-3 mb-12">
-            {["Personal Information", "Bank Details"].map((tab) => (
+            {["Personal Information", "Bank Details", "Account Settings"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -329,6 +330,8 @@ export default function ManagerProfilePage() {
               />
             </>
           )}
+
+          {activeTab === "Account Settings" && <AccountSettings />}
         </div>
       </div>
 
