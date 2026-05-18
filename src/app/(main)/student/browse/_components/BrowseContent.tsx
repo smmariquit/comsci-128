@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Sparkles, X, Map, LayoutGrid, Wifi, Armchair, Clock, Zap, Loader2, CheckCircle2 } from "lucide-react";
 import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
 import Isolated3DViewer from "@/app/components/map/Isolated3DViewer";
@@ -260,9 +261,22 @@ export default function BrowseContent({
   const [mapViewTrigger, setMapViewTrigger] = useState(0);
   const [isolatedDorm, setIsolatedDorm] = useState<any | null>(null);
 
+  const router = useRouter();
+  const [wasOffline, setWasOffline] = useState(false);
+
   const { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally, getAllOfflineDorms } = usePGliteHousing();
   const [dismissSync, setDismissSync] = useState(false);
   const [offlineCards, setOfflineCards] = useState<HousingCard[]>([]);
+
+  // Auto-refresh when connection is restored
+  useEffect(() => {
+    if (isOffline) {
+      setWasOffline(true);
+    } else if (wasOffline && !isOffline) {
+      setWasOffline(false);
+      router.refresh(); // Automatically reload the server component to fetch live data
+    }
+  }, [isOffline, wasOffline, router]);
 
   useEffect(() => {
     if (isOffline && cards.length === 0) {
