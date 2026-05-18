@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, type ReactNode } from "react";
 import Image from "next/image";
-import { Sparkles, X, Map, LayoutGrid, Wifi, Armchair, Clock, Zap } from "lucide-react";
+import { Sparkles, X, Map, LayoutGrid, Wifi, Armchair, Clock, Zap, Loader2, CheckCircle2 } from "lucide-react";
 import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
 import Isolated3DViewer from "@/app/components/map/Isolated3DViewer";
 import DormModal from "./DormModal";
@@ -260,7 +260,8 @@ export default function BrowseContent({
   const [mapViewTrigger, setMapViewTrigger] = useState(0);
   const [isolatedDorm, setIsolatedDorm] = useState<HousingCard | null>(null);
 
-  const { isOffline, getOfflineDormDetails, saveDormDetailsLocally } = usePGliteHousing();
+  const { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally } = usePGliteHousing();
+  const [dismissSync, setDismissSync] = useState(false);
 
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
@@ -453,6 +454,34 @@ export default function BrowseContent({
               </button>
             </div>
           </div>
+
+        {/* Sync Indicator */}
+        {!isOffline && !dismissSync && (isSyncing || syncComplete) && (
+          <div className="bg-white border border-gray-200 p-3 mx-4 lg:mx-8 mt-2 rounded shadow-sm flex items-center justify-between">
+            <div className="flex items-center w-full">
+              {isSyncing ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-3 text-blue-500 animate-spin flex-shrink-0" />
+                  <div className="flex-1 mr-4">
+                    <p className="text-sm text-gray-700 font-medium">Downloading offline map data...</p>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1.5 overflow-hidden">
+                      <div className="bg-blue-500 h-2 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-gray-500">{syncProgress}%</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-5 w-5 mr-3 text-green-500 flex-shrink-0" />
+                  <p className="text-sm text-gray-700 font-medium flex-1">Offline map data downloaded!</p>
+                  <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600 transition-colors">
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Offline Indicator */}
         {isOffline && (
