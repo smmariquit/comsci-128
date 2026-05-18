@@ -67,7 +67,7 @@ function _DormCard({
   location: string;
 }) {
   return (
-    <Link href={`/manage/accommodations/${id}`}>
+    <Link href={`/manage/accommodations/${id}`} className="block rounded-xl">
       <div className="relative h-84 rounded-xl overflow-hidden shadow cursor-pointer group border border-gray-800">
         <img
           src={image || "/assets/placeholders/housing-card.svg"}

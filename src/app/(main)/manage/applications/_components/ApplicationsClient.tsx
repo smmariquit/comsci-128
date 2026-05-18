@@ -146,10 +146,11 @@ export default function ApplicationsClient({
                       </span>
                     </td>
                     <td className="p-3">
-                      <Link href={`/manage/applications/${app.application_id}`}>
-                        <button className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                          Review
-                        </button>
+                      <Link
+                        href={`/manage/applications/${app.application_id}`}
+                        className="inline-block px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--dark-orange)] min-w-0 min-h-0"
+                      >
+                        Review
                       </Link>
                     </td>
                   </tr>

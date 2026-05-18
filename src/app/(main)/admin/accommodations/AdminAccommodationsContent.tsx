@@ -52,7 +52,7 @@ export default function AdminAccommodationsContent({
         <div className="w-full max-w-6xl mx-auto flex justify-end mb-4">
           <button
             onClick={() => setShowMap(!showMap)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1C2632] text-white text-sm font-semibold hover:opacity-90 transition shadow-md"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1C2632] text-white text-sm font-semibold hover:opacity-90 transition shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--dark-orange)]"
           >
             {showMap ? <LayoutGrid size={16} /> : <Map size={16} />}
             {showMap ? "Hide Map" : "Show Map"}

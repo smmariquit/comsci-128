@@ -65,7 +65,7 @@ export default function LandingPage() {
           {isLoggedIn ? (
             <Link
               href={dashboardUrl}
-              className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center justify-center"
+              className="bg-[#C9642A] text-white px-5 py-2.5 rounded-full font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center justify-center"
             >
               Continue to Dashboard
             </Link>
@@ -73,13 +73,13 @@ export default function LandingPage() {
             <>
               <Link
                 href="/login"
-                className="font-medium text-[#C9642A] hover:underline transition-colors flex items-center justify-center"
+                className="font-medium text-[#C9642A] hover:underline transition-colors flex items-center justify-center rounded-full px-3 py-1.5"
               >
                 Log in
               </Link>
               <Link
                 href="/register"
-                className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center justify-center"
+                className="bg-[#C9642A] text-white px-5 py-2.5 rounded-full font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center justify-center"
               >
                 Sign up
               </Link>
