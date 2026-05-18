@@ -5,22 +5,37 @@ import { Housing } from "@/models/housing";
 import { userData } from "./user-data";
 
 const create = async (
-  userDetails: NewUser,
-  managerDetails: NewManager,
+    accountNumber: number,
+    managerDetails: NewManager,
 ): Promise<Manager> => {
+    // soft delete row in student table
+    // create row in manager and the specific manager table (housing_admin/landlord)
 
-  const { data, error } = await supabase
-    .from("manager")
-    .insert([{
-      account_number: userDetails.account_number,
-      manager_type: managerDetails.manager_type
-    }])
-    .select();
+    // soft delete student row 
+    const { data: removedStudent, error: removeStudentError} = await supabase
+        .from("student")
+        .update({ is_deleted: true })
+        .eq("account_number", accountNumber)
+        .select();
 
-  if (error) throw error;
+    if (removeStudentError) throw new Error(`Create Manager (remove student) Error: ${removeStudentError.message}`);
 
-  return data[0];
+	const managerInsert = {
+		account_number: accountNumber,
+		manager_type: managerDetails.manager_type, 
+	};
+
+    // create in manager row
+    const { data: createdManager, error: createManagerError} = await supabase
+        .from("manager")
+        .insert([managerInsert])
+        .select();
+
+    if (createManagerError) throw new Error(`Create Manager Error: ${createManagerError.message}`);
+
+    return createdManager[0];
 };
+
 // READ managers
 const getAll = async () => {
   return await supabase
