@@ -1,6 +1,10 @@
-export default function PageLoading({ label = "Loading" }: { label?: string }) {
+export default function PageLoading({ label = "Loading", overlay = false }: { label?: string, overlay?: boolean }) {
+  const containerClass = overlay 
+    ? "fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+    : "min-h-screen w-full flex items-center justify-center bg-[#EDE9DE]";
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#EDE9DE]">
+    <div className={containerClass}>
       <div className="flex flex-col items-center gap-6">
         {/* Animated house icon — built stroke by stroke */}
         <div className="relative w-16 h-16">

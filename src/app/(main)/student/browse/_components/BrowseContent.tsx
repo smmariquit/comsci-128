@@ -7,6 +7,7 @@ import { Sparkles, X, Map, LayoutGrid, Wifi, Armchair, Clock, Zap, Loader2, Chec
 import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
 import Isolated3DViewer from "@/app/components/map/Isolated3DViewer";
 import DormModal from "./DormModal";
+import PageLoading from "@/app/components/ui/page-loading";
 import { getDormDetails } from "../_actions";
 import { usePGliteHousing } from "@/app/hooks/usePGliteHousing";
 
@@ -421,11 +422,7 @@ export default function BrowseContent({
   return (
     <>
       {/* Fetching overlay */}
-      {isFetching && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]" />
-        </div>
-      )}
+      {isFetching && <PageLoading overlay label="Fetching Profile..." />}
 
       <div className={`browse-root ${showMap ? "map-visible" : "map-hidden"}`}>
         {/* ── Left: Map ── */}
