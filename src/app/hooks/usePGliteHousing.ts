@@ -78,12 +78,12 @@ export function usePGliteHousing() {
       if (data && data.length > 0) {
         for (const h of data) {
           await db.query(
-            \`INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude) 
+            `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude) 
              VALUES ($1, $2, $3, $4, $5, $6)
              ON CONFLICT (housing_id) DO UPDATE SET 
              housing_name = EXCLUDED.housing_name, 
              latitude = EXCLUDED.latitude, 
-             longitude = EXCLUDED.longitude\`,
+             longitude = EXCLUDED.longitude`,
             [h.housing_id, h.housing_name, h.housing_address, h.rent_price, h.latitude, h.longitude]
           );
         }
@@ -98,8 +98,8 @@ export function usePGliteHousing() {
   // Provide a drop-in replacement for getDormDetails when offline
   const getOfflineDormDetails = async (id: number) => {
     const db = await getDB();
-    const housingRes = await db.query(\`SELECT * FROM housing WHERE housing_id = $1\`, [id]);
-    const roomsRes = await db.query(\`SELECT * FROM room WHERE housing_id = $1\`, [id]);
+    const housingRes = await db.query(`SELECT * FROM housing WHERE housing_id = $1`, [id]);
+    const roomsRes = await db.query(`SELECT * FROM room WHERE housing_id = $1`, [id]);
     
     if (housingRes.rows.length === 0) return null;
     
@@ -121,20 +121,20 @@ export function usePGliteHousing() {
     const db = await getDB();
     
     await db.query(
-      \`INSERT INTO housing (housing_id, housing_name, housing_address, latitude, longitude) 
+      `INSERT INTO housing (housing_id, housing_name, housing_address, latitude, longitude) 
        VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (housing_id) DO UPDATE SET 
-       housing_name = EXCLUDED.housing_name, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude\`,
+       housing_name = EXCLUDED.housing_name, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude`,
       [dorm.housing_id, dorm.housing_name, dorm.housing_address, dorm.latitude, dorm.longitude]
     );
     
     if (dorm.room && dorm.room.length > 0) {
       for (const r of dorm.room) {
         await db.query(
-          \`INSERT INTO room (room_id, housing_id, room_code, room_type, latitude, longitude)
+          `INSERT INTO room (room_id, housing_id, room_code, room_type, latitude, longitude)
            VALUES ($1, $2, $3, $4, $5, $6)
            ON CONFLICT (room_id) DO UPDATE SET
-           latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude\`,
+           latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude`,
           [r.room_id, r.housing_id, r.room_code, r.room_type, r.latitude, r.longitude]
         );
       }
