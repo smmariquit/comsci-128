@@ -26,7 +26,7 @@ export interface AuditLog {
   module: ModuleType;
   ipAddress: string;
   status: StatusType;
-  description?: string;
+  audit_description?: string;
 }
 
 export interface AuditLogsPageProps {
@@ -187,7 +187,7 @@ export default function AuditLogsPage({
           module: log.module || 'Auth',
           ipAddress: log.partial_ip || '—',
           status: log.status || 'Success',
-          description: log.audit_description || '',
+          audit_description: log.audit_description || '',
         }));
 
         console.log('Transformed logs:', transformed);
@@ -315,7 +315,7 @@ export default function AuditLogsPage({
 
             {/* Column headers */}
             <div className={`grid ${GRID_COLS} gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6`}>
-              {['TIMESTAMP', 'USER', 'ACTION', 'IP ADDRESS'].map((col) => (
+              {['TIMESTAMP', 'USER', 'ACTION', 'IP ADDRESS', 'DESCRIPTION'].map((col) => (
                 <span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">
                   {col}
                 </span>
@@ -345,7 +345,6 @@ export default function AuditLogsPage({
                       </div>
                       <div className="min-w-0">
                         <p className="text-[12px] font-semibold text-[#1a2332] truncate">{log.userName}</p>
-                        <p className="text-[10px] text-[#1a2332]/40">{log.userRole}</p>
                       </div>
                     </div>
 
@@ -355,6 +354,9 @@ export default function AuditLogsPage({
 
                     {/* IP ADDRESS */}
                     <span className="text-[11px] font-mono text-[#1a2332]/60">{log.ipAddress}</span>
+
+                     {/* IP ADDRESS */}
+                    <span className="text-[11px] font-mono text-[#1a2332]/60">{log.audit_description}</span>
                   </div>
                 ))
               )}
