@@ -38,6 +38,8 @@ async function getDB() {
 export function usePGliteHousing() {
   const [isOffline, setIsOffline] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
+  const [syncProgress, setSyncProgress] = useState(0);
+  const [syncComplete, setSyncComplete] = useState(false);
 
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
@@ -76,6 +78,7 @@ export function usePGliteHousing() {
       
       // Sync Housing (simplified for offline viewer)
       if (data && data.length > 0) {
+        let count = 0;
         for (const h of data) {
           await db.query(
             `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude) 
@@ -86,8 +89,12 @@ export function usePGliteHousing() {
              longitude = EXCLUDED.longitude`,
             [h.housing_id, h.housing_name, h.housing_address, h.rent_price, h.latitude, h.longitude]
           );
+          count++;
+          setSyncProgress(Math.round((count / data.length) * 100));
         }
       }
+      
+      setSyncComplete(true);
     } catch (e) {
       console.error("PGlite sync failed:", e);
     } finally {
@@ -141,5 +148,5 @@ export function usePGliteHousing() {
     }
   };
 
-  return { isOffline, isSyncing, getOfflineDormDetails, saveDormDetailsLocally };
+  return { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally };
 }
