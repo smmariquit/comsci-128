@@ -10,6 +10,7 @@ import HowItWorks from "./HowItWorksSection";
 import ServicesSection from "./ServicesSection";
 import ShowcaseSection from "./ShowcaseSection";
 import TestimonialsSection from "./TestimonialsSection";
+import ThemeToggle from "@/app/components/ui/ThemeToggle";
 
 // Mapping colors
 const colors = {
@@ -61,7 +62,8 @@ export default function LandingPage() {
         <div className="flex items-center">
           <Logo href={null} size={64} textClassName="text-[#1C2632]" />
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
+          <ThemeToggle className="text-[#1C2632] dark:text-[#EDE9DE] rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" />
           {isLoggedIn ? (
             <Link
               href={dashboardUrl}

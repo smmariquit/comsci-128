@@ -13,6 +13,8 @@ export const metadata: Metadata = {
     "Manager panel for managing properties, applications, and tenants.",
 };
 
+import ThemeToggle from "@/app/components/ui/ThemeToggle";
+
 export default async function ManageLayout({
   children,
 }: {
@@ -37,38 +39,38 @@ export default async function ManageLayout({
             <nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
               <Link
                 href="/manage"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3 rounded-md px-2"
               >
                 Dashboard
               </Link>
               <Link
                 href="/manage/accommodations"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3 rounded-md px-2"
               >
                 Accommodations
               </Link>
               <Link
                 href="/manage/applications"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3 rounded-md px-2"
               >
                 Applications
               </Link>
               <Link
                 href="/manage/complaints"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3 rounded-md px-2"
               >
                 Complaints
               </Link>
               <Link
                 href="/manage/logs"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3 rounded-md px-2"
               >
                 Audit Logs
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2 md:gap-4 text-sm">
             {/* Mobile Nav Link */}
             <Link
               href="/manage"
@@ -77,9 +79,11 @@ export default async function ManageLayout({
               Dashboard
             </Link>
 
+            <ThemeToggle className="rounded-full p-2 hover:bg-white/10" />
+
             <button
               type="button"
-              className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center justify-center"
+              className="text-[#EDE9DE] hover:bg-white/10 transition-colors flex items-center justify-center rounded-full p-2"
             >
               <Bell size={22} strokeWidth={2} />
             </button>
