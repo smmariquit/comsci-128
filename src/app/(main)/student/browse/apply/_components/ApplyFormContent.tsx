@@ -202,7 +202,7 @@ export function ApplyFormContent() {
                       selectedRoomType: e.target.value,
                     }))
                   }
-                  className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:outline-none focus:ring-2 focus:ring-[#C9642A] appearance-none"
+                  className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:ring-2 focus:ring-[#C9642A] appearance-none"
                 >
                   <option value="" disabled hidden>
                     | Select room type
@@ -236,7 +236,7 @@ export function ApplyFormContent() {
                     moveOutDate: e.target.value,
                   }))
                 }
-                className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:outline-none focus:ring-2 focus:ring-[#C9642A]"
+                className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:ring-2 focus:ring-[#C9642A]"
               />
             </div>
           </div>

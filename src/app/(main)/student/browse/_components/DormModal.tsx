@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
@@ -30,10 +31,33 @@ interface DormModalProps {
 }
 
 export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  // Auto-focus the modal container for keyboard users
+  useEffect(() => {
+    modalRef.current?.focus();
+  }, []);
+
   if (!dorm) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${dorm.name} details`}
+      ref={modalRef}
+      tabIndex={-1}
+    >
       {/* Main Card Container */}
       <div className="relative w-full max-w-[850px] flex flex-col md:flex-row overflow-hidden rounded-[20px] bg-white shadow-2xl">
         

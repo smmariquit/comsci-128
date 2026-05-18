@@ -342,7 +342,7 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
         disabled={disabled}
         value={value || ""}
         onChange={(e) => onChange && onChange(e.target.value)}
-        className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
+        className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] transition-all focus:border-[#C9642A] ${
           disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
         }`}
       />

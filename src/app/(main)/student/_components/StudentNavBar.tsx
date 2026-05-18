@@ -31,27 +31,27 @@ export default function StudentNavBar({
 					<div className="flex items-center gap-4 md:gap-8">
 						<Logo size={28} href="/" />
 
-						<nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 h-7 font-[family-name:var(--font-geist-sans)]">
-							<Link href="/student" className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center h-full text-m leading-none">
+						<nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 h-7 font-[family-name:var(--font-geist-sans)]">
+							<Link href="/student" className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center h-full text-m leading-none rounded-full px-4 py-2">
 								Dashboard
 							</Link>
-							<Link href="/student/browse" className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center h-full text-m leading-none">
+							<Link href="/student/browse" className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center h-full text-m leading-none rounded-full px-4 py-2">
 								Browse
 							</Link>
 						</nav>
 						
 					</div>
 
-				<div className="flex items-center gap-6">
+				<div className="flex items-center gap-2 md:gap-4">
 					<button 
 						suppressHydrationWarning
-						className="flex items-center justify-center text-[#EDE9DE] hover:opacity-80 transition-opacity"
+						className="flex items-center justify-center text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors rounded-full p-2"
+						aria-label="Notifications"
 						>
 							<Bell className="h-6 w-6" strokeWidth={2} />
 					</button>
 
-					<Link href={`/student/profile/${userId}`} className="flex items-center">
-						<div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all"></div>
+					<Link href={`/student/profile/${userId}`} className="flex items-center justify-center w-8 h-8 rounded-full bg-[#567375] hover:ring-2 hover:ring-[#EDE9DE] transition-all" aria-label="Profile">
 					</Link>
                 </div>
 				</div>

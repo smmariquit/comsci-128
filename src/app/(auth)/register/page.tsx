@@ -217,7 +217,7 @@ export default function RegisterPage() {
         {step === 1 && (
           <>
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="text"
               name="first_name"
               placeholder="First name"
@@ -226,7 +226,7 @@ export default function RegisterPage() {
               required
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="text"
               name="middle_name"
               placeholder="Middle name (optional)"
@@ -234,7 +234,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="text"
               name="last_name"
               placeholder="Last name"
@@ -243,7 +243,7 @@ export default function RegisterPage() {
               required
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="email"
               name="email"
               placeholder="Email"
@@ -252,7 +252,7 @@ export default function RegisterPage() {
               required
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="password"
               name="password"
               placeholder="Password"
@@ -266,7 +266,7 @@ export default function RegisterPage() {
         {step === 2 && (
           <>
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="date"
               name="birthday"
               placeholder="Birthday"
@@ -274,7 +274,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="text"
               name="home_address"
               placeholder="Home address"
@@ -282,7 +282,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="text"
               name="phone_number"
               placeholder="Phone number"
@@ -290,7 +290,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               type="email"
               name="contact_email"
               placeholder="Contact email (optional)"
@@ -298,7 +298,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <select
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
               name="sex"
               value={form.sex}
               onChange={handleChange}

@@ -57,7 +57,14 @@ export default function HousingCards({ cards }: { cards: any[] }) {
           <div
             key={card.id}
             onClick={() => handleCardClick(card.id)}
-            className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02]"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleCardClick(card.id);
+              }
+            }}
+            tabIndex={0}
+            className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2"
           >
             <Image
               src={

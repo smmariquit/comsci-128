@@ -34,52 +34,53 @@ export default async function ManageLayout({
           <div className="flex items-center gap-4 md:gap-8">
             <Logo size={28} href="/manage" />
 
-            <nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
+            <nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
               <Link
                 href="/manage"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Dashboard
               </Link>
               <Link
                 href="/manage/accommodations"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Accommodations
               </Link>
               <Link
                 href="/manage/applications"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Applications
               </Link>
               <Link
                 href="/manage/complaints"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Complaints
               </Link>
               <Link
                 href="/manage/logs"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Audit Logs
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2 md:gap-4 text-sm">
             {/* Mobile Nav Link */}
             <Link
               href="/manage"
-              className="md:hidden text-[#EDE9DE] text-xs font-medium"
+              className="md:hidden text-[#EDE9DE] text-xs font-medium hover:bg-white/10 focus-visible:bg-white/10 rounded-full px-3 py-1.5"
             >
               Dashboard
             </Link>
 
             <button
               type="button"
-              className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center justify-center"
+              className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center justify-center rounded-full p-2"
+              aria-label="Notifications"
             >
               <Bell size={22} strokeWidth={2} />
             </button>
@@ -98,7 +99,7 @@ export default async function ManageLayout({
 
       {/* BREAD CRUMBS */}
       <div className="w-full bg-[#567375] font-[family-name:var(--font-geist-sans)]">
-        <div className="flex items-center px-4 md:px-10 min-h-[44px] align-middle">
+        <div className="w-full max-w-7xl mx-auto flex items-center px-4 md:px-10 min-h-[44px] align-middle">
           <Breadcrumbs />
         </div>
       </div>
