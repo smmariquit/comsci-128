@@ -487,7 +487,6 @@ export default function BrowseContent({
               </button>
             </div>
           </div>
-          </div>
           {/* Scrollable cards area */}
           <div className="browse-cards-scroll relative">
             
