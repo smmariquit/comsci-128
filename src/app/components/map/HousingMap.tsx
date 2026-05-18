@@ -573,7 +573,7 @@ export default function HousingMap({
       className: "casa-marker-popup",
     })
       .setLngLat([housing.lng, housing.lat])
-      .setHTML(`<span>${housing.name}</span>`)
+      .setText(housing.name)
       .addTo(map);
 
     map.flyTo({
