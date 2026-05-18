@@ -91,6 +91,16 @@ export function usePGliteHousing() {
       return;
     }
     
+    const lastSync = localStorage.getItem("housing_last_sync");
+    const now = Date.now();
+    
+    // If synced within the last 12 hours (43200000 ms), skip heavy sync
+    if (lastSync && (now - parseInt(lastSync, 10) < 43200000)) {
+      setIsSyncing(false);
+      setSyncComplete(true);
+      return;
+    }
+    
     setIsSyncing(true);
     try {
       // In a real robust implementation, we'd fetch everything from Supabase.
@@ -123,6 +133,7 @@ export function usePGliteHousing() {
       }
       
       setSyncComplete(true);
+      localStorage.setItem("housing_last_sync", Date.now().toString());
     } catch (e) {
       console.error("PGlite sync failed:", e);
     } finally {
