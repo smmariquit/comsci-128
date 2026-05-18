@@ -22,7 +22,7 @@ interface Props {
 
 const inputBase: React.CSSProperties = {
   fontFamily: "'DM Sans', sans-serif",
-  fontSize: 12,
+  fontSize: 13,
   color: C.navy,
   background: "#fff",
   border: `1px solid ${C.cream}`,

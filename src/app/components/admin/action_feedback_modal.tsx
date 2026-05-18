@@ -96,7 +96,7 @@ export function ActionFeedbackModal({
               >
                 {state.title}
               </div>
-              <div style={{ marginTop: 3, fontSize: 11, color: C.teal }}>
+              <div style={{ marginTop: 3, fontSize: 13, color: C.teal }}>
                 {isSuccess ? "Action completed" : "Action failed"}
               </div>
             </div>
@@ -143,7 +143,7 @@ export function ActionFeedbackModal({
                 background: isSuccess ? C.teal : C.orange,
                 color: "#fff",
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 700,
                 cursor: "pointer",
               }}

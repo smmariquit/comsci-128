@@ -225,7 +225,7 @@ export default function UsersFilterTableWrapper({
                           ? "rgba(201,100,42,0.10)"
                           : "rgba(86,115,117,0.12)",
                         color: viewRow.is_deleted ? C.orange : C.teal,
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         padding: "4px 10px",
                         borderRadius: 20,
@@ -244,7 +244,7 @@ export default function UsersFilterTableWrapper({
                     </span>
                     <span
                       style={{
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         padding: "4px 10px",
                         borderRadius: 20,
@@ -306,7 +306,7 @@ export default function UsersFilterTableWrapper({
                 >
                   <span
                     style={{
-                      fontSize: 10,
+                      fontSize: 13,
                       color: C.teal,
                       fontWeight: 700,
                       textTransform: "uppercase",
@@ -340,7 +340,7 @@ export default function UsersFilterTableWrapper({
                 onClick={() => setViewRow(null)}
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: 700,
                   letterSpacing: "0.02em",
                   padding: "8px 14px",

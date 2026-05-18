@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { Edit2 } from "lucide-react";
 
 interface AvatarProps {
   firstName?: string | null;
@@ -7,6 +11,8 @@ interface AvatarProps {
   size?: number;
   href?: string | null;
   className?: string;
+  ariaLabel?: string;
+  showEditIcon?: boolean;
 }
 
 function computeInitials(first?: string | null, last?: string | null) {
@@ -27,27 +33,39 @@ export default function Avatar({
   size = 32,
   href = null,
   className = "",
+  ariaLabel,
+  showEditIcon = false,
 }: AvatarProps) {
   const initials = computeInitials(firstName, lastName);
+  const [imageFailed, setImageFailed] = useState(false);
+  const displayName = [firstName, lastName].filter(Boolean).join(" ").trim();
+  const avatarAlt = displayName ? `Profile picture for ${displayName}` : "User avatar";
+  const linkLabel = ariaLabel || (displayName ? `Open profile for ${displayName}` : "Open profile");
 
   const avatar = (
     <div
-      className={`rounded-full bg-[#567375] flex items-center justify-center text-[#EDE9DE] font-bold overflow-hidden shrink-0 ${className}`}
+      className={`rounded-full bg-[#567375] flex items-center justify-center text-[#EDE9DE] font-bold overflow-hidden shrink-0 relative ${className}`}
       style={{ width: size, height: size }}
     >
-      {profilePicture ? (
+      {profilePicture && !imageFailed ? (
         <img
           src={profilePicture}
-          alt={initials}
+          alt={avatarAlt}
           className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
+          onError={() => setImageFailed(true)}
         />
       ) : (
-        <span className={`text-sm`} style={{ lineHeight: 1 }}>
+        <span className="text-sm" style={{ lineHeight: 1 }} aria-hidden="true">
           {initials}
         </span>
+      )}
+      {showEditIcon && (
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 hover:opacity-100 transition-opacity"
+          aria-hidden="true"
+        >
+          <Edit2 size={Math.max(12, size * 0.4)} className="text-white" strokeWidth={2} />
+        </div>
       )}
     </div>
   );
@@ -57,6 +75,7 @@ export default function Avatar({
       <Link
         href={href}
         className="flex items-center justify-center w-fit h-fit min-w-0 min-h-0 rounded-full"
+        aria-label={linkLabel}
       >
         {avatar}
       </Link>

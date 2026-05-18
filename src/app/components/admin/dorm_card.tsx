@@ -339,7 +339,7 @@ export default function DormCard({
               backdropFilter: "blur(6px)",
               borderRadius: 6,
               padding: "3px 8px",
-              fontSize: 10,
+              fontSize: 13,
               color: "#8AABAC",
               letterSpacing: "0.08em",
               fontWeight: 600,
@@ -365,7 +365,7 @@ export default function DormCard({
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "#8AABAC",
                 marginTop: 2,
                 display: "flex",
@@ -409,7 +409,7 @@ export default function DormCard({
               </span>
               <span
                 style={{
-                  fontSize: 10,
+                  fontSize: 13,
                   color: "#8AABAC",
                   marginTop: 3,
                   letterSpacing: "0.04em",
@@ -433,7 +433,7 @@ export default function DormCard({
           >
             <span
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "#8AABAC",
                 fontWeight: 500,
                 letterSpacing: "0.04em",
@@ -443,7 +443,7 @@ export default function DormCard({
               Occupancy
             </span>
             <span
-              style={{ fontSize: 12, fontWeight: 700, color: occupancyColor }}
+              style={{ fontSize: 13, fontWeight: 700, color: occupancyColor }}
             >
               {occupancyRate}%
             </span>
@@ -483,11 +483,11 @@ export default function DormCard({
           }}
         >
           <div style={{ display: "flex", alignItems: "baseline", gap: 2 }}>
-            <span style={{ fontSize: 11, color: "#8AABAC" }}>from </span>
+            <span style={{ fontSize: 13, color: "#8AABAC" }}>from </span>
             <span style={{ fontSize: 15, fontWeight: 800, color: "#1D9E75" }}>
               ₱{cardRent.toLocaleString()}
             </span>
-            <span style={{ fontSize: 11, color: "#8AABAC" }}>/mo</span>
+            <span style={{ fontSize: 13, color: "#8AABAC" }}>/mo</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button
@@ -499,7 +499,7 @@ export default function DormCard({
                 background: "#FFF8F8",
                 cursor: "pointer",
                 color: "#D95F5F",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 display: "flex",
                 alignItems: "center",
@@ -524,7 +524,7 @@ export default function DormCard({
                 background: "#1C2632",
                 cursor: "pointer",
                 color: "#EDE9DE",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 display: "flex",
                 alignItems: "center",
@@ -586,7 +586,7 @@ export default function DormCard({
               >
                 Saving changes…
               </div>
-              <div style={{ fontSize: 12, color: "#8AABAC" }}>
+              <div style={{ fontSize: 13, color: "#8AABAC" }}>
                 {selectedFile
                   ? "Uploading image & saving data"
                   : "Please wait a moment"}
@@ -637,7 +637,7 @@ export default function DormCard({
               >
                 Deleting housing…
               </div>
-              <div style={{ fontSize: 12, color: "#8AABAC" }}>
+              <div style={{ fontSize: 13, color: "#8AABAC" }}>
                 Please wait while the record is removed
               </div>
             </div>
@@ -799,7 +799,7 @@ export default function DormCard({
                 >
                   Upload New Photo
                 </span>
-                <span style={{ color: "rgba(255,255,255,0.65)", fontSize: 12 }}>
+                <span style={{ color: "rgba(255,255,255,0.65)", fontSize: 13 }}>
                   Drag & drop or click to browse
                 </span>
               </div>
@@ -879,7 +879,7 @@ export default function DormCard({
                   backdropFilter: "blur(6px)",
                   borderRadius: 6,
                   padding: "3px 10px",
-                  fontSize: 11,
+                  fontSize: 13,
                   color: "#8AABAC",
                   letterSpacing: "0.08em",
                   fontWeight: 600,
@@ -1031,7 +1031,7 @@ export default function DormCard({
                   >
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         color: "#D95F5F",
                         letterSpacing: "0.06em",
@@ -1043,7 +1043,7 @@ export default function DormCard({
                     </div>
                     <div
                       style={{
-                        fontSize: 12,
+                        fontSize: 13,
                         color: "#8AABAC",
                         marginBottom: 10,
                         lineHeight: 1.45,
@@ -1105,7 +1105,7 @@ export default function DormCard({
                     </div>
                     <div
                       style={{
-                        fontSize: 12,
+                        fontSize: 13,
                         color: "#1C2632",
                         lineHeight: 1.5,
                       }}
@@ -1222,7 +1222,7 @@ export default function DormCard({
 }
 
 const sectionLabelStyle: React.CSSProperties = {
-  fontSize: 11,
+  fontSize: 13,
   color: "#8AABAC",
   fontWeight: 700,
   letterSpacing: "0.09em",
@@ -1231,7 +1231,7 @@ const sectionLabelStyle: React.CSSProperties = {
 };
 
 const fieldLabelStyle: React.CSSProperties = {
-  fontSize: 12,
+  fontSize: 13,
   color: "#8AABAC",
   fontWeight: 500,
 };

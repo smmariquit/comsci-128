@@ -26,7 +26,7 @@ interface Props {
 
 const inputBase: React.CSSProperties = {
   fontFamily: "'DM Sans', sans-serif",
-  fontSize: 12,
+  fontSize: 13,
   color: C.navy,
   background: "#fff",
   border: `1px solid ${C.cream}`,
@@ -45,7 +45,7 @@ const selectBase: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: 13,
   fontWeight: 600,
   color: C.teal,
   textTransform: "uppercase",
@@ -287,7 +287,7 @@ export default function BillFilters({
             onMouseLeave={() => setHoveredClear(false)}
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 11,
+              fontSize: 13,
               color: C.orange,
               background: "rgba(201,100,42,0.08)",
               border: `1px solid rgba(201,100,42,0.2)`,

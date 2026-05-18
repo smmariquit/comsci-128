@@ -122,19 +122,21 @@ export function ApplyFormContent() {
   const headerName = dormData?.housing_name || "Housing";
 
   return (
-    <div className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner">
+    <>
+      <main className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner" aria-labelledby="apply-housing-heading">
       {/* Back Button */}
       <button
         onClick={() => router.back()}
-        className="mb-6 flex items-center gap-2 rounded-lg border border-[#1C2632]/20 bg-white px-4 py-2 text-sm font-semibold text-[#1C2632] shadow-sm transition-all hover:bg-[#1C2632] hover:text-white active:scale-95"
+        aria-label="Go back"
+        className="mb-6 flex items-center gap-2 rounded-lg border border-[#1C2632]/20 bg-white px-4 py-2 text-sm font-semibold text-[#111820] shadow-sm transition-all hover:bg-[#111820] hover:text-white active:scale-95"
       >
-        <ChevronLeft width="24" height="24" strokeWidth={3} />
+        <ChevronLeft width="24" height="24" strokeWidth={3} aria-hidden="true" />
       </button>
 
       {/* Draft restored notice */}
       {showDraftNotice && (
-        <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium animate-[fadeIn_0.3s_ease]">
-          <Save size={16} />
+        <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-[#111820] text-sm font-medium animate-[fadeIn_0.3s_ease]" role="status">
+          <Save size={16} aria-hidden="true" />
           Draft restored! Your previous progress has been saved.
           <button
             onClick={() => {
@@ -146,7 +148,7 @@ export function ApplyFormContent() {
               });
               setShowDraftNotice(false);
             }}
-            className="ml-auto text-xs text-blue-500 hover:text-blue-700 underline"
+            className="ml-auto text-xs text-[#111820] hover:text-[#2f4a4c] underline"
           >
             Clear draft
           </button>
@@ -163,9 +165,11 @@ export function ApplyFormContent() {
         <div
           className={`mb-6 p-4 rounded-lg text-sm font-medium ${
             status.type === "success"
-              ? "bg-green-100 text-green-700 border border-green-200"
-              : "bg-red-100 text-red-700 border border-red-200"
+              ? "bg-green-100 text-[#111820] border border-green-200"
+              : "bg-red-100 text-[#111820] border border-red-200"
           }`}
+          role="status"
+          aria-live="polite"
         >
           {status.message}
         </div>
@@ -180,9 +184,9 @@ export function ApplyFormContent() {
       >
         {/* Header banner */}
         <div className="rounded-[10px] bg-[#1C2632] px-6 py-4 text-white">
-          <h2 className="text-xl font-medium font-[family-name:var(--font-geist-sans)]">
+          <h1 id="apply-housing-heading" className="text-xl font-medium font-[family-name:var(--font-geist-sans)]">
             Application for {headerName}
-          </h2>
+          </h1>
         </div>
 
         {/* MAIN FORM GRID */}
@@ -195,6 +199,7 @@ export function ApplyFormContent() {
               </label>
               <div className="relative">
                 <select
+                  aria-label="Preferred room type"
                   value={formData.selectedRoomType}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -229,6 +234,7 @@ export function ApplyFormContent() {
               </label>
               <input
                 type="date"
+                aria-label="Expected move-out date"
                 value={formData.moveOutDate}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -262,13 +268,13 @@ export function ApplyFormContent() {
                     onClick={() =>
                       setFormData((prev) => ({ ...prev, fileName: "" }))
                     }
-                    className="text-xs text-[#D66B38] hover:underline"
+                    className="text-xs text-[#8b3e15] hover:underline"
                   >
                     Remove
                   </button>
                 </div>
               ) : (
-                <label className="cursor-pointer rounded-full border border-[#1C2632] bg-[#D7D2C7] px-8 py-2 text-xs font-bold text-[#1C2632] hover:bg-[#c4beb1] transition-colors">
+                <label className="cursor-pointer rounded-full border border-[#111820] bg-[#D7D2C7] px-8 py-2 text-xs font-bold text-[#111820] hover:bg-[#c4beb1] transition-colors">
                   Choose file
                   <input
                     type="file"
@@ -304,12 +310,14 @@ export function ApplyFormContent() {
         </div>
       </form>
 
+      </main>
+
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-5px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-    </div>
+    </>
   );
 }

@@ -6,16 +6,9 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { setCookie } from "@/app/lib/utils";
 import PageLoading from "@/app/components/ui/page-loading";
-import { useAutoSave } from "@/app/hooks/useAutoSave";
-import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
 
 export default function LoginPage() {
-  const [form, setForm, clearSaved, _hasSavedData, saveState] = useAutoSave(
-    "casa-login",
-    {
-    email: "",
-    }
-  );
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +18,7 @@ export default function LoginPage() {
 
   function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { value } = e.target;
-    setForm((prev) => ({ ...prev, email: value }));
+    setEmail(value);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -33,7 +26,7 @@ export default function LoginPage() {
     setStatus("");
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: form.email,
+      email,
       password,
     });
 
@@ -47,7 +40,7 @@ export default function LoginPage() {
       const { data: profile } = await supabase
         .from("user")
         .select("user_type, account_number")
-        .eq("account_email", form.email)
+        .eq("account_email", email)
         .single();
 
       if (profile) {
@@ -97,7 +90,6 @@ export default function LoginPage() {
             target = "/manage";
           }
         }
-        clearSaved();
         setPassword("");
         router.push(target);
       }
@@ -130,13 +122,13 @@ export default function LoginPage() {
           Login
         </h2>
         {status && <div className="text-red-400 text-center">{status}</div>}
-        <AutosaveStatus saveState={saveState} className="mx-auto" />
         <input
           className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
           type="email"
           name="email"
+          aria-label="Email address"
           placeholder="Email"
-          value={form.email}
+          value={email}
           onChange={handleEmailChange}
           required
         />
@@ -144,6 +136,7 @@ export default function LoginPage() {
           className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
           type="password"
           name="password"
+          aria-label="Password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

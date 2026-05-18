@@ -25,6 +25,7 @@ export default function StudentNavBar({
   const [lName, setLName] = useState(lastName || null);
   const [avatarUrl, setAvatarUrl] = useState(profilePicture || null);
   const [uid, setUid] = useState(userId);
+  const profileLabel = [fName, lName].filter(Boolean).join(" ").trim();
 
   useEffect(() => {
     // If we already have the data from props, don't fetch
@@ -88,18 +89,24 @@ export default function StudentNavBar({
               profilePicture={avatarUrl}
               size={32}
               href={uid ? `/student/profile/${uid}` : "#"}
+              ariaLabel={profileLabel ? `Open profile for ${profileLabel}` : "Open profile"}
             />
           </div>
                 </div>
 				</div>
 			</header>
 
-			{/* BREAD CRUMBS */}
-			<div className="w-full bg-[#567375] font-[family-name:var(--font-geist-sans)]">
-				<div className="max-w-7xl mx-auto px-4 md:px-10 py-2 text-[#EDE9DE] text-[13px] font-sans font-regular">
-					{path}
-				</div>
-			</div>
+      {/* BREAD CRUMBS */}
+      <nav
+        className="w-full bg-gradient-to-r from-[#567375] to-[#6e9092] text-[#EDE9DE] font-[family-name:var(--font-geist-sans)]"
+        aria-label="Student page breadcrumb"
+      >
+        <div className="w-full max-w-7xl mx-auto flex items-center px-4 md:px-10 min-h-[44px] text-sm font-medium gap-2">
+          <ol className="max-w-7xl mx-auto px-0 md:px-0 py-2 text-[#EDE9DE] text-sm font-sans">
+            <li aria-current="page">{path}</li>
+          </ol>
+        </div>
+      </nav>
 		</>
 	);
 }

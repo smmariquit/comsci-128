@@ -142,7 +142,7 @@ export default function Sidebar({
             left: 82,
             top: 73,
             color: "#6E9092",
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: 400,
           }}
         >
@@ -258,7 +258,7 @@ export default function Sidebar({
             <span
               style={{
                 color: "#EDE9DE",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 letterSpacing: 0.5,
               }}
@@ -281,7 +281,7 @@ export default function Sidebar({
             >
               {userName}
             </div>
-            <div style={{ color: "#6E9092", fontSize: 11, fontWeight: 400 }}>
+            <div style={{ color: "#6E9092", fontSize: 13, fontWeight: 400 }}>
               {userRole}
             </div>
           </div>

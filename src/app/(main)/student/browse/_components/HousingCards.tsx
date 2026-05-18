@@ -48,13 +48,13 @@ export default function HousingCards({ cards }: { cards: any[] }) {
   return (
     <>
       {isFetching && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#C9642A]"></div>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20" aria-live="polite" aria-label="Loading housing details">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8b3e15]"></div>
         </div>
       )}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
         {cards.map((card) => ( 
-          <div
+          <button
             key={card.id}
             onClick={() => handleCardClick(card.id)}
             onKeyDown={(e) => {
@@ -63,24 +63,25 @@ export default function HousingCards({ cards }: { cards: any[] }) {
                 handleCardClick(card.id);
               }
             }}
-            tabIndex={0}
-            className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2"
+            type="button"
+            aria-label={`Open details for ${card.name}`}
+            className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-[#8b3e15] focus-visible:outline-none focus-visible:ring-offset-2 text-left"
           >
             <Image
               src={
                 card.image || "/assets/placeholders/housing-414x264.svg"
               }
-              alt={`${card.name} placeholder`}
+              alt={card.name}
               width={414}
               height={264}
               className="block h-auto w-full"
             />
             <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1.5 font-[family-name:var(--font-geist-sans)]">
-              <div className="text-sm font-bold text-[#C9642A] truncate">
+              <div className="text-sm font-bold text-[#f7e3d7] truncate">
                 {card.name}
               </div>
-              <div className="flex justify-between items-center text-[11px] text-white/60">
-                <span className="bg-white/10 px-2 py-0.5 rounded-full">
+              <div className="flex justify-between items-center text-xs text-white/90">
+                <span className="bg-white/15 px-2 py-0.5 rounded-full text-white/90">
                   {card.type}
                 </span>
                 <span className="font-semibold text-white/90">
@@ -88,7 +89,7 @@ export default function HousingCards({ cards }: { cards: any[] }) {
                 </span>
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 

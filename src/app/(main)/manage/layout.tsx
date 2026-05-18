@@ -106,7 +106,7 @@ export default async function ManageLayout({
       </div>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 bg-[var(--cream)]">{children}</main>
+      <main className="flex-1 bg-[var(--cream)] px-4 md:px-10 mx-auto max-w-7xl w-full">{children}</main>
 
       {/* FOOTER */}
       <footer className="bg-[#1C2632] text-[#EDE9DE] px-6 py-10 text-sm">

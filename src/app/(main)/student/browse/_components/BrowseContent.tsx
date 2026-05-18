@@ -117,7 +117,7 @@ function AmenityBadges({ card }: { card: HousingCard }) {
       {badges.slice(0, 4).map((b) => (
         <span
           key={b.label}
-          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-[#C9642A]/20 text-[#C9642A]"
+          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium bg-[#f2e3d7] text-[#111820]"
         >
           {b.icon}
           {b.label}
@@ -197,16 +197,16 @@ function QuizModal({
   const q = questions[step];
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="quiz-modal-title" aria-describedby="quiz-modal-step">
       <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-md overflow-hidden animate-[fadeInUp_0.3s_ease]">
         {/* Header */}
         <div className="bg-[#1C2632] px-5 py-4 flex justify-between items-center">
           <div>
-            <h3 className="text-white font-bold text-lg">Find My Housing</h3>
-            <p className="text-white/50 text-xs">Step {step + 1} of {questions.length}</p>
+            <h3 id="quiz-modal-title" className="text-white font-bold text-lg">Find My Housing</h3>
+            <p id="quiz-modal-step" className="text-white/90 text-sm">Step {step + 1} of {questions.length}</p>
           </div>
-          <button onClick={onClose} className="text-white/60 hover:text-white transition">
-            <X size={20} />
+          <button onClick={onClose} className="text-white hover:text-white transition" aria-label="Close housing quiz">
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
@@ -220,16 +220,16 @@ function QuizModal({
 
         {/* Question */}
         <div className="p-5">
-          <h4 className="text-lg font-semibold text-[#1C2632] mb-4">{q.title}</h4>
+          <h4 className="text-lg font-semibold text-[#111820] mb-4">{q.title}</h4>
           <div className="flex flex-col gap-2">
             {q.options.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleSelect(q.key, opt.value)}
-                className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all
+                className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-[#111820]
                   ${answers[q.key] === opt.value
-                    ? "border-[#C9642A] bg-[#C9642A]/10 text-[#C9642A] font-semibold"
-                    : "border-gray-200 hover:border-[#C9642A]/50 hover:bg-gray-50"}`}
+                    ? "border-[#8b3e15] bg-[#f2e3d7] font-semibold"
+                    : "border-gray-200 hover:border-[#8b3e15]/50 hover:bg-gray-50"}`}
               >
                 {opt.label}
               </button>
@@ -424,7 +424,7 @@ export default function BrowseContent({
       {/* Fetching overlay */}
       {isFetching && <PageLoading overlay label="Fetching Housing Details..." />}
 
-      <div className={`browse-root ${showMap ? "map-visible" : "map-hidden"}`}>
+      <main className={`browse-root ${showMap ? "map-visible" : "map-hidden"}`} aria-labelledby="browse-housing-heading">
         {/* ── Left: Map ── */}
         {showMap && (
           <div className="browse-map-panel">
@@ -441,7 +441,8 @@ export default function BrowseContent({
         {/* ── Right: Search + Cards ── */}
         <div className="browse-content-panel">
           {/* Search bar + toggle */}
-          <div className="browse-toolbar">
+          <div className="browse-toolbar" aria-label="Housing filters and view options">
+            <h1 id="browse-housing-heading" className="sr-only">Browse Housing</h1>
             <div className="browse-search-area">{searchBar}</div>
             <div className="flex gap-2 flex-shrink-0">
               {/* Quiz button */}
@@ -450,8 +451,9 @@ export default function BrowseContent({
                   onClick={() => setShowQuiz(true)}
                   className="browse-quiz-btn"
                   id="find-my-housing"
+                  aria-label="Open housing quiz"
                 >
-                  <Sparkles size={14} />
+                  <Sparkles size={14} aria-hidden="true" />
                   <span className="hidden sm:inline">Find My Housing</span>
                 </button>
               ) : (
@@ -459,8 +461,9 @@ export default function BrowseContent({
                   onClick={clearQuiz}
                   className="browse-quiz-btn browse-quiz-active"
                   id="clear-quiz"
+                  aria-label="Clear housing quiz"
                 >
-                  <X size={14} />
+                  <X size={14} aria-hidden="true" />
                   <span className="hidden sm:inline">Clear Quiz</span>
                 </button>
               )}
@@ -469,15 +472,16 @@ export default function BrowseContent({
                 onClick={() => setShowMap(!showMap)}
                 className="browse-toggle-btn"
                 id="toggle-map-view"
+                aria-label={showMap ? "Show cards only" : "Show map"}
               >
                 {showMap ? (
                   <>
-                    <LayoutGrid size={16} />
+                    <LayoutGrid size={16} aria-hidden="true" />
                     <span className="hidden sm:inline">Cards Only</span>
                   </>
                 ) : (
                   <>
-                    <Map size={16} />
+                    <Map size={16} aria-hidden="true" />
                     <span className="hidden sm:inline">Show Map</span>
                   </>
                 )}
@@ -489,23 +493,23 @@ export default function BrowseContent({
             
             {/* Active Filters (Static layout, no overlap) */}
             {(quizAnswers || boundsFilter) && (
-              <div className="flex items-center flex-wrap gap-2 text-[11px] font-[family-name:var(--font-geist-mono)] tracking-wider px-6 pt-4 pb-2 w-full">
+              <div className="flex items-center flex-wrap gap-2 text-xs font-[family-name:var(--font-geist-mono)] tracking-wider px-6 pt-4 pb-2 w-full">
                 {quizAnswers && (
-                  <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-[#C9642A] text-white font-bold shadow-sm">
-                    <Sparkles size={12} />
+                  <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-[#8b3e15] text-white font-bold shadow-sm">
+                    <Sparkles size={12} aria-hidden="true" />
                     <span>QUIZ ACTIVE ({processedCards.length})</span>
                   </div>
                 )}
                 {boundsFilter && (
                   <div className="inline-flex items-center gap-1.5 h-8 pl-3 pr-1 rounded-full bg-[#1C2632] text-white font-bold shadow-sm">
-                    <Map size={12} />
+                    <Map size={12} aria-hidden="true" />
                     <span>AREA FILTERED ({processedCards.length})</span>
                     <button
                       onClick={() => setBoundsFilter(null)}
                       className="h-6 w-6 shrink-0 flex items-center justify-center hover:bg-white/20 text-white/60 hover:text-white rounded-full transition-colors"
                       aria-label="Clear area filter"
                     >
-                      <X size={12} strokeWidth={2.5} />
+                      <X size={12} strokeWidth={2.5} aria-hidden="true" />
                     </button>
                   </div>
                 )}
@@ -522,7 +526,7 @@ export default function BrowseContent({
             ) : (
               <div className="browse-cards-grid">
                 {processedCards.map((card) => (
-                  <div
+                  <button
                     key={card.id}
                     onClick={() => handleCardClick(card.id)}
                     onKeyDown={(e) => {
@@ -531,9 +535,10 @@ export default function BrowseContent({
                         handleCardClick(card.id);
                       }
                     }}
-                    tabIndex={0}
-                    className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2
-                      ${selectedCardId === card.id ? "ring-2 ring-[#C9642A] ring-offset-2 scale-[1.01]" : ""}`}
+                    type="button"
+                    aria-label={`Open details for ${card.name}`}
+                    className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#8b3e15] focus-visible:outline-none focus-visible:ring-offset-2 text-left
+                      ${selectedCardId === card.id ? "ring-2 ring-[#8b3e15] ring-offset-2 scale-[1.01]" : ""}`}
                   >
                     <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
                       <Image
@@ -549,11 +554,11 @@ export default function BrowseContent({
 
                     </div>
                     <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1 font-[family-name:var(--font-geist-sans)]">
-                      <div className="text-sm font-bold text-[#C9642A] truncate">
+                      <div className="text-sm font-bold text-[#f7e3d7] truncate">
                         {card.name}
                       </div>
-                      <div className="flex justify-between items-center text-[11px] text-white/60">
-                        <span className="bg-white/10 px-2 py-0.5 rounded-full">
+                      <div className="flex justify-between items-center text-xs text-white/90">
+                        <span className="bg-white/15 px-2 py-0.5 rounded-full text-white/90">
                           {card.type}
                         </span>
                         <span className="font-semibold text-white/90">
@@ -562,13 +567,13 @@ export default function BrowseContent({
                       </div>
                       <AmenityBadges card={card} />
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Quiz Modal */}
       {showQuiz && (

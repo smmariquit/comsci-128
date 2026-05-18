@@ -272,16 +272,16 @@ export default function StudentProfilePage() {
     <div className="flex flex-col min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
       <StudentNavBar path="Student Profile" userId={Number(accountNumber)} />
 
-      {/* Main Content*/}
-      <div className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner">
+      <main className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner" aria-labelledby="student-profile-heading">
         {/* Left Card Sidebar */}
-        <div className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-6 md:p-8 flex flex-col items-center shadow-sm h-fit">
+        <aside className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-6 md:p-8 flex flex-col items-center shadow-sm h-fit" aria-label="Profile navigation and actions">
           {/* Profile Circle */}
           <div
             className="w-32 h-32 mb-6 relative group cursor-pointer"
             onClick={() => setShowAvatarModal(true)}
             role="button"
             tabIndex={0}
+            aria-label="Change profile picture"
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
@@ -295,21 +295,23 @@ export default function StudentProfilePage() {
               profilePicture={(student as any)?.profile_picture}
               size={128}
               className="border-4 border-[#E3AF64] shadow-md group-hover:opacity-80 transition-opacity"
+              ariaLabel="Profile picture"
+              showEditIcon={true}
             />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full" aria-hidden="true">
               <Camera className="text-white w-8 h-8" />
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-[#1C2632] mb-1 text-center">
+          <h1 id="student-profile-heading" className="text-2xl font-bold text-[#1C2632] mb-1 text-center">
             {student?.first_name} {student?.last_name}
-          </h2>
-          <p className="text-[#567375] font-medium mb-10">
+          </h1>
+          <p className="text-[#2f4a4c] font-medium mb-10 text-sm">
             {student?.account_email}
           </p>
 
           {/* Navigation Tabs */}
-          <div className="w-full space-y-2 md:space-y-3 mb-8 md:mb-12">
+          <div className="w-full space-y-2 md:space-y-3 mb-8 md:mb-12" role="tablist" aria-label="Profile sections">
             {[
               "Personal Information",
               "Emergency Contact",
@@ -317,7 +319,11 @@ export default function StudentProfilePage() {
             ].map((tab) => (
               <button
                 key={tab}
+                id={`${tab.toLowerCase().replace(/\s+/g, "-")}-tab`}
                 onClick={() => setActiveTab(tab)}
+                role="tab"
+                aria-selected={activeTab === tab}
+                aria-controls={`${tab.toLowerCase().replace(/\s+/g, "-")}-panel`}
                 className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${
                   activeTab === tab
                     ? "bg-[#567375] text-white shadow-md"
@@ -349,31 +355,36 @@ export default function StudentProfilePage() {
             <div
               className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all ${
                 saveStatus.type === "success"
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-green-100 text-[#111820]"
                   : saveStatus.type === "error"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-blue-100 text-blue-700"
+                    ? "bg-red-100 text-[#111820]"
+                    : "bg-blue-100 text-[#111820]"
               }`}
+              role="status"
+              aria-live="polite"
             >
               {saveStatus.message}
             </div>
           )}
-        </div>
+
+      </aside>
 
         {/* RIGHT FORM AREA */}
-        <div className="flex-1 flex flex-col gap-6 pt-0 md:pt-10">
-          <h3 className="text-[#1C2632] text-xl font-bold border-b border-[#E3AF64] pb-2 mb-4">
+        <section className="flex-1 flex flex-col gap-6 pt-0 md:pt-10" aria-live="polite">
+          <h2 className="text-[#1C2632] text-xl font-bold border-b border-[#E3AF64] pb-2 mb-4">
             {activeTab}
-          </h3>
+          </h2>
 
           {activeTab === "Personal Information" && (
-            <>
+            <div id="personal-information-panel" role="tabpanel" aria-labelledby="personal-information-tab">
               <ProfileInput
+                id="first-name"
                 label="First Name"
                 value={student?.first_name}
                 onChange={(val: any) => updatePersonalInfo({ first_name: val })}
               />
               <ProfileInput
+                id="middle-name"
                 label="Middle Name"
                 value={student?.middle_name}
                 onChange={(val: any) =>
@@ -381,21 +392,24 @@ export default function StudentProfilePage() {
                 }
               />
               <ProfileInput
+                id="last-name"
                 label="Last Name"
                 value={student?.last_name}
                 onChange={(val: any) => updatePersonalInfo({ last_name: val })}
               />
               <ProfileInput
+                id="email"
                 label="Email"
                 value={student?.account_email}
                 disabled
               />
-            </>
+            </div>
           )}
 
           {activeTab === "Emergency Contact" && (
-            <>
+            <div id="emergency-contact-panel" role="tabpanel">
               <ProfileInput
+                id="emergency-contact-name"
                 label="Emergency Contact Name"
                 value={studentDetails?.emergency_contact_name}
                 onChange={(val: any) =>
@@ -405,6 +419,7 @@ export default function StudentProfilePage() {
                 }
               />
               <ProfileInput
+                id="emergency-contact-number"
                 label="Emergency Contact Number"
                 value={studentDetails?.emergency_contact_number}
                 onChange={(val: any) =>
@@ -414,6 +429,7 @@ export default function StudentProfilePage() {
                 }
               />
               <ProfileInput
+                id="relationship"
                 label="Relationship"
                 value={studentDetails?.emergency_contact_relationship}
                 onChange={(val: any) =>
@@ -422,12 +438,13 @@ export default function StudentProfilePage() {
                   })
                 }
               />
-            </>
+            </div>
           )}
 
           {activeTab === "Academic Information" && (
-            <>
+            <div id="academic-information-panel" role="tabpanel">
               <ProfileInput
+                id="degree-program"
                 label="Degree Program"
                 value={studentAcademic?.degree_program}
                 onChange={(val: string) =>
@@ -438,6 +455,7 @@ export default function StudentProfilePage() {
               />
 
               <ProfileSelect
+                id="standing"
                 label="Standing"
                 value={studentAcademic?.standing}
                 options={["Freshman", "Sophomore", "Junior", "Senior"]}
@@ -447,6 +465,7 @@ export default function StudentProfilePage() {
               />
 
               <ProfileSelect
+                id="status"
                 label="Status"
                 value={studentAcademic?.status}
                 options={["Active", "Graduating", "Delayed"]}
@@ -454,24 +473,24 @@ export default function StudentProfilePage() {
                   updateStudentAcademic({ status: val })
                 }
               />
-            </>
+            </div>
           )}
-        </div>
-      </div>
+        </section>
+      </main>
 
-		<LogoutModal
-			isOpen={showLogoutModal}
-			onClose={() => setShowLogoutModal(false)}
-			onConfirm={() => {
-				setShowLogoutModal(false);
-				document.cookie.split(";").forEach((cookie) => {
-					const eqPos = cookie.indexOf("=");
-					const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
-					deleteCookie(name);
-				});
-				window.location.href = "/";
-			}}
-		/>
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={() => {
+          setShowLogoutModal(false);
+          document.cookie.split(";").forEach((cookie) => {
+            const eqPos = cookie.indexOf("=");
+            const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
+            deleteCookie(name);
+          });
+          window.location.href = "/";
+        }}
+      />
 
       <AvatarUploadModal
         isOpen={showAvatarModal}
@@ -490,22 +509,23 @@ export default function StudentProfilePage() {
         }}
       />
 
-		</div>
+    </div>
 	);
 }
 
-function ProfileInput({ label, value, onChange, disabled = false }: any) {
+function ProfileInput({ id, label, value, onChange, disabled = false }: any) {
   return (
     <div className="flex flex-col gap-1 w-full max-w-2xl">
-      <label className="text-sm font-bold text-[#567375] ml-2 uppercase tracking-wide">
+      <label htmlFor={id} className="text-sm font-bold text-[#2f4a4c] ml-2 uppercase tracking-wide">
         {label}
       </label>
       <input
+        id={id}
         type="text"
         disabled={disabled}
         value={value || ""}
         onChange={(e) => onChange && onChange(e.target.value)}
-        className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
+        className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#8b3e15] rounded-2xl bg-white text-[#111820] outline-none transition-focus focus:border-[#8b3e15] ${
           disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
         }`}
       />
@@ -513,16 +533,17 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
   );
 }
 
-function ProfileSelect({ label, value, options, onChange }: any) {
+function ProfileSelect({ id, label, value, options, onChange }: any) {
   return (
     <div className="flex flex-col gap-1 w-full max-w-2xl">
-      <label className="text-sm font-bold text-[#567375] ml-2 uppercase tracking-wide font-[family-name:var(--font-geist-sans)]">
+      <label htmlFor={id} className="text-sm font-bold text-[#2f4a4c] ml-2 uppercase tracking-wide font-[family-name:var(--font-geist-sans)]">
         {label}
       </label>
       <select
+        id={id}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] font-[family-name:var(--font-geist-mono)] appearance-auto cursor-pointer"
+        className="w-full p-4 border-2 border-[#8b3e15] rounded-2xl bg-white text-[#111820] outline-none transition-focus focus:border-[#8b3e15] font-[family-name:var(--font-geist-mono)] appearance-auto cursor-pointer"
       >
         <option value="" disabled>
           Select {label}

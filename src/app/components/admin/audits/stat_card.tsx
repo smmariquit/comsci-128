@@ -79,7 +79,7 @@ export default function AuditStatCard({ type, value, delta, deltaSub }: Props) {
         <span
           style={{
             color: C.teal,
-            fontSize: 10.5,
+            fontSize: 13,
             fontFamily: "'DM Mono', monospace",
             fontWeight: 500,
             textTransform: "uppercase",
@@ -122,7 +122,7 @@ export default function AuditStatCard({ type, value, delta, deltaSub }: Props) {
             <span
               style={{
                 color: deltaColor,
-                fontSize: 11,
+                fontSize: 13,
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 600,
               }}
@@ -134,7 +134,7 @@ export default function AuditStatCard({ type, value, delta, deltaSub }: Props) {
             <span
               style={{
                 color: C.teal,
-                fontSize: 11,
+                fontSize: 13,
                 fontFamily: "'DM Sans', sans-serif",
               }}
             >

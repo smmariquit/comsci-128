@@ -70,7 +70,7 @@ function ModalShell({
           {sub && (
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: C.teal,
                 fontFamily: "'DM Mono', monospace",
                 marginTop: 2,
@@ -191,7 +191,7 @@ function DetailRow({
     >
       <span
         style={{
-          fontSize: 10.5,
+          fontSize: 13,
           fontFamily: "'DM Mono', monospace",
           fontWeight: 500,
           color: C.teal,
