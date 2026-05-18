@@ -34,52 +34,53 @@ export default async function ManageLayout({
           <div className="flex items-center gap-4 md:gap-8">
             <Logo size={28} href="/manage" />
 
-            <nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
+            <nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
               <Link
                 href="/manage"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 transition-colors py-2 rounded-md px-3"
               >
                 Dashboard
               </Link>
               <Link
                 href="/manage/accommodations"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 transition-colors py-2 rounded-md px-3"
               >
                 Accommodations
               </Link>
               <Link
                 href="/manage/applications"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 transition-colors py-2 rounded-md px-3"
               >
                 Applications
               </Link>
               <Link
                 href="/manage/complaints"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 transition-colors py-2 rounded-md px-3"
               >
                 Complaints
               </Link>
               <Link
                 href="/manage/logs"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 transition-colors py-2 rounded-md px-3"
               >
                 Audit Logs
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2 md:gap-4 text-sm">
             {/* Mobile Nav Link */}
             <Link
               href="/manage"
-              className="md:hidden text-[#EDE9DE] text-xs font-medium"
+              className="md:hidden text-[#EDE9DE] text-xs font-medium rounded-md px-2 py-1"
             >
               Dashboard
             </Link>
 
             <button
               type="button"
-              className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center justify-center"
+              className="text-[#EDE9DE] hover:bg-white/10 transition-colors flex items-center justify-center rounded-full p-2"
+              aria-label="Notifications"
             >
               <Bell size={22} strokeWidth={2} />
             </button>

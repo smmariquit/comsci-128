@@ -73,7 +73,7 @@ export default function LandingPage() {
             <>
               <Link
                 href="/login"
-                className="font-medium text-[#C9642A] hover:underline transition-colors flex items-center justify-center"
+                className="font-medium text-[#C9642A] hover:underline transition-colors flex items-center justify-center rounded-md px-2 py-1"
               >
                 Log in
               </Link>
