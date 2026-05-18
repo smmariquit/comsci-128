@@ -14,7 +14,7 @@ export interface User {
 	name: string;
 	gender: string;
 	email: string;
-	role: 'Landlord' | 'Dorm Manager' | 'Student' | string;
+	role: 'Landlord' | 'Housing Administrator' | 'Student' | string;
 	status: 'Active' | 'Disabled' | string;
 	managerType?: string;
 	dormitory: string;
@@ -101,7 +101,6 @@ export default function UserManagementPage({
 				const dormData = await dormResponse.json();
 				const landlordData = await landlordResponse.json();
 				const housingAdminData = await housingAdminResponse.json();
-				
 
 				const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
 				const rawHousingAdmins = Array.isArray(housingAdminData) ? housingAdminData : housingAdminData.data?.data ?? [];
