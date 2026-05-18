@@ -338,23 +338,6 @@ export default function HousingMap({
             essential: true,
           });
 
-          map.once("moveend", () => {
-            if (!mapRef.current) return;
-            let bearing = map.getBearing();
-            let lastTs = 0;
-
-            const rotate = (ts: number) => {
-              if (!mapRef.current) return;
-              if (!lastTs) lastTs = ts;
-              const delta = ts - lastTs;
-              lastTs = ts;
-              bearing = (bearing + delta / 100) % 360;
-              map.rotateTo(bearing, { duration: 0 });
-              rotationFrameRef.current = requestAnimationFrame(rotate);
-            };
-
-            rotationFrameRef.current = requestAnimationFrame(rotate);
-          });
         }
       });
 
@@ -598,24 +581,7 @@ export default function HousingMap({
       essential: true,
     });
 
-    // Gentle rotation after fly-to
-    map.once("moveend", () => {
-      if (!mapRef.current) return;
-      let bearing = map.getBearing();
-      let lastTs = 0;
 
-      const rotate = (ts: number) => {
-        if (!mapRef.current) return;
-        if (!lastTs) lastTs = ts;
-        const delta = ts - lastTs;
-        lastTs = ts;
-        bearing = (bearing + delta / (isMRH ? 100 : 150)) % 360;
-        map.rotateTo(bearing, { duration: 0 });
-        rotationFrameRef.current = requestAnimationFrame(rotate);
-      };
-
-      rotationFrameRef.current = requestAnimationFrame(rotate);
-    });
   }, [selectedId, mapLoaded, housings, viewTrigger]);
 
   /* ── Toggle 3D ── */
