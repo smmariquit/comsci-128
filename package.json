@@ -13,7 +13,7 @@
     "@electric-sql/pglite": "^0.4.5",
     "@serwist/next": "^9.5.11",
     "@supabase/ssr": "^0.10.2",
-    "@supabase/supabase-js": "^2.104.1",
+    "@supabase/supabase-js": "^2.105.4",
     "bcrypt": "^6.0.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
