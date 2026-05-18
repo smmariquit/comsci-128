@@ -5,10 +5,10 @@ import { NewManager } from "@/app/lib/models/manager";
 // POST /api/housing-admin/[accountNumber]
 export async function POST(
   req: NextRequest,
-  { params }: { params: { accountNumber: string } }
+  context: { params: Promise<{ accountNumber: string }> }
 ) {
   try {
-    const { accountNumber } =  await params;
+    const { accountNumber } = await context.params;
 
     const parsedAccountNumber = Number(accountNumber);
 
