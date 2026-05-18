@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Roles & Permissions",
-  description: "Configure roles and access permissions for system users.",
+  title: "Audit Logs",
+  description: "Review audit logs for managed properties.",
 };
 
-export default function RolesLayout({
+export default function LogsLayout({
   children,
 }: {
   children: React.ReactNode;

@@ -40,6 +40,20 @@ async function create(
   return data[0];
 }
 
+async function deactivate(accountNumber: number): Promise<Student | null> {
+  const { data, error } = await supabase
+    .from("student")
+    .update({ is_deleted: true })
+    .eq("account_number", accountNumber)
+    .select();
+
+  if (error) {
+    console.error("Error deactivating student:", error);
+    return null;
+  }
+  return data[0];
+}
+
 async function createAcademic(
   academicData: NewStudentAcademic,
 ): Promise<NewStudentAcademic> {
@@ -459,22 +473,23 @@ async function deleteByAccountNumber(
 }
 
 export const studentData = {
-  create,
-  createAcademic,
-  findStudentProfileById,
-  updateStudent,
-  getStudentAcademicById,
-  updateAcademicDetails,
-  createAccommodationHistory,
-  recordMoveOut,
-  getRoomOccupantCount,
-  getSubmittedApplications,
-  getHousingOptions,
-  getRoomOccupancyRate,
-  getAccommodationHistoryOfStudent,
-  getActiveHousingDetails,
-  getBillingSummary,
-  getBillingHistory,
-  getUnpaidBills,
-  deleteByAccountNumber,
+	create,
+	createAcademic,
+	findStudentProfileById,
+	updateStudent,
+	getStudentAcademicById,
+	updateAcademicDetails,
+	createAccommodationHistory,
+	recordMoveOut,
+	getRoomOccupantCount,
+	getSubmittedApplications,
+	getHousingOptions,
+	getRoomOccupancyRate,
+	getAccommodationHistoryOfStudent,
+	getActiveHousingDetails,
+	getBillingSummary,
+	getBillingHistory,
+	getUnpaidBills,
+	deactivate,
+    deleteByAccountNumber
 };

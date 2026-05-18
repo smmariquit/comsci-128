@@ -99,3 +99,20 @@ export const createStudentProfile = async (
   );
   return student;
 };
+
+const deactivateStudent = async (
+  accountNumber: number,
+): Promise<Student | null> => {
+  try {
+    const student = await studentData.deactivate(accountNumber);
+    if (!student) return null;
+    return student;
+  } catch (error) {
+    console.error("Error deactivating student:", error);
+    throw new Error("Failed to deactivate student");
+  }
+};
+
+export const studentService = {
+  deactivateStudent,
+};

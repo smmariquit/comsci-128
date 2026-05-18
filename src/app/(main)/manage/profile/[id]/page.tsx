@@ -4,6 +4,7 @@ import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import LogoutModal from "../../../../components/LogoutModal";
+import Avatar from "@/app/components/Avatar";
 import { LogOut } from "lucide-react";
 import StateMessage from "@/app/components/ui/state-message";
 import { deleteCookie } from "@/app/lib/utils";
@@ -190,11 +191,12 @@ export default function ManagerProfilePage() {
       <div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-10 flex gap-12">
         {/* Left Card Sidebar */}
         <div className="w-1/3 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-8 flex flex-col items-center shadow-sm">
-          <div className="w-32 h-32 bg-[#1C2632] rounded-full mb-6 flex items-center justify-center">
-            <span className="text-[#EDE9DE] text-4xl font-bold">
-              {profile?.first_name?.[0]}
-              {profile?.last_name?.[0]}
-            </span>
+          <div className="w-32 h-32 mb-6">
+            <Avatar
+              firstName={profile?.first_name}
+              lastName={profile?.last_name}
+              size={128}
+            />
           </div>
 
           <h2 className="text-2xl font-bold text-[#1C2632] mb-1 text-center">
@@ -322,7 +324,7 @@ export default function ManagerProfilePage() {
                         const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
                         deleteCookie(name);
                     });
-					console.log("Confirmed logout"); // place logout backend code here
+					window.location.href = "/";
 				}}
 			/>
 		</div>
