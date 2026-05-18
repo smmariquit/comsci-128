@@ -27,6 +27,10 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
       bearing: -20,
       interactive: true,
       attributionControl: false,
+      maxBounds: [
+        [121.20, 14.13],
+        [121.29, 14.19],
+      ],
     });
 
     map.on("load", () => {
@@ -35,6 +39,7 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
         map.addSource("openmaptiles", {
           type: "vector",
           url: "https://api.maptiler.com/tiles/v3/tiles.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
+          bounds: [121.20, 14.13, 121.29, 14.19],
         });
       }
 
