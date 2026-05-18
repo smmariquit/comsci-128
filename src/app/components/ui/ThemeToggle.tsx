@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ className = "" }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -20,8 +20,9 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="fixed bottom-6 right-6 p-4 rounded-full bg-white dark:bg-[#1c2632] shadow-lg border-2 border-[#e3af64] dark:border-[#567375] text-[#1c2632] dark:text-[#ede9de] hover:scale-110 transition-transform z-50 flex items-center justify-center"
+      className={`flex items-center justify-center text-[#EDE9DE] hover:opacity-80 transition-opacity ${className}`}
       aria-label="Toggle Dark Mode"
+      suppressHydrationWarning
     >
       {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
     </button>

@@ -32,7 +32,6 @@ export const viewport: Viewport = {
 };
 
 import { Providers } from "./providers";
-import ThemeToggle from "@/app/components/ui/ThemeToggle";
 
 export default function RootLayout({
   children,
@@ -46,7 +45,6 @@ export default function RootLayout({
       >
         <Providers>
           {children}
-          <ThemeToggle />
         </Providers>
       </body>
     </html>
