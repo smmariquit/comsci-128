@@ -1,3 +1,5 @@
+import GlobalNetworkStatus from "@/app/components/ui/GlobalNetworkStatus";
+
 export default function MainLayout({
   children,
 }: {
@@ -5,6 +7,7 @@ export default function MainLayout({
 }) {
   return (
     <div className="min-h-screen">
+      <GlobalNetworkStatus />
       <main>{children}</main>
     </div>
   );
