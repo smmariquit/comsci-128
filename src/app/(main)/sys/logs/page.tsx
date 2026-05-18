@@ -228,8 +228,8 @@ export default function AuditLogsPage({
   // CSV export (only exports the currently filtered rows)
   const handleExport = () => {
     const rows = [
-      ['Timestamp', 'User', 'Role', 'Action', 'Module', 'IP Address', 'Status'],
-      ...filtered.map((l) => [l.timestamp, l.userName, l.userRole, l.action, l.module, l.ipAddress, l.status]),
+      ['Timestamp', 'User', 'Action', 'IP Address', 'Description'],
+      ...filtered.map((l) => [l.timestamp, l.userName,  l.action, l.ipAddress, l.audit_description]),
     ];
     const csv = rows.map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
