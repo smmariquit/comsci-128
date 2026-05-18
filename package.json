@@ -23,7 +23,7 @@
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "serwist": "^9.5.11",
-    "swagger-ui-react": "^5.32.4"
+    "swagger-ui-react": "^5.32.6"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
