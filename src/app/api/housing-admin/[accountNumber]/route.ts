@@ -1,27 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { housingAdminService } from "@/app/lib/services/housing-admin";
+import { NewManager } from "@/app/lib/models/manager";
 
-// POST /api/landlord
-export async function POST(request: NextRequest) {
+// POST /api/housing-admin/[accountNumber]
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { accountNumber: string } }
+) {
   try {
-    const body = await request.json();
+    const { accountNumber } =  await params;
 
-    // Call landlord service
-    const newLandlord = await housingAdminService.addHousingAdmin(
-      body,
-      body.managerDetails || body,
+    const parsedAccountNumber = Number(accountNumber);
+
+    if (!Number.isInteger(parsedAccountNumber) || parsedAccountNumber <= 0) {
+      return NextResponse.json(
+        { error: "Invalid account number." },
+        { status: 400 }
+      );
+    }
+
+    const accountDetails: NewManager = await req.json();
+
+    console.log("accountDetails:", accountDetails);
+
+    const newHousingAdmin = await housingAdminService.addHousingAdmin(
+      parsedAccountNumber,
+      accountDetails
     );
 
-    // OK Response upon successful creation
     return NextResponse.json(
-      { message: "Housing Admin created successfully."},
-      { status: 201 },
+      { data: newHousingAdmin },
+      { status: 201 }
     );
+
   } catch (error: any) {
-    console.error("Error creating housing admin:", error);
+    console.error("Housing Admin API Error:", error);
+
     return NextResponse.json(
-      { message: error.message || "Failed to create housing admin." },
-      { status: 500 },
+      {
+        error: "Internal Server Error",
+        message: error?.message ?? "Unknown error",
+      },
+      { status: 500 }
     );
   }
 }
