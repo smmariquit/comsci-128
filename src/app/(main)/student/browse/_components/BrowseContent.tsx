@@ -489,20 +489,20 @@ export default function BrowseContent({
             
             {/* Active filters floating indicator */}
             {(quizAnswers || boundsFilter) && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 text-xs pointer-events-none">
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 text-[11px] font-[family-name:var(--font-geist-mono)] tracking-wider pointer-events-none">
                 {quizAnswers && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur border border-[#C9642A]/20 text-[#C9642A] font-medium shadow-sm pointer-events-auto">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#C9642A]/90 backdrop-blur-sm border border-white/10 text-white font-bold shadow-lg pointer-events-auto">
                     <Sparkles size={12} />
-                    Quiz active ({processedCards.length})
+                    QUIZ ACTIVE ({processedCards.length})
                   </span>
                 )}
                 {boundsFilter && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur border border-[#1C2632]/20 text-[#1C2632] font-medium shadow-sm pointer-events-auto">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C2632]/90 backdrop-blur-sm border border-white/10 text-white font-bold shadow-lg pointer-events-auto">
                     <Map size={12} />
-                    Area filtered ({processedCards.length})
+                    AREA FILTERED ({processedCards.length})
                     <button
                       onClick={() => setBoundsFilter(null)}
-                      className="ml-1 hover:text-red-500 bg-gray-100 rounded-full p-0.5 transition-colors"
+                      className="ml-1.5 hover:bg-white/20 text-white/60 hover:text-white rounded-full p-0.5 transition-colors"
                     >
                       <X size={10} strokeWidth={3} />
                     </button>

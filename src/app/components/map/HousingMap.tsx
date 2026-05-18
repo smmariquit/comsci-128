@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Layers, Navigation, X, PenTool, Trash2 } from "lucide-react";
+import PageLoading from "@/app/components/ui/page-loading";
 
 /* ────────────────────── Types ────────────────────── */
 
@@ -658,10 +659,7 @@ export default function HousingMap({
     <div className="housing-map-wrapper">
       {/* Loading */}
       {!mapLoaded && (
-        <div className="map-loading">
-          <div className="map-loading-spinner" />
-          <span>Loading map…</span>
-        </div>
+        <PageLoading variant="container" label="Loading map..." />
       )}
 
       {/* Map canvas */}
