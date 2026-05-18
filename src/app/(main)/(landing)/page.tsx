@@ -136,7 +136,7 @@ export default function LandingPage() {
                 </Link>
                 <Link
                   href="#how"
-                  className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors"
+                  className="border border-[#1C2632]/20 dark:border-[#EDE9DE]/20 text-[#1C2632] dark:text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors"
                 >
                   Learn More
                 </Link>
