@@ -461,7 +461,9 @@ export default function UserManagementPage({
 					headers: { "Content-Type": "application/json" },
 				});
 
-				 const housingUpdate = await fetch(`/api/housing/${dorm?.id}`, {
+				// update only if there is a dorm selected
+				if (dorm?.id) {
+				const housingUpdate = await fetch(`/api/housing/${dorm.id}`, {
 					method: "PATCH",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(
@@ -472,6 +474,11 @@ export default function UserManagementPage({
 						: {}
 					),
 				});
+
+				if (!housingUpdate.ok) {
+					console.error("Failed to update housing assignment");
+				}
+				}
 
 
 				// 3. Update UI
