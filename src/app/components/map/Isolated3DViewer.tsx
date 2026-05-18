@@ -39,28 +39,26 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
     }), 'bottom-right');
 
     map.on("load", () => {
-      // Re-add standard 3D building layer from openmaptiles
-      if (!map.getSource("openmaptiles")) {
-        map.addSource("openmaptiles", {
-          type: "vector",
-          url: "https://api.maptiler.com/tiles/v3/tiles.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL",
-          bounds: [121.20, 14.13, 121.29, 14.19],
-        });
-      }
+      // Use the vector source already configured by /map-style.json.
+      const buildingSourceId = "openmaptiles";
 
-      map.addLayer({
-        id: "3d-buildings",
-        source: "openmaptiles",
-        "source-layer": "building",
-        type: "fill-extrusion",
-        minzoom: 14,
-        paint: {
-          "fill-extrusion-color": "#e0d5c1", // match screenshot's beige/brownish tint
-          "fill-extrusion-height": ["get", "render_height"],
-          "fill-extrusion-base": ["get", "render_min_height"],
-          "fill-extrusion-opacity": 0.6, // semi-transparent to see markers inside
-        }
-      });
+      if (map.getSource(buildingSourceId) && !map.getLayer("3d-buildings")) {
+        map.addLayer({
+          id: "3d-buildings",
+          source: buildingSourceId,
+          "source-layer": "building",
+          type: "fill-extrusion",
+          minzoom: 14,
+          paint: {
+            "fill-extrusion-color": "#e0d5c1", // match screenshot's beige/brownish tint
+            "fill-extrusion-height": ["get", "render_height"],
+            "fill-extrusion-base": ["get", "render_min_height"],
+            "fill-extrusion-opacity": 0.6, // semi-transparent to see markers inside
+          }
+        });
+      } else if (!map.getSource(buildingSourceId)) {
+        console.warn(`Missing map source: ${buildingSourceId}. Ensure /map-style.json defines it.`);
+      }
 
       // Render actual rooms from database if they have spatial coordinates
       if (housing.rooms && housing.rooms.length > 0) {
