@@ -43,7 +43,7 @@ export default function Avatar({
     return (
       <Link
         href={href}
-        className="block w-fit h-fit rounded-full"
+        className="flex items-center justify-center w-fit h-fit rounded-full"
       >
         {avatar}
       </Link>
