@@ -27,12 +27,6 @@ function ForgotPasswordForm() {
         if (typeof parsedDraft.email === "string") {
           setEmail(parsedDraft.email);
         }
-        if (typeof parsedDraft.newPassword === "string") {
-          setNewPassword(parsedDraft.newPassword);
-        }
-        if (typeof parsedDraft.confirm === "string") {
-          setConfirm(parsedDraft.confirm);
-        }
       } catch (err) {
         console.error("Failed to parse forgot password draft:", err);
       }
@@ -63,11 +57,9 @@ function ForgotPasswordForm() {
       JSON.stringify({
         step,
         email,
-        newPassword,
-        confirm,
       }),
     );
-  }, [draftKey, step, email, newPassword, confirm]);
+  }, [draftKey, step, email]);
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
