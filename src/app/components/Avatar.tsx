@@ -40,7 +40,14 @@ export default function Avatar({
   );
 
   if (href) {
-    return <Link href={href}>{avatar}</Link>;
+    return (
+      <Link
+        href={href}
+        className="flex items-center justify-center w-fit h-fit min-w-0 min-h-0 rounded-full"
+      >
+        {avatar}
+      </Link>
+    );
   }
 
   return avatar;

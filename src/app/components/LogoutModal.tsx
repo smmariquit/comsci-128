@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 type LogoutModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -13,10 +15,27 @@ export default function LogoutModal({
   onConfirm,
   isLoading = false,
 }: LogoutModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    modalRef.current?.focus();
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div
+      ref={modalRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirm Logout"
       style={{
         position: "fixed",
         inset: 0,
@@ -27,6 +46,7 @@ export default function LogoutModal({
         justifyContent: "center",
         zIndex: 10000,
         padding: 20,
+        outline: "none",
       }}
     >
       <div
@@ -68,6 +88,7 @@ export default function LogoutModal({
           <button
             disabled={isLoading}
             onClick={onClose}
+            className="rounded-lg"
             style={{
               border: "1px solid rgba(28,38,50,0.15)",
               background: "#fff",
@@ -87,6 +108,7 @@ export default function LogoutModal({
           <button
             disabled={isLoading}
             onClick={onConfirm}
+            className="rounded-lg"
             style={{
               border: "none",
               background: "#C9642A",
