@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, type ReactNode } from "react";
+import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
 import Image from "next/image";
 import { Sparkles, X, Map, LayoutGrid, Wifi, Armchair, Clock, Zap, Loader2, CheckCircle2 } from "lucide-react";
 import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
@@ -258,10 +258,40 @@ export default function BrowseContent({
   const [showMap, setShowMap] = useState(true);
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [mapViewTrigger, setMapViewTrigger] = useState(0);
-  const [isolatedDorm, setIsolatedDorm] = useState<HousingCard | null>(null);
+  const [isolatedDorm, setIsolatedDorm] = useState<any | null>(null);
 
-  const { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally } = usePGliteHousing();
+  const { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally, getAllOfflineDorms } = usePGliteHousing();
   const [dismissSync, setDismissSync] = useState(false);
+  const [offlineCards, setOfflineCards] = useState<HousingCard[]>([]);
+
+  useEffect(() => {
+    if (isOffline && cards.length === 0) {
+      getAllOfflineDorms().then(rows => {
+        const formatted = rows.map((item: any) => ({
+          id: item.housing_id,
+          name: item.housing_name,
+          type: item.housing_type,
+          price: item.rent_price,
+          lat: item.latitude,
+          lng: item.longitude,
+          image: null,
+          has_wifi: false,
+          has_aircon: false,
+          has_laundry: false,
+          has_parking: false,
+          has_no_curfew: false,
+          allows_visitors: false,
+          is_furnished: false,
+          has_kitchen: false,
+          has_security: false,
+          has_utilities_included: false,
+        }));
+        setOfflineCards(formatted);
+      });
+    }
+  }, [isOffline, cards.length, getAllOfflineDorms]);
+
+  const displayCards = cards.length > 0 ? cards : offlineCards;
 
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
@@ -272,7 +302,7 @@ export default function BrowseContent({
 
   // Score + filter cards
   const processedCards = useMemo(() => {
-    let result = cards.map((card) => ({
+    let result = displayCards.map((card) => ({
       ...card,
       matchScore: quizAnswers ? scoreHousing(card, quizAnswers) : null,
     }));
@@ -296,7 +326,7 @@ export default function BrowseContent({
     }
 
     return result;
-  }, [cards, quizAnswers, boundsFilter]);
+  }, [displayCards, quizAnswers, boundsFilter]);
 
   // Build map markers from real DB coordinates
   const markers: HousingMarker[] = processedCards

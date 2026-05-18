@@ -121,6 +121,12 @@ export function usePGliteHousing() {
       room: roomsRes.rows // matches the Supabase relation format
     };
   };
+
+  const getAllOfflineDorms = async () => {
+    const db = await getDB();
+    const housingRes = await db.query(`SELECT * FROM housing`);
+    return housingRes.rows;
+  };
   
   // Method to manually save a dorm's full details (including rooms) when we fetch it online
   const saveDormDetailsLocally = async (dorm: any) => {
@@ -148,5 +154,5 @@ export function usePGliteHousing() {
     }
   };
 
-  return { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally };
+  return { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally, getAllOfflineDorms };
 }
