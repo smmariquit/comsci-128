@@ -89,6 +89,7 @@ export default async function ManageLayout({
               <Avatar
                 firstName={managerUser?.first_name}
                 lastName={managerUser?.last_name}
+                profilePicture={(managerUser as any)?.profile_picture}
                 size={32}
                 href={`/manage/profile/${accountNumber}`}
               />
