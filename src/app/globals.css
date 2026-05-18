@@ -65,9 +65,8 @@ span a {
 }
 
 *:focus-visible {
-  outline: 3px solid var(--text-aaa-blue) !important;
-  outline-offset: 2px !important;
-  transition: outline-offset 0.1s ease;
+  outline: 2px solid var(--dark-orange) !important;
+  outline-offset: 3px !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
