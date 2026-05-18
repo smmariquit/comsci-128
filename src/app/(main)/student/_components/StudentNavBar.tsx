@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bell } from "lucide-react";
 import Logo from "@/app/components/Logo";
 import Avatar from "@/app/components/Avatar";
+import ThemeToggle from "@/app/components/ui/ThemeToggle";
 
 interface StudentNavbarProps {
   path: string;
@@ -32,20 +33,21 @@ export default function StudentNavBar({
 						<Logo size={28} href="/" />
 
 						<nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 h-7 font-[family-name:var(--font-geist-sans)]">
-							<Link href="/student" className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center h-full text-m leading-none">
+							<Link href="/student" className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center h-full text-m leading-none rounded-md px-2 focus-visible:-ml-2">
 								Dashboard
 							</Link>
-							<Link href="/student/browse" className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center h-full text-m leading-none">
+							<Link href="/student/browse" className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center h-full text-m leading-none rounded-md px-2">
 								Browse
 							</Link>
 						</nav>
 						
 					</div>
 
-				<div className="flex items-center gap-6">
+				<div className="flex items-center gap-2 md:gap-4">
+					<ThemeToggle className="rounded-full p-2 hover:bg-white/10" />
 					<button 
 						suppressHydrationWarning
-						className="flex items-center justify-center text-[#EDE9DE] hover:opacity-80 transition-opacity"
+						className="flex items-center justify-center text-[#EDE9DE] hover:bg-white/10 transition-colors rounded-full p-2"
 						>
 							<Bell className="h-6 w-6" strokeWidth={2} />
 					</button>

@@ -75,7 +75,7 @@ export default function AdminAccommodationsContent({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
         {dormCards.length === 0 ? (
           <div className="w-full max-w-6xl mx-auto rounded-2xl border border-[#CEC7B0] bg-white px-8 py-14 text-center text-[#1C2632] shadow-sm">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#EDE9DE] text-[#8AABAC]">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--cream)] text-[#8AABAC]">
               0
             </div>
             <div className="text-lg font-semibold">No properties found</div>

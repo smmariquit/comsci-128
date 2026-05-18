@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #5a056f;
+  --background: #ede9de;
+  --foreground: #1c2632;
 
   /* Original color palette (used for backgrounds/decoration) */
   --dark-blue: #1c2632;
@@ -17,6 +19,17 @@
   --text-aaa-orange: #8b3e15;
 }
 
+.dark {
+  --background: #111820;
+  --foreground: #ede9de;
+  --cream: #111820;
+  --dark-blue: #0d1219;
+  
+  --text-aaa-blue: #ede9de;
+  --text-aaa-teal: #8aadaf;
+  --text-aaa-orange: #e3af64;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -24,11 +37,52 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #4f0f0f;
-    --foreground: #ededed;
-  }
+/* ─── Dark Mode: Override Tailwind color variables ─── */
+/* This is the correct approach for Tailwind v4: override the
+   CSS custom properties that Tailwind's utility classes reference. */
+.dark {
+  /* Backgrounds */
+  --color-white: #1c2632;
+  --color-stone-50: #1c2632;
+  --color-stone-200: #1c2632;
+  --color-gray-50: #1c2632;
+  --color-gray-100: #1c2632;
+  --color-gray-200: #243040;
+  --color-yellow-50: #1c2632;
+
+  /* Text */
+  --color-black: #ede9de;
+  --color-gray-900: #ede9de;
+  --color-gray-800: #d5d0c3;
+  --color-gray-700: #c0bab0;
+  --color-gray-600: #9aa3b0;
+  --color-gray-500: #7d8694;
+
+  /* Borders */
+  --color-gray-300: rgba(237, 233, 222, 0.2);
+  --color-stone-400: rgba(237, 233, 222, 0.25);
+}
+
+/* ─── Dark Mode: Inputs ─── */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #243040 !important;
+  color: #ede9de !important;
+  border-color: rgba(237, 233, 222, 0.15) !important;
+}
+.dark input::placeholder,
+.dark select::placeholder,
+.dark textarea::placeholder {
+  color: #6e7a8a !important;
+}
+
+/* ─── Dark Mode: Scrollbar ─── */
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #567375;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #c9642a;
 }
 
 html, body {
@@ -61,9 +115,8 @@ span a {
 }
 
 *:focus-visible {
-  outline: 3px solid var(--text-aaa-blue) !important;
-  outline-offset: 2px !important;
-  transition: outline-offset 0.1s ease;
+  outline: 2px solid var(--dark-orange) !important;
+  outline-offset: 3px !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

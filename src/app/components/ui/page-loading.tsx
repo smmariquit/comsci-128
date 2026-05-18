@@ -9,16 +9,16 @@ export default function PageLoading({
 }) {
   const isOverlay = overlay || variant === 'overlay';
   
-  let containerClass = "min-h-screen w-full flex items-center justify-center bg-[#EDE9DE]";
+  let containerClass = "min-h-screen w-full flex items-center justify-center bg-[var(--cream)]";
   if (isOverlay) {
     containerClass = "fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm";
   } else if (variant === 'container') {
-    containerClass = "absolute inset-0 z-50 flex items-center justify-center bg-[#EDE9DE]";
+    containerClass = "absolute inset-0 z-50 flex items-center justify-center bg-[var(--cream)]";
   }
 
   return (
     <div className={containerClass}>
-      <div className={`flex flex-col items-center gap-6 ${isOverlay ? 'bg-[#EDE9DE] p-10 rounded-[20px] shadow-2xl border border-white/20' : ''}`}>
+      <div className={`flex flex-col items-center gap-6 ${isOverlay ? 'bg-[var(--cream)] p-10 rounded-[20px] shadow-2xl border border-white/20' : ''}`}>
         {/* Animated house icon — built stroke by stroke */}
         <div className="relative w-16 h-16">
           <svg

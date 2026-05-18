@@ -97,14 +97,14 @@ export default function AdminProfilePage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
+    <div className="flex min-h-screen bg-[var(--cream)] font-[family-name:var(--font-geist-sans)]">
       {/* 1. LEFT SIDEBAR (Placeholder) */}
       <aside className="w-[280px] bg-[#1C2632] flex flex-col shrink-0"></aside>
 
       {/* 2. MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col">
         {/* Header Section */}
-        <header className="bg-[#EDE9DE] border-b border-[#1C2632]">
+        <header className="bg-[var(--cream)] border-b border-[#1C2632]">
           <div className="max-w-2xl ml-[15%] py-12 flex items-center gap-8">
             <div className="w-32 h-32 bg-[#1C2632] rounded-full flex shrink-0 items-center justify-center shadow-xl">
               <span className="text-[#EDE9DE] text-4xl font-bold">

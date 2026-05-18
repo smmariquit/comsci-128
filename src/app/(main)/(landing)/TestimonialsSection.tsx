@@ -80,7 +80,7 @@ export default function TestimonialsSection() {
     <section
       ref={sectionRef}
       id="testimonials"
-      className="bg-[#EDE9DE] py-20 px-8 md:px-20 overflow-hidden"
+      className="bg-[var(--cream)] py-20 px-8 md:px-20 overflow-hidden"
     >
       {/* Header */}
       <div ref={headerRef} className="mb-12 opacity-0 max-w-xl">
@@ -91,7 +91,7 @@ export default function TestimonialsSection() {
           Student Stories
         </p>
         <h2
-          className="text-4xl md:text-5xl font-bold text-[#1C2632] leading-tight"
+          className="text-4xl md:text-5xl font-bold text-[#1C2632] dark:text-[#EDE9DE] leading-tight"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           What <em className="text-[#C9642A] italic">Works</em> Says
@@ -118,7 +118,7 @@ export default function TestimonialsSection() {
 
             {/* Quote text */}
             <p
-              className="text-sm leading-relaxed text-[#1C2632]/70 flex-1"
+              className="text-sm leading-relaxed text-[#1C2632]/70 dark:text-[#EDE9DE]/70 flex-1"
               style={{ fontFamily: "'IBM Plex Mono', monospace" }}
             >
               {t.quote}
@@ -134,12 +134,12 @@ export default function TestimonialsSection() {
                 </span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-[#1C2632]">
+                <p className="text-sm font-semibold text-[#1C2632] dark:text-[#EDE9DE]">
                   {" "}
                   {t.name}{" "}
                 </p>
                 <p
-                  className="text-xs text-[#1C2632]/50"
+                  className="text-xs text-[#1C2632]/50 dark:text-[#EDE9DE]/50"
                   style={{ fontFamily: "'IBM Plex Mono', monospace" }}
                 >
                   {t.course}

@@ -267,11 +267,11 @@ export default function StudentProfilePage() {
   const studentAcademic = studentDetails?.student_academic;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
+    <div className="flex flex-col min-h-screen bg-[var(--cream)] font-[family-name:var(--font-geist-sans)]">
       <StudentNavBar path="Student Profile" userId={Number(accountNumber)} />
 
       {/* Main Content*/}
-      <div className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner">
+      <div className="w-full max-w-7xl mx-auto flex-1 bg-[var(--cream)] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner">
         {/* Left Card Sidebar */}
         <div className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-6 md:p-8 flex flex-col items-center shadow-sm h-fit">
           {/* Profile Circle */}

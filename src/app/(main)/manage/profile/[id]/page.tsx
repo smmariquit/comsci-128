@@ -188,7 +188,7 @@ export default function ManagerProfilePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#1C2632] font-[family-name:var(--font-geist-sans)]">
-      <div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-10 flex gap-12">
+      <div className="mx-auto w-[90vw] flex-1 bg-[var(--cream)] p-10 flex gap-12">
         {/* Left Card Sidebar */}
         <div className="w-1/3 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-8 flex flex-col items-center shadow-sm">
           <div className="w-32 h-32 mb-6">

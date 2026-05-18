@@ -10,6 +10,7 @@ import HowItWorks from "./HowItWorksSection";
 import ServicesSection from "./ServicesSection";
 import ShowcaseSection from "./ShowcaseSection";
 import TestimonialsSection from "./TestimonialsSection";
+import ThemeToggle from "@/app/components/ui/ThemeToggle";
 
 // Mapping colors
 const colors = {
@@ -40,7 +41,7 @@ export default function LandingPage() {
     }
   }, []);
   return (
-    <div className="min-h-screen overflow-x-hidden font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
+    <div className="min-h-screen overflow-x-hidden font-family-name:var(--font-geist-sans) bg-[var(--cream)] text-[#1C2632] dark:text-[#EDE9DE]">
       <div className="bg-[#1C2632] text-[#EDE9DE] py-2 px-4 text-center text-[10px] md:text-xs font-medium tracking-wide uppercase">
         Testing UPLB CASA? Read the{" "}
         <a
@@ -61,7 +62,8 @@ export default function LandingPage() {
         <div className="flex items-center">
           <Logo href={null} size={64} textClassName="text-[#1C2632]" />
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
+          <ThemeToggle className="text-[#1C2632] dark:text-[#EDE9DE] rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" />
           {isLoggedIn ? (
             <Link
               href={dashboardUrl}
@@ -134,7 +136,7 @@ export default function LandingPage() {
                 </Link>
                 <Link
                   href="#how"
-                  className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors"
+                  className="border border-[#1C2632]/20 dark:border-[#EDE9DE]/20 text-[#1C2632] dark:text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors"
                 >
                   Learn More
                 </Link>

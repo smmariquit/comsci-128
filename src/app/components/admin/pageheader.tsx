@@ -26,6 +26,9 @@ function toTitleCaseFromPath(pathname: string) {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+import ThemeToggle from "@/app/components/ui/ThemeToggle";
+
+// ... skipping to the export default function ...
 export default function PageHeader({ title, date }: PageHeaderProps) {
   const pathname = usePathname();
 
@@ -47,33 +50,21 @@ export default function PageHeader({ title, date }: PageHeaderProps) {
 
   return (
     <div
+      className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700"
       style={{
         padding: "28px 32px 20px",
-        borderBottom: "1px solid #e2e5ea",
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      <h1
-        style={{
-          fontSize: 26,
-          fontWeight: 700,
-          color: "#1C2632",
-          margin: "0 0 4px",
-          lineHeight: 1.2,
-        }}
-      >
-        {resolvedTitle}
-      </h1>
-      <p
-        style={{
-          fontSize: 11,
-          color: "#9aa3b0",
-          margin: 0,
-          letterSpacing: "0.02em",
-        }}
-      >
-        {formattedDate}
-      </p>
+      <div>
+        <h1 className="text-[26px] font-bold text-[#1C2632] dark:text-[#EDE9DE] m-0 mb-1 leading-[1.2]">
+          {resolvedTitle}
+        </h1>
+        <p className="text-[11px] text-[#9aa3b0] dark:text-[#9aa3b0]/80 m-0 tracking-[0.02em]">
+          {formattedDate}
+        </p>
+      </div>
+      <ThemeToggle className="text-[#1C2632] dark:text-[#EDE9DE] bg-gray-100 dark:bg-gray-800 p-2 rounded-xl" />
     </div>
   );
 }
