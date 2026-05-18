@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
+import type { ExpressionSpecification } from "@maplibre/maplibre-gl-style-spec";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Layers, Navigation, X, PenTool, Trash2 } from "lucide-react";
 import PageLoading from "@/app/components/ui/page-loading";
@@ -50,6 +51,20 @@ const DRAW_LINE_LAYER = "casa-draw-line";
 
 const BRAND_ORANGE = "#C9642A";
 const BRAND_DARK = "#1C2632";
+const CAMPUS_BUILDING_IDS = [
+  "osm-w96323120", // unit 1
+  "osm-w96323127", // unit 2
+  "osm-w96323117", // main office / lounge
+  "osm-w96323124", // hallway
+  "osm-w96323123", // unit 3
+  "osm-w96323116", // unit 4
+];
+const CAMPUS_BUILDING_MATCHES: ExpressionSpecification[] = CAMPUS_BUILDING_IDS.flatMap(
+  (id) => [
+    ["==", ["id"], id],
+    ["==", ["get", "id"], id],
+  ],
+);
 
 /* ────────────────────── Component ────────────────────── */
 
@@ -147,20 +162,7 @@ export default function HousingMap({
             paint: {
               "fill-extrusion-color": [
                 "case",
-                [
-                  "any",
-                  ...[
-                    "osm-w96323120", // unit 1
-                    "osm-w96323127", // unit 2
-                    "osm-w96323117", // main office / lounge
-                    "osm-w96323124", // hallway
-                    "osm-w96323123", // unit 3
-                    "osm-w96323116", // unit 4
-                  ].flatMap((id) => [
-                    ["==", ["id"], id],
-                    ["==", ["get", "id"], id]
-                  ])
-                ],
+                ["any", ...CAMPUS_BUILDING_MATCHES],
                 BRAND_ORANGE,
                 "rgba(247, 242, 235, 1)", // default
               ],

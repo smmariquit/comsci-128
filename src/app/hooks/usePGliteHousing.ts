@@ -6,6 +6,40 @@ import { PGlite } from "@electric-sql/pglite";
 // Create a singleton instance
 let dbInstance: PGlite | null = null;
 
+type OfflineRoom = {
+  room_id: number;
+  housing_id: number;
+  room_code: number | null;
+  room_type: string | null;
+  latitude: number | null;
+  longitude: number | null;
+};
+
+type OfflineHousing = {
+  housing_id: number;
+  housing_name: string | null;
+  housing_address: string | null;
+  housing_type: string | null;
+  rent_price: number | string | null;
+  latitude: number | null;
+  longitude: number | null;
+  image_base64: string | null;
+  housing_image?: string | null;
+  start_application_date: string | null;
+  end_application_date: string | null;
+  has_wifi: boolean | null;
+  has_aircon: boolean | null;
+  has_laundry: boolean | null;
+  has_parking: boolean | null;
+  has_no_curfew: boolean | null;
+  allows_visitors: boolean | null;
+  is_furnished: boolean | null;
+  has_kitchen: boolean | null;
+  has_security: boolean | null;
+  has_utilities_included: boolean | null;
+  room?: OfflineRoom[];
+};
+
 async function getDB() {
   if (!dbInstance) {
     dbInstance = new PGlite("idb://housing-offline-db");
@@ -17,10 +51,13 @@ async function getDB() {
         housing_id INTEGER PRIMARY KEY,
         housing_name TEXT,
         housing_address TEXT,
+        housing_type TEXT,
         rent_price NUMERIC,
         latitude DOUBLE PRECISION,
         longitude DOUBLE PRECISION,
         image_base64 TEXT,
+        start_application_date TEXT,
+        end_application_date TEXT,
         has_wifi BOOLEAN,
         has_aircon BOOLEAN,
         has_laundry BOOLEAN,
@@ -44,7 +81,10 @@ async function getDB() {
     `);
     // Migration: Add columns if they don't exist
     const columns = [
+      "housing_type TEXT",
       "image_base64 TEXT",
+      "start_application_date TEXT",
+      "end_application_date TEXT",
       "has_wifi BOOLEAN",
       "has_aircon BOOLEAN",
       "has_laundry BOOLEAN",
@@ -142,7 +182,7 @@ export function usePGliteHousing() {
       if (!Array.isArray(payload?.data)) {
         throw new Error("Housing sync returned unexpected payload");
       }
-      const data = payload.data;
+      const data = payload.data as OfflineHousing[];
       
       const db = await getDB();
       
@@ -150,15 +190,20 @@ export function usePGliteHousing() {
       if (data.length > 0) {
         let count = 0;
         for (const h of data) {
-          const base64 = await generateLowResBase64(h.housing_image);
+          const base64 = await generateLowResBase64(h.housing_image ?? null);
           await db.query(
-            `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude, image_base64, has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew, allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+            `INSERT INTO housing (housing_id, housing_name, housing_address, housing_type, rent_price, latitude, longitude, image_base64, start_application_date, end_application_date, has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew, allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
              ON CONFLICT (housing_id) DO UPDATE SET 
              housing_name = EXCLUDED.housing_name, 
+             housing_address = EXCLUDED.housing_address,
+             housing_type = EXCLUDED.housing_type,
+             rent_price = EXCLUDED.rent_price,
              latitude = EXCLUDED.latitude, 
              longitude = EXCLUDED.longitude,
              image_base64 = EXCLUDED.image_base64,
+             start_application_date = EXCLUDED.start_application_date,
+             end_application_date = EXCLUDED.end_application_date,
              has_wifi = EXCLUDED.has_wifi,
              has_aircon = EXCLUDED.has_aircon,
              has_laundry = EXCLUDED.has_laundry,
@@ -169,7 +214,7 @@ export function usePGliteHousing() {
              has_kitchen = EXCLUDED.has_kitchen,
              has_security = EXCLUDED.has_security,
              has_utilities_included = EXCLUDED.has_utilities_included`,
-            [h.housing_id, h.housing_name, h.housing_address, h.rent_price, h.latitude, h.longitude, base64, h.has_wifi, h.has_aircon, h.has_laundry, h.has_parking, h.has_no_curfew, h.allows_visitors, h.is_furnished, h.has_kitchen, h.has_security, h.has_utilities_included]
+            [h.housing_id, h.housing_name, h.housing_address, h.housing_type, h.rent_price, h.latitude, h.longitude, base64, h.start_application_date, h.end_application_date, h.has_wifi, h.has_aircon, h.has_laundry, h.has_parking, h.has_no_curfew, h.allows_visitors, h.is_furnished, h.has_kitchen, h.has_security, h.has_utilities_included]
           );
           count++;
           setSyncProgress(Math.round((count / data.length) * 100));
@@ -207,8 +252,8 @@ export function usePGliteHousing() {
   // Provide a drop-in replacement for getDormDetails when offline
   const getOfflineDormDetails = async (id: number) => {
     const db = await getDB();
-    const housingRes = await db.query(`SELECT * FROM housing WHERE housing_id = $1`, [id]);
-    const roomsRes = await db.query(`SELECT * FROM room WHERE housing_id = $1`, [id]);
+    const housingRes = await db.query<OfflineHousing>(`SELECT * FROM housing WHERE housing_id = $1`, [id]);
+    const roomsRes = await db.query<OfflineRoom>(`SELECT * FROM room WHERE housing_id = $1`, [id]);
     
     if (housingRes.rows.length === 0) return null;
     
@@ -217,10 +262,13 @@ export function usePGliteHousing() {
       housing_id: h.housing_id,
       housing_name: h.housing_name,
       housing_address: h.housing_address,
+      housing_type: h.housing_type,
       rent_price: h.rent_price,
       latitude: h.latitude,
       longitude: h.longitude,
       housing_image: h.image_base64, // Provide the base64 as the image!
+      start_application_date: h.start_application_date,
+      end_application_date: h.end_application_date,
       has_wifi: h.has_wifi,
       has_aircon: h.has_aircon,
       has_laundry: h.has_laundry,
@@ -237,9 +285,9 @@ export function usePGliteHousing() {
 
   const getAllOfflineDorms = async () => {
     const db = await getDB();
-    const housingRes = await db.query(
-      `SELECT housing_id, housing_name, housing_address, rent_price, latitude, longitude,
-        image_base64 as housing_image,
+    const housingRes = await db.query<OfflineHousing>(
+      `SELECT housing_id, housing_name, housing_address, housing_type, rent_price, latitude, longitude,
+        image_base64 as housing_image, start_application_date, end_application_date,
         has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew,
         allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included
       FROM housing`
@@ -254,13 +302,18 @@ export function usePGliteHousing() {
     
     const base64 = await generateLowResBase64(dorm.housing_image);
     await db.query(
-      `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude, image_base64, has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew, allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+      `INSERT INTO housing (housing_id, housing_name, housing_address, housing_type, rent_price, latitude, longitude, image_base64, start_application_date, end_application_date, has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew, allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
        ON CONFLICT (housing_id) DO UPDATE SET 
        housing_name = EXCLUDED.housing_name, 
+       housing_address = EXCLUDED.housing_address,
+       housing_type = EXCLUDED.housing_type,
+       rent_price = EXCLUDED.rent_price,
        latitude = EXCLUDED.latitude, 
        longitude = EXCLUDED.longitude, 
        image_base64 = EXCLUDED.image_base64,
+       start_application_date = EXCLUDED.start_application_date,
+       end_application_date = EXCLUDED.end_application_date,
        has_wifi = EXCLUDED.has_wifi,
        has_aircon = EXCLUDED.has_aircon,
        has_laundry = EXCLUDED.has_laundry,
@@ -271,7 +324,7 @@ export function usePGliteHousing() {
        has_kitchen = EXCLUDED.has_kitchen,
        has_security = EXCLUDED.has_security,
        has_utilities_included = EXCLUDED.has_utilities_included`,
-      [dorm.housing_id, dorm.housing_name, dorm.housing_address, dorm.rent_price, dorm.latitude, dorm.longitude, base64, dorm.has_wifi, dorm.has_aircon, dorm.has_laundry, dorm.has_parking, dorm.has_no_curfew, dorm.allows_visitors, dorm.is_furnished, dorm.has_kitchen, dorm.has_security, dorm.has_utilities_included]
+      [dorm.housing_id, dorm.housing_name, dorm.housing_address, dorm.housing_type, dorm.rent_price, dorm.latitude, dorm.longitude, base64, dorm.start_application_date, dorm.end_application_date, dorm.has_wifi, dorm.has_aircon, dorm.has_laundry, dorm.has_parking, dorm.has_no_curfew, dorm.allows_visitors, dorm.is_furnished, dorm.has_kitchen, dorm.has_security, dorm.has_utilities_included]
     );
     
     if (dorm.room && dorm.room.length > 0) {
