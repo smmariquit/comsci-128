@@ -510,7 +510,7 @@ export default function BrowseContent({
           
           {/* Sync Indicator */}
           {!isOffline && !dismissSync && (isSyncing || syncComplete) && (
-            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex w-full transition-all duration-500">
+            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-center w-full transition-all duration-500">
               <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-4 flex items-center justify-center h-10 w-10 shrink-0">
                 {isSyncing ? (
                   <Loader2 className="h-5 w-5 text-[#C9642A] animate-spin" />
@@ -518,27 +518,27 @@ export default function BrowseContent({
                   <CheckCircle2 className="h-5 w-5 text-[#C9642A]" />
                 )}
               </div>
-              <div className="flex-1 flex flex-col justify-center">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-semibold leading-none">
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-sm font-semibold">
                     {isSyncing ? "Syncing Catalog" : "Offline Ready"}
                   </h4>
-                  <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1">
+                  <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
                 {isSyncing ? (
-                  <div className="w-full mt-2">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-[10px] text-white/50 leading-none">Downloading assets...</span>
-                      <span className="text-[10px] font-bold text-white/70 leading-none">{syncProgress}%</span>
+                  <div className="w-full mt-1.5">
+                    <div className="flex justify-between mb-1.5">
+                      <span className="text-[10px] text-white/50">Downloading assets...</span>
+                      <span className="text-[10px] font-bold text-white/70">{syncProgress}%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
                       <div className="bg-[#C9642A] h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-[11px] text-white/70 leading-snug mt-1.5">Map data saved to device.</p>
+                  <p className="text-[11px] text-white/70 mt-0.5">Map data saved to device.</p>
                 )}
               </div>
             </div>
@@ -546,18 +546,18 @@ export default function BrowseContent({
 
           {/* Offline Indicator */}
           {isOffline && !dismissOffline && (
-            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex w-full transition-all duration-500">
+            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-center w-full transition-all duration-500">
               <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-4 flex items-center justify-center h-10 w-10 shrink-0">
                 <Wifi className="h-5 w-5 text-[#C9642A]" />
               </div>
-              <div className="flex-1 flex flex-col justify-center">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-semibold leading-none">You're Offline</h4>
-                  <button onClick={() => setDismissOffline(true)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1">
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-sm font-semibold">You're Offline</h4>
+                  <button onClick={() => setDismissOffline(true)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <p className="text-[11px] text-white/70 leading-snug mt-1.5">
+                <p className="text-[11px] text-white/70 mt-0.5">
                   Maps and housing cards are running from local device memory. Live data is not syncing.
                 </p>
               </div>
@@ -566,18 +566,18 @@ export default function BrowseContent({
 
           {/* Back Online Toast */}
           {showOnlineToast && (
-            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex w-full transition-all duration-500">
+            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-center w-full transition-all duration-500">
               <div className="bg-[#5FD068]/20 p-2 rounded-lg mr-4 flex items-center justify-center h-10 w-10 shrink-0">
                 <Wifi className="h-5 w-5 text-[#5FD068]" />
               </div>
-              <div className="flex-1 flex flex-col justify-center">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-semibold leading-none">Connection Restored</h4>
-                  <button onClick={() => setShowOnlineToast(false)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1">
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-sm font-semibold">Connection Restored</h4>
+                  <button onClick={() => setShowOnlineToast(false)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <p className="text-[11px] text-white/70 leading-snug mt-1.5">
+                <p className="text-[11px] text-white/70 mt-0.5">
                   You are back online. Live data has been automatically refreshed.
                 </p>
               </div>
