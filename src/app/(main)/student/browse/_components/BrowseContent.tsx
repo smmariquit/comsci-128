@@ -422,7 +422,7 @@ export default function BrowseContent({
   return (
     <>
       {/* Fetching overlay */}
-      {isFetching && <PageLoading overlay label="Fetching Profile..." />}
+      {isFetching && <PageLoading overlay label="Fetching Housing Details..." />}
 
       <div className={`browse-root ${showMap ? "map-visible" : "map-hidden"}`}>
         {/* ── Left: Map ── */}
