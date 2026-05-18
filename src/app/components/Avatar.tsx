@@ -40,7 +40,14 @@ export default function Avatar({
   );
 
   if (href) {
-    return <Link href={href}>{avatar}</Link>;
+    return (
+      <Link
+        href={href}
+        className="inline-flex rounded-full focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2"
+      >
+        {avatar}
+      </Link>
+    );
   }
 
   return avatar;
