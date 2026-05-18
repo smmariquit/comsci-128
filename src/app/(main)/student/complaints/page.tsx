@@ -85,7 +85,7 @@ export default function StudentComplaintsPage() {
             <input
               id="subject"
               type="text"
-              className="w-full border border-[#D1D5DB] rounded px-3 py-2 bg-[#F7F6F3] focus:outline-none focus:ring-2 focus:ring-[#1C2632] text-[#1C2632]"
+              className="w-full border border-[#D1D5DB] rounded px-3 py-2 bg-[#F7F6F3] focus:ring-2 focus:ring-[#C9642A] text-[#1C2632]"
               value={formData.subject}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, subject: e.target.value }))
@@ -103,7 +103,7 @@ export default function StudentComplaintsPage() {
             </label>
             <textarea
               id="description"
-              className="w-full border border-[#D1D5DB] rounded px-3 py-2 bg-[#F7F6F3] focus:outline-none focus:ring-2 focus:ring-[#1C2632] text-[#1C2632]"
+              className="w-full border border-[#D1D5DB] rounded px-3 py-2 bg-[#F7F6F3] focus:ring-2 focus:ring-[#C9642A] text-[#1C2632]"
               value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({

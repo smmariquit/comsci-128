@@ -43,7 +43,7 @@ export default function Avatar({
     return (
       <Link
         href={href}
-        className="inline-flex rounded-full focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2"
+        className="block w-fit h-fit rounded-full"
       >
         {avatar}
       </Link>
