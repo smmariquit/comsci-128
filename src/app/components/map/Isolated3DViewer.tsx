@@ -33,6 +33,11 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
       ],
     });
 
+    // Add 3D Navigation Controls (Zoom, Pitch, Rotate)
+    map.addControl(new maplibregl.NavigationControl({
+      visualizePitch: true,
+    }), 'bottom-right');
+
     map.on("load", () => {
       // Re-add standard 3D building layer from openmaptiles
       if (!map.getSource("openmaptiles")) {
@@ -86,9 +91,10 @@ export default function Isolated3DViewer({ housing, onClose }: Isolated3DViewerP
       <div className="relative w-full max-w-5xl h-[80vh] bg-white rounded-xl overflow-hidden shadow-2xl border border-gray-200 flex">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-white/80 hover:bg-gray-200 text-black rounded-full transition-colors shadow-sm"
+          className="absolute top-4 right-4 z-20 flex h-10 w-10 items-center justify-center bg-white/90 hover:bg-white text-gray-700 hover:text-black rounded-full transition-colors shadow-md border border-gray-200"
+          aria-label="Close 3D View"
         >
-          <X size={20} />
+          <X size={20} strokeWidth={2.5} />
         </button>
         
         {/* Left Sidebar (like Room TBA) */}
