@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #5a056f;
+  --background: #ede9de;
+  --foreground: #1c2632;
 
   /* Original color palette (used for backgrounds/decoration) */
   --dark-blue: #1c2632;
@@ -17,18 +17,39 @@
   --text-aaa-orange: #8b3e15;
 }
 
+.dark {
+  --background: #0f151c; /* Even darker blue for true dark mode */
+  --foreground: #ede9de;
+  
+  --text-aaa-blue: #ede9de;
+  --text-aaa-teal: #e3af64;
+  --text-aaa-orange: #e3af64;
+}
+
+/* Global utility overrides for "easyyy" dark mode implementation */
+.dark .bg-white {
+  background-color: #1c2632 !important;
+  color: #ede9de !important;
+}
+.dark .bg-gray-50, .dark .bg-stone-50, .dark .bg-zinc-50 {
+  background-color: #1c2632 !important;
+  color: #ede9de !important;
+}
+.dark .text-gray-900, .dark .text-black, .dark .text-\[\#1C2632\] {
+  color: #ede9de !important;
+}
+.dark .border-gray-200, .dark .border-stone-200, .dark .border-zinc-200 {
+  border-color: #567375 !important;
+}
+.dark .bg-gray-100 {
+  background-color: #2f4a4c !important;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #4f0f0f;
-    --foreground: #ededed;
-  }
 }
 
 html, body {
