@@ -455,27 +455,31 @@ export default function BrowseContent({
             </div>
           </div>
         {/* Offline & Sync Indicators - Floating Bottom Right */}
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 w-80 shadow-2xl">
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 w-[320px] pointer-events-none">
+          
           {/* Sync Indicator */}
           {!isOffline && !dismissSync && (isSyncing || syncComplete) && (
-            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-lg flex items-center justify-between">
+            <div className="bg-white/95 backdrop-blur-md border border-[#1C2632]/10 p-4 rounded-xl shadow-2xl pointer-events-auto transition-all duration-500 ease-in-out">
               <div className="flex items-center w-full">
                 {isSyncing ? (
                   <>
-                    <Loader2 className="h-5 w-5 mr-3 text-blue-500 animate-spin flex-shrink-0" />
-                    <div className="flex-1 mr-4">
-                      <p className="text-xs text-gray-700 font-bold mb-1">Downloading Map Data...</p>
-                      <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                        <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
+                    <Loader2 className="h-5 w-5 mr-3 text-[#C9642A] animate-spin flex-shrink-0" />
+                    <div className="flex-1 mr-3">
+                      <p className="text-xs text-[#1C2632] font-semibold mb-1.5 uppercase tracking-wide">Fetching Offline Data</p>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-[#C9642A] h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-gray-500">{syncProgress}%</span>
+                    <span className="text-[10px] font-bold text-[#1C2632]/50">{syncProgress}%</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-5 w-5 mr-3 text-green-500 flex-shrink-0" />
-                    <p className="text-xs text-gray-700 font-bold flex-1">Offline map ready!</p>
-                    <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600 transition-colors">
+                    <CheckCircle2 className="h-5 w-5 mr-3 text-[#5FD068] flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm text-[#1C2632] font-semibold">Offline Ready</p>
+                      <p className="text-[10px] text-[#1C2632]/60 mt-0.5">Map data saved to device</p>
+                    </div>
+                    <button onClick={() => setDismissSync(true)} className="p-1.5 ml-2 hover:bg-[#1C2632]/5 rounded-md text-[#1C2632]/40 hover:text-[#1C2632] transition-colors">
                       <X className="h-4 w-4" />
                     </button>
                   </>
@@ -486,12 +490,14 @@ export default function BrowseContent({
 
           {/* Offline Indicator */}
           {isOffline && (
-            <div className="bg-orange-100 border border-orange-300 text-orange-800 p-4 rounded-lg shadow-lg flex items-start">
-              <Wifi className="h-5 w-5 mr-3 mt-0.5 text-[#C9642A] flex-shrink-0" />
-              <div className="flex-1">
-                <h4 className="text-sm font-bold mb-1">Offline Mode</h4>
-                <p className="text-xs opacity-90 leading-relaxed">
-                  Map and housing data are running from your local device database and are not syncing live changes.
+            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-start">
+              <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-3">
+                <Wifi className="h-4 w-4 text-[#C9642A] flex-shrink-0" />
+              </div>
+              <div className="flex-1 mt-0.5">
+                <h4 className="text-sm font-semibold mb-1">You're Offline</h4>
+                <p className="text-[11px] text-white/70 leading-relaxed">
+                  Housing maps are running from local device memory. Live data is not syncing.
                 </p>
               </div>
             </div>
