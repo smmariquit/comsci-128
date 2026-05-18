@@ -65,7 +65,7 @@ export default function GlobalNetworkStatus() {
                 </div>
               </div>
             ) : (
-              <p className="text-[11px] text-white/70 mt-0.5">Map data saved to device.</p>
+              <p className="text-[11px] text-white/70 mt-0.5">Housing catalog saved to device.</p>
             )}
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function GlobalNetworkStatus() {
               <PopupCloseButton onClick={() => setDismissOffline(true)} />
             </div>
             <p className="text-[11px] text-white/70 mt-0.5">
-              Maps and housing cards are running from local device memory. Live data is not syncing.
+              The application is running from local device memory. Live data is not syncing.
             </p>
           </div>
         </div>
