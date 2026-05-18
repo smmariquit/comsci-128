@@ -3,18 +3,14 @@ import { User, NewUser, UpdateUser } from "@/models/user";
 import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { managerData } from "@/app/lib/data/manager-data";
 
-// promote User from Student to Housing Admin (Manager rather)
+// promote User from Student to Housing Admin 
 async function create(userDetails: NewUser, managerDetails: NewManager) {
-  // managerDetails.manager_type must already be set to "Housing Admin"
-
-  const newManagerData = await managerData.create(userDetails, managerDetails);
-
-  managerDetails.account_number = newManagerData.account_number;
-
-  // Insert into housing_admin
   const { data, error: adminError } = await supabase
     .from("housing_admin")
-    .insert([managerDetails])
+    .insert([{
+      account_number: userDetails.account_number,
+      is_deleted: false
+    }])
     .select();
 
   if (adminError) {
