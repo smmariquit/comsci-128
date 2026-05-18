@@ -32,10 +32,10 @@ export default function StudentNavBar({
 						<Logo size={28} href="/" />
 
 						<nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 h-7 font-[family-name:var(--font-geist-sans)]">
-							<Link href="/student" className="text-[#EDE9DE] hover:bg-white/10 transition-colors flex items-center h-full text-m leading-none rounded-md px-3 py-1">
+							<Link href="/student" className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors flex items-center h-full text-m leading-none rounded-md px-3 py-1">
 								Dashboard
 							</Link>
-							<Link href="/student/browse" className="text-[#EDE9DE] hover:bg-white/10 transition-colors flex items-center h-full text-m leading-none rounded-md px-3 py-1">
+							<Link href="/student/browse" className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors flex items-center h-full text-m leading-none rounded-md px-3 py-1">
 								Browse
 							</Link>
 						</nav>
@@ -45,13 +45,13 @@ export default function StudentNavBar({
 				<div className="flex items-center gap-2 md:gap-4">
 					<button 
 						suppressHydrationWarning
-						className="flex items-center justify-center text-[#EDE9DE] hover:bg-white/10 transition-colors rounded-full p-2"
+						className="flex items-center justify-center text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors rounded-full p-2"
 						aria-label="Notifications"
 						>
 							<Bell className="h-6 w-6" strokeWidth={2} />
 					</button>
 
-					<Link href={`/student/profile/${userId}`} className="flex items-center rounded-full" aria-label="Profile">
+					<Link href={`/student/profile/${userId}`} className="flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none" aria-label="Profile">
 						<div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all"></div>
 					</Link>
                 </div>
