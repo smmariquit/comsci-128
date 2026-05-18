@@ -25,7 +25,7 @@ export default function LoginPage() {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    
+
     if (name === "email") {
       if (value && !emailRegex.test(value)) {
         setEmailError("Invalid email format");
@@ -37,13 +37,13 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    
+
     if (emailError) {
       setStatus("Please enter a valid email");
       setStatusType("error");
       return;
     }
-    
+
     setStatus("");
     setStatusType("");
     setLoading(true);
@@ -145,7 +145,9 @@ export default function LoginPage() {
           Login
         </h2>
         {status && (
-          <div className={`text-center ${statusType === "success" ? "text-green-400" : "text-red-400"}`}>
+          <div
+            className={`text-center ${statusType === "success" ? "text-green-400" : "text-red-400"}`}
+          >
             {status}
           </div>
         )}
@@ -161,7 +163,9 @@ export default function LoginPage() {
             onChange={handleChange}
             required
           />
-          {emailError && <p className="text-red-400 text-sm mt-1">{emailError}</p>}
+          {emailError && (
+            <p className="text-red-400 text-sm mt-1">{emailError}</p>
+          )}
         </div>
         <input
           className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"

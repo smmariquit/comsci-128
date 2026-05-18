@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Bell, ChevronRight, X } from "lucide-react";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Bell, ChevronRight, X } from 'lucide-react';
 
 export interface Notification {
   id: string;
@@ -12,36 +12,97 @@ export interface Notification {
   time: string;
 }
 
-export interface NotificationBellProps {
-  notifications?: Notification[];
-}
 
-export default function NotificationBell({
-  notifications = [],
-}: NotificationBellProps) {
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [notifList, setNotifList] = useState(notifications);
+export default function NotificationBell() {
+	const [notifOpen, setNotifOpen] = useState(false);
+	const [notifications, setNotifications] = useState<Notification[]>([]);
+	const [notifList, setNotifList] = useState(notifications);
 
-  const unreadCount = notifList.filter((n) => !n.read).length;
-  const markAllRead = () =>
-    setNotifList((prev) => prev.map((n) => ({ ...n, read: true })));
-  const dismissNotif = (id: string) =>
-    setNotifList((prev) => prev.filter((n) => n.id !== id));
+	useEffect(() => {
+		const fetchNotifications = async () => {
+			try {
+			const response = await fetch('/api/audit-log');
 
-  return (
-    <>
-      <div className="relative">
-        <button
-          onClick={() => setNotifOpen((o) => !o)}
-          className="w-11 h-11 bg-[#1a2332] rounded-full flex items-center justify-center text-white hover:bg-[#d4622a] transition-colors duration-150 shrink-0"
-        >
-          <Bell size={18} />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#d4622a] rounded-full text-white text-[10px] font-bold flex items-center justify-center border-2 border-[#eae8e1]">
-              {unreadCount}
-            </span>
-          )}
-        </button>
+			if (!response.ok) {
+				throw new Error('Failed to fetch audit logs');
+			}
+
+			const data = await response.json();
+
+			// First three logs
+			const rawLogs = (Array.isArray(data) ? data : data.data ?? [])
+				.sort(
+					(a: any, b: any) =>
+						new Date(b.timestamp).getTime() -
+						new Date(a.timestamp).getTime()
+				)
+			.slice(0, 3);
+
+			const savedRead = JSON.parse(
+				localStorage.getItem('readNotifications') || '[]'
+			);
+
+			const transformed: Notification[] = rawLogs.map((log: any) => ({
+				id: String(log.audit_id),
+
+				title: log.action_type,
+
+				body:
+					log.audit_description ||
+					`${log.user_name} performed ${log.action_type}`,
+
+				read: savedRead.includes(String(log.audit_id)),
+
+				time: new Date(log.timestamp).toLocaleString('en-PH', {
+					month: 'short',
+					day: 'numeric',
+					hour: '2-digit',
+					minute: '2-digit',
+				}),
+			}));
+
+			setNotifList(transformed);
+
+			setNotifications(transformed);
+			} catch (error) {
+			console.error(error);
+			}
+		};
+
+		fetchNotifications();
+	}, []);
+
+	const unreadCount = notifList.filter((n) => !n.read).length;
+	const markAllRead = () => {
+		const ids = notifList.map((n) => n.id);
+
+		localStorage.setItem(
+			'readNotifications',
+			JSON.stringify(ids)
+		);
+
+		setNotifList((prev) =>
+			prev.map((n) => ({ ...n, read: true }))
+		);
+	};
+	const dismissNotif = (id: string) => setNotifList((prev) => prev.filter((n) => n.id !== id));
+
+
+
+	return (
+		<>
+			<div className="relative">
+				<button
+					onClick={() => setNotifOpen((o) => !o)}
+					className="w-11 h-11 bg-[#1a2332] rounded-full flex items-center justify-center text-white hover:bg-[#d4622a] transition-colors duration-150 shrink-0"
+				>
+					<Bell size={18} />
+					{unreadCount > 0 && (
+						<span className="absolute -top-1 -right-1 w-5 h-5 bg-[#d4622a] rounded-full text-white text-[10px] font-bold flex items-center justify-center border-2 border-[#eae8e1]">
+							{unreadCount}
+						</span>
+					)}
+				</button>
 
         {notifOpen && (
           <div className="absolute right-0 top-13 w-[320px] bg-white rounded-2xl shadow-xl border border-[#1a2332]/6 z-50 overflow-hidden">

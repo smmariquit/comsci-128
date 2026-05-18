@@ -112,11 +112,13 @@ export default async function MgrDashboardPage() {
     ]);
   } catch (_error) {
     return (
-      <StateMessage
-        variant="error"
-        title="Unable to load dashboard"
-        description="Please try again in a moment."
-      />
+      <div className="flex h-full min-h-[60vh] w-full items-center justify-center p-6">
+        <StateMessage
+          variant="error"
+          title="Unable to load dashboard"
+          description="You appear to be offline or our servers are temporarily unreachable."
+        />
+      </div>
     );
   }
 
