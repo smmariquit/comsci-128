@@ -72,11 +72,11 @@ export default function AuditLogTable({ data, onView }: Props) {
         <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
           Audit Logs
         </div>
-        <div style={{ fontSize: 11, color: C.teal }}>{data.length} total</div>
+        <div style={{ fontSize: 13, color: C.teal }}>{data.length} total</div>
       </div>
 
       {/* Table */}
-      <table style={{ width: "100%", fontSize: 12 }}>
+      <table style={{ width: "100%", fontSize: 13 }}>
         <thead>
           <tr style={{ background: C.cream }}>
             {COLUMNS.map((col) => (
@@ -85,7 +85,7 @@ export default function AuditLogTable({ data, onView }: Props) {
                 style={{
                   padding: "8px 14px",
                   textAlign: "left",
-                  fontSize: 10,
+                  fontSize: 13,
                   color: C.teal,
                   textTransform: "uppercase",
                   fontFamily: "'DM Sans', sans-serif",
@@ -115,7 +115,7 @@ export default function AuditLogTable({ data, onView }: Props) {
               {/* User */}
               <td style={{ padding: "8px 14px", color: C.navy }}>
                 {row.user_name}
-                <div style={{ fontSize: 10, color: C.teal }}>
+                <div style={{ fontSize: 13, color: C.teal }}>
                   #{row.account_number}
                 </div>
               </td>

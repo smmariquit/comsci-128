@@ -85,7 +85,7 @@ function SummaryCard({
         </div>
         <span
           style={{
-            fontSize: 10.5,
+            fontSize: 13,
             fontWeight: 600,
             color: "#7a9ea0",
             textTransform: "uppercase",

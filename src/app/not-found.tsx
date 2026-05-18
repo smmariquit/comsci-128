@@ -446,7 +446,7 @@ export default function NotFoundPage() {
               style={{
                 textAlign: "center",
                 color: "rgba(255,255,255,0.55)",
-                fontSize: 12,
+                fontSize: 13,
                 fontFamily: "DM Mono, monospace",
                 fontWeight: 400,
                 lineHeight: "21.6px",

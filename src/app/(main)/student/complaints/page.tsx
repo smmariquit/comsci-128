@@ -47,8 +47,8 @@ export default function StudentComplaintsPage() {
   return (
     <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
       <StudentNavBar path="Complaints" />
-      <div className="w-full max-w-2xl mx-auto mt-8 flex-1 bg-white p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner border border-[#E3E3E3]">
-        <h1 className="text-2xl font-bold mb-4 text-[#1C2632]">
+      <main className="w-full max-w-2xl mx-auto mt-8 flex-1 bg-white p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner border border-[#E3E3E3]">
+        <h1 className="text-2xl font-bold mb-4 text-[#111820]">
           Submit a Formal Complaint
         </h1>
         <AutosaveStatus
@@ -58,8 +58,8 @@ export default function StudentComplaintsPage() {
         />
 
         {showDraftNotice && (
-          <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium">
-            <Save size={16} />
+          <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-[#111820] text-sm font-medium" role="status">
+            <Save size={16} aria-hidden="true" />
             Draft restored from your last session.
             <button
               onClick={() => {
@@ -67,7 +67,7 @@ export default function StudentComplaintsPage() {
                 setFormData({ subject: "", description: "" });
                 setShowDraftNotice(false);
               }}
-              className="ml-auto text-xs text-blue-500 hover:text-blue-700 underline"
+              className="ml-auto text-xs text-[#111820] hover:text-[#2f4a4c] underline"
             >
               Clear draft
             </button>
@@ -78,14 +78,14 @@ export default function StudentComplaintsPage() {
           <div>
             <label
               htmlFor="subject"
-              className="block font-medium text-[#1C2632]"
+              className="block font-medium text-[#111820]"
             >
               Subject
             </label>
             <input
               id="subject"
               type="text"
-              className="w-full border border-[#D1D5DB] rounded px-3 py-2 bg-[#F7F6F3] focus:ring-2 focus:ring-[#C9642A] text-[#1C2632]"
+              className="w-full border border-[#8b3e15] rounded px-3 py-2 bg-[#F7F6F3] focus:ring-2 focus:ring-[#C9642A] text-[#111820]"
               value={formData.subject}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, subject: e.target.value }))
@@ -97,13 +97,13 @@ export default function StudentComplaintsPage() {
           <div>
             <label
               htmlFor="description"
-              className="block font-medium text-[#1C2632]"
+              className="block font-medium text-[#111820]"
             >
               Description
             </label>
             <textarea
               id="description"
-              className="w-full border border-[#D1D5DB] rounded px-3 py-2 bg-[#F7F6F3] focus:ring-2 focus:ring-[#C9642A] text-[#1C2632]"
+              className="w-full border border-[#8b3e15] rounded px-3 py-2 bg-[#F7F6F3] focus:ring-2 focus:ring-[#C9642A] text-[#111820]"
               value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -118,7 +118,7 @@ export default function StudentComplaintsPage() {
           <div>
             <label
               htmlFor="screenshot"
-              className="block font-medium text-[#1C2632]"
+              className="block font-medium text-[#111820]"
             >
               Screenshot (optional)
             </label>
@@ -126,21 +126,21 @@ export default function StudentComplaintsPage() {
               id="screenshot"
               type="file"
               accept="image/*"
-              className="w-full border border-[#D1D5DB] rounded px-3 py-2 bg-[#F7F6F3] text-[#1C2632]"
+              className="w-full border border-[#8b3e15] rounded px-3 py-2 bg-[#F7F6F3] text-[#111820]"
               onChange={(e) => setScreenshot(e.target.files?.[0] || null)}
             />
           </div>
           <button
             type="submit"
-            className="bg-[#1C2632] text-[#EDE9DE] px-4 py-2 rounded hover:bg-[#567375] font-semibold w-full"
+            className="bg-[#1C2632] text-[#EDE9DE] px-4 py-2 rounded hover:bg-[#0f1720] font-semibold w-full"
           >
             Submit Complaint
           </button>
           {status && (
-            <div className="mt-2 text-center text-[#1C2632]">{status}</div>
+            <div className="mt-2 text-center text-[#111820]" role="status" aria-live="polite">{status}</div>
           )}
         </form>
-      </div>
+      </main>
     </div>
   );
 }

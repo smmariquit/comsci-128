@@ -413,7 +413,7 @@ export default function ReportsWrapper({
               onClick={() => switchTab(tab.key)}
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 padding: "7px 16px",
                 borderRadius: 7,
@@ -449,7 +449,7 @@ export default function ReportsWrapper({
             alignItems: "center",
             gap: 7,
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 600,
             background: C.orange,
             color: "#fff",

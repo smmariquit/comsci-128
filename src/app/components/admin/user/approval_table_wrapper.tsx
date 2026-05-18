@@ -83,7 +83,7 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
         gap: 5,
         background: s.bg,
         color: s.text,
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: 600,
         padding: "3px 8px",
         borderRadius: 20,
@@ -156,7 +156,7 @@ function ActionBtn({
       style={{
         ...BTN_STYLE[variant],
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: 11,
+        fontSize: 13,
         padding: "4px 10px",
         borderRadius: 6,
         cursor: disabled || isLoading ? "not-allowed" : "pointer",
@@ -223,7 +223,7 @@ function SearchInput({
           padding: "8px 12px 8px 32px",
           border: `1px solid ${C.cream}`,
           borderRadius: 8,
-          fontSize: 12,
+          fontSize: 13,
           color: C.navy,
           outline: "none",
           fontFamily: "'DM Sans', sans-serif",
@@ -259,7 +259,7 @@ function StatusFilter({
             onClick={() => onChange(opt)}
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: 600,
               padding: "4px 10px",
               borderRadius: 20,
@@ -282,7 +282,7 @@ function StatusFilter({
             {opt === "All" ? "All" : s!.label}
             <span
               style={{
-                fontSize: 10,
+                fontSize: 13,
                 fontWeight: 700,
                 padding: "1px 5px",
                 borderRadius: 10,
@@ -321,7 +321,7 @@ function ApplicationTable({
   return (
     <div style={{ overflowX: "auto" }}>
       <table
-        style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}
+        style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
       >
         <thead>
           <tr style={{ background: C.cream }}>
@@ -331,7 +331,7 @@ function ApplicationTable({
                 style={{
                   padding: "8px 14px",
                   textAlign: "left",
-                  fontSize: 10,
+                  fontSize: 13,
                   color: C.teal,
                   textTransform: "uppercase",
                   fontFamily: "'DM Sans', sans-serif",
@@ -354,7 +354,7 @@ function ApplicationTable({
                   textAlign: "center",
                   color: C.teal,
                   opacity: 0.5,
-                  fontSize: 12,
+                  fontSize: 13,
                   fontFamily: "'DM Sans', sans-serif",
                 }}
               >
@@ -594,7 +594,7 @@ function ConfirmModal({
               <label
                 style={{
                   display: "block",
-                  fontSize: 11,
+                  fontSize: 13,
                   fontWeight: 600,
                   color: C.teal,
                   textTransform: "uppercase",
@@ -607,7 +607,7 @@ function ConfirmModal({
                 {tentativeRoomDisplay} {/* 👈 Using the centralized variable */}
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     color: C.teal,
                     marginLeft: 8,
                     fontWeight: 400,
@@ -623,7 +623,7 @@ function ConfirmModal({
               <label
                 style={{
                   display: "block",
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: 600,
                   color: C.navy,
                   marginBottom: 8,
@@ -635,7 +635,7 @@ function ConfirmModal({
               {isLoadingRooms ? (
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     color: C.teal,
                     display: "flex",
                     alignItems: "center",
@@ -804,7 +804,7 @@ function ViewModal({
             >
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 13,
                   color: C.teal,
                   fontWeight: 600,
                   textTransform: "uppercase",
@@ -1023,7 +1023,7 @@ export default function ApplicationTable_Wrapper({
               <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
                 Applications
               </div>
-              <div style={{ fontSize: 11, color: C.teal }}>
+              <div style={{ fontSize: 13, color: C.teal }}>
                 {filtered.length} shown
               </div>
             </div>
