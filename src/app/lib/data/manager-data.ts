@@ -8,22 +8,19 @@ const create = async (
   userDetails: NewUser,
   managerDetails: NewManager,
 ): Promise<Manager> => {
-  // CREATE row in "manager" table & RETURN the created manager object
-
-  const newUserData = await userData.create(userDetails);
-
-  managerDetails.account_number = newUserData.account_number;
 
   const { data, error } = await supabase
     .from("manager")
-    .insert([managerDetails])
+    .insert([{
+      account_number: userDetails.account_number,
+      manager_type: managerDetails.manager_type
+    }])
     .select();
 
   if (error) throw error;
 
   return data[0];
 };
-
 // READ managers
 const getAll = async () => {
   return await supabase
