@@ -19,7 +19,18 @@ async function getDB() {
         housing_address TEXT,
         rent_price NUMERIC,
         latitude DOUBLE PRECISION,
-        longitude DOUBLE PRECISION
+        longitude DOUBLE PRECISION,
+        image_base64 TEXT,
+        has_wifi BOOLEAN,
+        has_aircon BOOLEAN,
+        has_laundry BOOLEAN,
+        has_parking BOOLEAN,
+        has_no_curfew BOOLEAN,
+        allows_visitors BOOLEAN,
+        is_furnished BOOLEAN,
+        has_kitchen BOOLEAN,
+        has_security BOOLEAN,
+        has_utilities_included BOOLEAN
       );
       
       CREATE TABLE IF NOT EXISTS room (
@@ -31,11 +42,26 @@ async function getDB() {
         longitude DOUBLE PRECISION
       );
     `);
-    // Migration: Add image_base64 column if it doesn't exist
-    try {
-      await dbInstance.exec(`ALTER TABLE housing ADD COLUMN image_base64 TEXT;`);
-    } catch (e) {
-      // Column likely already exists
+    // Migration: Add columns if they don't exist
+    const columns = [
+      "image_base64 TEXT",
+      "has_wifi BOOLEAN",
+      "has_aircon BOOLEAN",
+      "has_laundry BOOLEAN",
+      "has_parking BOOLEAN",
+      "has_no_curfew BOOLEAN",
+      "allows_visitors BOOLEAN",
+      "is_furnished BOOLEAN",
+      "has_kitchen BOOLEAN",
+      "has_security BOOLEAN",
+      "has_utilities_included BOOLEAN"
+    ];
+    for (const col of columns) {
+      try {
+        await dbInstance.exec(`ALTER TABLE housing ADD COLUMN ${col};`);
+      } catch (e) {
+        // Column likely already exists
+      }
     }
   }
   return dbInstance;
@@ -48,13 +74,13 @@ const generateLowResBase64 = async (url: string | null): Promise<string | null> 
     const blob = await res.blob();
     const bitmap = await createImageBitmap(blob);
     const canvas = document.createElement("canvas");
-    const MAX = 200; // Generate extremely lightweight thumbnail
+    const MAX = 800; // Generate high-quality thumbnail for modal viewing
     const scale = Math.min(MAX / bitmap.width, MAX / bitmap.height, 1);
     canvas.width = bitmap.width * scale;
     canvas.height = bitmap.height * scale;
     const ctx = canvas.getContext("2d");
     ctx?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", 0.3);
+    return canvas.toDataURL("image/jpeg", 0.7);
   } catch (e) {
     console.error("Failed to generate low-res base64", e);
     return null;
@@ -118,14 +144,24 @@ export function usePGliteHousing() {
         for (const h of data) {
           const base64 = await generateLowResBase64(h.housing_image);
           await db.query(
-            `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude, image_base64) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude, image_base64, has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew, allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
              ON CONFLICT (housing_id) DO UPDATE SET 
              housing_name = EXCLUDED.housing_name, 
              latitude = EXCLUDED.latitude, 
              longitude = EXCLUDED.longitude,
-             image_base64 = EXCLUDED.image_base64`,
-            [h.housing_id, h.housing_name, h.housing_address, h.rent_price, h.latitude, h.longitude, base64]
+             image_base64 = EXCLUDED.image_base64,
+             has_wifi = EXCLUDED.has_wifi,
+             has_aircon = EXCLUDED.has_aircon,
+             has_laundry = EXCLUDED.has_laundry,
+             has_parking = EXCLUDED.has_parking,
+             has_no_curfew = EXCLUDED.has_no_curfew,
+             allows_visitors = EXCLUDED.allows_visitors,
+             is_furnished = EXCLUDED.is_furnished,
+             has_kitchen = EXCLUDED.has_kitchen,
+             has_security = EXCLUDED.has_security,
+             has_utilities_included = EXCLUDED.has_utilities_included`,
+            [h.housing_id, h.housing_name, h.housing_address, h.rent_price, h.latitude, h.longitude, base64, h.has_wifi, h.has_aircon, h.has_laundry, h.has_parking, h.has_no_curfew, h.allows_visitors, h.is_furnished, h.has_kitchen, h.has_security, h.has_utilities_included]
           );
           count++;
           setSyncProgress(Math.round((count / data.length) * 100));
@@ -175,11 +211,24 @@ export function usePGliteHousing() {
     
     const base64 = await generateLowResBase64(dorm.housing_image);
     await db.query(
-      `INSERT INTO housing (housing_id, housing_name, housing_address, latitude, longitude, image_base64) 
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO housing (housing_id, housing_name, housing_address, rent_price, latitude, longitude, image_base64, has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew, allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
        ON CONFLICT (housing_id) DO UPDATE SET 
-       housing_name = EXCLUDED.housing_name, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, image_base64 = EXCLUDED.image_base64`,
-      [dorm.housing_id, dorm.housing_name, dorm.housing_address, dorm.latitude, dorm.longitude, base64]
+       housing_name = EXCLUDED.housing_name, 
+       latitude = EXCLUDED.latitude, 
+       longitude = EXCLUDED.longitude, 
+       image_base64 = EXCLUDED.image_base64,
+       has_wifi = EXCLUDED.has_wifi,
+       has_aircon = EXCLUDED.has_aircon,
+       has_laundry = EXCLUDED.has_laundry,
+       has_parking = EXCLUDED.has_parking,
+       has_no_curfew = EXCLUDED.has_no_curfew,
+       allows_visitors = EXCLUDED.allows_visitors,
+       is_furnished = EXCLUDED.is_furnished,
+       has_kitchen = EXCLUDED.has_kitchen,
+       has_security = EXCLUDED.has_security,
+       has_utilities_included = EXCLUDED.has_utilities_included`,
+      [dorm.housing_id, dorm.housing_name, dorm.housing_address, dorm.rent_price, dorm.latitude, dorm.longitude, base64, dorm.has_wifi, dorm.has_aircon, dorm.has_laundry, dorm.has_parking, dorm.has_no_curfew, dorm.allows_visitors, dorm.is_furnished, dorm.has_kitchen, dorm.has_security, dorm.has_utilities_included]
     );
     
     if (dorm.room && dorm.room.length > 0) {
