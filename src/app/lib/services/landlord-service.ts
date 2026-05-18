@@ -2,6 +2,7 @@ import { NewUser } from "@/models/user";
 import { landlordData } from "@/app/lib/data/landlord-data";
 import { NewManager } from "@/models/manager";
 import { createAuditLog } from "./audit-log-service";
+import { userService } from "./user-service";
 
 function formatUserName(user: {
 	first_name?: string | null;
@@ -22,9 +23,21 @@ const addLandlord = async (
     const landlord = await landlordData.create(accountNumber, managerDetails);
     
     if (!landlord) return null;
+      const userDetails = await userService.getUser(accountNumber);
 
-    // TODO: Add audit log
+      const userName = `${userDetails!.first_name} ${userDetails!.last_name}`;
 
+      if (landlord && userDetails) {
+      const userName = `${userDetails.first_name} ${userDetails.last_name}`;
+
+      await createAuditLog(
+        accountNumber,
+        userName,
+        "Update User Role",
+        `${userName} updated role from student to landlord`,
+         null
+      );
+    }
     return landlord;
   } catch (error: any) {
     console.error("Error adding landlord:", error); 

@@ -2,6 +2,7 @@ import { housingAdminData } from "@/app/lib/data/housing-admin-data";
 import { NewUser } from "@/models/user";
 import { NewManager } from "@/models/manager";
 import { createAuditLog } from "./audit-log-service";
+import { userService } from "./user-service";
 
 function formatUserName(user: {
     first_name?: string | null;
@@ -20,6 +21,24 @@ const addHousingAdmin = async (account_number: number, managerDetails: NewManage
         const result = await housingAdminData.create(account_number, managerDetails);
         if (result?.error) {
             throw new Error(result.error.message || "Failed to add housing admin.");
+        }
+
+
+    
+        const userDetails = await userService.getUser(account_number);
+
+        const userName = `${userDetails!.first_name} ${userDetails!.last_name}`;
+
+        if (result && userDetails) {
+        const userName = `${userDetails.first_name} ${userDetails.last_name}`;
+
+        await createAuditLog(
+            account_number,
+            userName,
+            "Update User Role",
+            `${userName} updated role from student to housing admin`,
+            null
+        );
         }
         return result;
     } catch (error) {
