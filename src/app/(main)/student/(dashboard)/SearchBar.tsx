@@ -24,7 +24,7 @@ export default function SearchBar() {
   }
 
   return (
-    <div className="flex flex-row items-center gap-3 bg-[#EDE9DE] w-[90vw] h-[7vh] p-3 mx-auto m-2 rounded-xl relative">
+    <div className="flex flex-row items-center gap-3 bg-[var(--cream)] w-[90vw] h-[7vh] p-3 mx-auto m-2 rounded-xl relative">
       {/* Filter Section */}
       <div className="relative">
         <button

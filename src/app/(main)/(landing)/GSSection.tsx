@@ -58,7 +58,7 @@ export default function CTASection() {
         {/* Button */}
         <Link
           href="/register"
-          className="shrink-0 bg-white text-[#C9642A] text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[#EDE9DE] transition-colors duration-200 whitespace-nowrap"
+          className="shrink-0 bg-white text-[#C9642A] text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[var(--cream)] transition-colors duration-200 whitespace-nowrap"
         >
           Get Started Free
         </Link>

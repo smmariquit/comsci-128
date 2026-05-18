@@ -122,7 +122,7 @@ export function ApplyFormContent() {
   const headerName = dormData?.housing_name || "Housing";
 
   return (
-    <div className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner">
+    <div className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[var(--cream)] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner">
       {/* Back Button */}
       <button
         onClick={() => router.back()}

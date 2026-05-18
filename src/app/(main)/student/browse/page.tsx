@@ -66,7 +66,7 @@ export default async function DormBrowsePage({
   }));
 
   return (
-    <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
+    <div className="w-full min-h-screen bg-[var(--cream)] flex flex-col">
       <StudentNavBar
         path={"Housing Browser"}
         userId={currUser?.account_number}
