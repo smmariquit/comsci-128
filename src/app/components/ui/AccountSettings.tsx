@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/app/lib/supabase";
 import { Mail, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Link as LinkIcon, Unlink } from "lucide-react";
 
