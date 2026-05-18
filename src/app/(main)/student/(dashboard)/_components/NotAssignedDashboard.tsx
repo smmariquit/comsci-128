@@ -8,7 +8,7 @@ export default function NotAssignedDashboard(
 
   const hStyle =
     "justify-center text-white text-lg font-semibold font-[family-name:var(--font-DM_Sans)]";
-  const tStyle = "text-black text-lg font-[family-name:var(--font-DM_Sans)]";
+  const tStyle = "text-black dark:text-[#EDE9DE] text-lg font-[family-name:var(--font-DM_Sans)]";
   const checkIcon = (
     <CircleCheckBig className="w-24 h-24 text-green-700" strokeWidth={2.2} />
   );
@@ -36,11 +36,11 @@ export default function NotAssignedDashboard(
 
   return (
     <div className="w-full flex-1 flex flex-col justify-start items-start gap-4">
-      <div className="w-full h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 rounded-full shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] inline-flex justify-start items-center gap-2.5 overflow-hidden">
+      <div className="w-full h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 dark:bg-gray-900 rounded-full shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] inline-flex justify-start items-center gap-2.5 overflow-hidden">
         <div className={hStyle}>Welcome, {userName}</div>
       </div>
-      <div className="w-full flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
-        <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+      <div className="w-full flex-1 bg-stone-200 dark:bg-[#1C2632] rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
+        <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 dark:bg-gray-900 inline-flex justify-start items-center gap-2.5 overflow-hidden">
           <div className={hStyle}>Application Status</div>
         </div>
         <div className="self-stretch flex-1 px-4 md:px-24 py-6 md:py-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center overflow-hidden">
@@ -86,8 +86,8 @@ export default function NotAssignedDashboard(
           </div>
         </div>
       </div>
-      <div className="w-full flex-1 bg-stone-200 rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
-        <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 inline-flex justify-start items-center gap-2.5 overflow-hidden">
+      <div className="w-full flex-1 bg-stone-200 dark:bg-[#1C2632] rounded-2xl shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start overflow-hidden">
+        <div className="self-stretch h-auto min-h-9 px-4 md:px-9 py-2 bg-gray-800 dark:bg-gray-900 inline-flex justify-start items-center gap-2.5 overflow-hidden">
           <div className={hStyle}>Application Details</div>
         </div>
         <div className="self-stretch flex-1 px-9 py-4">

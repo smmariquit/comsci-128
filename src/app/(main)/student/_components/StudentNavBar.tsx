@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bell } from "lucide-react";
 import Logo from "@/app/components/Logo";
 import Avatar from "@/app/components/Avatar";
+import ThemeToggle from "@/app/components/ui/ThemeToggle";
 
 interface StudentNavbarProps {
   path: string;
@@ -43,6 +44,7 @@ export default function StudentNavBar({
 					</div>
 
 				<div className="flex items-center gap-6">
+					<ThemeToggle />
 					<button 
 						suppressHydrationWarning
 						className="flex items-center justify-center text-[#EDE9DE] hover:opacity-80 transition-opacity"
