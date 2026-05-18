@@ -10,6 +10,8 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.4.5",
+    "@serwist/next": "^9.5.11",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.1",
     "bcrypt": "^6.0.0",
@@ -20,6 +22,7 @@
     "next": "16.2.4",
     "react": "19.2.5",
     "react-dom": "19.2.5",
+    "serwist": "^9.5.11",
     "swagger-ui-react": "^5.32.4"
   },
   "devDependencies": {
