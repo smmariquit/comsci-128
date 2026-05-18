@@ -1,27 +1,41 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { landlordService } from "@/app/lib/services/landlord-service";
-
-// POST /api/landlord
-export async function POST(request: NextRequest) {
+import { NewManager } from "@/app/lib/models/manager";
+// POST /api/landlord/[accountNumber]
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ accountNumber: string }> }
+) {
   try {
-    const body = await request.json();
+    const resolvedParams = await params; 
+    const { accountNumber } = resolvedParams;
 
-    // Call landlord service
-    const newLandlord = await landlordService.addLandlord(
-      body,
-      body.managerDetails || body,
+    console.log("params:", resolvedParams);
+
+    const parsedAccountNumber = Number(accountNumber);
+
+    const accountDetails: NewManager = await req.json();
+
+    if (!Number.isInteger(parsedAccountNumber) || parsedAccountNumber <= 0) {
+      return NextResponse.json(
+        { error: "Invalid landlord account number." },
+        { status: 400 }
+      );
+    }
+
+    const newLandlord =  await landlordService.addLandlord(
+      parsedAccountNumber,
+      accountDetails
     );
 
-    // OK Response upon successful creation
     return NextResponse.json(
-      { message: "Landlord created successfully.", user: newLandlord },
-      { status: 201 },
+      { data: newLandlord },
+      { status: 201 }
     );
-  } catch (error: any) {
-    console.error("Error creating landlord:", error);
+  } catch (error) {
     return NextResponse.json(
-      { message: error.message || "Failed to create landlord." },
-      { status: 500 },
+      { error: "Internal Server Error" },
+      { status: 500 }
     );
   }
 }
