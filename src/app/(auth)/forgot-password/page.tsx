@@ -24,9 +24,6 @@ function ForgotPasswordForm() {
         if (typeof parsedDraft.step === "number") {
           setStep(parsedDraft.step);
         }
-        if (typeof parsedDraft.email === "string") {
-          setEmail(parsedDraft.email);
-        }
       } catch (err) {
         console.error("Failed to parse forgot password draft:", err);
       }
@@ -56,10 +53,9 @@ function ForgotPasswordForm() {
       draftKey,
       JSON.stringify({
         step,
-        email,
       }),
     );
-  }, [draftKey, step, email]);
+  }, [draftKey, step]);
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
