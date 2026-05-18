@@ -37,31 +37,31 @@ export default async function ManageLayout({
             <nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
               <Link
                 href="/manage"
-                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors py-2 rounded-md px-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Dashboard
               </Link>
               <Link
                 href="/manage/accommodations"
-                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors py-2 rounded-md px-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Accommodations
               </Link>
               <Link
                 href="/manage/applications"
-                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors py-2 rounded-md px-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Applications
               </Link>
               <Link
                 href="/manage/complaints"
-                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors py-2 rounded-md px-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Complaints
               </Link>
               <Link
                 href="/manage/logs"
-                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors py-2 rounded-md px-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Audit Logs
               </Link>
@@ -72,14 +72,14 @@ export default async function ManageLayout({
             {/* Mobile Nav Link */}
             <Link
               href="/manage"
-              className="md:hidden text-[#EDE9DE] text-xs font-medium hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none rounded-md px-2 py-1"
+              className="md:hidden text-[#EDE9DE] text-xs font-medium hover:bg-white/10 focus-visible:bg-white/10 rounded-full px-3 py-1.5"
             >
               Dashboard
             </Link>
 
             <button
               type="button"
-              className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none transition-colors flex items-center justify-center rounded-full p-2"
+              className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center justify-center rounded-full p-2"
               aria-label="Notifications"
             >
               <Bell size={22} strokeWidth={2} />
