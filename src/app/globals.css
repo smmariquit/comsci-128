@@ -28,68 +28,47 @@
   --text-aaa-blue: #ede9de;
   --text-aaa-teal: #8aadaf;
   --text-aaa-orange: #e3af64;
-
-  /* Surface colors for cards/modals in dark mode */
-  --surface: #1c2632;
-  --surface-raised: #243040;
-  --border-subtle: rgba(237, 233, 222, 0.1);
 }
 
-:root {
-  --surface: #ffffff;
-  --surface-raised: #f5f5f0;
-  --border-subtle: rgba(28, 38, 50, 0.1);
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
-/* ─── Dark Mode: Page backgrounds ─── */
-.dark [class*="bg-[#EDE9DE]"],
-.dark [class*="bg-[#ede9de]"] {
-  background-color: var(--background) !important;
-}
+/* ─── Dark Mode: Override Tailwind color variables ─── */
+/* This is the correct approach for Tailwind v4: override the
+   CSS custom properties that Tailwind's utility classes reference. */
+.dark {
+  /* Backgrounds */
+  --color-white: #1c2632;
+  --color-stone-50: #1c2632;
+  --color-stone-200: #1c2632;
+  --color-gray-50: #1c2632;
+  --color-gray-100: #1c2632;
+  --color-gray-200: #243040;
+  --color-yellow-50: #1c2632;
 
-/* ─── Dark Mode: Card/container backgrounds ─── */
-.dark [class*="bg-white"] {
-  background-color: var(--surface) !important;
-}
-.dark [class*="bg-stone-200"],
-.dark [class*="bg-stone-50"],
-.dark [class*="bg-gray-50"],
-.dark [class*="bg-gray-100"] {
-  background-color: var(--surface) !important;
-}
-.dark [class*="bg-yellow-50"] {
-  background-color: var(--surface) !important;
-}
+  /* Text */
+  --color-black: #ede9de;
+  --color-gray-900: #ede9de;
+  --color-gray-800: #d5d0c3;
+  --color-gray-700: #c0bab0;
+  --color-gray-600: #9aa3b0;
+  --color-gray-500: #7d8694;
 
-/* ─── Dark Mode: Text ─── */
-.dark [class*="text-black"],
-.dark [class*="text-[#1C2632]"],
-.dark [class*="text-[#1c2632]"],
-.dark [class*="text-gray-900"],
-.dark [class*="text-gray-800"],
-.dark [class*="text-gray-700"] {
-  color: var(--foreground) !important;
-}
-.dark [class*="text-gray-600"],
-.dark [class*="text-gray-500"] {
-  color: #9aa3b0 !important;
-}
-
-/* ─── Dark Mode: Borders ─── */
-.dark [class*="border-gray-200"],
-.dark [class*="border-gray-100"],
-.dark [class*="border-stone-200"],
-.dark [class*="border-[#CEC7B0]"],
-.dark [class*="border-[#E3AF64]"] {
-  border-color: rgba(237, 233, 222, 0.15) !important;
+  /* Borders */
+  --color-gray-300: rgba(237, 233, 222, 0.2);
+  --color-stone-400: rgba(237, 233, 222, 0.25);
 }
 
 /* ─── Dark Mode: Inputs ─── */
 .dark input,
 .dark select,
 .dark textarea {
-  background-color: var(--surface-raised) !important;
-  color: var(--foreground) !important;
+  background-color: #243040 !important;
+  color: #ede9de !important;
   border-color: rgba(237, 233, 222, 0.15) !important;
 }
 .dark input::placeholder,
@@ -104,13 +83,6 @@
 }
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: #c9642a;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 html, body {
