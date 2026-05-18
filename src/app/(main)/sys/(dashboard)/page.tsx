@@ -256,6 +256,7 @@ export default function DashboardPage({
 			);
 		}
 		return (
+			
 			<div className="flex min-h-screen bg-[#eae8e1]">
 				      {/* 'Add Manager' Modal */}
 					  <AddManagerModal

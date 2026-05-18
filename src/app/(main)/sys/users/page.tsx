@@ -461,6 +461,19 @@ export default function UserManagementPage({
 					headers: { "Content-Type": "application/json" },
 				});
 
+				 const housingUpdate = await fetch(`/api/housing/${dorm?.id}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(
+					role === "Landlord"
+						? { landlord_account_number: userId }
+						: role === "Housing Administrator"
+						? { manager_account_number: userId }
+						: {}
+					),
+				});
+
+
 				// 3. Update UI
 				setUsers((prev) =>
 				prev.map((u) =>
