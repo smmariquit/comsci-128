@@ -168,6 +168,7 @@ export default function Sidebar({
               key={item.href}
               href={item.href}
               onClick={onNavigate}
+              className="rounded-lg"
               style={{
                 width: "100%",
                 height: 47,
