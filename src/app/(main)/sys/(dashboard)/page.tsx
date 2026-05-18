@@ -98,7 +98,6 @@ function formatTimeAgo(timestamp: string): string {
 }
 // Quick Access Button Icons
 const quickAccess = [
-	{ label: 'Add Manager',     icon: UserPlus,     href: null },
 	{ label: 'Add Dormitory',   icon: PlusSquare,   href: null },
 	{ label: 'Edit User',       icon: Pencil,       href: '/sys/users'},
 ];
