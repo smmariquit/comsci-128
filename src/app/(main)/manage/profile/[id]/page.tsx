@@ -3,9 +3,9 @@
 import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import LogoutModal from "../../../../components/LogoutModal";
+import AvatarUploadModal from "../../../../components/AvatarUploadModal";
 import Avatar from "@/app/components/Avatar";
-import { LogOut } from "lucide-react";
+import { LogOut, Camera } from "lucide-react";
 import StateMessage from "@/app/components/ui/state-message";
 import { deleteCookie } from "@/app/lib/utils";
 
@@ -14,6 +14,7 @@ export default function ManagerProfilePage() {
   const [profile, setProfile] = useState<ManagerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [activeTab, setActiveTab] = useState("Personal Information");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<{
@@ -191,12 +192,28 @@ export default function ManagerProfilePage() {
       <div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-10 flex gap-12">
         {/* Left Card Sidebar */}
         <div className="w-1/3 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-8 flex flex-col items-center shadow-sm">
-          <div className="w-32 h-32 mb-6">
+          <div
+            className="w-32 h-32 mb-6 relative group cursor-pointer"
+            onClick={() => setShowAvatarModal(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowAvatarModal(true);
+              }
+            }}
+          >
             <Avatar
               firstName={profile?.first_name}
               lastName={profile?.last_name}
+              profilePicture={(profile as any)?.profile_picture}
               size={128}
+              className="border-4 border-[#E3AF64] shadow-md group-hover:opacity-80 transition-opacity"
             />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full">
+              <Camera className="text-white w-8 h-8" />
+            </div>
           </div>
 
           <h2 className="text-2xl font-bold text-[#1C2632] mb-1 text-center">
@@ -327,6 +344,23 @@ export default function ManagerProfilePage() {
 					window.location.href = "/";
 				}}
 			/>
+
+      <AvatarUploadModal
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+        userId={Number(id)}
+        currentAvatarUrl={(profile as any)?.profile_picture}
+        firstName={profile?.first_name}
+        lastName={profile?.last_name}
+        onUploadSuccess={(url) => {
+          if (profile) {
+            setProfile({
+              ...profile,
+              profile_picture: url,
+            } as any);
+          }
+        }}
+      />
 		</div>
 	);
 }
