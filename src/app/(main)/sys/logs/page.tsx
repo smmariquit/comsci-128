@@ -36,13 +36,6 @@ export interface AuditLogsPageProps {
   onLogout?: () => void;
 }
 
-// Hardcoded datas -- 
-const stubUser: SidebarUser = {
-  name: 'Luthelle Fernandez',
-  role: 'System Admin',
-  initials: 'LF',
-};
-
 
 const stubNotifications = [
   { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime', read: false, time: '1h ago' },
@@ -129,18 +122,6 @@ function ModuleChip({ module }: { module: ModuleType }) {
   );
 }
 
-// Status badge design -> success or failed action
-function StatusBadge({ status }: { status: StatusType }) {
-  return status === 'Success' ? (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
-      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Success
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 ring-1 ring-rose-200">
-      <span className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Failed
-    </span>
-  );
-}
 
 // Pagingn button design
 function PageBtn({ children, onClick, active, disabled }: {
@@ -162,7 +143,6 @@ function PageBtn({ children, onClick, active, disabled }: {
 
 // Main Component
 export default function AuditLogsPage({
-  user = stubUser,
   notifications = stubNotifications,
   onLogout,
 }: AuditLogsPageProps) {
@@ -335,7 +315,7 @@ export default function AuditLogsPage({
 
             {/* Column headers */}
             <div className={`grid ${GRID_COLS} gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6`}>
-              {['TIMESTAMP', 'USER', 'ACTION', 'MODULE', 'IP ADDRESS', 'STATUS', 'DETAILS'].map((col) => (
+              {['TIMESTAMP', 'USER', 'ACTION', 'IP ADDRESS'].map((col) => (
                 <span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">
                   {col}
                 </span>
@@ -372,24 +352,9 @@ export default function AuditLogsPage({
                     {/* ACTION */}
                     <div><ActionBadge action={log.action} /></div>
 
-                    {/* MODULE */}
-                    <div><ModuleChip module={log.module} /></div>
 
                     {/* IP ADDRESS */}
                     <span className="text-[11px] font-mono text-[#1a2332]/60">{log.ipAddress}</span>
-
-                    {/* STATUS */}
-                    <div><StatusBadge status={log.status} /></div>
-
-                    {/* DETAILS */}
-                    <div>
-                      <button
-                      onClick={() => setViewingLog(log)}
-                      className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
-                    >
-                      View
-                    </button>
-                    </div>
                   </div>
                 ))
               )}
