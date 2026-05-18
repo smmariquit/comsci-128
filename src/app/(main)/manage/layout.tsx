@@ -59,12 +59,6 @@ export default async function ManageLayout({
               >
                 Complaints
               </Link>
-              <Link
-                href="/manage/logs"
-                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
-              >
-                Audit Logs
-              </Link>
             </nav>
           </div>
 
