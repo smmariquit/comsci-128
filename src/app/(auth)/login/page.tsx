@@ -6,21 +6,26 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { setCookie } from "@/app/lib/utils";
 import PageLoading from "@/app/components/ui/page-loading";
+import { useAutoSave } from "@/app/hooks/useAutoSave";
+import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
 
 export default function LoginPage() {
-  const [form, setForm] = useState({
+  const [form, setForm, clearSaved, _hasSavedData, saveState] = useAutoSave(
+    "casa-login",
+    {
     email: "",
-    password: "",
-  });
+    }
+  );
+  const [password, setPassword] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+  function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { value } = e.target;
+    setForm((prev) => ({ ...prev, email: value }));
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -29,7 +34,7 @@ export default function LoginPage() {
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
-      password: form.password,
+      password,
     });
 
     if (error) {
@@ -92,6 +97,8 @@ export default function LoginPage() {
             target = "/manage";
           }
         }
+        clearSaved();
+        setPassword("");
         router.push(target);
       }
     }
@@ -123,13 +130,14 @@ export default function LoginPage() {
           Login
         </h2>
         {status && <div className="text-red-400 text-center">{status}</div>}
+        <AutosaveStatus saveState={saveState} className="mx-auto" />
         <input
           className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
           type="email"
           name="email"
           placeholder="Email"
           value={form.email}
-          onChange={handleChange}
+          onChange={handleEmailChange}
           required
         />
         <input
@@ -137,8 +145,8 @@ export default function LoginPage() {
           type="password"
           name="password"
           placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
         <button

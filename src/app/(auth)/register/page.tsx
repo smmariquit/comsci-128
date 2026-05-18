@@ -5,26 +5,46 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
 import PageLoading from "@/app/components/ui/page-loading";
+import { useAutoSave } from "@/app/hooks/useAutoSave";
+import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
 
 export default function RegisterPage() {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
-  const [form, setForm] = useState({
-    first_name: "",
-    middle_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    birthday: "",
-    home_address: "",
-    phone_number: "",
-    contact_email: "",
-    sex: "",
-  });
+  const [form, setForm, clearSaved, _hasSavedData, saveState] = useAutoSave(
+    "casa-register",
+    {
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      email: "",
+      birthday: "",
+      home_address: "",
+      phone_number: "",
+      contact_email: "",
+      sex: "",
+    }
+  );
+  const [password, setPassword] = useState("");
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedStep = localStorage.getItem("casa-register-step");
+    if (!savedStep) return;
+    const parsed = Number(savedStep);
+    if (!Number.isNaN(parsed) && parsed >= 1 && parsed <= 3) {
+      setStep(parsed);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("casa-register-step", String(step));
+  }, [step]);
 
   useEffect(() => {
     const googleData = sessionStorage.getItem("googleSignupData");
@@ -91,7 +111,7 @@ export default function RegisterPage() {
         first_name: form.first_name,
         middle_name: form.middle_name || null,
         last_name: form.last_name,
-        password: form.password,
+        password,
         birthday: form.birthday || null,
         home_address: form.home_address || null,
         phone_number: form.phone_number || null,
@@ -153,6 +173,11 @@ export default function RegisterPage() {
             target = "/manage";
           }
         }
+        clearSaved();
+        setPassword("");
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("casa-register-step");
+        }
         router.push(target);
       }
     } catch (_err) {
@@ -187,6 +212,7 @@ export default function RegisterPage() {
           Sign up
         </h2>
         {error && <div className="text-red-400 text-center">{error}</div>}
+        <AutosaveStatus saveState={saveState} className="mx-auto" />
 
         {step === 1 && (
           <>
@@ -230,8 +256,8 @@ export default function RegisterPage() {
               type="password"
               name="password"
               placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </>

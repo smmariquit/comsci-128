@@ -162,6 +162,7 @@ async function getHousingCardsData() {
       longitude: housing.longitude,
       image: housing.housing_image,
       housingType: housing.housing_type,
+      rooms: activeRooms,
     };
   });
 }
