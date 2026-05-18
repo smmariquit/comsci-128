@@ -49,6 +49,7 @@ export async function PATCH(
       application_Id,
       application_status,
     );
+    console.log("Updated resuilt:", updated);
     if (!updated) {
       return NextResponse.json(
         { message: "Application not found." },
