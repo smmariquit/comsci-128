@@ -132,7 +132,7 @@ export default function LoginPage() {
         {status && <div className="text-red-400 text-center">{status}</div>}
         <AutosaveStatus saveState={saveState} className="mx-auto" />
         <input
-          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200 focus:outline-none"
           type="email"
           name="email"
           placeholder="Email"
@@ -141,7 +141,7 @@ export default function LoginPage() {
           required
         />
         <input
-          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200 focus:outline-none"
           type="password"
           name="password"
           placeholder="Password"
