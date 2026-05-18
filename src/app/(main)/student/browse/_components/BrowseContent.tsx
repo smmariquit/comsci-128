@@ -454,47 +454,49 @@ export default function BrowseContent({
               </button>
             </div>
           </div>
-
-        {/* Sync Indicator */}
-        {!isOffline && !dismissSync && (isSyncing || syncComplete) && (
-          <div className="bg-white border border-gray-200 p-3 mx-4 lg:mx-8 mt-2 rounded shadow-sm flex items-center justify-between">
-            <div className="flex items-center w-full">
-              {isSyncing ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-3 text-blue-500 animate-spin flex-shrink-0" />
-                  <div className="flex-1 mr-4">
-                    <p className="text-sm text-gray-700 font-medium">Downloading offline map data...</p>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1.5 overflow-hidden">
-                      <div className="bg-blue-500 h-2 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
+        {/* Offline & Sync Indicators - Floating Bottom Right */}
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 w-80 shadow-2xl">
+          {/* Sync Indicator */}
+          {!isOffline && !dismissSync && (isSyncing || syncComplete) && (
+            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-lg flex items-center justify-between">
+              <div className="flex items-center w-full">
+                {isSyncing ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-3 text-blue-500 animate-spin flex-shrink-0" />
+                    <div className="flex-1 mr-4">
+                      <p className="text-xs text-gray-700 font-bold mb-1">Downloading Map Data...</p>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-blue-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-xs font-bold text-gray-500">{syncProgress}%</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="h-5 w-5 mr-3 text-green-500 flex-shrink-0" />
-                  <p className="text-sm text-gray-700 font-medium flex-1">Offline map data downloaded!</p>
-                  <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600 transition-colors">
-                    <X className="h-4 w-4" />
-                  </button>
-                </>
-              )}
+                    <span className="text-xs font-bold text-gray-500">{syncProgress}%</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-5 w-5 mr-3 text-green-500 flex-shrink-0" />
+                    <p className="text-xs text-gray-700 font-bold flex-1">Offline map ready!</p>
+                    <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-gray-600 transition-colors">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Offline Indicator */}
-        {isOffline && (
-          <div className="bg-orange-100 border-l-4 border-[#C9642A] text-orange-800 p-3 mx-4 lg:mx-8 mt-2 rounded shadow-sm flex items-center justify-between">
-            <div className="flex items-center">
-              <Wifi className="h-5 w-5 mr-2 text-[#C9642A]" />
-              <p className="text-sm">
-                <strong>Offline Mode.</strong> Map and housing data are running from your local device database and are not syncing live changes.
-              </p>
+          {/* Offline Indicator */}
+          {isOffline && (
+            <div className="bg-orange-100 border border-orange-300 text-orange-800 p-4 rounded-lg shadow-lg flex items-start">
+              <Wifi className="h-5 w-5 mr-3 mt-0.5 text-[#C9642A] flex-shrink-0" />
+              <div className="flex-1">
+                <h4 className="text-sm font-bold mb-1">Offline Mode</h4>
+                <p className="text-xs opacity-90 leading-relaxed">
+                  Map and housing data are running from your local device database and are not syncing live changes.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
-
+          )}
+        </div>
           {/* Scrollable cards area */}
           <div className="browse-cards-scroll relative">
             
