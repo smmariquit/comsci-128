@@ -523,7 +523,7 @@ export default function BrowseContent({
                   <h4 className="text-sm font-semibold">
                     {isSyncing ? "Syncing Catalog" : "Offline Ready"}
                   </h4>
-                  <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
+                  <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -553,7 +553,7 @@ export default function BrowseContent({
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <h4 className="text-sm font-semibold">You're Offline</h4>
-                  <button onClick={() => setDismissOffline(true)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
+                  <button onClick={() => setDismissOffline(true)} className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -573,7 +573,7 @@ export default function BrowseContent({
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <h4 className="text-sm font-semibold">Connection Restored</h4>
-                  <button onClick={() => setShowOnlineToast(false)} className="p-1 hover:bg-white/10 rounded text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
+                  <button onClick={() => setShowOnlineToast(false)} className="p-1 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
