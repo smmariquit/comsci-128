@@ -366,7 +366,7 @@ export default function UserManagementPage({
 										onClick={() => setEditingUser(u)}
 										className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
 										>
-										Edit
+										Promote
 									</button>
 																			
                   <button
