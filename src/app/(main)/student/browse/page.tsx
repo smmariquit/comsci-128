@@ -26,13 +26,7 @@ export default async function DormBrowsePage({
   try {
     currUser = await userData.findById(30);
   } catch (error) {
-    return (
-      <StateMessage
-        variant="error"
-        title="Unable to load housing"
-        description="Please try again in a moment."
-      />
-    );
+    console.error("Offline: Failed to fetch user data", error);
   }
 
   // prepare filters
@@ -47,13 +41,7 @@ export default async function DormBrowsePage({
   try {
     allHousing = await getAllAvailableDorms(filters);
   } catch (error) {
-    return (
-      <StateMessage
-        variant="error"
-        title="Unable to load housing"
-        description="Please try again in a moment."
-      />
-    );
+    console.error("Offline: Failed to fetch housing catalog", error);
   }
 
   const cards = allHousing.map((item) => ({
