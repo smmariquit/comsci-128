@@ -3,22 +3,29 @@ import { User, NewUser, UpdateUser } from "@/models/user";
 import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { managerData } from "@/app/lib/data/manager-data";
 
-// promote User from Student to Housing Admin 
-async function create(userDetails: NewUser, managerDetails: NewManager) {
-  const { data, error: adminError } = await supabase
-    .from("housing_admin")
-    .insert([{
-      account_number: userDetails.account_number,
-      is_deleted: false
-    }])
-    .select();
+// promote User from Student to Housing Admin (Manager rather)
+async function create(
+  account_number:number, 
+  managerDetails: NewManager) {
+  // managerDetails.manager_type must already be set to "Housing Admin"
 
-  if (adminError) {
-    console.error("Error inserting into housing_admin:", adminError.message);
-    return { data: null, error: adminError };
-  }
+  await managerData.create( account_number, managerDetails,);
 
-  return data[0];
+	// Insert into housing_admin
+	const { data, error: adminError } = await supabase
+		.from("housing_admin")
+		.insert([{account_number}])
+		.select();
+
+	if (adminError) {
+		console.error(
+			"Error inserting into housing_admin:",
+			adminError.message,
+		);
+		return { data: null, error: adminError };
+	}
+
+	return data[0];
 }
 
 // Read all housing admins with user details
