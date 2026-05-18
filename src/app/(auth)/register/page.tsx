@@ -23,40 +23,60 @@ export default function RegisterPage() {
   });
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [confirmationCode, setConfirmationCode] = useState("");
   const [nameErrors, setNameErrors] = useState({
     first_name: "",
     middle_name: "",
     last_name: "",
   });
   const [passwordStrength, setPasswordStrength] = useState({
-    label: "Very weak",
-    bars: 1,
+    label: "Start typing",
+    bars: 0,
   });
   const [loading, setLoading] = useState(false);
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
+  const draftKey = "register-form-draft";
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   function getPasswordStrength(password: string) {
-    let score = 0;
+    if (!password) return { label: "Start typing", bars: 0 };
 
-    if (password.length >= 8) score += 1;
-    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 1;
-    if (/\d/.test(password)) score += 1;
-    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+    const variety = [
+      /[a-z]/.test(password),
+      /[A-Z]/.test(password),
+      /\d/.test(password),
+      /[^A-Za-z0-9]/.test(password),
+    ].filter(Boolean).length;
 
-    if (password.length === 0) {
-      return { label: "Very weak", bars: 1 };
-    }
-
-    if (score <= 1) return { label: "Weak", bars: 1 };
-    if (score === 2) return { label: "Fair", bars: 2 };
-    if (score === 3) return { label: "Good", bars: 3 };
+    if (password.length < 8) return { label: "Weak", bars: 1 };
+    if (variety <= 1) return { label: "Fair", bars: 2 };
+    if (variety === 2) return { label: "Good", bars: 3 };
     return { label: "Strong", bars: 4 };
   }
 
   useEffect(() => {
+    const savedDraft = localStorage.getItem(draftKey);
+
+    if (savedDraft) {
+      try {
+        const parsedDraft = JSON.parse(savedDraft);
+        if (parsedDraft.form) {
+          setForm((prev) => ({ ...prev, ...parsedDraft.form }));
+          if (parsedDraft.form.password) {
+            setPasswordStrength(getPasswordStrength(parsedDraft.form.password));
+          }
+        }
+        if (typeof parsedDraft.step === "number") {
+          setStep(parsedDraft.step);
+        }
+      } catch (err) {
+        console.error("Failed to parse register draft:", err);
+      }
+    }
+
     const googleData = sessionStorage.getItem("googleSignupData");
     if (googleData) {
       try {
@@ -80,17 +100,27 @@ export default function RegisterPage() {
     }
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem(
+      draftKey,
+      JSON.stringify({
+        form,
+        step,
+      }),
+    );
+  }, [draftKey, form, step]);
+
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setError("");
+    setStatus("");
 
     if (name === "email") {
       setEmailError(
-        value && !emailRegex.test(value)
-          ? "Enter a valid email address."
-          : "",
+        value && !emailRegex.test(value) ? "Enter a valid email address." : "",
       );
     }
 
@@ -98,19 +128,26 @@ export default function RegisterPage() {
       setPasswordStrength(getPasswordStrength(value));
     }
 
-    if (name === "first_name" || name === "middle_name" || name === "last_name") {
-      const hasLetter = /[a-zA-Z]/.test(value.trim());
+    if (
+      name === "first_name" ||
+      name === "middle_name" ||
+      name === "last_name"
+    ) {
+      const trimmedValue = value.trim();
+      const hasLetter = /[a-zA-Z]/.test(trimmedValue);
 
       setNameErrors((prev) => ({
         ...prev,
         [name]:
-          name === "middle_name" && value.trim() === ""
+          trimmedValue === ""
             ? ""
             : hasLetter
               ? ""
               : `${name
                   .replace("_", " ")
-                  .replace(/\b\w/g, (letter) => letter.toUpperCase())} must contain at least one letter.`,
+                  .replace(/\b\w/g, (letter) =>
+                    letter.toUpperCase(),
+                  )} must contain at least one letter.`,
       }));
     }
   }
@@ -152,14 +189,94 @@ export default function RegisterPage() {
     return true;
   }
 
+  function validateStepOne(): boolean {
+    if (!validateNameFields()) {
+      return false;
+    }
+
+    if (!form.email.trim()) {
+      setEmailError("Email is required.");
+      setError("Email is required.");
+      return false;
+    }
+
+    if (!emailRegex.test(form.email.trim())) {
+      setEmailError("Enter a valid email address.");
+      setError("Enter a valid email address.");
+      return false;
+    }
+
+    if (!form.password) {
+      setError("Password is required.");
+      return false;
+    }
+
+    if (passwordStrength.bars < 3) {
+      setError("Use at least 8 characters with a mix of letters and numbers.");
+      return false;
+    }
+
+    setError("");
+    return true;
+  }
+
+  async function handleConfirmEmail(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setStatus("");
+
+    const token = confirmationCode.trim();
+    if (!token) {
+      setError("Enter the confirmation code from your email.");
+      return;
+    }
+
+    setLoading(true);
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email: form.email.trim(),
+      token,
+      type: "email",
+    });
+
+    if (verifyError) {
+      setError(verifyError.message);
+      setLoading(false);
+      return;
+    }
+
+    await supabase.auth.signOut();
+    localStorage.removeItem(draftKey);
+    router.push("/login");
+  }
+
+  async function handleResendCode() {
+    setError("");
+    setStatus("");
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email: form.email.trim(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
+    });
+
+    if (resendError) {
+      setError(resendError.message);
+      return;
+    }
+
+    setStatus("A new confirmation code was sent.");
+  }
+
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    setStatus("");
     setLoading(true);
     try {
       const endpoint = googleSignupPending ? "/api" : "/api/student";
       const payload = {
-        account_email: form.email,
+        account_email: form.email.trim(),
         first_name: form.first_name,
         middle_name: form.middle_name || null,
         last_name: form.last_name,
@@ -170,7 +287,27 @@ export default function RegisterPage() {
         contact_email: form.contact_email || null,
         sex: form.sex || "Prefer not to say",
         ...(googleSignupPending ? { googleSignup: true } : {}),
+        ...(!googleSignupPending ? { authUserAlreadyCreated: true } : {}),
       };
+
+      if (!googleSignupPending) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: form.email.trim(),
+          password: form.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/login`,
+            data: {
+              first_name: form.first_name,
+              last_name: form.last_name,
+            },
+          },
+        });
+
+        if (signUpError) {
+          throw signUpError;
+        }
+      }
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -185,6 +322,14 @@ export default function RegisterPage() {
       // Role-based redirection logic
       const profile = data.user;
       if (profile) {
+        if (!googleSignupPending) {
+          setStatus(
+            "Confirmation code sent. Check your email to finish signup.",
+          );
+          setStep(4);
+          return;
+        }
+
         const userType = profile.user_type?.toLowerCase();
 
         await supabase.auth.updateUser({
@@ -226,9 +371,14 @@ export default function RegisterPage() {
           }
         }
         router.push(target);
+        localStorage.removeItem(draftKey);
       }
-    } catch (_err) {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -238,6 +388,17 @@ export default function RegisterPage() {
     return <PageLoading label="Registering..." />;
   }
 
+  const canContinueStepOne =
+    form.first_name.trim() !== "" &&
+    form.last_name.trim() !== "" &&
+    form.email.trim() !== "" &&
+    form.password !== "" &&
+    passwordStrength.bars >= 3 &&
+    !nameErrors.first_name &&
+    !nameErrors.middle_name &&
+    !nameErrors.last_name &&
+    !emailError;
+
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
       <form
@@ -245,13 +406,15 @@ export default function RegisterPage() {
         onSubmit={
           step === 3
             ? handleRegister
-            : (e) => {
-                e.preventDefault();
-                if (step === 1 && !validateNameFields()) {
-                  return;
+            : step === 4
+              ? handleConfirmEmail
+              : (e) => {
+                  e.preventDefault();
+                  if (step === 1 && !validateStepOne()) {
+                    return;
+                  }
+                  setStep(step + 1);
                 }
-                setStep(step + 1);
-              }
         }
         autoComplete="off"
       >
@@ -259,6 +422,9 @@ export default function RegisterPage() {
           Sign up
         </h2>
         {error && <div className="text-red-400 text-center">{error}</div>}
+        {status && (
+          <div className="text-orange-300 text-center text-sm">{status}</div>
+        )}
 
         {step === 1 && (
           <>
@@ -275,7 +441,9 @@ export default function RegisterPage() {
                 required
               />
               {nameErrors.first_name && (
-                <p className="text-red-400 text-sm mt-1">{nameErrors.first_name}</p>
+                <p className="text-red-400 text-sm mt-1">
+                  {nameErrors.first_name}
+                </p>
               )}
             </div>
             <div>
@@ -290,7 +458,9 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
               {nameErrors.middle_name && (
-                <p className="text-red-400 text-sm mt-1">{nameErrors.middle_name}</p>
+                <p className="text-red-400 text-sm mt-1">
+                  {nameErrors.middle_name}
+                </p>
               )}
             </div>
             <div>
@@ -306,7 +476,9 @@ export default function RegisterPage() {
                 required
               />
               {nameErrors.last_name && (
-                <p className="text-red-400 text-sm mt-1">{nameErrors.last_name}</p>
+                <p className="text-red-400 text-sm mt-1">
+                  {nameErrors.last_name}
+                </p>
               )}
             </div>
             <div>
@@ -321,19 +493,12 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
               />
-              <div className="mt-1 flex items-center gap-2 text-xs">
+              <div className="mt-1 text-xs">
                 <span
-                  className={`inline-flex h-2.5 w-2.5 rounded-full ${
-                    form.email === ""
-                      ? "bg-stone-400"
-                      : emailError
-                        ? "bg-red-400"
-                        : "bg-emerald-400"
-                  }`}
-                />
-                <span className={emailError ? "text-red-400" : "text-stone-400"}>
+                  className={emailError ? "text-red-400" : "text-stone-400"}
+                >
                   {form.email === ""
-                    ? "Email will be checked as you type"
+                    ? "Type an email address"
                     : emailError || "Email looks valid"}
                 </span>
               </div>
@@ -348,36 +513,20 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 required
               />
-              <div className="mt-2 space-y-1">
+              <div className="mt-2 space-y-2">
                 <div className="flex items-center justify-between text-xs text-stone-400">
                   <span>Password strength</span>
-                  <span
-                    className={`font-semibold ${
-                      passwordStrength.label === "Weak"
-                        ? "text-red-400"
-                        : passwordStrength.label === "Fair"
-                          ? "text-orange-300"
-                          : passwordStrength.label === "Good"
-                            ? "text-amber-300"
-                            : "text-emerald-400"
-                    }`}
-                  >
+                  <span className="font-medium text-orange-300">
                     {passwordStrength.label}
                   </span>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1.5">
                   {Array.from({ length: 4 }).map((_, index) => (
                     <div
                       key={index}
-                      className={`h-2 flex-1 rounded-full ${
+                      className={`h-1.5 flex-1 rounded-full transition-colors ${
                         index < passwordStrength.bars
-                          ? index === 0
-                            ? "bg-red-400"
-                            : index === 1
-                              ? "bg-orange-300"
-                              : index === 2
-                                ? "bg-amber-300"
-                                : "bg-emerald-400"
+                          ? "bg-orange-300"
                           : "bg-stone-600"
                       }`}
                     />
@@ -437,36 +586,81 @@ export default function RegisterPage() {
         )}
 
         {step === 3 && (
-          <div className="text-stone-200 space-y-2">
-            <div>
-              <b>First name:</b> {form.first_name}
-            </div>
-            {form.middle_name && (
-              <div>
-                <b>Middle name:</b> {form.middle_name}
+          <div className="space-y-4 text-stone-200">
+            <div className="rounded-2xl border border-stone-500/60 bg-gray-700/50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-orange-300">
+                Review profile
+              </p>
+              <div className="mt-3 grid gap-3 text-sm">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-stone-400">Name</span>
+                  <span className="text-right font-medium text-stone-100">
+                    {[form.first_name, form.middle_name, form.last_name]
+                      .filter(Boolean)
+                      .join(" ")}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-stone-400">Email</span>
+                  <span className="text-right font-medium text-stone-100">
+                    {form.email}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-stone-400">Birthday</span>
+                  <span className="text-right font-medium text-stone-100">
+                    {form.birthday || "Not provided"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-stone-400">Sex</span>
+                  <span className="text-right font-medium text-stone-100">
+                    {form.sex || "Prefer not to say"}
+                  </span>
+                </div>
               </div>
-            )}
-            <div>
-              <b>Last name:</b> {form.last_name}
             </div>
-            <div>
-              <b>Email:</b> {form.email}
+            <div className="rounded-2xl border border-stone-500/40 bg-gray-900/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-stone-400">
+                Contact details
+              </p>
+              <div className="mt-3 grid gap-2 text-sm text-stone-200">
+                <p>{form.home_address || "No home address provided"}</p>
+                <p>{form.phone_number || "No phone number provided"}</p>
+                <p>{form.contact_email || "No contact email provided"}</p>
+              </div>
             </div>
-            <div>
-              <b>Birthday:</b> {form.birthday}
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-4 text-stone-200">
+            <div className="rounded-2xl border border-orange-300/50 bg-orange-300/10 p-4">
+              <p className="text-sm font-semibold text-orange-200">
+                Confirm your email
+              </p>
+              <p className="mt-2 text-sm leading-6 text-stone-300">
+                We sent a confirmation code to {form.email}. Enter it here to
+                verify the account before signing in.
+              </p>
             </div>
-            <div>
-              <b>Home address:</b> {form.home_address}
-            </div>
-            <div>
-              <b>Phone number:</b> {form.phone_number}
-            </div>
-            <div>
-              <b>Contact email:</b> {form.contact_email}
-            </div>
-            <div>
-              <b>Sex:</b> {form.sex || "Prefer not to say"}
-            </div>
+            <input
+              className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              type="text"
+              inputMode="numeric"
+              placeholder="Confirmation code"
+              value={confirmationCode}
+              onChange={(event) => setConfirmationCode(event.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="text-sm font-semibold text-orange-300 underline underline-offset-4"
+              onClick={handleResendCode}
+              disabled={loading}
+            >
+              Resend code
+            </button>
           </div>
         )}
 
@@ -486,16 +680,12 @@ export default function RegisterPage() {
               type="button"
               className="flex-1 bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition disabled:opacity-60 disabled:cursor-not-allowed"
               onClick={() => {
-                if (step === 1 && (!validateNameFields() || emailError)) {
+                if (step === 1 && !validateStepOne()) {
                   return;
                 }
                 setStep(step + 1);
               }}
-              disabled={
-                loading ||
-                (step === 1 &&
-                  (!!nameErrors.first_name || !!nameErrors.middle_name || !!nameErrors.last_name || !!emailError))
-              }
+              disabled={loading || (step === 1 && !canContinueStepOne)}
             >
               Next
             </button>
@@ -507,6 +697,15 @@ export default function RegisterPage() {
               disabled={loading}
             >
               {loading ? "Registering..." : "Submit"}
+            </button>
+          )}
+          {step === 4 && (
+            <button
+              type="submit"
+              className="flex-1 bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition"
+              disabled={loading}
+            >
+              Confirm email
             </button>
           )}
         </div>
