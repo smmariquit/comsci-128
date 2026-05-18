@@ -35,9 +35,18 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       {/* Main Card Container */}
-      <div className="relative w-full max-w-[550px] overflow-hidden rounded-[20px] bg-white shadow-2xl">
-        {/* TOP SECTION: Image and Overlay */}
-        <div className="relative h-[280px] w-full">
+      <div className="relative w-full max-w-[850px] flex flex-col md:flex-row overflow-hidden rounded-[20px] bg-white shadow-2xl">
+        
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-colors"
+        >
+          <X size={20} strokeWidth={2.5} />
+        </button>
+
+        {/* LEFT SECTION: Image and Overlay */}
+        <div className="relative h-[260px] md:h-auto md:w-[45%] shrink-0 w-full">
           <Image
             src={
               dorm.image || "/assets/placeholders/housing-414x264.svg"
@@ -47,26 +56,18 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
             className="object-cover"
           />
           {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1C2632]/90 via-[#1C2632]/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1C2632]/90 via-[#1C2632]/20 to-transparent md:bg-gradient-to-tr" />
 
           {/* Housing Name Overlay */}
           <div className="absolute bottom-6 left-6 pr-6">
-            <h2 className="text-[28px] leading-tight font-semibold text-white font-[family-name:var(--font-geist-sans)] drop-shadow-md">
+            <h2 className="text-[28px] md:text-[32px] leading-tight font-semibold text-white font-[family-name:var(--font-geist-sans)] drop-shadow-md">
               {dorm.name}
             </h2>
           </div>
-
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors shadow-lg"
-          >
-            <X size={20} strokeWidth={2.5} />
-          </button>
         </div>
 
-        {/* BOTTOM SECTION: Details */}
-        <div className="p-8 font-[family-name:var(--font-geist-mono)] text-[14px] text-[#1C2632]">
+        {/* RIGHT SECTION: Details */}
+        <div className="p-8 md:p-10 font-[family-name:var(--font-geist-mono)] text-[14px] text-[#1C2632] flex-1 flex flex-col justify-center">
           
           <div className="space-y-3 mb-6">
             <div className="flex gap-2">
