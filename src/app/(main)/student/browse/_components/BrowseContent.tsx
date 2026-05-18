@@ -266,15 +266,22 @@ export default function BrowseContent({
 
   const { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally, getAllOfflineDorms } = usePGliteHousing();
   const [dismissSync, setDismissSync] = useState(false);
+  const [dismissOffline, setDismissOffline] = useState(false);
+  const [showOnlineToast, setShowOnlineToast] = useState(false);
   const [offlineCards, setOfflineCards] = useState<HousingCard[]>([]);
 
   // Auto-refresh when connection is restored
   useEffect(() => {
     if (isOffline) {
       setWasOffline(true);
+      setShowOnlineToast(false);
     } else if (wasOffline && !isOffline) {
       setWasOffline(false);
+      setShowOnlineToast(true);
       router.refresh(); // Automatically reload the server component to fetch live data
+      
+      // Auto-hide the online toast after 6 seconds
+      setTimeout(() => setShowOnlineToast(false), 6000);
     }
   }, [isOffline, wasOffline, router]);
 
@@ -498,33 +505,37 @@ export default function BrowseContent({
               </button>
             </div>
           </div>
-        {/* Offline & Sync Indicators - Floating Bottom Right */}
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 w-[320px] pointer-events-none">
+        {/* Notifications - Floating Bottom Right */}
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 w-[340px] pointer-events-none">
           
           {/* Sync Indicator */}
           {!isOffline && !dismissSync && (isSyncing || syncComplete) && (
-            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-start transition-all duration-500 ease-in-out">
-              <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-3 flex items-center justify-center h-8 w-8 shrink-0">
+            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex w-full transition-all duration-500">
+              <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-4 flex items-center justify-center h-10 w-10 shrink-0">
                 {isSyncing ? (
-                  <Loader2 className="h-4 w-4 text-[#C9642A] animate-spin flex-shrink-0" />
+                  <Loader2 className="h-5 w-5 text-[#C9642A] animate-spin" />
                 ) : (
-                  <CheckCircle2 className="h-4 w-4 text-[#C9642A] flex-shrink-0" />
+                  <CheckCircle2 className="h-5 w-5 text-[#C9642A]" />
                 )}
               </div>
-              <div className="flex-1 mt-0.5">
-                <div className="flex justify-between items-center mb-1">
-                  <h4 className="text-sm font-semibold">{isSyncing ? "Syncing Catalog" : "Offline Ready"}</h4>
-                  {isSyncing ? (
-                    <span className="text-[10px] font-bold text-white/50">{syncProgress}%</span>
-                  ) : (
-                    <button onClick={() => setDismissSync(true)} className="p-0.5 hover:bg-white/10 rounded-md text-white/40 hover:text-white transition-colors">
-                      <X className="h-3 w-3" />
-                    </button>
-                  )}
+              <div className="flex-1 flex flex-col justify-center">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-sm font-semibold mb-1">
+                    {isSyncing ? "Syncing Catalog" : "Offline Ready"}
+                  </h4>
+                  <button onClick={() => setDismissSync(true)} className="p-1 hover:bg-white/10 rounded-md text-white/40 hover:text-white transition-colors -mt-1 -mr-2">
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
                 {isSyncing ? (
-                  <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden mt-2">
-                    <div className="bg-[#C9642A] h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
+                  <div className="w-full mt-1">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-[10px] text-white/50">Downloading assets...</span>
+                      <span className="text-[10px] font-bold text-white/70">{syncProgress}%</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                      <div className="bg-[#C9642A] h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
+                    </div>
                   </div>
                 ) : (
                   <p className="text-[11px] text-white/70 leading-relaxed">Map data saved to device.</p>
@@ -534,15 +545,40 @@ export default function BrowseContent({
           )}
 
           {/* Offline Indicator */}
-          {isOffline && (
-            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-start">
-              <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-3 flex items-center justify-center h-8 w-8 shrink-0">
-                <Wifi className="h-4 w-4 text-[#C9642A] flex-shrink-0" />
+          {isOffline && !dismissOffline && (
+            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex w-full transition-all duration-500">
+              <div className="bg-[#C9642A]/20 p-2 rounded-lg mr-4 flex items-center justify-center h-10 w-10 shrink-0">
+                <Wifi className="h-5 w-5 text-[#C9642A]" />
               </div>
-              <div className="flex-1 mt-0.5">
-                <h4 className="text-sm font-semibold mb-1">You're Offline</h4>
+              <div className="flex-1 flex flex-col justify-center">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-sm font-semibold mb-1">You're Offline</h4>
+                  <button onClick={() => setDismissOffline(true)} className="p-1 hover:bg-white/10 rounded-md text-white/40 hover:text-white transition-colors -mt-1 -mr-2">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
                 <p className="text-[11px] text-white/70 leading-relaxed">
-                  Housing maps are running from local device memory. Live data is not syncing.
+                  Maps and housing cards are running from local device memory. Live data is not syncing.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Back Online Toast */}
+          {showOnlineToast && (
+            <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex w-full transition-all duration-500">
+              <div className="bg-[#5FD068]/20 p-2 rounded-lg mr-4 flex items-center justify-center h-10 w-10 shrink-0">
+                <Wifi className="h-5 w-5 text-[#5FD068]" />
+              </div>
+              <div className="flex-1 flex flex-col justify-center">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-sm font-semibold mb-1">Connection Restored</h4>
+                  <button onClick={() => setShowOnlineToast(false)} className="p-1 hover:bg-white/10 rounded-md text-white/40 hover:text-white transition-colors -mt-1 -mr-2">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <p className="text-[11px] text-white/70 leading-relaxed">
+                  You are back online. Live data has been automatically refreshed.
                 </p>
               </div>
             </div>
