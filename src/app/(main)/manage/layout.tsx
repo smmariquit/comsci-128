@@ -99,7 +99,7 @@ export default async function ManageLayout({
 
       {/* BREAD CRUMBS */}
       <div className="w-full bg-[#567375] font-[family-name:var(--font-geist-sans)]">
-        <div className="flex items-center px-4 md:px-10 min-h-[44px] align-middle">
+        <div className="w-full max-w-7xl mx-auto flex items-center px-4 md:px-10 min-h-[44px] align-middle">
           <Breadcrumbs />
         </div>
       </div>
