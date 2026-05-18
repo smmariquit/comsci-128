@@ -1,9 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import icon from "../icon.png";
+import whiteIcon from "../white_icon.png";
 
 interface LogoProps {
   /** Pixel size of the icon (width & height). Defaults to 32. */
   size?: number;
+  /** Use white icon variant for orange backgrounds. Defaults to false. */
+  useWhiteIcon?: boolean;
   /** Show the "UPLB CASA" text next to the icon. Defaults to true. */
   showText?: boolean;
   /** Optional subtitle below the brand name (e.g. "Property Management"). */
@@ -27,6 +31,7 @@ interface LogoProps {
  */
 export default function Logo({
   size = 32,
+  useWhiteIcon = false,
   showText = true,
   subtitle,
   href = "/",
@@ -36,7 +41,7 @@ export default function Logo({
   const content = (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <Image
-        src="/icon.png"
+        src={useWhiteIcon ? whiteIcon : icon}
         alt="UPLB CASA Logo"
         width={size}
         height={size}
