@@ -51,8 +51,7 @@ export default function StudentNavBar({
 							<Bell className="h-6 w-6" strokeWidth={2} />
 					</button>
 
-					<Link href={`/student/profile/${userId}`} className="flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none" aria-label="Profile">
-						<div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all"></div>
+					<Link href={`/student/profile/${userId}`} className="flex items-center justify-center w-8 h-8 rounded-full focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none bg-[#567375] hover:ring-2 hover:ring-[#EDE9DE] transition-all" aria-label="Profile">
 					</Link>
                 </div>
 				</div>
