@@ -3,14 +3,21 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { supabase } from "@/app/lib/supabase";
+import { useAutoSave } from "@/app/hooks/useAutoSave";
+import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
 
 function ForgotPasswordForm() {
   const [step, setStep] = useState(1);
-  const [email, setEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
   const [status, setStatus] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
+  const [form, setForm, clearSaved, _hasSavedData, saveState] = useAutoSave(
+    "casa-forgot-password",
+    {
+    email: "",
+    }
+  );
+  const [newPassword, setNewPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
 
   const router = useRouter();
 
@@ -39,7 +46,7 @@ function ForgotPasswordForm() {
     setError("");
     setStatus("");
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
       redirectTo: `${window.location.origin}/forgot-password`,
     });
 
@@ -67,6 +74,9 @@ function ForgotPasswordForm() {
       setError(error.message);
     } else {
       setStatus("Password changed!");
+      clearSaved();
+      setNewPassword("");
+      setConfirm("");
       router.push("/login");
     }
   }
@@ -83,14 +93,17 @@ function ForgotPasswordForm() {
         </h2>
         {status && <div className="text-green-400 text-center">{status}</div>}
         {error && <div className="text-red-400 text-center">{error}</div>}
+        <AutosaveStatus saveState={saveState} className="mx-auto" />
         {step === 1 && (
           <>
             <input
               className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
               type="email"
               placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={form.email}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, email: e.target.value }))
+              }
               required
             />
             <button
@@ -113,7 +126,9 @@ function ForgotPasswordForm() {
               type="password"
               placeholder="Enter new password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) =>
+                setNewPassword(e.target.value)
+              }
               required
             />
             <input
@@ -121,7 +136,9 @@ function ForgotPasswordForm() {
               type="password"
               placeholder="Confirm new password"
               value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
+              onChange={(e) =>
+                setConfirm(e.target.value)
+              }
               required
             />
             <button

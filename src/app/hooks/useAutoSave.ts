@@ -14,11 +14,11 @@ import { useState, useEffect, useCallback, useRef } from "react";
  *
  * @param key   Unique key for this form (e.g., "casa-apply-{dormId}")
  * @param initialValues   Default form values
- * @returns [values, setValues, clearSaved, hasSavedData]
+ * @returns [values, setValues, clearSaved, hasSavedData, saveState]
  *
  * @example
  * ```tsx
- * const [formData, setFormData, clearSaved, hasSavedData] = useAutoSave(
+ * const [formData, setFormData, clearSaved, hasSavedData, saveState] = useAutoSave(
  *   `casa-apply-${dormId}`,
  *   { roomType: "", moveOutDate: "", fileName: "" }
  * );
@@ -27,17 +27,40 @@ import { useState, useEffect, useCallback, useRef } from "react";
  * clearSaved();
  * ```
  */
+type SaveState = "idle" | "saving" | "saved";
+type InitialState<T> = {
+  values: T;
+  hasSavedData: boolean;
+  savedRaw: string | null;
+  initialRaw: string | null;
+};
+
 export function useAutoSave<T extends Record<string, unknown>>(
   key: string,
   initialValues: T
-): [T, (updater: T | ((prev: T) => T)) => void, () => void, boolean] {
-  const [hasSavedData, setHasSavedData] = useState(false);
-  const isInitializedRef = useRef(false);
+): [
+  T,
+  (updater: T | ((prev: T) => T)) => void,
+  () => void,
+  boolean,
+  SaveState
+] {
+  const getInitialState = (): InitialState<T> => {
+    let initialRaw: string | null = null;
+    try {
+      initialRaw = JSON.stringify(initialValues);
+    } catch {
+      initialRaw = null;
+    }
 
-  // Initialize state — restore from localStorage if available
-  const [values, setValuesInternal] = useState<T>(() => {
-    // SSR guard
-    if (typeof window === "undefined") return initialValues;
+    if (typeof window === "undefined") {
+      return {
+        values: initialValues,
+        hasSavedData: false,
+        savedRaw: null,
+        initialRaw,
+      };
+    }
 
     try {
       const saved = localStorage.getItem(key);
@@ -47,54 +70,95 @@ export function useAutoSave<T extends Record<string, unknown>>(
         const keys = Object.keys(initialValues);
         const isValid = keys.every((k) => k in parsed);
         if (isValid) {
-          return parsed as T;
+          return {
+            values: parsed as T,
+            hasSavedData: true,
+            savedRaw: saved,
+            initialRaw,
+          };
         }
       }
     } catch {
       // If parse fails, use defaults
     }
-    return initialValues;
-  });
 
-  // Check if we restored saved data on mount
-  useEffect(() => {
-    if (isInitializedRef.current) return;
-    isInitializedRef.current = true;
+    return {
+      values: initialValues,
+      hasSavedData: false,
+      savedRaw: null,
+      initialRaw,
+    };
+  };
 
-    if (typeof window === "undefined") return;
-    try {
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        setHasSavedData(true);
-      }
-    } catch {
-      // ignore
-    }
-  }, [key]);
+  const initialState = useRef(getInitialState());
+
+  // Initialize state — restore from localStorage if available
+  const [values, setValuesInternal] = useState<T>(initialState.current.values);
+  const [hasSavedData, setHasSavedData] = useState(
+    initialState.current.hasSavedData
+  );
+  const [saveState, setSaveState] = useState<SaveState>(
+    initialState.current.hasSavedData ? "saved" : "idle"
+  );
+  const lastSavedRef = useRef<string | null>(initialState.current.savedRaw);
+  const initialSerializedRef = useRef<string | null>(
+    initialState.current.initialRaw
+  );
 
   // Debounced save to localStorage
   useEffect(() => {
     // Don't save on initial render if nothing changed from initial values
-    const timer = setTimeout(() => {
-      if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
 
-      try {
-        // Only save if values differ from initial
-        const isDifferent = Object.keys(initialValues).some(
-          (k) => values[k] !== initialValues[k]
-        );
+    let serialized: string;
+    try {
+      serialized = JSON.stringify(values);
+    } catch {
+      setSaveState("idle");
+      return;
+    }
 
-        if (isDifferent) {
-          localStorage.setItem(key, JSON.stringify(values));
-          setHasSavedData(true);
+    if (
+      initialSerializedRef.current &&
+      serialized === initialSerializedRef.current
+    ) {
+      if (lastSavedRef.current !== null) {
+        try {
+          localStorage.removeItem(key);
+        } catch {
+          // ignore
         }
+        lastSavedRef.current = null;
+      }
+      if (hasSavedData) {
+        setHasSavedData(false);
+      }
+      setSaveState("idle");
+      return;
+    }
+
+    // Only save when current values differ from last saved snapshot
+    if (lastSavedRef.current === serialized) {
+      setSaveState(hasSavedData ? "saved" : "idle");
+      return;
+    }
+
+    setSaveState("saving");
+
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(key, serialized);
+        lastSavedRef.current = serialized;
+        setHasSavedData(true);
+        setSaveState("saved");
       } catch {
+        setSaveState("idle");
         // Storage full or unavailable — silently fail
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [values, key, initialValues]);
+  }, [values, key, hasSavedData]);
 
   // Setter that accepts value or updater function
   const setValues = useCallback(
@@ -112,8 +176,10 @@ export function useAutoSave<T extends Record<string, unknown>>(
     } catch {
       // ignore
     }
+    lastSavedRef.current = null;
     setHasSavedData(false);
+    setSaveState("idle");
   }, [key]);
 
-  return [values, setValues, clearSaved, hasSavedData];
+  return [values, setValues, clearSaved, hasSavedData, saveState];
 }

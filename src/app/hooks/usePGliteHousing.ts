@@ -134,12 +134,20 @@ export function usePGliteHousing() {
       // we'll rely on the server action fetching when online, but let's write a minimal sync for the dorms.
       // Wait, we need an endpoint to fetch all housing + rooms!
       const res = await fetch("/api/housing");
-      const { data } = await res.json();
+      if (!res.ok) {
+        throw new Error(`Housing sync failed with status ${res.status}`);
+      }
+
+      const payload = await res.json();
+      if (!Array.isArray(payload?.data)) {
+        throw new Error("Housing sync returned unexpected payload");
+      }
+      const data = payload.data;
       
       const db = await getDB();
       
       // Sync Housing (simplified for offline viewer)
-      if (data && data.length > 0) {
+      if (data.length > 0) {
         let count = 0;
         for (const h of data) {
           const base64 = await generateLowResBase64(h.housing_image);
@@ -167,11 +175,30 @@ export function usePGliteHousing() {
           setSyncProgress(Math.round((count / data.length) * 100));
         }
       }
+
+      const housingIds = data.map((h: any) => h.housing_id);
+      if (housingIds.length === 0) {
+        await db.query("DELETE FROM room");
+        await db.query("DELETE FROM housing");
+      } else {
+        const placeholders = housingIds
+          .map((_: number, index: number) => `$${index + 1}`)
+          .join(", ");
+        await db.query(
+          `DELETE FROM room WHERE housing_id NOT IN (${placeholders})`,
+          housingIds
+        );
+        await db.query(
+          `DELETE FROM housing WHERE housing_id NOT IN (${placeholders})`,
+          housingIds
+        );
+      }
       
       setSyncComplete(true);
       localStorage.setItem("housing_last_sync", Date.now().toString());
     } catch (e) {
       console.error("PGlite sync failed:", e);
+      setSyncComplete(false);
     } finally {
       setIsSyncing(false);
     }
@@ -194,13 +221,29 @@ export function usePGliteHousing() {
       latitude: h.latitude,
       longitude: h.longitude,
       housing_image: h.image_base64, // Provide the base64 as the image!
+      has_wifi: h.has_wifi,
+      has_aircon: h.has_aircon,
+      has_laundry: h.has_laundry,
+      has_parking: h.has_parking,
+      has_no_curfew: h.has_no_curfew,
+      allows_visitors: h.allows_visitors,
+      is_furnished: h.is_furnished,
+      has_kitchen: h.has_kitchen,
+      has_security: h.has_security,
+      has_utilities_included: h.has_utilities_included,
       room: roomsRes.rows // matches the Supabase relation format
     };
   };
 
   const getAllOfflineDorms = async () => {
     const db = await getDB();
-    const housingRes = await db.query(`SELECT housing_id, housing_name, housing_address, rent_price, latitude, longitude, image_base64 as housing_image FROM housing`);
+    const housingRes = await db.query(
+      `SELECT housing_id, housing_name, housing_address, rent_price, latitude, longitude,
+        image_base64 as housing_image,
+        has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew,
+        allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included
+      FROM housing`
+    );
     return housingRes.rows;
   };
   
