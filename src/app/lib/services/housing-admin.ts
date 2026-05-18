@@ -14,22 +14,12 @@ function formatUserName(user: {
     return full || user.account_email?.trim() || "";
 }
 
-const addHousingAdmin = async (userDetails: NewUser, managerDetails: NewManager) => {
+
+const addHousingAdmin = async (account_number: number, managerDetails: NewManager) => {
     try {
-        const result = await housingAdminData.create(userDetails, managerDetails);
+        const result = await housingAdminData.create(account_number, managerDetails);
         if (result?.error) {
             throw new Error(result.error.message || "Failed to add housing admin.");
-        }
-
-        if (result?.account_number) {
-            const userName = formatUserName(userDetails);
-            const label = userName || userDetails.account_email || "Unknown user";
-            await createAuditLog(
-                result.account_number,
-                userName,
-                "Update User Role",
-                `User ${label} promoted to Housing Admin`,
-            );
         }
         return result;
     } catch (error) {
