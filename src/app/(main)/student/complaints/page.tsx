@@ -45,7 +45,7 @@ export default function StudentComplaintsPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
+    <div className="w-full min-h-screen bg-[var(--cream)] flex flex-col">
       <StudentNavBar path="Complaints" />
       <div className="w-full max-w-2xl mx-auto mt-8 flex-1 bg-white p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner border border-[#E3E3E3]">
         <h1 className="text-2xl font-bold mb-4 text-[#1C2632]">

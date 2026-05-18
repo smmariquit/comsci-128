@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
   if (!getValue) {
     return (
-      <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
+      <div className="w-full min-h-screen bg-[var(--cream)] flex flex-col">
         <StudentNavBar path={"Dashboard"} />
         <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col justify-center items-center gap-4 overflow-hidden">
           <StateMessage
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
   > | null = null;
 
   const renderErrorState = (content: React.ReactNode, isCentered = true) => (
-    <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
+    <div className="w-full min-h-screen bg-[var(--cream)] flex flex-col">
       <StudentNavBar path={"Dashboard"} userId={account_number} />
       <div className={`w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col items-center gap-4 overflow-hidden ${isCentered ? 'justify-center' : 'justify-start'}`}>
         {content}
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
 
   return (
     // MAIN PAGE
-    <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
+    <div className="w-full min-h-screen bg-[var(--cream)] flex flex-col">
       {/* NAVBAR */}
       <StudentNavBar
         path={"Dashboard"}
