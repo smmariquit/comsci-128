@@ -5,7 +5,7 @@ export default function PageLoading({ label = "Loading", overlay = false }: { la
 
   return (
     <div className={containerClass}>
-      <div className="flex flex-col items-center gap-6">
+      <div className={`flex flex-col items-center gap-6 ${overlay ? 'bg-[#EDE9DE] p-10 rounded-[20px] shadow-2xl border border-white/20' : ''}`}>
         {/* Animated house icon — built stroke by stroke */}
         <div className="relative w-16 h-16">
           <svg
