@@ -61,7 +61,7 @@ export default function AccountSettings() {
     } else {
       setEmailStatus({
         type: "success",
-        text: "A confirmation link has been sent to your new email. Please check your inbox.",
+        text: "Confirmation links have been sent to both your current and new email addresses. You must verify both to complete the change.",
       });
       setNewEmail("");
     }
@@ -138,7 +138,7 @@ export default function AccountSettings() {
           <div>
             <h4 className="text-lg font-bold text-[#1C2632]">Change Email</h4>
             <p className="text-sm text-[#567375]">
-              A confirmation link will be sent to the new address.
+              Confirmation links will be sent to both your current and new addresses.
             </p>
           </div>
         </div>
