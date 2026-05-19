@@ -28,7 +28,6 @@ const navItems = [
     { label: 'User Management',      href: '/sys/users',  icon: Users },
     { label: 'Dorm Management',      href: '/sys/dorms',  icon: BedDouble },
     { label: 'Audit Logs',           href: '/sys/logs',   icon: ClipboardList },
-    { label: 'System Configuration', href: '/sys/config', icon: Settings },
 ];
 
 // Main Sidebar component
