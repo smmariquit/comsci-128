@@ -144,12 +144,9 @@ function ServiceCard({
         {service.title}
       </h3>
 
-      {/* Description (expands when active) */}
-      <div
-        className="overflow-hidden transition-all duration-500 relative z-10"
-        style={{ maxHeight: isActive ? "200px" : "0px", opacity: isActive ? 1 : 0 }}
-      >
-        <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.85)" }}>
+      {/* Description */}
+      <div className="relative z-10 mt-2">
+        <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
           {service.description}
         </p>
       </div>
@@ -258,17 +255,7 @@ export default function ServicesSection() {
           ))}
         </div>
 
-        {/* Hint */}
-        <p
-          className="mt-10 text-center text-xs tracking-wide"
-          style={{
-            color:      "rgba(255,255,255,0.2)",
-            opacity:    visible ? 1 : 0,
-            transition: "opacity 700ms ease 600ms",
-          }}
-        >
-          Click a card to learn more
-        </p>
+
       </div>
     </section>
   );
