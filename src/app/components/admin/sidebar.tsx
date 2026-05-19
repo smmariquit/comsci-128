@@ -115,7 +115,7 @@ export default function Sidebar({
             overflow: "hidden",
           }}
         >
-          <Logo size={28} showText={false} href={null} />
+          <Logo size={28} useWhiteIcon showText={false} href={null} />
         </div>
 
         {/* Brand name */}

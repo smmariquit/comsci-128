@@ -199,8 +199,8 @@ export default function UserTable({ data, onView, onRemove }: Props) {
     <div
       style={{
         background: "#fff",
-        borderRadius: 12,
-        outline: `1px solid ${C.cream}`,
+        borderRadius: 16,
+        border: "1px solid rgba(26,35,50,0.06)",
         overflow: "hidden",
       }}
     >
@@ -224,10 +224,10 @@ export default function UserTable({ data, onView, onRemove }: Props) {
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
         <table
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}
+          style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 12 }}
         >
           <thead>
-            <tr style={{ background: C.cream }}>
+            <tr style={{ background: "rgba(234,232,225,0.5)", borderBottom: "1px solid rgba(26,35,50,0.06)" }}>
               {COLUMNS.map((col) => (
                 <th
                   key={col.key}
