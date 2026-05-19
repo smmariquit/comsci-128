@@ -1,11 +1,7 @@
-import { ApplicationReportRow } from "@/app/components/admin/user/approval_table_wrapper";
-import { supabase } from "@/app/lib/supabase";
+import type { ApplicationReportRow } from "@/app/components/admin/user/approval_table_wrapper";
 import { sendApplicationSubmittedEmail } from "@/app/lib/services/email-service";
-import {
-  Application,
-  NewApplication,
-  UpdateApplication,
-} from "@/models/application";
+import { supabase } from "@/app/lib/supabase";
+import type { Application, NewApplication } from "@/models/application";
 
 async function create(application: NewApplication): Promise<Application> {
   const { data, error } = await supabase
@@ -34,11 +30,17 @@ async function create(application: NewApplication): Promise<Application> {
           if (!studentError && studentData) {
             const studentUser = (studentData as any).user;
             const studentEmail = studentUser?.account_email;
-            const studentName = `${studentUser?.first_name || ""} ${studentUser?.last_name || ""}`.trim();
-            const housingName = application.housing_name || "your selected housing";
+            const studentName =
+              `${studentUser?.first_name || ""} ${studentUser?.last_name || ""}`.trim();
+            const housingName =
+              application.housing_name || "your selected housing";
 
             if (studentEmail) {
-              sendApplicationSubmittedEmail(studentEmail, studentName || "Student", housingName);
+              sendApplicationSubmittedEmail(
+                studentEmail,
+                studentName || "Student",
+                housingName,
+              );
             }
           }
         });
@@ -338,7 +340,7 @@ async function getApplicationsForApproval(
 
   if (error)
     throw new Error(
-      "Failed to fetch applications for approval: " + error.message,
+      `Failed to fetch applications for approval: ${error.message}`,
     );
 
   return (applications || []).map((app: any) => {
