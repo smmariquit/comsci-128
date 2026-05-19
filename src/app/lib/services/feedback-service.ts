@@ -23,17 +23,15 @@ const findFeedbackById = async (feedbackId: number) => {
 
 const fetchAllFeedback = async (): Promise<Partial<Feedback>[]> => {
     try {
-        const feedbacks = await feedbackData.getAll();
-        return feedbacks.map((feedback) => {
-            return {
+        const feedbacks = await feedbackData.getAll([], []);
+        return feedbacks.map((feedback) => ({
                 id: feedback.id,
                 text: feedback.text,
                 feedback_type: feedback.feedback_type,
                 category: feedback.category,
                 created_at: feedback.created_at,
                 status: feedback.status,
-            };
-        });
+        }));
     } catch (error) {   
         console.error("Service Error (fetchAllFeedback): ", error);
         return [];
