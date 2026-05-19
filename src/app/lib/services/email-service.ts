@@ -78,3 +78,63 @@ export async function sendApplicationStatusEmail(
     console.error("sendApplicationStatusEmail failed:", error);
   }
 }
+
+export async function sendBillAssignedEmail(
+  studentEmail: string,
+  studentName: string,
+  amount: number,
+  billType: string,
+  dueDate: string,
+) {
+  try {
+    const formattedAmount = new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+    }).format(amount);
+
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: studentEmail,
+      subject: `New Bill Issued: ${billType}`,
+      html: `
+        <h2>Hi ${studentName},</h2>
+        <p>A new bill has been issued to your student housing account.</p>
+        <ul>
+          <li><strong>Bill Type:</strong> ${billType}</li>
+          <li><strong>Amount:</strong> ${formattedAmount}</li>
+          <li><strong>Due Date:</strong> ${dueDate}</li>
+        </ul>
+        <p>Please settle this bill through your student dashboard on or before the due date to avoid any issues.</p>
+        <br/>
+        <p>Thank you!</p>
+      `,
+    });
+  } catch (error) {
+    console.error("sendBillAssignedEmail failed:", error);
+  }
+}
+
+export async function sendBillStatusUpdatedEmail(
+  studentEmail: string,
+  studentName: string,
+  txnId: number,
+  status: string,
+) {
+  try {
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: studentEmail,
+      subject: `Bill Status Updated: Bill #${txnId}`,
+      html: `
+        <h2>Hi ${studentName},</h2>
+        <p>Your payment for <strong>Bill #${txnId}</strong> has been successfully processed.</p>
+        <p>The bill status has been updated to: <strong>${status}</strong>.</p>
+        <br/>
+        <p>Thank you!</p>
+      `,
+    });
+  } catch (error) {
+    console.error("sendBillStatusUpdatedEmail failed:", error);
+  }
+}
+
