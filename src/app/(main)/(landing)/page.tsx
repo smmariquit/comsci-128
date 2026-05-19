@@ -1,95 +1,47 @@
 "use client";
 
-import Link from "next/link";
+import React from 'react';
 import { useEffect, useState } from "react";
-import Logo from "@/app/components/Logo";
-import { getCookie } from "@/app/lib/utils";
 import { floatingAnimations } from "./animations";
-import CTASection from "./GSSection";
-import HowItWorks from "./HowItWorksSection";
 import ServicesSection from "./ServicesSection";
 import ShowcaseSection from "./ShowcaseSection";
 import TestimonialsSection from "./TestimonialsSection";
+import CTASection from "./GSSection";
+import HowItWorks from "./HowItWorksSection";
+import DormDigest from "./DormDigest";
 
 // Mapping colors
 const colors = {
-  cream: "#EDE9DE",
-  navy: "#1C2632",
-  orange: "#C9642A",
-  gold: "#E3AF64",
-  light_blue: "#567375",
+  cream: '#EDE9DE',
+  navy: '#1C2632',
+  orange: '#C9642A',
+  gold: '#E3AF64',
+  light_blue: '#567375',
 };
 
 export default function LandingPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [dashboardUrl, setDashboardUrl] = useState("/login");
-
-  useEffect(() => {
-    const loggedIn = getCookie("is_logged_in") === "true";
-    setIsLoggedIn(loggedIn);
-
-    if (loggedIn) {
-      const role = getCookie("user_role")?.toLowerCase();
-      let target = "/login";
-      if (role === "student") target = "/student";
-      else if (role === "housing administrator" || role === "house admin")
-        target = "/admin";
-      else if (role === "system admin" || role === "admin") target = "/sys";
-      else if (role === "landlord") target = "/manage";
-      setDashboardUrl(target);
-    }
-  }, []);
   return (
-    <div className="min-h-screen overflow-x-hidden font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
-      <div className="bg-[#1C2632] text-[#EDE9DE] py-2 px-4 text-center text-[10px] md:text-xs font-medium tracking-wide uppercase">
-        Testing UPLB CASA? Read the{" "}
-        <a
-          href="https://github.com/smmariquit/comsci-128/blob/staging/betaTesting.md"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline decoration-[#C9642A] underline-offset-2 hover:text-[#E3AF64] transition-colors"
-        >
-          Beta Testing Guide
-        </a>
-      </div>
+    <div className="min-h-screen font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
 
       {/*animation for circles*/}
       <style>{floatingAnimations}</style>
 
       {/* ── Navbar ── */}
       <nav className="flex justify-between items-center px-8 py-6 md:px-16">
-        <div className="flex items-center">
-          <Logo href={null} size={64} textClassName="text-[#1C2632]" />
-        </div>
-        <div className="flex items-center gap-6">
-          {isLoggedIn ? (
-            <Link
-              href={dashboardUrl}
-              className="bg-[#C9642A] text-white px-5 py-2.5 rounded-full font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center justify-center"
-            >
-              Continue to Dashboard
-            </Link>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="font-medium text-[#C9642A] hover:underline transition-colors flex items-center justify-center rounded-full px-3 py-1.5"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/register"
-                className="bg-[#C9642A] text-white px-5 py-2.5 rounded-full font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30 flex items-center justify-center"
-              >
-                Sign up
-              </Link>
-            </>
-          )}
+        <div className="font-bold text-xl tracking-tight">Title</div>
+        <div className="flex items-center gap-5">
+          <button className="font-medium text-[#C9642A] hover:underline transition-colors">
+            Log in
+          </button>
+          <button className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
+            Sign up
+          </button>
         </div>
       </nav>
 
       {/* ── Hero ── */}
       <section className="relative min-h-[75vh] flex items-start pt-16 px-12 md:px-24 pb-8 overflow-hidden">
+
         {/* Subtle grid bg */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.035]"
@@ -101,6 +53,7 @@ export default function LandingPage() {
         />
 
         <div className="w-full flex flex-col md:flex-row justify-between items-start gap-16 relative z-10 -mt-5">
+
           {/* Text */}
           <div className="max-w-xl text-left">
             <p className="fade-up text-xs font-semibold tracking-[0.18em] uppercase text-[#567375] mb-4">
@@ -124,20 +77,15 @@ export default function LandingPage() {
 
             {/* CTA + Scroll Section */}
             <div className="flex flex-col items-start mt-8">
+
               {/* CTA buttons */}
               <div className="fade-up-delay flex items-start gap-3">
-                <Link
-                  href="/student/browse"
-                  className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md"
-                >
+                <button className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md">
                   Find a Dorm
-                </Link>
-                <Link
-                  href="#how"
-                  className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors"
-                >
+                </button>
+                <button className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors">
                   Learn More
-                </Link>
+                </button>
               </div>
 
               {/* Scroll to explore */}
@@ -156,6 +104,7 @@ export default function LandingPage() {
 
           {/* Decorative Circles Container */}
           <div className="hidden md:block relative w-md h-112 self-center">
+
             {/* Front Circle */}
             <div
               className="float-slow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 right-auto w-92 h-92 border rounded-full"
@@ -173,16 +122,16 @@ export default function LandingPage() {
 
       {/* Services */}
       <ServicesSection />
-
+      
       {/* Photos slideshow */}
-      <ShowcaseSection />
-
+      <DormDigest /> 
+      
       {/* How it works section */}
       <HowItWorks />
-
+      
       {/* Testimonials */}
       <TestimonialsSection />
-
+      
       {/* Get Started with orange section */}
       <CTASection />
 
@@ -191,12 +140,9 @@ export default function LandingPage() {
         className="py-10 px-8 text-center text-xs font-(family-name:--font-geist-mono) leading-relaxed space-y-1"
         style={{ backgroundColor: colors.light_blue, color: colors.cream }}
       >
-        <p>© 2026 UPLB CASA</p>
+        <p>© 2026 Website Name</p>
         <p>University of the Philippines Los Baños AY 2025-2026</p>
-        <p>
-          In partial fulfillment of the requirements for CMSC 128: Software
-          Engineering
-        </p>
+        <p>In partial fulfillment of the requirements for CMSC 128: Software Engineering</p>
       </footer>
     </div>
   );
