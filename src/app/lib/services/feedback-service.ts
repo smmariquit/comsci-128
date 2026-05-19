@@ -45,11 +45,21 @@ const getAllByManagerId = async (managerId: number, sortList: any[] = [], filter
         console.error("Service Error (getAllByManagerId): ", error);
         return [];
     }
-};
+}
+
+const getAllByHousingId = async (housingId: number, sortList: any[] = [], filterList: any[] = []) => {
+    try {
+        return await feedbackData.getAllByHousingId(housingId, sortList, filterList);
+    } catch (error) {
+        console.error("Service Error (getAllByHousingId): ", error);
+        return [];
+    }
+}
 
 export const feedbackService = {
     createFeedback,
     findFeedbackById,
     fetchAllFeedback,
-    getAllByManagerId
+    getAllByManagerId,
+    getAllByHousingId
 };
