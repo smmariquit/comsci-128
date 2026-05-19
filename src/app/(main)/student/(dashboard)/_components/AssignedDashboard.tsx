@@ -1,4 +1,5 @@
 import StudentBillingHistory from "@/app/components/student/StudentBillingHistory";
+import { Check } from "lucide-react";
 
 export default function AssignedDashboard(
   userName: String,
@@ -16,20 +17,13 @@ export default function AssignedDashboard(
   const steps = Array.isArray(userHousingDetails?.steps)
     ? userHousingDetails.steps
     : [];
-  const status = application?.application_status || "Assigned";
-  const isTransient = (() => {
-    if (!application?.expected_moveout_date || !application?.created_at) return false;
-    const start = new Date(application.created_at);
-    const end = new Date(application.expected_moveout_date);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 30;
-  })();
-
   const unpaidBills = billing.filter(
     (bill: any) => bill.status === "Unpaid" || bill.status === "Pending",
   );
+  const status = application?.application_status || "No active applications";
   const latestBill = billing[0];
+
+
   const completedSteps = steps.filter((step: any) => step.isDone).length;
   const stepLabels = steps.length
     ? steps.map((step: any) => step.label)
@@ -43,19 +37,10 @@ export default function AssignedDashboard(
   const label = "text-xs uppercase tracking-wide text-[#567375] font-semibold";
   const value = "text-sm text-[#111820]";
 
-  const statusTone = (() => {
-    if (status === "Approved") return "bg-green-100 text-green-800 border-green-200";
-    if (status === "Rejected") return "bg-red-100 text-red-800 border-red-200";
-    if (status === "Pending Manager Approval") {
-      return "bg-amber-100 text-amber-800 border-amber-200";
-    }
-    return "bg-blue-100 text-blue-800 border-blue-200";
-  })();
-
   const stepTone = (index: number, done: boolean) => {
     if (done) return "bg-[#8b3e15] text-white border-[#8b3e15]";
-    if (index === completedSteps) return "bg-[#f1e4d7] text-[#8b3e15] border-[#d7c4b4]";
-    return "bg-white text-[#567375] border-[#d9d2c4]";
+    if (index === completedSteps) return "bg-[#f1e4d7] text-[#8b3e15] border-[#d7c4b4] ring-2 ring-[#8b3e15]/20";
+    return "bg-[#fcfcfb] text-[#a0abac] border-dashed border-[#d9d2c4]";
   };
 
   return (
@@ -64,16 +49,7 @@ export default function AssignedDashboard(
         <section className={card}>
           <div className={cardHeader}>
             <h2 className={cardTitle}>Status Overview</h2>
-            <div className="flex items-center gap-2">
-              {isTransient && (
-                <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold uppercase tracking-wide border border-purple-200 shadow-sm animate-pulse">
-                  ⚡ Transient Guest
-                </span>
-              )}
-              <span className={`px-2.5 py-0.5 rounded-full border text-xs ${statusTone}`}>
-                {status}
-              </span>
-            </div>
+            <span className="text-xs text-[#567375]">{status}</span>
           </div>
           <div className="p-4 space-y-4">
             <div className="flex items-center justify-between gap-3 text-sm">
@@ -87,6 +63,7 @@ export default function AssignedDashboard(
               <div className="grid grid-cols-4 gap-2">
                 {stepLabels.map((labelText: string, index: number) => {
                   const done = index < completedSteps || (status === "Assigned" && index === stepLabels.length - 1);
+                  const isActive = index === completedSteps && !done;
                   return (
                     <div key={labelText} className="relative flex flex-col items-center gap-2 text-center">
                       <div
@@ -95,9 +72,15 @@ export default function AssignedDashboard(
                           done,
                         )}`}
                       >
-                        <span className="text-[11px] font-bold">{index + 1}</span>
+                        {done ? (
+                          <Check className="h-4.5 w-4.5 stroke-[3]" />
+                        ) : (
+                          <span className={`text-[11px] font-bold ${isActive ? "text-[#8b3e15]" : "text-[#a0abac]"}`}>
+                            {index + 1}
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[11px] font-semibold leading-tight text-[#1C2632]">
+                      <div className={`text-[11px] font-semibold leading-tight ${done ? "text-[#1C2632]" : isActive ? "text-[#8b3e15] font-bold" : "text-[#a0abac]"}`}>
                         {labelText}
                       </div>
                     </div>

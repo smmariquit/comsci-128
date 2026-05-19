@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleAlert, CircleCheckBig } from "lucide-react";
+import { Check } from "lucide-react";
 import StudentBillingHistory from "@/app/components/student/StudentBillingHistory";
 
 export default function NotAssignedDashboard(
@@ -50,8 +50,8 @@ export default function NotAssignedDashboard(
 
   const stepTone = (index: number, done: boolean) => {
     if (done) return "bg-[#8b3e15] text-white border-[#8b3e15]";
-    if (index === completedSteps) return "bg-[#f1e4d7] text-[#8b3e15] border-[#d7c4b4]";
-    return "bg-white text-[#567375] border-[#d9d2c4]";
+    if (index === completedSteps) return "bg-[#f1e4d7] text-[#8b3e15] border-[#d7c4b4] ring-2 ring-[#8b3e15]/20";
+    return "bg-[#fcfcfb] text-[#a0abac] border-dashed border-[#d9d2c4]";
   };
 
   return (
@@ -81,8 +81,7 @@ export default function NotAssignedDashboard(
               <div className="grid grid-cols-4 gap-2">
                 {stepLabels.map((labelText: string, index: number) => {
                   const done = index < completedSteps;
-                  const icon = done ? CircleCheckBig : CircleAlert;
-                  const Icon = icon;
+                  const isActive = index === completedSteps && !done;
                   return (
                     <div key={labelText} className="relative flex flex-col items-center gap-2 text-center">
                       <div
@@ -91,9 +90,15 @@ export default function NotAssignedDashboard(
                           done,
                         )}`}
                       >
-                        <Icon className="h-4 w-4" strokeWidth={2.4} />
+                        {done ? (
+                          <Check className="h-4.5 w-4.5 stroke-[3]" />
+                        ) : (
+                          <span className={`text-[11px] font-bold ${isActive ? "text-[#8b3e15]" : "text-[#a0abac]"}`}>
+                            {index + 1}
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[11px] font-semibold leading-tight text-[#1C2632]">
+                      <div className={`text-[11px] font-semibold leading-tight ${done ? "text-[#1C2632]" : isActive ? "text-[#8b3e15] font-bold" : "text-[#a0abac]"}`}>
                         {labelText}
                       </div>
                     </div>
@@ -103,6 +108,7 @@ export default function NotAssignedDashboard(
             </div>
           </div>
         </section>
+
 
         <section className={card}>
           <div className={cardHeader}>
