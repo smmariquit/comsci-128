@@ -14,7 +14,7 @@ export interface User {
 	name: string;
 	gender: string;
 	email: string;
-	role: 'Landlord' | 'Dorm Manager' | 'Student' | string;
+	role: 'Landlord' | 'Housing Administrator' | 'Student' | string;
 	status: 'Active' | 'Disabled' | string;
 	managerType?: string;
 	dormitory: string;
@@ -101,7 +101,6 @@ export default function UserManagementPage({
 				const dormData = await dormResponse.json();
 				const landlordData = await landlordResponse.json();
 				const housingAdminData = await housingAdminResponse.json();
-				
 
 				const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
 				const rawHousingAdmins = Array.isArray(housingAdminData) ? housingAdminData : housingAdminData.data?.data ?? [];
@@ -367,7 +366,7 @@ export default function UserManagementPage({
 										onClick={() => setEditingUser(u)}
 										className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
 										>
-										Edit
+										Promote
 									</button>
 																			
                   <button
@@ -461,6 +460,26 @@ export default function UserManagementPage({
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
 				});
+
+				// update only if there is a dorm selected
+				if (dorm?.id) {
+				const housingUpdate = await fetch(`/api/housing/${dorm.id}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(
+					role === "Landlord"
+						? { landlord_account_number: userId }
+						: role === "Housing Administrator"
+						? { manager_account_number: userId }
+						: {}
+					),
+				});
+
+				if (!housingUpdate.ok) {
+					console.error("Failed to update housing assignment");
+				}
+				}
+
 
 				// 3. Update UI
 				setUsers((prev) =>
