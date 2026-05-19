@@ -181,25 +181,47 @@ export default function BillingPage() {
   const [managedHousings, setManagedHousings] = useState<
     { housing_id: number; housing_name: string }[]
   >([]);
+  const [managerAccountNumber, setManagerAccountNumber] = useState<number>(0);
 
   // ── Fetch Data ─────────────────────────────────────────────────────────
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
     const accountNumber = match ? Number(decodeURIComponent(match[1])) : 0;
+    setManagerAccountNumber(accountNumber);
 
-    if (!accountNumber) return;
-    housingData.findbyLandlord(accountNumber).then((housings) => {
-      setManagedHousings(housings);
-      setManagedHousingIds(housings.map((h) => h.housing_id));
-    });
+    if (!accountNumber) {
+      setIsLoading(false);
+      setPageError("Unable to identify account. Please sign in again.");
+      return;
+    }
+
+    housingData
+      .findbyLandlord(accountNumber)
+      .then((housings) => {
+        setManagedHousings(housings);
+        setManagedHousingIds(housings.map((h) => h.housing_id));
+        if (housings.length === 0) {
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load managed housings:", error);
+        setPageError("Failed to load managed properties.");
+        setIsLoading(false);
+      });
   }, []);
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    if (managedHousingIds.length > 0) loadBills();
+    if (managedHousingIds.length > 0) {
+      loadBills();
+      return;
+    }
+
+    setIsLoading(false);
   }, [managedHousingIds]);
 
   async function loadBills() {
@@ -405,6 +427,7 @@ export default function BillingPage() {
             due_date: form.due_date,
             issue_date: form.issue_date,
             status: "Pending",
+            manager_account_number: managerAccountNumber,
           });
         });
 

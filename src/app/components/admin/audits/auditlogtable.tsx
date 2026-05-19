@@ -147,7 +147,7 @@ export default function AuditLogTable({ data, onView }: Props) {
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: 2,
+        gap: 12,
       }}
     >
       {/* Header */}

@@ -8,6 +8,7 @@ import { Camera, ChevronDown, LogOut, Pencil } from "lucide-react";
 import LogoutModal from "../../../../components/LogoutModal";
 import AvatarUploadModal from "../../../../components/AvatarUploadModal";
 import StateMessage from "@/app/components/ui/state-message";
+import AccountSettings from "@/app/components/ui/AccountSettings";
 import { deleteCookie } from "@/app/lib/utils";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
@@ -316,6 +317,7 @@ export default function StudentProfilePage() {
               "Personal Information",
               "Emergency Contact",
               "Academic Information",
+              "Account Settings",
             ].map((tab) => (
               <button
                 key={tab}
@@ -484,6 +486,7 @@ export default function StudentProfilePage() {
               </div>
             </div>
           )}
+          {activeTab === "Account Settings" && <AccountSettings />}
         </section>
       </main>
 

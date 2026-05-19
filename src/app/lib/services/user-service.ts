@@ -45,7 +45,14 @@ function normalizeGoogleProfile(googleUser: any): GoogleProfile {
   return { email, googleIdentity, firstName, lastName };
 }
 
-const addUser = async (userDetails: NewUser): Promise<User> => {
+type AddUserOptions = {
+  authUserAlreadyCreated?: boolean;
+};
+
+const addUser = async (
+  userDetails: NewUser,
+  options: AddUserOptions = {},
+): Promise<User> => {
   try {
     const { account_email, first_name, last_name, password } = userDetails;
 
@@ -57,19 +64,41 @@ const addUser = async (userDetails: NewUser): Promise<User> => {
     if (!account_email) throw new Error("Email is required.");
     if (!first_name) throw new Error("First name is required.");
     if (!last_name) throw new Error("Last name is required.");
-    if (!password) throw new Error("Password is required");
+    if (!password && !options.authUserAlreadyCreated) {
+      throw new Error("Password is required");
+    }
 
-    const { data: authData, error: authError } =
-      await supabaseAdmin.auth.admin.createUser({
-        email: account_email,
-        password: password,
-        email_confirm: true,
-      });
+    if (options.authUserAlreadyCreated) {
+      const { data: authUsers, error: listError } =
+        await supabaseAdmin.auth.admin.listUsers({
+          page: 1,
+          perPage: 1000,
+        });
 
-    if (authError || !authData.user) {
-      throw new Error(
-        `Auth creation failed: ${authError?.message || "Unknown error"}`,
+      if (listError) {
+        throw new Error(`Auth lookup failed: ${listError.message}`);
+      }
+
+      const authUserExists = authUsers.users.some(
+        (user) => user.email?.toLowerCase() === account_email.toLowerCase(),
       );
+
+      if (!authUserExists) {
+        throw new Error("Email confirmation must be started before signup.");
+      }
+    } else {
+      const { data: authData, error: authError } =
+        await supabaseAdmin.auth.admin.createUser({
+          email: account_email,
+          password: password ?? undefined,
+          email_confirm: true,
+        });
+
+      if (authError || !authData.user) {
+        throw new Error(
+          `Auth creation failed: ${authError?.message || "Unknown error"}`,
+        );
+      }
     }
 
     // set user type to Student (default)
@@ -150,10 +179,7 @@ const updateUser = async (
       `User ${label} updated details`,
     );
 
-    const {
-      password: __,
-      ...publicInfo
-    } = updatedUser;
+    const { password: __, ...publicInfo } = updatedUser;
     return { data: publicInfo };
   } catch (error: any) {
     console.error("Error: ", error.message);
@@ -172,14 +198,14 @@ const deactivateUser = async (
     if (!updatedUser) return null;
 
     const { password, ...publicInfo } = updatedUser;
-    
+
     const userName = formatUserName(updatedUser);
     const label = userName || updatedUser.account_email || "Unknown user";
     await createAuditLog(
-        updatedUser.account_number!,
-        userName,
-        "Delete Account",
-        `User ${label} deactivated`,
+      updatedUser.account_number!,
+      userName,
+      "Delete Account",
+      `User ${label} deactivated`,
     );
 
     return publicInfo;

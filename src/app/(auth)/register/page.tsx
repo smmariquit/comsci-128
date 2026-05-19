@@ -5,44 +5,66 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
 import PageLoading from "@/app/components/ui/page-loading";
-import { useAutoSave } from "@/app/hooks/useAutoSave";
-import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
+import { Eye, EyeOff } from "lucide-react";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 export default function RegisterPage() {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
-  const [form, setForm, clearSaved, _hasSavedData, saveState] = useAutoSave(
-    "casa-register",
-    {
-      first_name: "",
-      middle_name: "",
-      last_name: "",
-      email: "",
-      birthday: "",
-      home_address: "",
-      phone_number: "",
-      contact_email: "",
-      sex: "",
-    }
-  );
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+    birthday: "",
+    home_address: "",
+    phone_number: "",
+    contact_email: "",
+    sex: "",
+  });
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [confirmationCode, setConfirmationCode] = useState("");
+  const [nameErrors, setNameErrors] = useState({
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+  });
+  const [passwordStrength, setPasswordStrength] = useState({
+    label: "Start typing",
+    bars: 0,
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [dpaRequired, setDpaRequired] = useState(true);
+  const draftKey = "register-form-draft";
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function getPasswordStrength(password: string) {
+    if (!password) return { label: "Start typing", bars: 0 };
+
+    const variety = [
+      /[a-z]/.test(password),
+      /[A-Z]/.test(password),
+      /\d/.test(password),
+      /[^A-Za-z0-9]/.test(password),
+    ].filter(Boolean).length;
+
+    if (password.length < 8) return { label: "Weak", bars: 1 };
+    if (variety <= 1) return { label: "Fair", bars: 2 };
+    if (variety === 2) return { label: "Good", bars: 3 };
+    return { label: "Strong", bars: 4 };
+  }
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const savedStep = localStorage.getItem("casa-register-step");
-    if (savedStep) {
-      const parsed = Number(savedStep);
-      if (!Number.isNaN(parsed) && parsed >= 1 && parsed <= 3) {
-        setStep(parsed);
-      }
-    }
-
     // Read dpa_required from system configuration cookies
     const match = document.cookie
       .split("; ")
@@ -50,14 +72,26 @@ export default function RegisterPage() {
     if (match) {
       setDpaRequired(match.split("=")[1] !== "false");
     }
-  }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("casa-register-step", String(step));
-  }, [step]);
+    const savedDraft = localStorage.getItem(draftKey);
 
-  useEffect(() => {
+    if (savedDraft) {
+      try {
+        const parsedDraft = JSON.parse(savedDraft);
+        if (parsedDraft.form) {
+          setForm((prev) => ({ ...prev, ...parsedDraft.form }));
+          if (parsedDraft.form.password) {
+            setPasswordStrength(getPasswordStrength(parsedDraft.form.password));
+          }
+        }
+        if (typeof parsedDraft.step === "number") {
+          setStep(parsedDraft.step);
+        }
+      } catch (err) {
+        console.error("Failed to parse register draft:", err);
+      }
+    }
+
     const googleData = sessionStorage.getItem("googleSignupData");
     if (googleData) {
       try {
@@ -81,61 +115,225 @@ export default function RegisterPage() {
     }
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem(
+      draftKey,
+      JSON.stringify({
+        form,
+        step,
+      }),
+    );
+  }, [draftKey, form, step]);
+
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setError("");
+    setStatus("");
+
+    if (name === "email") {
+      setEmailError(
+        value && !emailRegex.test(value) ? "Enter a valid email address." : "",
+      );
+    }
+
+    if (name === "password") {
+      setPasswordStrength(getPasswordStrength(value));
+    }
+
+    if (
+      name === "first_name" ||
+      name === "middle_name" ||
+      name === "last_name"
+    ) {
+      const trimmedValue = value.trim();
+      const hasLetter = /[a-zA-Z]/.test(trimmedValue);
+
+      setNameErrors((prev) => ({
+        ...prev,
+        [name]:
+          trimmedValue === ""
+            ? ""
+            : hasLetter
+              ? ""
+              : `${name
+                  .replace("_", " ")
+                  .replace(/\b\w/g, (letter) =>
+                    letter.toUpperCase(),
+                  )} must contain at least one letter.`,
+      }));
+    }
   }
 
   function validateNameFields(): boolean {
     // Name fields must contain at least one letter
     const hasLetter = (str: string) => /[a-zA-Z]/.test(str);
-    
-    if (!hasLetter(form.first_name.trim())) {
+    const nextErrors = {
+      first_name: hasLetter(form.first_name.trim())
+        ? ""
+        : "First name must contain at least one letter.",
+      middle_name:
+        form.middle_name.trim() === "" || hasLetter(form.middle_name.trim())
+          ? ""
+          : "Middle name must contain at least one letter.",
+      last_name: hasLetter(form.last_name.trim())
+        ? ""
+        : "Last name must contain at least one letter.",
+    };
+
+    setNameErrors(nextErrors);
+
+    if (nextErrors.first_name) {
       setError("First name must contain at least one letter.");
       return false;
     }
-    
-    if (form.middle_name && !hasLetter(form.middle_name.trim())) {
+
+    if (nextErrors.middle_name) {
       setError("Middle name must contain at least one letter.");
       return false;
     }
-    
-    if (!hasLetter(form.last_name.trim())) {
+
+    if (nextErrors.last_name) {
       setError("Last name must contain at least one letter.");
       return false;
     }
-    
+
     setError("");
     return true;
+  }
+
+  function validateStepOne(): boolean {
+    if (!validateNameFields()) {
+      return false;
+    }
+
+    if (!form.email.trim()) {
+      setEmailError("Email is required.");
+      setError("Email is required.");
+      return false;
+    }
+
+    if (!emailRegex.test(form.email.trim())) {
+      setEmailError("Enter a valid email address.");
+      setError("Enter a valid email address.");
+      return false;
+    }
+
+    if (!form.password) {
+      setError("Password is required.");
+      return false;
+    }
+
+    if (passwordStrength.bars < 3) {
+      setError("Use at least 8 characters with a mix of letters and numbers.");
+      return false;
+    }
+
+    if (form.password !== form.confirm_password) {
+      setError("Passwords do not match.");
+      return false;
+    }
+
+    setError("");
+    return true;
+  }
+
+  async function handleConfirmEmail(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setStatus("");
+
+    const token = confirmationCode.trim();
+    if (!token) {
+      setError("Enter the confirmation code from your email.");
+      return;
+    }
+
+    setLoading(true);
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email: form.email.trim(),
+      token,
+      type: "email",
+    });
+
+    if (verifyError) {
+      setError(verifyError.message);
+      setLoading(false);
+      return;
+    }
+
+    await supabase.auth.signOut();
+    localStorage.removeItem(draftKey);
+    router.push("/login");
+  }
+
+  async function handleResendCode() {
+    setError("");
+    setStatus("");
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email: form.email.trim(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
+    });
+
+    if (resendError) {
+      setError(resendError.message);
+      return;
+    }
+
+    setStatus("A new confirmation code was sent.");
   }
 
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
-    
+
     if (dpaRequired && !privacyAgreed) {
       setError("Please check the box to agree with the Data Privacy Act compliance terms.");
       return;
     }
 
+    setStatus("");
     setLoading(true);
     try {
       const endpoint = googleSignupPending ? "/api" : "/api/student";
       const payload = {
-        account_email: form.email,
+        account_email: form.email.trim(),
         first_name: form.first_name,
         middle_name: form.middle_name || null,
         last_name: form.last_name,
-        password,
+        password: form.password,
         birthday: form.birthday || null,
         home_address: form.home_address || null,
         phone_number: form.phone_number || null,
         contact_email: form.contact_email || null,
         sex: form.sex || "Prefer not to say",
         ...(googleSignupPending ? { googleSignup: true } : {}),
+        ...(!googleSignupPending ? { authUserAlreadyCreated: true } : {}),
       };
+
+      if (!googleSignupPending) {
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: form.email.trim(),
+          password: form.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/login`,
+            data: {
+              first_name: form.first_name,
+              last_name: form.last_name,
+            },
+          },
+        });
+
+        if (signUpError) {
+          throw signUpError;
+        }
+      }
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -150,6 +348,14 @@ export default function RegisterPage() {
       // Role-based redirection logic
       const profile = data.user;
       if (profile) {
+        if (!googleSignupPending) {
+          setStatus(
+            "Confirmation code sent. Check your email to finish signup.",
+          );
+          setStep(4);
+          return;
+        }
+
         const userType = profile.user_type?.toLowerCase();
 
         await supabase.auth.updateUser({
@@ -190,15 +396,15 @@ export default function RegisterPage() {
             target = "/manage";
           }
         }
-        clearSaved();
-        setPassword("");
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("casa-register-step");
-        }
         router.push(target);
+        localStorage.removeItem(draftKey);
       }
-    } catch (_err) {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -208,102 +414,203 @@ export default function RegisterPage() {
     return <PageLoading label="Registering..." />;
   }
 
+  const canContinueStepOne =
+    form.first_name.trim() !== "" &&
+    form.last_name.trim() !== "" &&
+    form.email.trim() !== "" &&
+    form.password !== "" &&
+    form.confirm_password !== "" &&
+    form.password === form.confirm_password &&
+    passwordStrength.bars >= 3 &&
+    !nameErrors.first_name &&
+    !nameErrors.middle_name &&
+    !nameErrors.last_name &&
+    !emailError;
+
   return (
-    <div
-      className="relative w-full min-h-screen flex items-center justify-center"
-      style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div
-        className="absolute inset-0 bg-[#0f1418]/72 backdrop-blur-md"
-        aria-hidden="true"
-      />
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
       <form
-        className="relative z-10 w-full max-w-md flex flex-col gap-4 rounded-3xl border border-white/10 bg-[#111820]/88 p-10 shadow-2xl backdrop-blur-sm"
+        className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
         onSubmit={
           step === 3
             ? handleRegister
-            : (e) => {
-                e.preventDefault();
-                if (step === 1 && !validateNameFields()) {
-                  return;
+            : step === 4
+              ? handleConfirmEmail
+              : (e) => {
+                  e.preventDefault();
+                  if (step === 1 && !validateStepOne()) {
+                    return;
+                  }
+                  setStep(step + 1);
                 }
-                setStep(step + 1);
-              }
         }
         autoComplete="off"
       >
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
-          Create your account
+          Sign up
         </h2>
         {error && <div className="text-red-400 text-center">{error}</div>}
-        <AutosaveStatus saveState={saveState} className="mx-auto" />
+        {status && (
+          <div className="text-orange-300 text-center text-sm">{status}</div>
+        )}
 
         {step === 1 && (
           <>
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
-              type="text"
-              name="first_name"
-              placeholder="First name"
-              value={form.first_name}
-              onChange={handleChange}
-              required
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
-              type="text"
-              name="middle_name"
-              placeholder="Middle name (optional)"
-              value={form.middle_name}
-              onChange={handleChange}
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
-              type="text"
-              name="last_name"
-              placeholder="Last name"
-              value={form.last_name}
-              onChange={handleChange}
-              required
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div>
+              <input
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+                  nameErrors.first_name ? "border-red-500" : "border-stone-200"
+                }`}
+                type="text"
+                name="first_name"
+                placeholder="First name"
+                value={form.first_name}
+                onChange={handleChange}
+                required
+              />
+              {nameErrors.first_name && (
+                <p className="text-red-400 text-sm mt-1">
+                  {nameErrors.first_name}
+                </p>
+              )}
+            </div>
+            <div>
+              <input
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+                  nameErrors.middle_name ? "border-red-500" : "border-stone-200"
+                }`}
+                type="text"
+                name="middle_name"
+                placeholder="Middle name (optional)"
+                value={form.middle_name}
+                onChange={handleChange}
+              />
+              {nameErrors.middle_name && (
+                <p className="text-red-400 text-sm mt-1">
+                  {nameErrors.middle_name}
+                </p>
+              )}
+            </div>
+            <div>
+              <input
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+                  nameErrors.last_name ? "border-red-500" : "border-stone-200"
+                }`}
+                type="text"
+                name="last_name"
+                placeholder="Last name"
+                value={form.last_name}
+                onChange={handleChange}
+                required
+              />
+              {nameErrors.last_name && (
+                <p className="text-red-400 text-sm mt-1">
+                  {nameErrors.last_name}
+                </p>
+              )}
+            </div>
+            <div>
+              <input
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+                  emailError ? "border-red-500" : "border-stone-200"
+                }`}
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+              <div className="mt-1 text-xs">
+                <span
+                  className={emailError ? "text-red-400" : "text-stone-400"}
+                >
+                  {form.email === ""
+                    ? "Type an email address"
+                    : emailError || "Email looks valid"}
+                </span>
+              </div>
+            </div>
+            <div>
+              <div className="relative">
+                <input
+                  className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              <div className="mt-2 space-y-2">
+                <div className="flex items-center justify-between text-xs text-stone-400">
+                  <span>Password strength</span>
+                  <span className="font-medium text-orange-300">
+                    {passwordStrength.label}
+                  </span>
+                </div>
+                <div className="flex gap-1.5">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-1.5 flex-1 rounded-full transition-colors ${
+                        index < passwordStrength.bars
+                          ? "bg-orange-300"
+                          : "bg-stone-600"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="relative mt-2">
+                <input
+                  className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirm_password"
+                  placeholder="Confirm password"
+                  value={form.confirm_password}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
           </>
         )}
 
         {step === 2 && (
           <>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider ml-1">Birthday</label>
+              <ThemedDatePicker
+                id="birthday"
+                value={form.birthday}
+                onChange={(val) => handleChange({ target: { name: "birthday", value: val } } as any)}
+                maxDate={new Date().toISOString().split("T")[0]}
+                placeholder="Select your birthday"
+                className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200 w-full"
+              />
+            </div>
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
-              type="date"
-              name="birthday"
-              placeholder="Birthday"
-              value={form.birthday}
-              onChange={handleChange}
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
               type="text"
               name="home_address"
               placeholder="Home address"
@@ -311,7 +618,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
               type="text"
               name="phone_number"
               placeholder="Phone number"
@@ -319,7 +626,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
               type="email"
               name="contact_email"
               placeholder="Contact email (optional)"
@@ -327,7 +634,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <select
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
               name="sex"
               value={form.sex}
               onChange={handleChange}
@@ -341,36 +648,48 @@ export default function RegisterPage() {
         )}
 
         {step === 3 && (
-          <div className="text-stone-200 space-y-4">
-            <div className="space-y-2 bg-gray-800/40 p-4 rounded-xl border border-white/5">
-              <div>
-                <b>First name:</b> {form.first_name}
-              </div>
-              {form.middle_name && (
-                <div>
-                  <b>Middle name:</b> {form.middle_name}
+          <div className="space-y-4 text-stone-200">
+            <div className="rounded-2xl border border-stone-500/60 bg-gray-700/50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-orange-300">
+                Review profile
+              </p>
+              <div className="mt-3 grid gap-3 text-sm">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-stone-400">Name</span>
+                  <span className="text-right font-medium text-stone-100">
+                    {[form.first_name, form.middle_name, form.last_name]
+                      .filter(Boolean)
+                      .join(" ")}
+                  </span>
                 </div>
-              )}
-              <div>
-                <b>Last name:</b> {form.last_name}
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-stone-400">Email</span>
+                  <span className="text-right font-medium text-stone-100">
+                    {form.email}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-stone-400">Birthday</span>
+                  <span className="text-right font-medium text-stone-100">
+                    {form.birthday || "Not provided"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-stone-400">Sex</span>
+                  <span className="text-right font-medium text-stone-100">
+                    {form.sex || "Prefer not to say"}
+                  </span>
+                </div>
               </div>
-              <div>
-                <b>Email:</b> {form.email}
-              </div>
-              <div>
-                <b>Birthday:</b> {form.birthday}
-              </div>
-              <div>
-                <b>Home address:</b> {form.home_address}
-              </div>
-              <div>
-                <b>Phone number:</b> {form.phone_number}
-              </div>
-              <div>
-                <b>Contact email:</b> {form.contact_email}
-              </div>
-              <div>
-                <b>Sex:</b> {form.sex || "Prefer not to say"}
+            </div>
+            <div className="rounded-2xl border border-stone-500/40 bg-gray-900/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-stone-400">
+                Contact details
+              </p>
+              <div className="mt-3 grid gap-2 text-sm text-stone-200">
+                <p>{form.home_address || "No home address provided"}</p>
+                <p>{form.phone_number || "No phone number provided"}</p>
+                <p>{form.contact_email || "No contact email provided"}</p>
               </div>
             </div>
 
@@ -393,6 +712,37 @@ export default function RegisterPage() {
           </div>
         )}
 
+        {step === 4 && (
+          <div className="space-y-4 text-stone-200">
+            <div className="rounded-2xl border border-orange-300/50 bg-orange-300/10 p-4">
+              <p className="text-sm font-semibold text-orange-200">
+                Confirm your email
+              </p>
+              <p className="mt-2 text-sm leading-6 text-stone-300">
+                We sent a confirmation code to {form.email}. Enter it here to
+                verify the account before signing in.
+              </p>
+            </div>
+            <input
+              className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              type="text"
+              inputMode="numeric"
+              placeholder="Confirmation code"
+              value={confirmationCode}
+              onChange={(event) => setConfirmationCode(event.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="text-sm font-semibold text-orange-300 underline underline-offset-4"
+              onClick={handleResendCode}
+              disabled={loading}
+            >
+              Resend code
+            </button>
+          </div>
+        )}
+
         <div className="flex gap-2 mt-4">
           {step > 1 && (
             <button
@@ -407,9 +757,14 @@ export default function RegisterPage() {
           {step < 3 && (
             <button
               type="button"
-              className="flex-1 bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition"
-              onClick={() => setStep(step + 1)}
-              disabled={loading}
+              className="flex-1 bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={() => {
+                if (step === 1 && !validateStepOne()) {
+                  return;
+                }
+                setStep(step + 1);
+              }}
+              disabled={loading || (step === 1 && !canContinueStepOne)}
             >
               Next
             </button>
@@ -421,6 +776,15 @@ export default function RegisterPage() {
               disabled={loading}
             >
               {loading ? "Registering..." : "Submit"}
+            </button>
+          )}
+          {step === 4 && (
+            <button
+              type="submit"
+              className="flex-1 bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition"
+              disabled={loading}
+            >
+              Confirm email
             </button>
           )}
         </div>
