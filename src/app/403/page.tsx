@@ -222,8 +222,8 @@ export default function ForbiddenPage() {
         @media (max-width: 480px) {
           .r-403     { font-size: 80px !important; line-height: 80px !important; }
           .r-heading { font-size: 22px !important; }
-          .r-desc    { font-size: 12px !important; }
-          .r-foot    { font-size: 10px !important; }
+          .r-desc    { font-size: 13px !important; }
+          .r-foot    { font-size: 13px !important; }
         }
       `}</style>
 
@@ -439,7 +439,7 @@ export default function ForbiddenPage() {
               style={{
                 textAlign: "center",
                 color: "rgba(255,255,255,0.55)",
-                fontSize: 12,
+                fontSize: 13,
                 fontFamily: "DM Mono, monospace",
                 fontWeight: 400,
                 lineHeight: "21.6px",

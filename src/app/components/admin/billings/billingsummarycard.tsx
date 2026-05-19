@@ -46,7 +46,7 @@ function Card({ label, value }: { label: string; value: any }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <div style={{ fontSize: 10, color: C.teal }}>{label}</div>
+      <div style={{ fontSize: 13, color: C.teal }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: 600, color: C.navy }}>
         {value}
       </div>

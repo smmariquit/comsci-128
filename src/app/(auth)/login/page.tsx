@@ -93,6 +93,18 @@ export default function LoginPage() {
         setCookie("account_number", String(profile.account_number), 1);
         setCookie("is_logged_in", "true", 1);
 
+        // Record successful login event in the system audit logs for WCAG Compliance auditability
+        fetch("/api/auth/log-event", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "Auth Login",
+            description: "User logged in with email and password",
+          }),
+        }).catch((err) => console.error("Failed to log login event:", err));
+
         let target = "/";
 
         if (userType === "student") {
@@ -137,14 +149,26 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+    <div
+      className="relative w-full min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div
+        className="absolute inset-0 bg-[#0f1418]/72 backdrop-blur-md"
+        aria-hidden="true"
+      />
       <form
-        className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
+        className="relative z-10 w-full max-w-md flex flex-col gap-4 rounded-3xl border border-white/10 bg-[#111820]/88 p-10 shadow-2xl backdrop-blur-sm"
         onSubmit={handleSubmit}
         autoComplete="off"
       >
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
-          Login
+          Welcome back
         </h2>
         {status && (
           <div
@@ -160,6 +184,7 @@ export default function LoginPage() {
             }`}
             type="email"
             name="email"
+            aria-label="Email address"
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
@@ -175,6 +200,7 @@ export default function LoginPage() {
               className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
               type={showPassword ? "text" : "password"}
               name="password"
+              aria-label="Password"
               placeholder="Password"
               value={form.password}
               onChange={handleChange}

@@ -27,7 +27,7 @@ const T = {
 // ── Shared style constants ────────────────────────────────────────────────────
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10.5,
+  fontSize: 13,
   fontFamily: "'DM Sans', sans-serif",
   fontWeight: 600,
   color: T.teal,
@@ -182,7 +182,7 @@ function SectionDivider({ label }: { label: string }) {
     >
       <span
         style={{
-          fontSize: 10,
+          fontSize: 13,
           fontWeight: 700,
           color: T.teal,
           textTransform: "uppercase",
@@ -421,7 +421,7 @@ export default function IssueBillModal({
             >
               Issue a Bill
             </div>
-            <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>
+            <div style={{ fontSize: 13, color: "#7a9ea0", marginTop: 3 }}>
               Generate a new billing record for a tenant
             </div>
           </div>
@@ -516,7 +516,7 @@ export default function IssueBillModal({
                 value={today}
                 style={readonlyStyle}
               />
-              <span style={{ fontSize: 10.5, color: T.teal, marginTop: 5 }}>
+              <span style={{ fontSize: 13, color: T.teal, marginTop: 5 }}>
                 Auto-set to today
               </span>
             </div>
@@ -542,7 +542,7 @@ export default function IssueBillModal({
                 {/* Index */}
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: 700,
                     color: T.teal,
                     width: 18,
@@ -700,7 +700,7 @@ export default function IssueBillModal({
               onClick={addCharge}
               style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 padding: "10px 0",
                 borderRadius: 10,
@@ -745,7 +745,7 @@ export default function IssueBillModal({
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  fontSize: 12,
+                  fontSize: 13,
                   color: T.teal,
                 }}
               >
@@ -772,7 +772,7 @@ export default function IssueBillModal({
             >
               <span
                 style={{
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: 700,
                   color: T.navy,
                   textTransform: "uppercase",
@@ -800,7 +800,7 @@ export default function IssueBillModal({
             {!isValid && (
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 13,
                   color: T.orange,
                   display: "flex",
                   alignItems: "center",
@@ -840,7 +840,7 @@ export default function IssueBillModal({
             background: "#faf9f7",
           }}
         >
-          <span style={{ fontSize: 11, color: T.teal }}>
+          <span style={{ fontSize: 13, color: T.teal }}>
             {isSubmitting
               ? "Issuing bills..."
               : validCharges.length > 0
@@ -893,7 +893,7 @@ function DetailRow({
     >
       <span
         style={{
-          fontSize: 10.5,
+          fontSize: 13,
           fontWeight: 600,
           color: T.teal,
           textTransform: "uppercase",
@@ -975,7 +975,7 @@ export function ViewBillModal({
             <div style={{ fontSize: 16, fontWeight: 700, color: "#f5f3ef" }}>
               #{String(bill.transaction_id).padStart(6, "0")}
             </div>
-            <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>
+            <div style={{ fontSize: 13, color: "#7a9ea0", marginTop: 3 }}>
               Bill Details
             </div>
           </div>
@@ -1020,7 +1020,7 @@ export function ViewBillModal({
           />
           <span
             style={{
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 700,
               color: s.text,
               textTransform: "uppercase",

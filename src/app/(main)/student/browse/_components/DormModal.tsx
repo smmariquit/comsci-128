@@ -25,6 +25,8 @@ interface DormModalProps {
     has_security: boolean;
     has_utilities_included: boolean;
     image?: string | null;
+    raw_start?: string | null;
+    raw_end?: string | null;
   } | null;
   onClose: () => void;
   onViewMap?: () => void;
@@ -55,6 +57,7 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
       role="dialog"
       aria-modal="true"
       aria-label={`${dorm.name} details`}
+      aria-describedby="dorm-modal-details"
       ref={modalRef}
       tabIndex={-1}
     >
@@ -64,9 +67,10 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
         {/* Close Button */}
         <button
           onClick={onClose}
+          aria-label="Close housing details"
           className="absolute top-4 right-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-colors"
         >
-          <X size={20} strokeWidth={2.5} />
+          <X size={20} strokeWidth={2.5} aria-hidden="true" />
         </button>
 
         {/* LEFT SECTION: Image and Overlay */}
@@ -91,24 +95,24 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
         </div>
 
         {/* RIGHT SECTION: Details */}
-        <div className="p-8 md:p-10 font-[family-name:var(--font-geist-mono)] text-[14px] text-[#1C2632] flex-1 flex flex-col justify-center">
+        <div id="dorm-modal-details" className="p-8 md:p-10 font-[family-name:var(--font-geist-mono)] text-sm text-[#111820] flex-1 flex flex-col justify-center">
           
           <div className="space-y-3 mb-6">
             <div className="flex gap-2">
               <span className="font-bold min-w-[120px]">Address:</span>
-              <span className="text-[#1C2632]/80">{dorm.address}</span>
+              <span className="text-[#2f4a4c]">{dorm.address}</span>
             </div>
             <div className="flex gap-2">
               <span className="font-bold min-w-[120px]">Housing Type:</span>
-              <span className="text-[#1C2632]/80">{dorm.housing_type}</span>
+              <span className="text-[#2f4a4c]">{dorm.housing_type}</span>
             </div>
             <div className="flex gap-2">
               <span className="font-bold min-w-[120px]">Price:</span>
-              <span className="text-[#1C2632]/80 font-semibold text-[#C9642A]">₱{dorm.price}/month</span>
+              <span className="text-[#8b3e15] font-semibold">₱{dorm.price}/month</span>
             </div>
             <div className="flex gap-2">
               <span className="font-bold min-w-[120px]">Applications:</span>
-              <span className="text-[#1C2632]/80">
+              <span className="text-[#2f4a4c]">
                 {dorm.appli_start} — {dorm.appli_end}
               </span>
             </div>
@@ -116,41 +120,81 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
 
           {/* Amenities Section */}
           <div className="pt-5 border-t border-gray-100">
-            <span className="block font-bold mb-3">Amenities provided:</span>
+            <span className="block font-bold mb-3 text-[#111820]">Amenities provided:</span>
             <div className="flex flex-wrap gap-2">
-              {dorm.has_wifi && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">WiFi</span>}
-              {dorm.has_aircon && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">Aircon</span>}
-              {dorm.is_furnished && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">Furnished</span>}
-              {dorm.has_kitchen && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">Kitchen</span>}
-              {dorm.has_laundry && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">Laundry</span>}
-              {dorm.has_parking && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">Parking</span>}
-              {dorm.has_security && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">Security</span>}
-              {dorm.has_utilities_included && <span className="px-2.5 py-1 rounded-md bg-[#8AABAC]/15 text-[#567375] font-semibold text-xs">Utilities Incl.</span>}
-              {dorm.has_no_curfew && <span className="px-2.5 py-1 rounded-md bg-[#C9642A]/15 text-[#C9642A] font-semibold text-xs">No Curfew</span>}
-              {dorm.allows_visitors && <span className="px-2.5 py-1 rounded-md bg-[#C9642A]/15 text-[#C9642A] font-semibold text-xs">Visitors Allowed</span>}
+              {dorm.has_wifi && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">WiFi</span>}
+              {dorm.has_aircon && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Aircon</span>}
+              {dorm.is_furnished && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Furnished</span>}
+              {dorm.has_kitchen && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Kitchen</span>}
+              {dorm.has_laundry && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Laundry</span>}
+              {dorm.has_parking && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Parking</span>}
+              {dorm.has_security && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Security</span>}
+              {dorm.has_utilities_included && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Utilities Incl.</span>}
+              {dorm.has_no_curfew && <span className="px-2.5 py-1 rounded-md bg-[#f2e3d7] text-[#8b3e15] font-semibold text-xs">No Curfew</span>}
+              {dorm.allows_visitors && <span className="px-2.5 py-1 rounded-md bg-[#f2e3d7] text-[#8b3e15] font-semibold text-xs">Visitors Allowed</span>}
               
               {!dorm.has_wifi && !dorm.has_aircon && !dorm.is_furnished && !dorm.has_kitchen && !dorm.has_laundry && !dorm.has_parking && !dorm.has_security && !dorm.has_utilities_included && !dorm.has_no_curfew && !dorm.allows_visitors && (
-                <span className="text-gray-400 text-sm italic">No amenities listed.</span>
+                <span className="text-[#2f4a4c] text-sm italic">No amenities listed.</span>
               )}
             </div>
           </div>
 
           {/* Action Button */}
-          <div className="flex justify-end pt-6 gap-3">
+          <div className="flex justify-end pt-6 gap-3 items-center">
             {onViewMap && (
               <button
                 onClick={onViewMap}
-                className="rounded-full bg-gray-100 px-6 py-2.5 font-bold text-[#1C2632] hover:bg-gray-200 transition-colors font-[family-name:var(--font-geist-sans)]"
+                className="rounded-full bg-gray-100 px-6 py-2.5 font-bold text-[#111820] hover:bg-gray-200 transition-colors font-[family-name:var(--font-geist-sans)]"
               >
                 View 3D Map
               </button>
             )}
-            <Link
-              href={`/student/browse/apply?id=${dorm.id}`} // Passing the ID via query param
-              className="rounded-full bg-[#C9642A] px-10 py-2.5 font-bold text-white transition-transform hover:scale-105 active:scale-95 font-[family-name:var(--font-geist-sans)]"
-            >
-              Apply
-            </Link>
+            {(() => {
+              const now = new Date();
+              let isNotStarted = false;
+              let isClosed = false;
+
+              if (dorm.raw_start) {
+                const startDate = new Date(dorm.raw_start);
+                startDate.setHours(0, 0, 0, 0);
+                if (now.getTime() < startDate.getTime()) {
+                  isNotStarted = true;
+                }
+              }
+
+              if (dorm.raw_end) {
+                const endDate = new Date(dorm.raw_end);
+                endDate.setHours(23, 59, 59, 999);
+                if (now.getTime() > endDate.getTime()) {
+                  isClosed = true;
+                }
+              }
+
+              if (isNotStarted) {
+                return (
+                  <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-200 px-6 py-2.5 font-bold text-xs flex items-center justify-center font-[family-name:var(--font-geist-sans)]">
+                    Not Started
+                  </span>
+                );
+              }
+
+              if (isClosed) {
+                return (
+                  <span className="rounded-full bg-red-100 text-red-800 border border-red-200 px-6 py-2.5 font-bold text-xs flex items-center justify-center font-[family-name:var(--font-geist-sans)]">
+                    Closed
+                  </span>
+                );
+              }
+
+              return (
+                <Link
+                  href={`/student/browse/apply?id=${dorm.id}`} // Passing the ID via query param
+                  className="rounded-full bg-[#8b3e15] px-10 py-2.5 font-bold text-white transition-transform hover:scale-105 active:scale-95 font-[family-name:var(--font-geist-sans)]"
+                >
+                  Apply
+                </Link>
+              );
+            })()}
           </div>
         </div>
       </div>

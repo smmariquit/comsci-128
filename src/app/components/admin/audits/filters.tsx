@@ -15,16 +15,16 @@ export type ActionFilter =
 
 interface Props {
   search: string;
-  action: ActionFilter;
   onSearch: (v: string) => void;
-  onAction: (v: ActionFilter) => void;
+  sortOrder: "asc" | "desc";
+  onSortOrder: (v: "asc" | "desc") => void;
 }
 
 // ── Shared Styles (same as your RoomFilters) ──────────────────────────────────
 
 const inputBase: React.CSSProperties = {
   fontFamily: "'DM Sans', sans-serif",
-  fontSize: 12,
+  fontSize: 13,
   color: C.navy,
   background: "#fff",
   border: `1px solid ${C.cream}`,
@@ -46,9 +46,9 @@ const selectBase: React.CSSProperties = {
 
 export default function AuditLogFilters({
   search,
-  action,
   onSearch,
-  onAction,
+  sortOrder,
+  onSortOrder,
 }: Props) {
   return (
     <div
@@ -76,27 +76,23 @@ export default function AuditLogFilters({
 
         <input
           type="text"
-          placeholder="Search user, action..."
+          placeholder="Search by Account Number..."
           value={search}
           onChange={(e) => onSearch(e.target.value)}
           style={{ ...inputBase, width: "100%", paddingLeft: 32 }}
         />
       </div>
 
-      {/* Action Type */}
+      {/* Sort by Timestamp dropdown */}
       <select
-        title="Filter by action"
-        aria-label="Filter by action"
-        value={action}
-        onChange={(e) => onAction(e.target.value as ActionFilter)}
+        title="Sort by Timestamp"
+        aria-label="Sort by Timestamp"
+        value={sortOrder}
+        onChange={(e) => onSortOrder(e.target.value as "asc" | "desc")}
         style={{ ...selectBase, minWidth: 180 }}
       >
-        <option value="All">All Actions</option>
-        <option value="LOGIN">Login</option>
-        <option value="APPROVE_APPLICATION">Approvals</option>
-        <option value="ASSIGN_ROOM">Assignments</option>
-        <option value="BILL_UPDATE">Billing</option>
-        <option value="LOGOUT">Logout</option>
+        <option value="desc">Timestamp (Newest First)</option>
+        <option value="asc">Timestamp (Oldest First)</option>
       </select>
     </div>
   );

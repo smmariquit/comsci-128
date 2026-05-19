@@ -94,7 +94,7 @@ export function OccupancyReportTable({ data, onView }: OccupancyProps) {
                   <span
                     style={{
                       fontFamily: "monospace",
-                      fontSize: 12,
+                      fontSize: 13,
                       color: rate > 50 ? C.orange : C.teal,
                       fontWeight: 600,
                     }}
@@ -176,12 +176,12 @@ export function ApplicationReportTable({ data, onView }: ApplicationProps) {
               <Td>
                 {row.actual_moveout_date ? (
                   <span
-                    style={{ color: C.orange, fontWeight: 600, fontSize: 12 }}
+                    style={{ color: C.orange, fontWeight: 600, fontSize: 13 }}
                   >
                     {formatDate(row.actual_moveout_date)}
                   </span>
                 ) : (
-                  <span style={{ color: C.teal, opacity: 0.4, fontSize: 12 }}>
+                  <span style={{ color: C.teal, opacity: 0.4, fontSize: 13 }}>
                     —
                   </span>
                 )}
@@ -260,7 +260,7 @@ export function RevenueReportTable({ data, onView }: RevenueProps) {
                     color: row.status === "Overdue" ? C.orange : C.navy,
                     fontWeight: row.status === "Overdue" ? 600 : 400,
                     fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 12,
+                    fontSize: 13,
                   }}
                 >
                   {formatDate(row.due_date)}
@@ -268,11 +268,11 @@ export function RevenueReportTable({ data, onView }: RevenueProps) {
               </Td>
               <Td>
                 {row.date_paid ? (
-                  <span style={{ color: C.teal, fontSize: 12 }}>
+                  <span style={{ color: C.teal, fontSize: 13 }}>
                     {formatDate(row.date_paid)}
                   </span>
                 ) : (
-                  <span style={{ color: C.teal, opacity: 0.4, fontSize: 12 }}>
+                  <span style={{ color: C.teal, opacity: 0.4, fontSize: 13 }}>
                     —
                   </span>
                 )}
@@ -353,7 +353,7 @@ export function AccommodationHistoryTable({
                 <Td muted>{formatDate(row.movein_date)}</Td>
                 <Td muted>{formatDate(row.moveout_date)}</Td>
                 <Td>
-                  <span style={{ color: C.teal, fontSize: 12 }}>
+                  <span style={{ color: C.teal, fontSize: 13 }}>
                     {months}mo
                   </span>
                 </Td>

@@ -5,6 +5,7 @@ import AuditStatCard from "@/components/admin/audits/stat_card";
 import AuditLogFilters from "@/components/admin/audits/filters";
 import AuditLogTable from "@/components/admin/audits/auditlogtable";
 import StateMessage from "@/app/components/ui/state-message";
+import PageLoading from "@/app/components/ui/page-loading";
 import Link from "next/link";
 
 const actionOptions = [
@@ -31,9 +32,7 @@ export default function Page() {
   // ── State ───────────────────────────────────────────────────────────────────
 
   const [search, setSearch] = useState("");
-  const [actionType, setActionType] = useState("All");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,28 +73,28 @@ export default function Page() {
     fetchAuditLogs();
   }, []);
 
-  // ── Filtering Logic ─────────────────────────────────────────────────────────
+  // ── Filtering & Sorting Logic ───────────────────────────────────────────────
 
   const filteredData = useMemo(() => {
-    return auditLogs.filter((log) => {
-      // Search
-      const matchesSearch =
-        log.user_name.toLowerCase().includes(search.toLowerCase()) ||
-        log.audit_description.toLowerCase().includes(search.toLowerCase()) ||
-        String(log.account_number).includes(search);
+    let result = [...auditLogs];
 
-      // Action Type
-      const matchesAction =
-        actionType === "All" || log.action_type === actionType;
+    // Search strictly by account_number
+    const q = search.trim();
+    if (q) {
+      result = result.filter((log) =>
+        String(log.account_number || "").includes(q)
+      );
+    }
 
-      // Date Range
-      const logDate = new Date(log.timestamp).getTime();
-      const matchesFrom = !dateFrom || logDate >= new Date(dateFrom).getTime();
-      const matchesTo = !dateTo || logDate <= new Date(dateTo).getTime();
-
-      return matchesSearch && matchesAction && matchesFrom && matchesTo;
+    // Sort by timestamp
+    result.sort((a, b) => {
+      const timeA = new Date(a.timestamp).getTime();
+      const timeB = new Date(b.timestamp).getTime();
+      return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
     });
-  }, [auditLogs, search, actionType, dateFrom, dateTo]);
+
+    return result;
+  }, [auditLogs, search, sortOrder]);
 
   // ── Stats (derived from data) ────────────────────────────────────────────────
 
@@ -122,13 +121,8 @@ export default function Page() {
   // ── UI ──────────────────────────────────────────────────────────────────────
 
   if (loading) {
-  return (
-    <StateMessage
-      title="Loading audit logs"
-      description="Please wait..."
-    />
-  );
-}
+    return <PageLoading label="Loading audit logs" />;
+  }
 
   if (error) {
     return (
@@ -178,12 +172,12 @@ export default function Page() {
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
       <AuditLogFilters
         search={search}
-        action={actionType as any}
         onSearch={setSearch}
-        onAction={setActionType}
+        sortOrder={sortOrder}
+        onSortOrder={setSortOrder}
       />
 
-      {/* ── Table ───────────────────────────────────────────────────────────── */}
+      {/* ── Audit Logs Table ─────────────────────────────────────────────────– */}
       {isEmpty ? (
         <StateMessage
           title="No audit logs found"

@@ -41,7 +41,7 @@ function addRoomButton({
       style={{
         ...BTN_STYLE[variant],
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: 11,
+        fontSize: 13,
         padding: "4px 10px",
         borderRadius: 6,
         cursor: disabled ? "not-allowed" : "pointer",

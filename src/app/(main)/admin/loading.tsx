@@ -43,7 +43,7 @@ export default function Loading() {
           <div
             style={{
               marginTop: 4,
-              fontSize: 12,
+              fontSize: 13,
               color: "#8AABAC",
               lineHeight: 1.5,
             }}

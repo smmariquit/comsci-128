@@ -8,7 +8,7 @@ import type { RoomRow, RoomType, OccupancyStatus } from "./roomtable";
 // ── Shared primitives ─────────────────────────────────────────────────────────
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10.5,
+  fontSize: 13,
   fontFamily: "'DM Mono', monospace",
   fontWeight: 500,
   color: C.teal,
@@ -103,7 +103,7 @@ function ModalShell({
           {sub && (
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: C.teal,
                 fontFamily: "'DM Mono', monospace",
                 marginTop: 2,
@@ -256,7 +256,7 @@ function DetailRow({
     >
       <span
         style={{
-          fontSize: 10.5,
+          fontSize: 13,
           fontFamily: "'DM Mono', monospace",
           fontWeight: 500,
           color: C.teal,
@@ -319,7 +319,7 @@ export function ViewRoomModal({
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: C.teal,
                 fontFamily: "'DM Mono', monospace",
                 marginTop: 2,
@@ -533,7 +533,7 @@ export function RoomFormModal({
               background: C.cream,
               borderRadius: 8,
               padding: "10px 14px",
-              fontSize: 11,
+              fontSize: 13,
               color: C.teal,
               fontFamily: "'DM Mono', monospace",
             }}
@@ -618,7 +618,7 @@ export function OverrideAssignModal({
             >
               <div
                 style={{
-                  fontSize: 10.5,
+                  fontSize: 13,
                   color: C.teal,
                   fontFamily: "'DM Mono', monospace",
                   marginBottom: 8,
@@ -658,7 +658,7 @@ export function OverrideAssignModal({
                         border: "none",
                         background: "none",
                         color: C.orange,
-                        fontSize: 11,
+                        fontSize: 13,
                         cursor: isSubmitting ? "not-allowed" : "pointer",
                         opacity: isSubmitting ? 0.55 : 1,
                         fontWeight: 600,
@@ -706,7 +706,7 @@ export function OverrideAssignModal({
                   ))}
                 </select>
                 {students.length === 0 && !loading && (
-                  <p style={{ fontSize: 11, color: C.orange, marginTop: 4 }}>
+                  <p style={{ fontSize: 13, color: C.orange, marginTop: 4 }}>
                     No unassigned{" "}
                     {room.room_type === "Co-ed"
                       ? ""
@@ -721,7 +721,7 @@ export function OverrideAssignModal({
                   background: C.cream,
                   borderRadius: 8,
                   padding: "10px 14px",
-                  fontSize: 11,
+                  fontSize: 13,
                   color: C.teal,
                   fontFamily: "'DM Mono', monospace",
                 }}
@@ -737,7 +737,7 @@ export function OverrideAssignModal({
                 background: "rgba(201,100,42,0.08)",
                 borderRadius: 8,
                 padding: "12px 14px",
-                fontSize: 11,
+                fontSize: 13,
                 color: C.orange,
                 textAlign: "center",
               }}

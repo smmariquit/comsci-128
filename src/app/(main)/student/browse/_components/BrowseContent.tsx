@@ -117,7 +117,7 @@ function AmenityBadges({ card }: { card: HousingCard }) {
       {badges.slice(0, 4).map((b) => (
         <span
           key={b.label}
-          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-[#C9642A]/20 text-[#C9642A]"
+          className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs font-medium bg-[#f2e3d7] text-[#111820]"
         >
           {b.icon}
           {b.label}
@@ -197,16 +197,16 @@ function QuizModal({
   const q = questions[step];
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="quiz-modal-title" aria-describedby="quiz-modal-step">
       <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-md overflow-hidden animate-[fadeInUp_0.3s_ease]">
         {/* Header */}
         <div className="bg-[#1C2632] px-5 py-4 flex justify-between items-center">
           <div>
-            <h3 className="text-white font-bold text-lg">Find My Housing</h3>
-            <p className="text-white/50 text-xs">Step {step + 1} of {questions.length}</p>
+            <h3 id="quiz-modal-title" className="text-white font-bold text-lg">Find My Housing</h3>
+            <p id="quiz-modal-step" className="text-white/90 text-sm">Step {step + 1} of {questions.length}</p>
           </div>
-          <button onClick={onClose} className="text-white/60 hover:text-white transition">
-            <X size={20} />
+          <button onClick={onClose} className="text-white hover:text-white transition" aria-label="Close housing quiz">
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
@@ -220,16 +220,16 @@ function QuizModal({
 
         {/* Question */}
         <div className="p-5">
-          <h4 className="text-lg font-semibold text-[#1C2632] mb-4">{q.title}</h4>
+          <h4 className="text-lg font-semibold text-[#111820] mb-4">{q.title}</h4>
           <div className="flex flex-col gap-2">
             {q.options.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleSelect(q.key, opt.value)}
-                className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all
+                className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-[#111820]
                   ${answers[q.key] === opt.value
-                    ? "border-[#C9642A] bg-[#C9642A]/10 text-[#C9642A] font-semibold"
-                    : "border-gray-200 hover:border-[#C9642A]/50 hover:bg-gray-50"}`}
+                    ? "border-[#8b3e15] bg-[#f2e3d7] font-semibold"
+                    : "border-gray-200 hover:border-[#8b3e15]/50 hover:bg-gray-50"}`}
               >
                 {opt.label}
               </button>
@@ -304,6 +304,15 @@ export default function BrowseContent({
   // Map bounds filter state
   const [boundsFilter, setBoundsFilter] = useState<BoundsFilter | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 6;
+
+  // Reset pagination on filter or bounds change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [boundsFilter, quizAnswers, cards]);
+
   // Score + filter cards
   const processedCards = useMemo(() => {
     let result = displayCards.map((card) => ({
@@ -332,6 +341,16 @@ export default function BrowseContent({
     return result;
   }, [displayCards, quizAnswers, boundsFilter]);
 
+  // Paginated cards calculation
+  const paginatedCards = useMemo(() => {
+    const start = (currentPage - 1) * cardsPerPage;
+    return processedCards.slice(start, start + cardsPerPage);
+  }, [processedCards, currentPage]);
+
+  const totalPages = Math.ceil(processedCards.length / cardsPerPage) || 1;
+  const rangeStart = processedCards.length === 0 ? 0 : (currentPage - 1) * cardsPerPage + 1;
+  const rangeEnd = Math.min(currentPage * cardsPerPage, processedCards.length);
+
   // Build map markers from real DB coordinates
   const markers: HousingMarker[] = processedCards
     .filter((card) => card.lat !== null && card.lng !== null)
@@ -356,7 +375,7 @@ export default function BrowseContent({
         data = await getDormDetails(id);
         if (data) await saveDormDetailsLocally(data);
       }
-      
+
       if (data) {
         setSelectedDorm({
           id: data.housing_id,
@@ -367,17 +386,19 @@ export default function BrowseContent({
           image: data.housing_image,
           appli_start: data.start_application_date
             ? new Date(data.start_application_date).toLocaleDateString(
-                "en-US",
-                { month: "long", day: "numeric", year: "numeric" }
-              )
+              "en-US",
+              { month: "long", day: "numeric", year: "numeric" }
+            )
             : "TBA",
           appli_end: data.end_application_date
             ? new Date(data.end_application_date).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })
             : "TBA",
+          raw_start: data.start_application_date || null,
+          raw_end: data.end_application_date || null,
           // Amenities
           has_wifi: data.has_wifi ?? false,
           has_aircon: data.has_aircon ?? false,
@@ -424,7 +445,7 @@ export default function BrowseContent({
       {/* Fetching overlay */}
       {isFetching && <PageLoading overlay label="Fetching Housing Details..." />}
 
-      <div className={`browse-root ${showMap ? "map-visible" : "map-hidden"}`}>
+      <main className={`browse-root ${showMap ? "map-visible" : "map-hidden"}`} aria-labelledby="browse-housing-heading">
         {/* ── Left: Map ── */}
         {showMap && (
           <div className="browse-map-panel">
@@ -441,7 +462,8 @@ export default function BrowseContent({
         {/* ── Right: Search + Cards ── */}
         <div className="browse-content-panel">
           {/* Search bar + toggle */}
-          <div className="browse-toolbar">
+          <div className="browse-toolbar" aria-label="Housing filters and view options">
+            <h1 id="browse-housing-heading" className="sr-only">Browse Housing</h1>
             <div className="browse-search-area">{searchBar}</div>
             <div className="flex gap-2 flex-shrink-0">
               {/* Quiz button */}
@@ -450,8 +472,9 @@ export default function BrowseContent({
                   onClick={() => setShowQuiz(true)}
                   className="browse-quiz-btn"
                   id="find-my-housing"
+                  aria-label="Open housing quiz"
                 >
-                  <Sparkles size={14} />
+                  <Sparkles size={14} aria-hidden="true" />
                   <span className="hidden sm:inline">Find My Housing</span>
                 </button>
               ) : (
@@ -459,8 +482,9 @@ export default function BrowseContent({
                   onClick={clearQuiz}
                   className="browse-quiz-btn browse-quiz-active"
                   id="clear-quiz"
+                  aria-label="Clear housing quiz"
                 >
-                  <X size={14} />
+                  <X size={14} aria-hidden="true" />
                   <span className="hidden sm:inline">Clear Quiz</span>
                 </button>
               )}
@@ -469,15 +493,16 @@ export default function BrowseContent({
                 onClick={() => setShowMap(!showMap)}
                 className="browse-toggle-btn"
                 id="toggle-map-view"
+                aria-label={showMap ? "Show cards only" : "Show map"}
               >
                 {showMap ? (
                   <>
-                    <LayoutGrid size={16} />
+                    <LayoutGrid size={16} aria-hidden="true" />
                     <span className="hidden sm:inline">Cards Only</span>
                   </>
                 ) : (
                   <>
-                    <Map size={16} />
+                    <Map size={16} aria-hidden="true" />
                     <span className="hidden sm:inline">Show Map</span>
                   </>
                 )}
@@ -486,32 +511,32 @@ export default function BrowseContent({
           </div>
           {/* Scrollable cards area */}
           <div className="browse-cards-scroll relative">
-            
+
             {/* Active Filters (Static layout, no overlap) */}
             {(quizAnswers || boundsFilter) && (
-              <div className="flex items-center flex-wrap gap-2 text-[11px] font-[family-name:var(--font-geist-mono)] tracking-wider px-6 pt-4 pb-2 w-full">
+              <div className="flex items-center flex-wrap gap-2 text-xs font-[family-name:var(--font-geist-mono)] tracking-wider px-6 pt-4 pb-2 w-full">
                 {quizAnswers && (
-                  <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-[#C9642A] text-white font-bold shadow-sm">
-                    <Sparkles size={12} />
+                  <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-[#8b3e15] text-white font-bold shadow-sm">
+                    <Sparkles size={12} aria-hidden="true" />
                     <span>QUIZ ACTIVE ({processedCards.length})</span>
                   </div>
                 )}
                 {boundsFilter && (
                   <div className="inline-flex items-center gap-1.5 h-8 pl-3 pr-1 rounded-full bg-[#1C2632] text-white font-bold shadow-sm">
-                    <Map size={12} />
+                    <Map size={12} aria-hidden="true" />
                     <span>AREA FILTERED ({processedCards.length})</span>
                     <button
                       onClick={() => setBoundsFilter(null)}
                       className="h-6 w-6 shrink-0 flex items-center justify-center hover:bg-white/20 text-white/60 hover:text-white rounded-full transition-colors"
                       aria-label="Clear area filter"
                     >
-                      <X size={12} strokeWidth={2.5} />
+                      <X size={12} strokeWidth={2.5} aria-hidden="true" />
                     </button>
                   </div>
                 )}
               </div>
             )}
-            
+
             {emptyState && processedCards.length === 0 && !quizAnswers && !boundsFilter ? (
               <div className="p-6">{emptyState}</div>
             ) : processedCards.length === 0 ? (
@@ -520,55 +545,143 @@ export default function BrowseContent({
                 <p className="text-sm mt-1">Try adjusting your quiz answers or clearing the area filter.</p>
               </div>
             ) : (
-              <div className="browse-cards-grid">
-                {processedCards.map((card) => (
-                  <div
-                    key={card.id}
-                    onClick={() => handleCardClick(card.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleCardClick(card.id);
-                      }
-                    }}
-                    tabIndex={0}
-                    className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2
-                      ${selectedCardId === card.id ? "ring-2 ring-[#C9642A] ring-offset-2 scale-[1.01]" : ""}`}
-                  >
-                    <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
-                      <Image
-                        src={
-                          card.image ||
-                          "/assets/placeholders/housing-414x264.svg"
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="browse-cards-grid">
+                  {paginatedCards.map((card) => (
+                    <button
+                      key={card.id}
+                      onClick={() => handleCardClick(card.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleCardClick(card.id);
                         }
-                        alt={card.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 300px"
-                        className="object-cover"
-                      />
+                      }}
+                      type="button"
+                      aria-label={`Open details for ${card.name}`}
+                      className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#8b3e15] focus-visible:outline-none focus-visible:ring-offset-2 text-left
+                        ${selectedCardId === card.id ? "ring-2 ring-[#8b3e15] ring-offset-2 scale-[1.01]" : ""}`}
+                    >
+                      <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
+                        <Image
+                          src={
+                            card.image ||
+                            "/assets/placeholders/housing-414x264.svg"
+                          }
+                          alt={card.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 300px"
+                          className="object-cover"
+                        />
 
-                    </div>
-                    <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1 font-[family-name:var(--font-geist-sans)]">
-                      <div className="text-sm font-bold text-[#C9642A] truncate">
-                        {card.name}
                       </div>
-                      <div className="flex justify-between items-center text-[11px] text-white/60">
-                        <span className="bg-white/10 px-2 py-0.5 rounded-full">
-                          {card.type}
-                        </span>
-                        <span className="font-semibold text-white/90">
-                          ₱{card.price}/mo
-                        </span>
+                      <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1 font-[family-name:var(--font-geist-sans)]">
+                        <div className="text-sm font-bold text-[#f7e3d7] truncate">
+                          {card.name}
+                        </div>
+                        <div className="flex justify-between items-center text-xs text-white/90">
+                          <span className="bg-white/15 px-2 py-0.5 rounded-full text-white/90">
+                            {card.type}
+                          </span>
+                          <span className="font-semibold text-white/90">
+                            ₱{card.price}/mo
+                          </span>
+                        </div>
+                        <AmenityBadges card={card} />
                       </div>
-                      <AmenityBadges card={card} />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Pagination Toolbar */}
+                {totalPages > 1 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: 8,
+                      borderTop: "1px solid #e3d8c9",
+                      paddingTop: 16,
+                      flexWrap: "wrap",
+                      gap: 10,
+                      fontFamily: "var(--font-geist-sans), sans-serif",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, color: "#567375" }}>
+                      Showing <strong>{rangeStart}</strong> to <strong>{rangeEnd}</strong> of <strong>{processedCards.length}</strong> housings
+                    </span>
+
+                    <div style={{ display: "flex", gap: 5 }}>
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        disabled={currentPage === 1}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: currentPage === 1 ? "#ccc" : "#1C2632",
+                          background: "#fff",
+                          border: "1px solid #e8e4db",
+                          borderRadius: 8,
+                          padding: "6px 12px",
+                          cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Prev
+                      </button>
+
+                      {getVisiblePages(currentPage, totalPages).map((p, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            if (typeof p === "number") {
+                              setCurrentPage(p);
+                            }
+                          }}
+                          disabled={p === "..."}
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: currentPage === p ? "#fff" : "#1C2632",
+                            background: currentPage === p ? "#8b3e15" : "#fff",
+                            border: `1px solid ${currentPage === p ? "#8b3e15" : "#e8e4db"}`,
+                            borderRadius: 8,
+                            width: 32,
+                            height: 32,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: p === "..." ? "default" : "pointer",
+                          }}
+                        >
+                          {p}
+                        </button>
+                      ))}
+
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: currentPage === totalPages ? "#ccc" : "#1C2632",
+                          background: "#fff",
+                          border: "1px solid #e8e4db",
+                          borderRadius: 8,
+                          padding: "6px 12px",
+                          cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Next
+                      </button>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Quiz Modal */}
       {showQuiz && (
@@ -580,8 +693,8 @@ export default function BrowseContent({
 
       {/* Dorm Modal */}
       {selectedDorm && (
-        <DormModal 
-          dorm={selectedDorm} 
+        <DormModal
+          dorm={selectedDorm}
           onClose={() => setSelectedDorm(null)}
           onViewMap={() => {
             setIsolatedDorm(selectedDorm);
@@ -592,14 +705,14 @@ export default function BrowseContent({
 
       {/* Isolated 3D Viewer */}
       {isolatedDorm && (
-        <Isolated3DViewer 
+        <Isolated3DViewer
           housing={{
             name: isolatedDorm.name,
             lng: isolatedDorm.longitude || 0,
             lat: isolatedDorm.latitude || 0,
             rooms: (isolatedDorm as any).room || [], // pass the real db rooms
           }}
-          onClose={() => setIsolatedDorm(null)} 
+          onClose={() => setIsolatedDorm(null)}
         />
       )}
 
@@ -821,3 +934,28 @@ export default function BrowseContent({
     </>
   );
 }
+
+// Helper to limit visible pagination buttons
+const getVisiblePages = (currentPage: number, totalPages: number) => {
+  const pages: (number | string)[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    pages.push(1);
+    if (currentPage > 3) {
+      pages.push('...');
+    }
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 2) {
+      pages.push('...');
+    }
+    pages.push(totalPages);
+  }
+  return pages;
+};
