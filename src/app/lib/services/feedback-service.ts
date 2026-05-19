@@ -38,8 +38,18 @@ const fetchAllFeedback = async (): Promise<Partial<Feedback>[]> => {
     }
 }
 
+const getAllByManagerId = async (managerId: number, sortList: any[] = [], filterList: any[] = []) => {
+    try {
+        return await feedbackData.getAllByManagerId(managerId, sortList, filterList);
+    } catch (error) {
+        console.error("Service Error (getAllByManagerId): ", error);
+        return [];
+    }
+};
+
 export const feedbackService = {
     createFeedback,
     findFeedbackById,
-    fetchAllFeedback
+    fetchAllFeedback,
+    getAllByManagerId
 };
