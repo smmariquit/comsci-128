@@ -48,6 +48,9 @@ export default function ThemedDatePicker({
         autoComplete="off"
         className={`${className} cursor-pointer pr-10`}
         wrapperClassName="w-full"
+        showYearDropdown
+        scrollableYearDropdown
+        yearDropdownItemNumber={100}
       />
       <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#567375] pointer-events-none" />
     </div>
