@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { userService } from "@/services/user-service";
+import { supabaseAdmin } from "@/app/lib/supabase-admin";
 
 // For retrieving profile information of current user
 // Default route for /profile/api
@@ -70,12 +71,22 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id : string }> },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const {id } = await params;
+    const { id } = await params;
 
-    const user = await userService.deactivateUser(String(id));
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from("user")
+      .select("account_email")
+      .eq("account_number", Number(id))
+      .single();
+
+    if (userError || !userData) {
+      return NextResponse.json({ message: "User not found." }, { status: 404 });
+    }
+
+    const user = await userService.deactivateUser(userData.account_email);
     if (!user)
       return NextResponse.json({ message: "User not found." }, { status: 404 });
 

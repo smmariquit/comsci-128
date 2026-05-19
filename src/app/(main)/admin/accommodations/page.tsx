@@ -1,39 +1,33 @@
 import type { Metadata } from "next";
-import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "Accommodations Management",
+  description: "View and manage all housings for managed properties",
 };
-import DormCard from "@/app/components/admin/dorm_card";
-import DeleteHousingForm from '@/app/components/admin/delete_housing_form';
-import { housingData } from '@/lib/data/housing-data'
-import HousingImageUpload from '@/app/components/housing_image_upload';
 
-// NOTE: This page is now a server component, for fast async data fetching
-// For interactivity (e.g. useState), import client components
+import { housingData } from "@/lib/data/housing-data";
+import StateMessage from "@/app/components/ui/state-message";
+import AdminAccommodationsContent from "./AdminAccommodationsContent";
+
 export default async function Page() {
-  const liveDormCards = await housingData.getHousingCardsData();
+  let liveDormCards: Awaited<
+    ReturnType<typeof housingData.getHousingCardsData>
+  > = [];
+  try {
+    liveDormCards = await housingData.getHousingCardsData();
+  } catch (error) {
+    return (
+      <StateMessage
+        variant="error"
+        title="Unable to load accommodations"
+        description="Please try again in a moment."
+      />
+    );
+  }
   return (
     <main className="min-h-screen text-white flex flex-col items-center p-6">
-      {/* DORM CARDS SECTION */}
       <section className="w-full mb-12">
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
-          {liveDormCards.map((housing) => (
-            <DormCard
-              key={housing.housingId}
-              {...housing}
-            />
-          ))}
-        </div>
-      </section>
-      {/* UPLOAD IMAGE SECTION */}
-      <section>
-        <HousingImageUpload />
-      </section>
-      {/* HOUSING DELETION SECTION (Client Component) */}
-      <section>
-        <DeleteHousingForm />
+        <AdminAccommodationsContent dormCards={liveDormCards} />
       </section>
     </main>
   );

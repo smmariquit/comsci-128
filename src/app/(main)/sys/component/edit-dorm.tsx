@@ -6,7 +6,7 @@ import { X, AlertTriangle, Building2 } from "lucide-react";
 // Types
 
 type DormStatus = "Accepting" | "Full" | "Closed";
-type DormType   = "Mixed" | "Male Only" | "Female Only";
+type DormType   = "UP Housing" | "Non-UP Housing";
 
 export interface DormManager {
   id: string | number;
@@ -14,31 +14,35 @@ export interface DormManager {
   email: string;
 }
 
-export interface EditDormData {
+export interface DormLandlord {
   id: string | number;
   name: string;
+  email: string;
+}
+
+export interface EditDormData {
+  id: number;
+  name: string;
   dormAddress?: string;
-  type?: DormType;
-  capacity?: number;
+  housingType?: DormType;
   monthlyRate?: number;
-  description?: string;
-  status: DormStatus | string;
-  /** Manager name currently displayed in the table (dormitory field) */
   dormitory?: string;
-  managerEmail?: string;
+  landlordName?: string;
+  landlordId?: string | number;
 }
 
 export interface EditDormModalProps {
   dorm: EditDormData;
   /** List of eligible managers to pick from */
-  managers?: DormManager[];
   onClose: () => void;
-  onSave: (dormId: EditDormData["id"], updates: Partial<EditDormData>) => void;
+  onSave: (id: string, updates: Partial<EditDormData>) => void;
+  managers?: DormManager[];
+  landlords?: DormLandlord[];
 }
 
 // Constants
 
-const DORM_TYPES: DormType[]   = ["Mixed", "Male Only", "Female Only"];
+const DORM_TYPES: DormType[]   = ["UP Housing", "Non-UP Housing"];
 const DORM_STATUSES: DormStatus[] = ["Accepting", "Full", "Closed"];
 
 // Helpers
@@ -56,7 +60,8 @@ function getInitials(name: string) {
 
 export function EditDormModal({
   dorm,
-  managers = [],
+  managers,
+  landlords,
   onClose,
   onSave,
 }: EditDormModalProps) {
@@ -64,57 +69,137 @@ export function EditDormModal({
   // Editable field states
   const [name,        setName]        = useState(dorm.name ?? "");
   const [address,     setAddress]     = useState(dorm.dormAddress ?? "");
-  const [type,        setType]        = useState<DormType>((dorm.type as DormType) ?? "Mixed");
-  const [capacity,    setCapacity]    = useState<string>(String(dorm.capacity ?? ""));
+  const [housingType, setHousingType] = useState<DormType>((dorm.housingType as DormType) ?? "UP Housing");
   const [rate,        setRate]        = useState<string>(String(dorm.monthlyRate ?? ""));
-  const [description, setDescription] = useState(dorm.description ?? "");
-  const [status,      setStatus]      = useState<DormStatus>((dorm.status as DormStatus) ?? "Accepting");
 
-  // Manager searchable dropdown — mirrors "Assign to Dormitory" in EditUserModal
+  // Manager searchable dropdown 
   const [selectedManager, setSelectedManager] = useState<DormManager | null>(
-    () => managers.find((m) => m.name === dorm.dormitory) ?? null
+    () => (managers ?? []).find((m) => m.name === dorm.dormitory) ?? null
   );
-  const [query,    setQuery]    = useState("");
-  const [open,     setOpen]     = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedLandlord, setSelectedLandlord] = useState<DormLandlord | null>(
+  () => {
+    // Try to find landlord by name or ID from dorm data
+    if (!landlords) return null;
+    return (landlords as any).find((l: any) => l.name === (dorm as any).landlordName) ?? null;
+      }
+    );
+  const [managerQuery, setManagerQuery] = useState("");
+  const [managerOpen, setManagerOpen] = useState(false);
+
+  const [landlordQuery, setLandlordQuery] = useState("");
+  const [landlordOpen, setLandlordOpen] = useState(false);
+  const managerRef = useRef<HTMLDivElement>(null);
+  const landlordRef = useRef<HTMLDivElement>(null);
+  const [errors, setErrors] = useState<{
+    dormName?: string;
+    address?: string;
+    monthlyRate?: string;
+    landlord?: string;
+  }>({});
+  const [submitted, setSubmitted] = useState(false);
 
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setQuery("");
+      const target = e.target as Node;
+
+      if (managerRef.current && !managerRef.current.contains(target)) {
+        setManagerOpen(false);
+        setManagerQuery("");
+      }
+
+      if (landlordRef.current && !landlordRef.current.contains(target)) {
+        setLandlordOpen(false);
+        setLandlordQuery("");
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter managers list while typing
+  // Filter managers and landlord list while typing
   const filteredManagers = useMemo(() => {
-    if (!query) return managers;
-    return managers.filter(
+    const list = managers ?? [];
+    const q = managerQuery.toLowerCase();
+
+    if (!q) return list;
+
+    return list.filter(
       (m) =>
-        m.name.toLowerCase().includes(query.toLowerCase()) ||
-        m.email.toLowerCase().includes(query.toLowerCase())
+        m.name.toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q)
     );
-  }, [query, managers]);
+  }, [managerQuery, managers]);
+
+  const filteredLandlords = useMemo(() => {
+    const list = landlords ?? [];
+    const q = landlordQuery.toLowerCase();
+
+    if (!q) return list;
+
+    return list.filter(
+      (l) =>
+        l.name.toLowerCase().includes(q) ||
+        l.email.toLowerCase().includes(q)
+    );
+  }, [landlordQuery, landlords]);
 
   // What's shown in the manager input field
-  const managerDisplayValue = query !== "" ? query : (selectedManager?.name ?? "");
+  const managerDisplayValue = managerQuery !== "" ? managerQuery : (selectedManager?.name ?? "");
+  const landlordDisplayValue = landlordQuery !== "" ? landlordQuery : (selectedLandlord?.name ?? "");
 
-  function handleSave() {
-    onSave(dorm.id, {
-      name:        name.trim() || dorm.name,
-      dormAddress: address.trim() || undefined,
-      type,
-      capacity:    capacity ? Number(capacity) : undefined,
-      monthlyRate: rate     ? Number(rate)     : undefined,
-      description: description.trim() || undefined,
-      status,
-      dormitory:   selectedManager?.name  ?? undefined,
-      managerEmail: selectedManager?.email ?? undefined,
+  async function handleSave() {
+    const newErrors: typeof errors = {};
+
+    // Validate name
+    if (!name.trim()) {
+      newErrors.dormName = 'Dorm name is required';
+    }
+
+    // Validate address
+    if (!address.trim()) {
+      newErrors.address = 'Address is required';
+    }
+
+    // Validate monthly rate
+    if (!rate || rate.trim() === '') {
+      newErrors.monthlyRate = 'Monthly rate is required';
+    } else if (Number(rate) < 0) {
+      newErrors.monthlyRate = 'Monthly rate cannot be negative';
+    }
+
+    // Validate landlord
+    if (!selectedLandlord) {
+      newErrors.landlord = 'Landlord is required';
+    }
+
+    setErrors(newErrors);
+    setSubmitted(true);
+
+    // Stop if invalid
+    if (Object.keys(newErrors).length > 0) return;
+
+    const res = await fetch(`/api/housing/${dorm.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        housing_name: name.trim(),
+        housing_address: address.trim(),
+        housing_type: housingType,
+        rent_price: rate ? Number(rate) : null,
+        manager_account_number: selectedManager?.id ?? null,
+        landlord_account_number: selectedLandlord?.id ?? null,
+      }),
     });
+
+    if (!res.ok) {
+      console.error("Failed to update housing");
+      return;
+    }
+
     onClose();
   }
 
@@ -172,13 +257,13 @@ export function EditDormModal({
               </div>
               {/* Status badge on hero */}
               <span className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border
-                ${dorm.type === "Female Only"
-                  ? "bg-pink-50 text-pink-700 border-pink-200"
-                  : dorm.type === "Male Only"
-                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                ${dorm.housingType === "UP Housing"
+                  ? "bg-pink-50 text-green-700 border-brown-200"
+                  : dorm.housingType === "Non-UP Housing"
+                  ? "bg-blue-50 text-green-700 border-brown-200"
                   : "bg-purple-50 text-purple-700 border-purple-200"
                 }`}>
-                {dorm.type ?? "Mixed"}
+                {dorm.housingType ?? "UP Housing"}
               </span>
             </div>
 
@@ -189,21 +274,25 @@ export function EditDormModal({
               <p className="text-sm font-bold text-[#1a2332]">Basic Information</p>
 
               {/* Dorm Name */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#1a2332]/60">
-                  Dormitory Name
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter dormitory name"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#1a2332]/60">
+                    Dormitory Name
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter dormitory name"
+                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                      submitted && errors.dormName ? 'border-red-300 bg-red-50' : ''
+                    }`}
+                  />
+                  {submitted && errors.dormName && (
+                    <p className="text-xs text-red-500 mt-1">{errors.dormName}</p>
+                  )}
+                </div>
 
-              {/* Location + Type */}
-              <div className="grid grid-cols-2 gap-3">
+                {/* Location / Address */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-[#1a2332]/60">
                     Location / Address
@@ -213,40 +302,16 @@ export function EditDormModal({
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="e.g. 123 Roxas St, QC"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
+                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                      submitted && errors.address ? 'border-red-300 bg-red-50' : ''
+                    }`}
                   />
+                  {submitted && errors.address && (
+                    <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+                  )}
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#1a2332]/60">
-                    Type
-                  </label>
-                  <select
-                    value={type}
-                    onChange={(e) => setType(e.target.value as DormType)}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors appearance-none cursor-pointer"
-                  >
-                    {DORM_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
 
-              {/* Capacity + Monthly Rate */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#1a2332]/60">
-                    Capacity (beds)
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={capacity}
-                    onChange={(e) => setCapacity(e.target.value)}
-                    placeholder="e.g. 30"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
-                  />
-                </div>
+                {/* Monthly Rate */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-[#1a2332]/60">
                     Monthly Rate (₱)
@@ -257,34 +322,55 @@ export function EditDormModal({
                     value={rate}
                     onChange={(e) => setRate(e.target.value)}
                     placeholder="e.g. 3500"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
+                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                      submitted && errors.monthlyRate ? 'border-red-300 bg-red-50' : ''
+                    }`}
                   />
+                  {submitted && errors.monthlyRate && (
+                    <p className="text-xs text-red-500 mt-1">{errors.monthlyRate}</p>
+                  )}
                 </div>
-              </div>
 
-              {/* Description */}
+              {/* Housing Type */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-[#1a2332]/60">
-                  Description <span className="font-normal text-[#1a2332]/30">(optional)</span>
+                  Housing Type
                 </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  placeholder="Enter a short description of this dormitory…"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors resize-none leading-relaxed"
-                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setHousingType('UP Housing')}
+                    className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
+                      housingType === 'UP Housing'
+                        ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
+                        : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                    }`}
+                  >
+                    UP Housing
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHousingType('Non-UP Housing')}
+                    className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
+                      housingType === 'Non-UP Housing'
+                        ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
+                        : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                    }`}
+                  >
+                    Non-UP Housing
+                  </button>
+                </div>
               </div>
             </div>
 
             <div className="border-t border-gray-100" />
 
-            {/* Manager & Status */}
+            {/* Manager & Landlord */}
             <div className="space-y-4">
-              <p className="text-sm font-bold text-[#1a2332]">Manager &amp; Status</p>
+              <p className="text-sm font-bold text-[#1a2332]">Manager &amp; Landlord</p>
 
               {/* Assign Manager — searchable, mirrors "Assign to Dormitory" in EditUserModal */}
-              <div ref={containerRef} className="relative space-y-1.5">
+              <div ref={managerRef} className="relative space-y-1.5">
                 <label className="block text-xs font-semibold text-[#b85c28]">
                   Assign Manager
                 </label>
@@ -299,7 +385,6 @@ export function EditDormModal({
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-[#b85c28] truncate">{selectedManager.name}</p>
-                      <p className="text-[10px] text-[#b85c28]/60 font-mono truncate">{selectedManager.email}</p>
                     </div>
                     {/* Clear selection */}
                     <button
@@ -316,20 +401,20 @@ export function EditDormModal({
                 <input
                   value={managerDisplayValue}
                   onChange={(e) => {
-                    setQuery(e.target.value);
+                    setManagerQuery(e.target.value);
                     setSelectedManager(null);
-                    setOpen(true);
+                    setManagerOpen(true);
                   }}
                   onFocus={() => {
-                    setQuery("");
-                    setOpen(true);
+                    setManagerQuery("");
+                    setManagerOpen(true);
                   }}
                   placeholder="Search by name or email…"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors"
                 />
 
                 {/* Dropdown */}
-                {open && (
+                {managerOpen && (
                   <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-52 overflow-y-auto">
                     {filteredManagers.length > 0 ? (
                       filteredManagers.map((m) => (
@@ -339,8 +424,8 @@ export function EditDormModal({
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => {
                             setSelectedManager(m);
-                            setQuery("");
-                            setOpen(false);
+                            setManagerQuery("");
+                            setManagerOpen(false);
                           }}
                           className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-200
                             ${m.id === selectedManager?.id ? "bg-[#fdf0e8]" : ""}`}
@@ -352,7 +437,9 @@ export function EditDormModal({
                             <p className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
                               {m.name}
                             </p>
-                            <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">{m.email}</p>
+                            <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">
+                              {m.email}
+                            </p>
                           </div>
                         </button>
                       ))
@@ -367,8 +454,8 @@ export function EditDormModal({
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
                         setSelectedManager(null);
-                        setQuery("");
-                        setOpen(false);
+                        setManagerQuery("");
+                        setManagerOpen(false);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-[#1a2332]/40 italic hover:bg-gray-200 border-t border-gray-200 transition-colors"
                     >
@@ -378,15 +465,122 @@ export function EditDormModal({
                 )}
               </div>
 
-              {/* Status */}
-              
+              {/* Assign Landlord — searchable dropdown */}
+              <div ref={landlordRef} className="relative space-y-1.5">
+                <label className="block text-xs font-semibold text-[#1a2332]">
+                  Assign Landlord
+                </label>
+
+                {/* Current landlord preview */}
+                {selectedLandlord && (
+                  <div className="flex items-center gap-2.5 px-4 py-2.5 mb-1 bg-[#e8f0fd] border border-blue-200 rounded-xl">
+                    <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                      <span className="text-[10px] font-bold text-white">
+                        {getInitials(selectedLandlord.name)}
+                      </span>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-blue-700 truncate">
+                        {selectedLandlord.name}
+                      </p>
+                    </div>
+
+                    {/* Clear selection */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLandlord(null)}
+                      className="shrink-0 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-200 transition-colors"
+                      aria-label="Clear landlord"
+                    >
+                      <X size={11} className="text-blue-700" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Input */}
+                <input
+                  value={landlordDisplayValue}
+                  onChange={(e) => {
+                    setLandlordQuery(e.target.value);
+                    setSelectedLandlord(null);
+                    setLandlordOpen(true);
+                  }}
+                  onFocus={() => {
+                    setLandlordQuery("");
+                    setLandlordOpen(true);
+                  }}
+                  placeholder="Search landlord by name or email…"
+                  className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-blue-400 transition-colors ${
+                    submitted && errors.landlord ? 'border-red-300 bg-red-50' : ''
+                  }`}
+                />
+                {submitted && errors.landlord && (
+                  <p className="text-xs text-red-500 mt-1">{errors.landlord}</p>
+                )}
+
+                {/* Dropdown */}
+                {landlordOpen && (
+                  <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-52 overflow-y-auto">
+                    {filteredLandlords.length > 0 ? (
+                      filteredLandlords.map((l) => (
+                        <button
+                          key={l.id}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            setSelectedLandlord(l);
+                            setLandlordQuery("");
+                            setLandlordOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-200
+                            ${l.id === selectedLandlord?.id ? "bg-[#e8f0fd]" : ""}`}
+                        >
+                          <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                            <span className="text-[10px] font-bold text-white">
+                              {getInitials(l.name)}
+                            </span>
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-[#1a2332] truncate">
+                              {l.name}
+                            </p>
+                            <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">
+                              {l.email}
+                            </p>
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-gray-400">
+                        No landlords found
+                      </div>
+                    )}
+
+                    {/* Unassign option */}
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setSelectedLandlord(null);
+                        setLandlordQuery("");
+                        setLandlordOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm text-[#1a2332]/40 italic hover:bg-gray-200 border-t border-gray-200 transition-colors"
+                    >
+                      Unassigned
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Warning */}
             <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
               <AlertTriangle size={15} className="text-[#b85c28] shrink-0 mt-0.5" />
               <p className="text-xs text-[#b85c28] font-mono">
-                Changes to capacity and status will be reflected immediately across the system.
+                Changes will be reflected immediately across the system.
               </p>
             </div>
 

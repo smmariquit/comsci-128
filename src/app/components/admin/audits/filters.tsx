@@ -1,8 +1,7 @@
-
 "use client";
 
-import { C } from "@/lib/palette";
 import { Search } from "lucide-react";
+import { C } from "@/lib/palette";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -39,11 +38,8 @@ const inputBase: React.CSSProperties = {
 const selectBase: React.CSSProperties = {
   ...inputBase,
   cursor: "pointer",
-  appearance: "none",
-  paddingRight: 28,
-  backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23567375' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "right 10px center",
+  appearance: "auto",
+  paddingRight: 12,
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -55,11 +51,20 @@ export default function AuditLogFilters({
   onAction,
 }: Props) {
   return (
-    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-      
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
       {/* Search */}
       <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
         <Search
+          size={14}
+          color={C.teal}
+          strokeWidth={2}
           style={{
             position: "absolute",
             left: 10,
@@ -67,8 +72,6 @@ export default function AuditLogFilters({
             transform: "translateY(-50%)",
             pointerEvents: "none",
           }}
-          size={14}
-          color={C.teal}
         />
 
         <input
@@ -95,7 +98,6 @@ export default function AuditLogFilters({
         <option value="BILL_UPDATE">Billing</option>
         <option value="LOGOUT">Logout</option>
       </select>
-
     </div>
   );
 }

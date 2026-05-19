@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -22,25 +22,80 @@ export interface SidebarUser {
     initials: string;
 }
 
-export interface SidebarProps {
-    user: SidebarUser; // Authenticated user info for display in the sidebar footer
-    onLogout?: () => void;
-}
-
 // Navigation items and routing for the sidebar
 const navItems = [
     { label: 'Dashboard',            href: '/sys',        icon: LayoutDashboard },
     { label: 'User Management',      href: '/sys/users',  icon: Users },
-    { label: 'Role Management',      href: '/sys/roles',  icon: ShieldCheck },
     { label: 'Dorm Management',      href: '/sys/dorms',  icon: BedDouble },
     { label: 'Audit Logs',           href: '/sys/logs',   icon: ClipboardList },
-    { label: 'System Configuration', href: '/sys/config', icon: Settings },
 ];
 
 // Main Sidebar component
-export default function Sidebar({ user, onLogout }: SidebarProps) {
+export default function Sidebar() {
     const pathname = usePathname(); // Get current path for active link styling
     const [menuOpen, setMenuOpen] = useState(false); // State for user profile dropdown menu (Shows logout button) 
+    const [accountNumber, setAccountNumber] = useState<number>(0);
+    const [user, setUser] = useState<SidebarUser>({name: "",role: "",initials: ""});
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            // read account_number from cookies on mount
+            const getCookie = (name: string) => {
+                const match = document.cookie.split(";").find((c) => c.trim().startsWith(name + "="));
+                return match ? decodeURIComponent(match.split("=")[1]) : null;
+            };
+
+            const acc = getCookie("account_number");
+
+            if (!acc) return;
+
+            const accountNumber = Number(acc);
+
+            setAccountNumber(accountNumber);
+
+            try {
+                const userResponse = await fetch(`/api/users/${accountNumber}`);
+
+                if (!userResponse.ok) {
+                    throw new Error("Failed to fetch user");
+                }
+
+                const userData = await userResponse.json();
+                const fullName = `${userData.first_name} ${userData.last_name}`;
+
+                setUser({
+                    name: fullName,
+                    role: userData.user_type,
+                    initials: fullName
+                        .split(" ")
+                        .map((n: string) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2),
+                });
+
+                console.log(userData);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
+    const onLogout = () => {
+        // Delete all cookies
+        document.cookie.split(";").forEach((cookie) => {
+            const eqPos = cookie.indexOf("=");
+            const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
+            // Set cookie expiration to past date to delete it
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        });
+
+        // redirect to login page
+        window.location.href = "/";
+    };
+
     return (
         <aside className="w-70 min-h-screen bg-[#1a2332] flex flex-col shrink-0">
             {/* Logo, System Name, Tagline */}
@@ -82,9 +137,10 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
 
             {/* User Profile and Logout */}
             <div className="px-6 py-4 border-t border-white/6 relative">
-                <div
+                <button
+                    type="button"
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/6 transition-colors duration-150"
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/6 transition-colors duration-150"
                 >
                     <div className="relative shrink-0">
                         <div className="w-9 h-9 bg-[#2e3f55] rounded-full flex items-center justify-center text-xs font-bold text-white/75 tracking-wider">
@@ -100,7 +156,7 @@ export default function Sidebar({ user, onLogout }: SidebarProps) {
                         size={14}
                         className={`text-white/30 shrink-0 transition-transform duration-200 ${menuOpen ? 'rotate-90' : ''}`}
                     />
-                    </div>
+                </button>
 
                     {/* Popup menu */}
                     {menuOpen && (

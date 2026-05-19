@@ -7,6 +7,7 @@ import NotificationBell from '@/app/(main)/sys/component/notification';
 import AddManagerModal from '@/app/(main)/sys/component/add-manager-modal';
 import AddDormModal, { type NewDorm } from '@/app/(main)/sys/component/add-dorm';
 import { AuditLog } from '@/app/lib/models/audit_log';
+import StateMessage from '@/app/components/ui/state-message';
 
 import {
 	TrendingUp,
@@ -97,21 +98,13 @@ function formatTimeAgo(timestamp: string): string {
 }
 // Quick Access Button Icons
 const quickAccess = [
-	{ label: 'Add Manager',     icon: UserPlus,     href: null },
 	{ label: 'Add Dormitory',   icon: PlusSquare,   href: null },
 	{ label: 'Edit User',       icon: Pencil,       href: '/sys/users'},
 ];
 
-// Hardcoded stub data for now - to be replaced with real data from backend/API integration
-const stubUser: SidebarUser = {
-	name: 'Luthelle Fernandez',
-	role: 'System Admin',
-	initials: 'LF',
-};
 
 export default function DashboardPage({
 	// Dummy data for now - to be replaced with real data from backend/API integration
-	user = stubUser,
 	  notifications = [
 		{ id: '1', title: 'Maintenance tonight',       body: '02:00 UTC — brief downtime',          read: false, time: '1h ago' },
 		{ id: '2', title: 'New user registered',        body: 'User Ivanne signed up for Dorm 1',   read: false, time: '3h ago' },
@@ -226,7 +219,7 @@ export default function DashboardPage({
 		if (loading) {
 			return (
 				<div className="flex min-h-screen bg-[#eae8e1]">
-					<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+					<Sidebar/>
 					<div className="flex-1 flex items-center justify-center">
 						<div className="text-center">
 							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
@@ -241,23 +234,29 @@ export default function DashboardPage({
 		if (error) {
 			return (
 				<div className="flex min-h-screen bg-[#eae8e1]">
-					<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
-					<div className="flex-1 flex items-center justify-center">
-						<div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
-							<p className="text-red-600 font-semibold mb-2">Error Loading Dashboard</p>
-							<p className="text-red-500 text-sm mb-4">{error}</p>
-							<button 
-								onClick={() => window.location.reload()} 
-								className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-							>
-								Try Again
-							</button>
+					<Sidebar/>
+					<div className="flex-1 flex items-center justify-center p-6">
+						<div className="max-w-md w-full">
+							<StateMessage
+								variant="error"
+								title="Unable to load dashboard"
+								description="You appear to be offline or our servers are temporarily unreachable."
+							/>
+							<div className="mt-4 text-center">
+								<button 
+									onClick={() => window.location.reload()} 
+									className="px-4 py-2 bg-[#d4622a] text-white font-medium rounded-lg hover:bg-[#d4622a]/90 transition-colors"
+								>
+									Try Again
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			);
 		}
 		return (
+			
 			<div className="flex min-h-screen bg-[#eae8e1]">
 				      {/* 'Add Manager' Modal */}
 					  <AddManagerModal
@@ -278,7 +277,7 @@ export default function DashboardPage({
 							/>
 
 				{/*Sidebar */}
-				<Sidebar user={stubUser} onLogout={() => window.location.href = '/'} />
+				<Sidebar/>
 				
 				{/* Main Content */}
 				<div className="flex-1 flex flex-col overflow-auto">
@@ -291,7 +290,7 @@ export default function DashboardPage({
 
 						{/* Notification bell */}
 						<div className='relative'>
-							<NotificationBell notifications={notifications} />
+							<NotificationBell />
 						</div>
 					</div>
 					{ /*Stat Cards*/}
@@ -309,10 +308,6 @@ export default function DashboardPage({
   								{s.label === 'TOTAL USERS' ? userCount : s.value}
 							</p>
 							
-							<p className={`text-xs flex items-center gap-1 ${s.dark ? 'text-white/50' : 'text-[#1a2332]/50'}`}>
-								{s.sub.startsWith('↑') && <TrendingUp size={12} className="text-[#d4622a]" />}
-								{s.sub}
-							</p>
 							</div>
 						))}
 					</div>
@@ -402,26 +397,7 @@ export default function DashboardPage({
 										)}
 								</div> 
 							</div>
-							{/* System Alerts */}
-							<div className="bg-white rounded-2xl p-6">
-								{/* Title and View Log */}
-								<div className="flex items-center justify-between mb-4">
-									<h2 className="text-[15px] font-bold text-[#1a2332]">System Alerts</h2>
-									<Link href="/sys/logs" className="text-xs text-[#1a2332]/50 hover:text-[#d4622a] transition-colors">
-									View log →
-									</Link>
-								</div>
-								{/* Alerts List */}
-								<div className="border border-[#d4622a]/30 bg-[#d4622a]/5 rounded-xl p-3 flex items-start gap-2">
-									<div className="w-5 h-5 rounded-full border-2 border-[#d4622a] flex items-center justify-center shrink-0 mt-0.5">
-										<span className="text-[#d4622a] text-[10px] font-bold">!</span>
-										</div>
-										<div>
-										<p className="text-xs font-semibold text-[#d4622a]">Maintenance tonight</p>
-										<p className="text-[11px] text-[#1a2332]/50 mt-0.5">02:00 UTC — brief downtime</p>
-									</div>
-								</div>
-							</div>
+							
 						</div>
 					</div>
 				</div>

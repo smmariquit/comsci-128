@@ -8,10 +8,6 @@ export interface NewDorm {
   id: string;
   name: string;
   dormAddress: string;
-  description?: string;
-  rooms: number;
-  capacity: number;
-  capacityPerRoom: number;
   monthlyRate: number;
   securityDeposit: number;
   managerEmail?: string;
@@ -24,31 +20,9 @@ export interface AddDormModalProps {
   open: boolean;
   onClose: () => void;
   onAdd: (dorm: NewDorm) => void;
-  managers?: { id: string; name: string; email: string }[];
+  managers?: { id: string; name: string}[];
+  landlords?: { id: string; name: string }[];
 }
-
-type InitialStatus = 'Active' | 'Inactive' | 'Maintenance';
-
-// List of Managers for the dropdown - hardcoded for now, but to be fetched from the real database
-const STUB_MANAGERS = [
-  { id: '1', name: 'Luis Dela Rosa',    email: 'ldelarosa@up.edu.ph'    },
-  { id: '2', name: 'Justine Antonio',   email: 'jiantonio@up.edu.ph'    },
-  { id: '3', name: 'Paul Fababeir',     email: 'phfababeir@up.edu.ph'   },
-  { id: '4', name: 'Jun Paul Omamos',   email: 'jpomamos@up.edu.ph'     },
-  { id: '5', name: 'Joy Guevarra',      email: 'jguevarra@up.edu.ph'    },
-  { id: '6', name: 'Haira Espinocilla', email: 'hespinocilla@up.edu.ph' },
-  { id: '7', name: 'Althea Fernandez',  email: 'alfernandez@up.edu.ph'  },
-];
-
-// Status display - radio buttons
-const STATUS_CONFIG: Record<
-  InitialStatus,
-  { dot: string; border: string; bg: string; text: string }
-> = {
-  Active:      { dot: 'bg-emerald-500', border: 'border-emerald-400', bg: 'bg-emerald-50/60',  text: 'text-emerald-700' },
-  Inactive:    { dot: 'bg-blue-400',    border: 'border-blue-300',    bg: 'bg-blue-50/60',     text: 'text-blue-700'    },
-  Maintenance: { dot: 'bg-amber-400',   border: 'border-amber-300',   bg: 'bg-amber-50/60',    text: 'text-amber-700'   },
-};
 
 
 // Main component - modal dialog for adding a new dormitory
@@ -56,55 +30,105 @@ export default function AddDormModal({
   open,
   onClose,
   onAdd,
-  managers = STUB_MANAGERS,
+  managers,
+  landlords
 }: AddDormModalProps) {
   const [dormName,        setDormName]        = useState('');
   const [address,         setAddress]         = useState('');
-  const [description,     setDescription]     = useState('');
-  const [totalRooms,      setTotalRooms]      = useState('');
-  const [capacityPerRoom, setCapacityPerRoom] = useState('');
   const [monthlyRate,     setMonthlyRate]     = useState('');
   const [securityDeposit, setSecurityDeposit] = useState('');
   const [managerId,       setManagerId]       = useState('');
-  const [status,          setStatus]          = useState<InitialStatus>('Active');
+  const [housingType, setHousingType] = useState<'UP Housing' | 'Non-UP Housing'>('UP Housing');
+  const [errors, setErrors] = useState<{
+    dormName?: string;
+    address?: string;
+    monthlyRate?: string;
+    landlord?: string;
+  }>({});
+  const [landlordId, setLandlordId] = useState(''); 
+  const [submitted, setSubmitted] = useState(false);
 
   if (!open) return null;
 
   // Reset all form fields to initial values
   const reset = () => {
-    setDormName(''); setAddress(''); setDescription('');
-    setTotalRooms(''); setCapacityPerRoom('');
-    setMonthlyRate(''); setSecurityDeposit('');
-    setManagerId(''); setStatus('Active');
+    setDormName('');
+    setAddress('');
+    setMonthlyRate('');
+    setSecurityDeposit('');
+    setHousingType('UP Housing');
+    setLandlordId('');
+    setManagerId('');
+    setErrors({});
+    setSubmitted(false);
   };
 
   const handleClose = () => { reset(); onClose(); };
 
 // Submit handler
-  const handleSubmit = () => {
-    const manager    = managers.find((m) => m.id === managerId);
-    const rooms      = parseInt(totalRooms)      || 0;
-    const capPerRoom = parseInt(capacityPerRoom) || 0;
+  const handleSubmit = async () => {
+    const manager = (managers ?? []).find((m) => m.id === managerId);
+    const newErrors: typeof errors = {};
 
-    const newDorm: NewDorm = {
-      id:              Date.now().toString(),
-      name:            dormName,
-      dormAddress:     address,
-      description:     description || undefined,
-      rooms,
-      capacity:        rooms * capPerRoom,
-      capacityPerRoom: capPerRoom,
-      monthlyRate:     parseFloat(monthlyRate)     || 0,
-      securityDeposit: parseFloat(securityDeposit) || 0,
-      managerEmail:    manager?.email,
-      dormitory:       manager?.name ?? '',
-      // Map Active → Accepting; anything else → Disabled (matches User.status)
-      status:          status === 'Active' ? 'Accepting' : 'Disabled',
-      occupied:        0,
-    };
+    if (!dormName.trim()) {
+      newErrors.dormName = 'Dorm name is required';
+    }
 
-    onAdd(newDorm);
-    handleClose();
+    if (!address.trim()) {
+      newErrors.address = 'Address is required';
+    }
+
+    if (!landlordId) {
+      newErrors.landlord = 'Landlord is required';
+    }
+
+    if (!monthlyRate || monthlyRate.trim() === '') {
+      newErrors.monthlyRate = 'Monthly rate is required';
+    } else if (Number(monthlyRate) < 0) {
+      newErrors.monthlyRate = 'Monthly rate cannot be negative';
+    }
+
+    setErrors(newErrors);
+    setSubmitted(true);
+
+    if (Object.keys(newErrors).length > 0) return;
+
+    try {
+        const response = await fetch('/api/housing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                housing_name:    dormName,
+                housing_address: address,
+                housing_type:    housingType,    
+                rent_price:      parseFloat(monthlyRate) || 0,
+                manager_account_number:  managerId  ? Number(managerId)  : undefined,  // nullable
+                landlord_account_number: Number(landlordId)  
+            }),
+        });
+
+        if (!response.ok) throw new Error('Failed to add dormitory');
+
+        const data = await response.json();
+
+        // Build local state object from API response
+        const newDorm: NewDorm = {
+            id:              String(data.data?.housing_id || Date.now()),
+            name:            dormName,
+            dormAddress:     address,
+            monthlyRate:     parseFloat(monthlyRate)     || 0,
+            securityDeposit: parseFloat(securityDeposit) || 0,
+            dormitory:       manager?.name ?? '',
+            status:          'Accepting',
+            occupied:        0,
+        };
+
+        onAdd(newDorm);
+        handleClose();
+    } catch (err) {
+        console.error('Error adding dorm:', err);
+        alert('Failed to add dormitory');
+    }
   };
   return (
     /* Backdrop */
@@ -138,7 +162,11 @@ export default function AddDormModal({
                 placeholder="e.g. Sampaguita Dormitory"
                 value={dormName}
                 onChange={(e) => setDormName(e.target.value)}
+                className={errors.dormName ? 'border-red-300 bg-red-50' : ''}
               />
+              {submitted && errors.dormName && (
+                <p className="text-xs text-red-500 mt-1">{errors.dormName}</p>
+              )}
             </Field>
 
             <Field label="Complete Address">
@@ -146,42 +174,17 @@ export default function AddDormModal({
                 placeholder="e.g. 123 Roxas St, Diliman, Quezon City"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
+                className={submitted && errors.address ? 'border-red-300 bg-red-50' : ''}
               />
-            </Field>
-
-            <Field label="Description" optional>
-              <textarea
-                placeholder="Brief description of the dormitory..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                className={TEXTAREA_CLS}
-              />
+              {submitted && errors.address && (
+                <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+              )}
             </Field>
 
           </Section>
-
+          
           {/* Capacity & rooms */}
           <Section label="Capacity & Rooms">
-
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Total Rooms">
-                <TextInput
-                  type="number"
-                  placeholder="e.g. 30"
-                  value={totalRooms}
-                  onChange={(e) => setTotalRooms(e.target.value)}
-                />
-              </Field>
-              <Field label="Capacity per Room" hint="Max tenants per room">
-                <TextInput
-                  type="number"
-                  placeholder="e.g. 2"
-                  value={capacityPerRoom}
-                  onChange={(e) => setCapacityPerRoom(e.target.value)}
-                />
-              </Field>
-            </div>
 
             <div className="grid grid-cols-2 gap-3">
               <Field label="Monthly Rate (₱)">
@@ -190,24 +193,49 @@ export default function AddDormModal({
                   placeholder="e.g. 6700"
                   value={monthlyRate}
                   onChange={(e) => setMonthlyRate(e.target.value)}
+                  className={submitted && errors.monthlyRate ? 'border-red-300 bg-red-50' : ''}
                 />
+                {submitted && errors.monthlyRate && (
+                  <p className="text-xs text-red-500 mt-1">{errors.monthlyRate}</p>
+                )}
               </Field>
-              <Field label="Security Deposit (₱)">
-                <TextInput
-                  type="number"
-                  placeholder="e.g. 6700"
-                  value={securityDeposit}
-                  onChange={(e) => setSecurityDeposit(e.target.value)}
-                />
-              </Field>
+         
             </div>
 
           </Section>
 
+
+          <Field label="Housing Type">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setHousingType('UP Housing')}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
+                  housingType === 'UP Housing'
+                    ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
+                    : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                }`}
+              >
+                UP Housing
+              </button>
+              <button
+                type="button"
+                onClick={() => setHousingType('Non-UP Housing')}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
+                  housingType === 'Non-UP Housing'
+                    ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
+                    : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                }`}
+              >
+                Non-UP Housing
+              </button>
+            </div>
+          </Field>
+
           {/* Assignment & Status */}
           <Section label="Assignment & Status">
 
-            <Field label="Assign Manager" hint="Only users with Manager or Landlord role are listed">
+            <Field label="Assign Manager">
               {/* Wrapper for custom chevron icon */}
               <div className="relative">
                 <select
@@ -216,7 +244,7 @@ export default function AddDormModal({
                   className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer`}
                 >
                   <option value="">Select a manager...</option>
-                  {managers.map((m) => (
+                  {(managers ?? []).map((m) => (
                     <option key={m.id} value={m.id}>{m.name}</option>
                   ))}
                 </select>
@@ -227,29 +255,31 @@ export default function AddDormModal({
               </div>
             </Field>
 
-            <Field label="Initial Status">
-              <div className="grid grid-cols-3 gap-2">
-                {(['Active', 'Inactive', 'Maintenance'] as InitialStatus[]).map((s) => {
-                  const cfg     = STATUS_CONFIG[s];
-                  const isActive = s === status;
-                  return (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setStatus(s)}
-                      className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-sm font-medium transition-colors ${
-                        isActive
-                          ? `${cfg.border} ${cfg.bg} ${cfg.text}`
-                          : 'border-[#1a2332]/10 text-[#1a2332]/50 hover:border-[#1a2332]/20'
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                      {s}
-                    </button>
-                  );
-                })}
-              </div>
-            </Field>
+           <Field label="Assign Landlord">
+            <div className="relative">
+              <select
+                value={landlordId}
+                onChange={(e) => setLandlordId(e.target.value)}
+                className={`${INPUT_CLS} appearance-none pr-9 cursor-pointer ${
+                  submitted && !landlordId ? 'border-red-300 bg-red-50 text-red-400' : ''  
+                }`}
+              >
+                <option value="">Select a landlord...</option>
+                {(landlords ?? []).map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+              <ChevronDown
+                size={14}
+                className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 ${
+                  submitted && !landlordId ? 'text-red-400' : 'text-[#1a2332]/40'  // ✅ Only red after submit
+                }`}
+              />
+            </div>
+            {submitted && errors.landlord && (  // ✅ Only show error after submit
+              <p className="text-xs text-red-500 mt-1">Landlord is required</p>
+            )}
+          </Field>
 
           </Section>
         </div>

@@ -13,15 +13,26 @@ import { ViewDormModal } from '@/app/(main)/sys/component/view-dorm';
 export interface Dorm {
   id: string;
   name: string;
+  type?: string;
+  housingType?: 'UP Housing' | 'Non-UP Housing';
   status: 'Accepting' | 'Disabled' | string;
   dormitory: string;
   dormAddress?: string;
+  managerName?: string; 
   managerEmail?: string;
+  landlordName?: string;
+  landlordEmail?: string;
   capacity?: number;
   rooms?: number;
   occupied?: number;
+  monthlyRate?: number;
 }
 
+interface LandlordOption {
+    id: string;
+    name: string;
+    email: string;
+}
 
 // Sidebar + notifications
 export interface DormManagementProps {
@@ -40,13 +51,6 @@ export interface Notification {
   read: boolean;
   time: string;
 }
-
-// Hardcoded stubs for development - to be replaced with real data fetching logic
-const stubDorm: SidebarUser = {
-  name: 'Luthelle Fernandez',
-  role: 'System Admin',
-  initials: 'LF',
-};
 
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
@@ -99,7 +103,6 @@ function StatusBadge({ status }: { status: string }) {
 
 // Main Dorm Management Page component
 export default function DormManagementPage({
-  Dorm = stubDorm,
   notifications = stubNotifications,
   onLogout,
 }: DormManagementProps) {
@@ -113,56 +116,102 @@ export default function DormManagementPage({
     search: '', status: 'All Status', occupancy: 'All',
   });
   const [managersList, setManagersList] = useState<{ id: string; name: string; email: string }[]>([]);
+  const [landlordList, setLandlordList] = useState<LandlordOption[]>([]);
+
+  const fetchDorms = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [housingResponse, occupancyResponse, landlordResponse, managerResponse] = await Promise.all([
+        fetch('/api/housing'),
+        fetch('/api/housing/occupancy'),
+        fetch('/api/landlord'),
+        fetch('/api/housing-admin'),
+      ]);
+
+      if (!housingResponse.ok) throw new Error(`HTTP error! status: ${housingResponse.status}`);
+      if (!occupancyResponse.ok) throw new Error(`HTTP error! status: ${occupancyResponse.status}`);
+      if (!landlordResponse.ok) throw new Error(`HTTP error! status: ${landlordResponse.status}`);
+      if (!managerResponse.ok) throw new Error(`HTTP error! status: ${managerResponse.status}`);
+
+      const housingData = await housingResponse.json();
+      const occupancyData = await occupancyResponse.json();
+      const landlordData = await landlordResponse.json();
+      const managerData = await managerResponse.json();
+
+      // Build occupancy lookup map by housingId
+      const rawOccupancy = Array.isArray(occupancyData) ? occupancyData : occupancyData.data ?? [];
+      const occupancyMap = new Map(rawOccupancy.map((o: any) => [String(o.housingId), o]));
+
+      // Build manager lookup map
+      const rawManagers = managerData?.data?.data ?? [];
+      const transformedManagers = rawManagers.map((m: any) => {
+        const user = m.manager?.user;
+        return {
+          id: String(m.account_number),
+          name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+          email: user?.account_email || '',
+        };
+      });
+      const managerMap = new Map(transformedManagers.map((m: any) => [m.id, m]));
+
+      // Use housing as base, map occupancy data onto it
+      const rawHousing = Array.isArray(housingData) ? housingData : housingData.data ?? [];
+
+      // Transform landlords
+      const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
+      const transformedLandlords: LandlordOption[] = rawLandlords.map((l: any) => {
+        const user = l.manager?.user;
+        return {
+          id: String(l.account_number),
+          name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+          email: user?.account_email || '',
+        };
+      });
+
+      const transformed: Dorm[] = rawHousing.map((housing: any) => {
+        const housingId = String(housing.housing_id ?? '');
+        const occupancy = occupancyMap.get(housingId) as any;
+        const managerId = String(housing.manager_account_number ?? '');
+        const landlordId = String(housing.landlord_account_number ?? '');
+        const manager = managerMap.get(managerId) as { id: string; name: string; email: string } | undefined;
+        const landlord = transformedLandlords.find((l) => l.id === landlordId);
+
+        return {
+          id: housingId,
+          name: housing.housing_name ?? 'Unknown',
+          status: 'Accepting',
+          type: housing.housing_type,
+          housingType: (housing.housing_type as 'UP Housing' | 'Non-UP Housing') || 'UP Housing',
+          dormitory: manager?.name || 'Unassigned',
+          dormAddress: housing.housing_address ?? '',
+          managerName: manager?.name || undefined,
+          managerEmail: manager?.email || undefined,
+          landlordName: landlord?.name || undefined,
+          landlordEmail: landlord?.email || undefined,
+          capacity: occupancy?.totalRooms ?? 0,
+          rooms: occupancy?.totalRooms ?? 0,
+          occupied: occupancy?.occupiedRooms ?? 0,
+          monthlyRate: housing.rent_price ?? undefined,
+        };
+      });
+      setDormList(transformed);
+      setLandlordList(transformedLandlords);
+      setManagersList(transformedManagers);
+    } catch (error) {
+      console.error('Error fetching dorms:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
+      setDormList([]);
+      setLandlordList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   
-  // Fetch dorms from API
   useEffect(() => {
-      const fetchDorms = async () => {
-          try {
-              setLoading(true);
-              setError(null);
-
-              const response = await fetch('/api/housing/occupancy');
-
-              if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-              }
-
-              const data = await response.json();
-
-              console.log('Raw dorm data:', data);
-
-              // Handle different response formats
-              const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
-
-              // Transform DB fields to match Dorm interface 
-              const transformed: Dorm[] = rawDorms
-                  .map((dorm: any) => ({
-                      id: String(dorm.housingId || ''), 
-                      name: dorm.name || 'Unknown', 
-                      status: 'Accepting', 
-                      dormitory: 'Unassigned', // Fix later in the query
-                      dormAddress: dorm.address || undefined, 
-                      managerEmail: undefined, // FIx later in the query
-                      capacity: dorm.occupancyRate|| undefined, 
-                      rooms: dorm.totalRooms || undefined,
-                      occupied: dorm.occupiedRooms || undefined,
-                      type: dorm.housingType
-                  }));
-
-              console.log('Transformed dorms:', transformed);
-
-              setDormList(transformed);
-          } catch (error) {
-              console.error('Error fetching dorms:', error);
-              setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
-              setDormList([]);
-              setManagersList([]);
-          } finally {
-              setLoading(false);
-          }
-      };
-
-      fetchDorms();
+    fetchDorms();
   }, []);
 
   const [page, setPage] = useState(1);
@@ -197,7 +246,7 @@ export default function DormManagementPage({
     if (loading) {
       return (
         <div className="flex min-h-screen bg-[#eae8e1]">
-          <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+          <Sidebar/>
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
@@ -235,10 +284,12 @@ export default function DormManagementPage({
         open={showModal}
         onClose={() => setShowModal(false)}
         onAdd={handleAddDorm}
+        landlords={landlordList}
+        managers={managersList}
       />
 
       {/* Sidebar */}
-      <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+      <Sidebar/>
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-auto">
@@ -249,7 +300,7 @@ export default function DormManagementPage({
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Dorm Management</h1>
             <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Assign and manage roles for Dorms and dormitory managers</p>
           </div>
-          <NotificationBell notifications={notifications} />
+          <NotificationBell/>
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">
@@ -323,8 +374,14 @@ export default function DormManagementPage({
                     {/* OCCUPIED */}
                     <span className="text-sm text-[#1a2332]/70">{u.occupied ?? '—'}</span>
 
-                    {/* STATUS */}
-                    <span className="text-sm text-[#1a2332]/70">{u.occupied ?? 'Mixed'}</span>
+                    {/* TYPE */}
+                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold w-fit ${
+                      u.type === 'non-up'
+                        ? 'bg-purple-100 text-red-700'
+                        : 'bg-blue-100 text-green-700'
+                    }`}>
+                      {u.type ? u.type.toUpperCase() : '—'}
+                    </span>
 
                     {/* ACTIONS */}
                     <div className="flex items-center gap-2">
@@ -368,24 +425,44 @@ export default function DormManagementPage({
       </div>
       {viewingDorm && (
         <ViewDormModal
-          dorm={viewingDorm}
+          dorm={{
+            ...viewingDorm,
+            housingType: viewingDorm.housingType,
+            landlordName: viewingDorm.landlordName,
+            landlordEmail: viewingDorm.landlordEmail,
+            monthlyRate: viewingDorm.monthlyRate,
+          }}
           onClose={() => setViewingDorm(null)}
           onEdit={() => setEditingDorm(viewingDorm)}
         />
       )}
-      {/* {editingDorm && (
-        <EditDormModal
-          dorm={editingDorm}
-          managers={managersList}
-          onClose={() => setEditingDorm(null)}
-          onSave={(id, updates) => {
-            setDormList((prev) =>
-              prev.map((d) => (d.id === id ? { ...d, ...updates } : d))
-            );
-            setEditingDorm(null);
-          }}
-        />
-      )} */}
+
+      {editingDorm && (
+      <EditDormModal
+        dorm={editingDorm as any}
+        managers={managersList}
+        landlords={landlordList}
+        onClose={() => setEditingDorm(null)}
+        onSave={(id, updates) => {
+        const { id: _ignored, ...safeUpdates } = updates as any;
+
+        setDormList((prev) =>
+          prev.map((d) =>
+            d.id === String(id)
+              ? {
+                  ...d,
+                  name: safeUpdates.housing_name ?? d.name,
+                  dormAddress: safeUpdates.housing_address ?? d.dormAddress,
+                  type: safeUpdates.housing_type ?? d.type,
+                  managerEmail: d.managerEmail, // unchanged unless you recompute
+                }
+              : d
+          )
+        );
+        setEditingDorm(null);
+      }}
+      />
+    )}
     </div>
   );
 }

@@ -1,21 +1,34 @@
 import type { Metadata } from "next";
 import ReportsWrapper from "@/app/components/admin/reports/reports_wrapper";
+import { reportData } from "@/app/lib/data/report-data";
+import { housingData } from "@/app/lib/data/housing-data";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Reports",
+  description:
+    "View and generate reports related to occupancy, applications, revenue, and accommodation history for managed properties.",
 };
-import { reportData } from "@/app/lib/data/report-data";
-import { report } from "process";
 
 export default async function ReportsPage() {
-  // TODO: Replace with the actual logged-in admin's managed IDs 
-  const managedHousingIds = [3, 12, 13, 14, 16, 18];
+  const storedCookie = await cookies();
+  const accountNumber = Number(
+    storedCookie.get("account_number")?.value ?? "0",
+  );
+  const housings = await housingData.findbyLandlord(accountNumber);
+  const managedHousingIds = housings.map((h) => h.housing_id);
 
   // server-side fetch
-  const [liveOccupancy, liveApplications, liveAccommodationHistory] = await Promise.all([
+  const [
+    liveOccupancy,
+    liveApplications,
+    liveAccommodationHistory,
+    liveRevenue,
+  ] = await Promise.all([
     reportData.getOccupancyReport(managedHousingIds),
     reportData.getApplicationReport(managedHousingIds),
-    reportData.getAccommodationHistoryReport(managedHousingIds)
+    reportData.getAccommodationHistoryReport(managedHousingIds),
+    reportData.getRevenueReport(managedHousingIds),
   ]);
 
   return (
@@ -23,6 +36,7 @@ export default async function ReportsPage() {
       liveOccupancy={liveOccupancy}
       liveApplications={liveApplications}
       liveAccommodationHistory={liveAccommodationHistory}
+      liveRevenue={liveRevenue}
     />
   );
 }
