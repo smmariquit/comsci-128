@@ -31,7 +31,6 @@ export interface User {
 export interface StatCardData {
 	label: string;
 	value: number | string;
-	sub: string;
 	dark?: boolean;
 }
 
@@ -115,23 +114,20 @@ export default function DashboardPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<StatCardData[]>([
-    { label: "TOTAL USERS", value: 0, sub: "↑ 3 added this month", dark: true },
+    { label: "TOTAL USERS", value: 0, dark: true },
     {
       label: "ACTIVE USERS",
       value: 0,
-      sub: "Hindi Deleted na Users",
       dark: false,
     },
     {
       label: "TOTAL MANAGERS",
       value: 0,
-      sub: "↑ 79 added this month",
       dark: false,
     },
     {
       label: "TOTAL PROPERTIES",
       value: 0,
-      sub: "Dormitories managed",
       dark: false,
     },
   ]);
@@ -331,10 +327,6 @@ export default function DashboardPage({
               <p
                 className={`text-xs flex items-center gap-1 ${s.dark ? "text-white/50" : "text-[#1a2332]/50"}`}
               >
-                {s.sub.startsWith("↑") && (
-                  <TrendingUp size={12} className="text-[#d4622a]" />
-                )}
-                {s.sub}
               </p>
             </div>
           ))}
@@ -467,37 +459,7 @@ export default function DashboardPage({
               </div>
             </div>
 
-            {/* System Alerts */}
-            <div className="bg-white rounded-2xl p-6">
-              {/* Title and View Log */}
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[15px] font-bold text-[#1a2332]">
-                  System Alerts
-                </h2>
-                <Link
-                  href="/sys/logs"
-                  className="text-xs text-[#1a2332]/50 hover:text-[#d4622a] transition-colors"
-                >
-                  View log →
-                </Link>
-              </div>
-              {/* Alerts List */}
-              <div className="border border-[#d4622a]/30 bg-[#d4622a]/5 rounded-xl p-3 flex items-start gap-2">
-                <div className="w-5 h-5 rounded-full border-2 border-[#d4622a] flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-[#d4622a] text-[10px] font-bold">
-                    !
-                  </span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-[#d4622a]">
-                    Maintenance tonight
-                  </p>
-                  <p className="text-[11px] text-[#1a2332]/50 mt-0.5">
-                    02:00 UTC — brief downtime
-                  </p>
-                </div>
-              </div>
-            </div>
+           
           </div>
         </div>
       </div>
