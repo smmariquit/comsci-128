@@ -458,8 +458,8 @@ export default function RegisterPage() {
           <>
             <div>
               <input
-                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
-                  nameErrors.first_name ? "border-red-500" : "border-stone-200"
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important] ${
+                  nameErrors.first_name ? "border-red-500" : "border-stone-500/60 focus:border-orange-400"
                 }`}
                 type="text"
                 name="first_name"
@@ -476,8 +476,8 @@ export default function RegisterPage() {
             </div>
             <div>
               <input
-                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
-                  nameErrors.middle_name ? "border-red-500" : "border-stone-200"
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important] ${
+                  nameErrors.middle_name ? "border-red-500" : "border-stone-500/60 focus:border-orange-400"
                 }`}
                 type="text"
                 name="middle_name"
@@ -493,8 +493,8 @@ export default function RegisterPage() {
             </div>
             <div>
               <input
-                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
-                  nameErrors.last_name ? "border-red-500" : "border-stone-200"
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important] ${
+                  nameErrors.last_name ? "border-red-500" : "border-stone-500/60 focus:border-orange-400"
                 }`}
                 type="text"
                 name="last_name"
@@ -511,8 +511,8 @@ export default function RegisterPage() {
             </div>
             <div>
               <input
-                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
-                  emailError ? "border-red-500" : "border-stone-200"
+                className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important] ${
+                  emailError ? "border-red-500" : "border-stone-500/60 focus:border-orange-400"
                 }`}
                 type="email"
                 name="email"
@@ -534,7 +534,7 @@ export default function RegisterPage() {
             <div>
               <div className="relative">
                 <input
-                  className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
+                  className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important]"
                   type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="Password"
@@ -575,7 +575,7 @@ export default function RegisterPage() {
             <div>
               <div className="relative mt-2">
                 <input
-                  className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
+                  className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important]"
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirm_password"
                   placeholder="Confirm password"
@@ -606,11 +606,11 @@ export default function RegisterPage() {
                 onChange={(val) => handleChange({ target: { name: "birthday", value: val } } as any)}
                 maxDate={new Date().toISOString().split("T")[0]}
                 placeholder="Select your birthday"
-                className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200 w-full"
+                className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors w-full"
               />
             </div>
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important]"
               type="text"
               name="home_address"
               placeholder="Home address"
@@ -618,7 +618,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important]"
               type="text"
               name="phone_number"
               placeholder="Phone number"
@@ -626,7 +626,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important]"
               type="email"
               name="contact_email"
               placeholder="Contact email (optional)"
@@ -634,7 +634,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             />
             <select
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors"
               name="sex"
               value={form.sex}
               onChange={handleChange}
@@ -655,28 +655,28 @@ export default function RegisterPage() {
               </p>
               <div className="mt-3 grid gap-3 text-sm">
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-stone-400">Name</span>
-                  <span className="text-right font-medium text-stone-100">
+                  <span className="text-stone-300">Name</span>
+                  <span className="text-right font-medium text-white">
                     {[form.first_name, form.middle_name, form.last_name]
                       .filter(Boolean)
                       .join(" ")}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-stone-400">Email</span>
-                  <span className="text-right font-medium text-stone-100">
+                  <span className="text-stone-300">Email</span>
+                  <span className="text-right font-medium text-white">
                     {form.email}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-stone-400">Birthday</span>
-                  <span className="text-right font-medium text-stone-100">
+                  <span className="text-stone-300">Birthday</span>
+                  <span className="text-right font-medium text-white">
                     {form.birthday || "Not provided"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-stone-400">Sex</span>
-                  <span className="text-right font-medium text-stone-100">
+                  <span className="text-stone-300">Sex</span>
+                  <span className="text-right font-medium text-white">
                     {form.sex || "Prefer not to say"}
                   </span>
                 </div>
@@ -686,7 +686,7 @@ export default function RegisterPage() {
               <p className="text-xs font-semibold uppercase tracking-wide text-stone-400">
                 Contact details
               </p>
-              <div className="mt-3 grid gap-2 text-sm text-stone-200">
+              <div className="mt-3 grid gap-2 text-sm text-stone-300">
                 <p>{form.home_address || "No home address provided"}</p>
                 <p>{form.phone_number || "No phone number provided"}</p>
                 <p>{form.contact_email || "No contact email provided"}</p>
@@ -701,7 +701,7 @@ export default function RegisterPage() {
                   type="checkbox"
                   checked={privacyAgreed}
                   onChange={(e) => setPrivacyAgreed(e.target.checked)}
-                  className="mt-1 h-4 w-4 cursor-pointer rounded border-zinc-600 bg-zinc-700 text-orange-400 focus:ring-orange-500 focus:ring-offset-0 focus:outline-none"
+                  className="mt-1 min-w-4 min-h-4 max-w-4 max-h-4 shrink-0 appearance-none rounded border border-zinc-500 bg-zinc-800 checked:bg-orange-500 checked:border-orange-500 focus:ring-orange-500 focus:ring-offset-0 focus:outline-none relative after:content-[''] after:absolute after:hidden checked:after:block after:left-1/2 after:top-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-1.5 after:h-2.5 after:border-r-2 after:border-b-2 after:border-white after:rotate-45 cursor-pointer"
                   required
                 />
                 <label htmlFor="privacy_conforme" className="text-xs text-stone-300 leading-relaxed cursor-pointer select-none">
@@ -724,7 +724,7 @@ export default function RegisterPage() {
               </p>
             </div>
             <input
-              className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
+              className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important]"
               type="text"
               inputMode="numeric"
               placeholder="Confirmation code"
