@@ -2,6 +2,7 @@ import { feedbackData } from "../data/feedback-data";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
 import { Feedback } from "../models/feedback";
+import { getSupportedArchTriples } from "next/dist/build/swc";
 
 const createFeedback = async (feedbackDetails: any) => {
     try {
@@ -74,6 +75,15 @@ const getOwnFeedbacks = async (userId: number, sortList: any[] = [], filterList:
     }
 }
 
+const updateStatus = async (feedbackId: number, newStatus: string) => {
+    try {
+        return await feedbackData.updateStatus(feedbackId, newStatus);
+    } catch (error) {
+        console.error("Service Error (updateStatus): ", error);
+        throw new Error("Failed to update status");
+    }
+}
+
 export const feedbackService = {
     createFeedback,
     findFeedbackById,
@@ -81,5 +91,6 @@ export const feedbackService = {
     getAllByManagerId,
     getAllByHousingId,
     getAllAppFeedback,
-    getOwnFeedbacks
+    getOwnFeedbacks,
+    updateStatus
 };
