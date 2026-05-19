@@ -11,43 +11,23 @@ function getEmailHtmlWrapper(title: string, bodyHtml: string): string {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${title}</title>
     </head>
-    <body style="margin: 0; padding: 0; background-color: #F9F8F6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: #111820;">
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F9F8F6; padding: 40px 10px;">
+    <body style="font-family: Arial, Helvetica, sans-serif; background-color: #ede9de; color: #1c2632; margin: 0; padding: 40px;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #1c2632;">
         <tr>
-          <td align="center">
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #FFFFFF; border: 1px solid #E5E0D8; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);">
-              <!-- Top brand bar -->
-              <tr>
-                <td style="background-color: #D66B38; height: 6px;"></td>
-              </tr>
-              <!-- Brand Header Banner -->
-              <tr>
-                <td style="background-color: #1C2632; padding: 30px 40px; text-align: left;">
-                  <h1 style="margin: 0; color: #FFFFFF; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;">UPLB CASA</h1>
-                  <p style="margin: 5px 0 0 0; color: #BAC2CC; font-size: 14px;">Smart Student Accommodation Management</p>
-                </td>
-              </tr>
-              <!-- Card Body Content -->
-              <tr>
-                <td style="padding: 40px 40px 30px 40px;">
-                  ${bodyHtml}
-                </td>
-              </tr>
-              <!-- Footer info banner -->
-              <tr>
-                <td style="padding: 0 40px 35px 40px; text-align: left;">
-                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px solid #E5E0D8; padding-top: 25px;">
-                    <tr>
-                      <td style="color: #73716D; font-size: 13px; line-height: 1.5;">
-                        <p style="margin: 0; font-weight: 600; color: #1C2632;">UPLB CASA Services</p>
-                        <p style="margin: 3px 0 0 0;">University of the Philippines Los Baños, College, Los Baños, Laguna</p>
-                        <p style="margin: 12px 0 0 0; font-size: 11px; color: #A19E98;">This is an automated transaction notification. Please do not reply directly to this email.</p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
+          <td style="background-color: #1c2632; padding: 30px; text-align: center;">
+            <h1 style="color: #ede9de; margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 1px;">${title}</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 40px 30px; background-color: #ffffff;">
+            ${bodyHtml}
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #ede9de; padding: 20px; text-align: center; border-top: 1px solid #e3af64;">
+            <p style="margin: 0; font-size: 12px; color: #2f4a4c;">
+              &copy; 2026 UPLB CASA Platform. All rights reserved.
+            </p>
           </td>
         </tr>
       </table>
@@ -64,33 +44,25 @@ export async function sendApplicationSubmittedEmail(
   try {
     const title = "Application Submitted Successfully";
     const bodyHtml = `
-      <h2 style="margin: 0 0 15px 0; color: #1C2632; font-size: 20px; font-weight: 600;">Hi ${studentName},</h2>
-      <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #333333;">
-        Your application for <strong>${housingName}</strong> has been submitted successfully and is now officially in progress.
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        Hi ${studentName},
       </p>
-      
-      <!-- Status highlights card -->
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F3EDE4; border-left: 4px solid #D66B38; border-radius: 8px; margin-bottom: 25px;">
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        Your application for <strong>${housingName}</strong> has been submitted successfully.
+      </p>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        Your application status is now <strong>Pending Manager Approval</strong>. We will notify you once it has been reviewed.
+      </p>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td style="padding: 16px 20px;">
-            <p style="margin: 0 0 4px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #73716D; font-weight: 600;">Current Status</p>
-            <p style="margin: 0; font-size: 16px; font-weight: 700; color: #1C2632;">Pending Manager Approval</p>
+          <td align="center" style="padding: 20px 0;">
+            <a href="https://casa.uplb.edu.ph/student" style="background-color: #c9642a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; display: inline-block;">Go to Student Dashboard</a>
           </td>
         </tr>
       </table>
-      
-      <p style="margin: 0 0 25px 0; font-size: 14px; line-height: 1.6; color: #555555;">
-        The manager of the property will review your documents and accommodation choices shortly. We will keep you updated via email at every step of your application process.
+      <p style="margin: 20px 0 0 0; font-size: 14px; line-height: 1.5; color: #567375;">
+        Thank you for choosing UPLB CASA!
       </p>
-      
-      <!-- Call to Action button styling -->
-      <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 30px;">
-        <tr>
-          <td align="center" style="background-color: #D66B38; border-radius: 8px;">
-            <a href="https://casa.uplb.edu.ph/student" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 14px; font-weight: 700; color: #FFFFFF; text-decoration: none; letter-spacing: -0.2px;">Go to Student Dashboard</a>
-          </td>
-        </tr>
-      </table>
     `;
 
     await resend.emails.send({
@@ -112,70 +84,51 @@ export async function sendApplicationStatusEmail(
 ) {
   try {
     let subject = "";
-    let statusText = "";
     let bodyText = "";
-    let statusColor = "#D66B38"; // orange
 
     switch (status) {
       case "Pending Manager Approval":
         subject = "Application Under Manager Review";
-        statusText = "Pending Manager Approval";
-        statusColor = "#D6B838"; // yellow-gold
-        bodyText = `<p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #333333;">Your application for <strong>${housingName}</strong> has been updated to <strong>Pending Manager Approval</strong>. The landlord/manager is currently reviewing your application and files.</p>`;
+        bodyText = `<p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">Your application for <strong>${housingName}</strong> has been updated to <strong>Pending Manager Approval</strong>. The landlord/manager is currently reviewing your application.</p>`;
         break;
       case "Pending Admin Approval":
         subject = "Application Approved by Manager";
-        statusText = "Pending Admin Approval";
-        statusColor = "#D68E38"; // gold-orange
-        bodyText = `<p style="margin: 0 0 15px 0; font-size: 15px; line-height: 1.6; color: #333333;">Great news! Your application for <strong>${housingName}</strong> has been <strong>approved by the manager</strong>.</p>
-                    <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #333333;">Your application has now been forwarded to the System Admin for final institutional approval. We will notify you the moment it is finalized.</p>`;
+        bodyText = `<p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">Your application for <strong>${housingName}</strong> has been <strong>approved by the manager</strong>.</p>
+                    <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">Your application is now pending final admin approval. We will notify you once it has been fully approved.</p>`;
         break;
       case "Approved":
         subject = "Application Fully Approved 🎉";
-        statusText = "Approved";
-        statusColor = "#2E8B57"; // green
-        bodyText = `<p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #1C2632; font-weight: 600;">Congratulations! Your application for <strong>${housingName}</strong> has been <strong>fully approved</strong>.</p>
-                    <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #333333;">You have been assigned to your new room. You can now proceed to your student dashboard to review your accommodation details and settlement schedules. Welcome to your new home!</p>`;
+        bodyText = `<p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">Congratulations! Your application for <strong>${housingName}</strong> has been <strong>fully approved</strong>.</p>
+                    <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">You have been assigned to your room. Welcome to your new home!</p>`;
         break;
       case "Rejected":
-        subject = "Application Decision Update";
-        statusText = "Rejected";
-        statusColor = "#CD5C5C"; // reddish-brown
-        bodyText = `<p style="margin: 0 0 15px 0; font-size: 15px; line-height: 1.6; color: #333333;">Thank you for your interest in <strong>${housingName}</strong>. Unfortunately, after review, your application has been <strong>declined</strong> at this time.</p>
-                    <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #333333;">You are welcome to browse other available student housing units and apply for alternative vacancies on our portal.</p>`;
+        subject = "Application Rejected";
+        bodyText = `<p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">Unfortunately, your application for <strong>${housingName}</strong> has been <strong>rejected</strong>.</p>
+                    <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">You may browse and apply to other available housing listings on our platform.</p>`;
         break;
       case "Cancelled":
         subject = "Application Cancelled";
-        statusText = "Cancelled";
-        statusColor = "#73716D"; // gray
-        bodyText = `<p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #333333;">Your application for <strong>${housingName}</strong> has been officially <strong>cancelled</strong>.</p>`;
+        bodyText = `<p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">Your application for <strong>${housingName}</strong> has been <strong>cancelled</strong>.</p>`;
         break;
       default:
         return;
     }
 
     const bodyHtml = `
-      <h2 style="margin: 0 0 15px 0; color: #1C2632; font-size: 20px; font-weight: 600;">Hi ${studentName},</h2>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        Hi ${studentName},
+      </p>
       ${bodyText}
-      
-      <!-- Status Card -->
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F3EDE4; border-left: 4px solid ${statusColor}; border-radius: 8px; margin-bottom: 30px;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td style="padding: 16px 20px;">
-            <p style="margin: 0 0 4px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #73716D; font-weight: 600;">New Application Status</p>
-            <p style="margin: 0; font-size: 16px; font-weight: 700; color: #1C2632;">${statusText}</p>
+          <td align="center" style="padding: 20px 0;">
+            <a href="https://casa.uplb.edu.ph/student" style="background-color: #c9642a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; display: inline-block;">View Application Status</a>
           </td>
         </tr>
       </table>
-      
-      <!-- Call to Action -->
-      <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
-        <tr>
-          <td align="center" style="background-color: #1C2632; border-radius: 8px;">
-            <a href="https://casa.uplb.edu.ph/student" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 14px; font-weight: 700; color: #FFFFFF; text-decoration: none; letter-spacing: -0.2px;">View Application Status</a>
-          </td>
-        </tr>
-      </table>
+      <p style="margin: 20px 0 0 0; font-size: 14px; line-height: 1.5; color: #567375;">
+        Thank you, <br/>UPLB CASA Team
+      </p>
     `;
 
     await resend.emails.send({
@@ -204,51 +157,39 @@ export async function sendBillAssignedEmail(
 
     const subject = `New Bill Issued: ${billType}`;
     const bodyHtml = `
-      <h2 style="margin: 0 0 15px 0; color: #1C2632; font-size: 20px; font-weight: 600;">Hi ${studentName},</h2>
-      <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #333333;">
-        A new bill has been issued to your student housing accommodation profile. Please review the details below.
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        Hi ${studentName},
       </p>
-      
-      <!-- Bill details block -->
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F3EDE4; border-left: 4px solid #D66B38; border-radius: 8px; margin-bottom: 25px;">
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        A new bill has been issued to your student housing account:
+      </p>
+      <table width="100%" border="0" cellspacing="0" cellpadding="10" style="background-color: #ede9de; border-radius: 8px; margin-bottom: 20px; border: 1px solid #1c2632;">
         <tr>
-          <td style="padding: 20px;">
-            <table border="0" cellpadding="0" cellspacing="0" width="100%">
-              <tr>
-                <td style="padding-bottom: 10px; color: #73716D; font-size: 13px; font-weight: 600; text-transform: uppercase;">Bill Details</td>
-              </tr>
-              <tr>
-                <td style="padding: 6px 0; font-size: 14px; color: #111820;">
-                  <strong style="color: #1C2632;">Bill Type:</strong> ${billType}
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 6px 0; font-size: 14px; color: #111820;">
-                  <strong style="color: #1C2632;">Amount Due:</strong> <span style="font-size: 16px; font-weight: 700; color: #D66B38;">${formattedAmount}</span>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 6px 0; font-size: 14px; color: #111820;">
-                  <strong style="color: #1C2632;">Due Date:</strong> ${dueDate}
-                </td>
-              </tr>
-            </table>
+          <td style="font-size: 15px; color: #1c2632;"><strong>Bill Type:</strong></td>
+          <td style="font-size: 15px; color: #111820;">${billType}</td>
+        </tr>
+        <tr>
+          <td style="font-size: 15px; color: #1c2632;"><strong>Amount:</strong></td>
+          <td style="font-size: 15px; color: #111820; font-weight: bold;">${formattedAmount}</td>
+        </tr>
+        <tr>
+          <td style="font-size: 15px; color: #1c2632;"><strong>Due Date:</strong></td>
+          <td style="font-size: 15px; color: #111820;">${dueDate}</td>
+        </tr>
+      </table>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        Please settle this bill through your student dashboard on or before the due date to avoid any issues.
+      </p>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center" style="padding: 20px 0;">
+            <a href="https://casa.uplb.edu.ph/student" style="background-color: #c9642a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: bold; display: inline-block;">Settle Bill Online</a>
           </td>
         </tr>
       </table>
-      
-      <p style="margin: 0 0 25px 0; font-size: 14px; line-height: 1.6; color: #555555;">
-        Please log into the student portal to upload your proof of payment or settle this statement on or before the due date.
+      <p style="margin: 20px 0 0 0; font-size: 14px; line-height: 1.5; color: #567375;">
+        Thank you, <br/>UPLB CASA Team
       </p>
-      
-      <!-- Call to Action button -->
-      <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
-        <tr>
-          <td align="center" style="background-color: #D66B38; border-radius: 8px;">
-            <a href="https://casa.uplb.edu.ph/student" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 14px; font-weight: 700; color: #FFFFFF; text-decoration: none; letter-spacing: -0.2px;">Settle Bill Online</a>
-          </td>
-        </tr>
-      </table>
     `;
 
     await resend.emails.send({
@@ -271,23 +212,17 @@ export async function sendBillStatusUpdatedEmail(
   try {
     const subject = `Bill Payment Verified: Bill #${txnId}`;
     const bodyHtml = `
-      <h2 style="margin: 0 0 15px 0; color: #1C2632; font-size: 20px; font-weight: 600;">Hi ${studentName},</h2>
-      <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #333333;">
-        We are happy to inform you that your payment for <strong>Bill #${txnId}</strong> has been successfully processed and verified.
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        Hi ${studentName},
       </p>
-      
-      <!-- Verification Badge status -->
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F3EDE4; border-left: 4px solid #2E8B57; border-radius: 8px; margin-bottom: 25px;">
-        <tr>
-          <td style="padding: 16px 20px;">
-            <p style="margin: 0 0 4px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #73716D; font-weight: 600;">Transaction Status</p>
-            <p style="margin: 0; font-size: 16px; font-weight: 700; color: #2E8B57;">Successfully Paid & Verified</p>
-          </td>
-        </tr>
-      </table>
-      
-      <p style="margin: 0 0 25px 0; font-size: 14px; line-height: 1.6; color: #555555;">
-        Thank you for keeping your account status updated. You may view and download your electronic payment receipt from your student cabinet portal.
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        Your payment for <strong>Bill #${txnId}</strong> has been successfully processed and verified.
+      </p>
+      <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.5; color: #111820;">
+        The bill status has been updated to: <strong>${status}</strong>.
+      </p>
+      <p style="margin: 20px 0 0 0; font-size: 14px; line-height: 1.5; color: #567375;">
+        Thank you for keeping your account status updated. <br/>UPLB CASA Team
       </p>
     `;
 
