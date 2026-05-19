@@ -5,24 +5,24 @@ import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { UserType, HousingStatus } from "./usertable";
 
-export type UserTypeFilter    = "All" | UserType;
-export type HousingFilter     = "All" | HousingStatus;
+export type UserTypeFilter = "All" | UserType;
+export type HousingFilter = "All" | HousingStatus;
 export type AccountStatusFilter = "All" | "Active" | "Removed";
 
 interface Props {
-  search:         string;
-  userType:       UserTypeFilter;
-  housingStatus:  HousingFilter;
-  accountStatus:  AccountStatusFilter;
-  onSearch:       (v: string)               => void;
-  onUserType:     (v: UserTypeFilter)       => void;
-  onHousingStatus:(v: HousingFilter)        => void;
-  onAccountStatus:(v: AccountStatusFilter)  => void;
+  search: string;
+  userType: UserTypeFilter;
+  housingStatus: HousingFilter;
+  accountStatus: AccountStatusFilter;
+  onSearch: (v: string) => void;
+  onUserType: (v: UserTypeFilter) => void;
+  onHousingStatus: (v: HousingFilter) => void;
+  onAccountStatus: (v: AccountStatusFilter) => void;
 }
 
 const inputBase: React.CSSProperties = {
   fontFamily: "'DM Sans', sans-serif",
-  fontSize: 12,
+  fontSize: 13,
   color: C.navy,
   background: "#fff",
   border: `1px solid ${C.cream}`,
@@ -54,8 +54,14 @@ export default function UserFilters({
   const [hoveredSelect, setHoveredSelect] = useState<string | null>(null);
 
   return (
-    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
       {/* Search */}
       <div
         style={{
@@ -70,7 +76,13 @@ export default function UserFilters({
           size={14}
           color={C.teal}
           strokeWidth={2}
-          style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+          style={{
+            position: "absolute",
+            left: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+            pointerEvents: "none",
+          }}
         />
         <input
           type="text"
@@ -83,7 +95,9 @@ export default function UserFilters({
             ...inputBase,
             width: "100%",
             paddingLeft: 32,
-            boxShadow: hoveredSearch ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+            boxShadow: hoveredSearch
+              ? "0 8px 18px rgba(28,38,50,0.08)"
+              : "none",
             outlineColor: hoveredSearch ? C.amber : C.cream,
           }}
         />
@@ -96,16 +110,31 @@ export default function UserFilters({
         value={userType}
         onChange={(e) => onUserType(e.target.value as UserTypeFilter)}
         onMouseEnter={() => setHoveredSelect("role")}
-        onMouseLeave={() => setHoveredSelect((current) => (current === "role" ? null : current))}
+        onMouseLeave={() =>
+          setHoveredSelect((current) => (current === "role" ? null : current))
+        }
         style={{
           ...selectBase,
           minWidth: 150,
-          boxShadow: hoveredSelect === "role" ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+          boxShadow:
+            hoveredSelect === "role"
+              ? "0 8px 18px rgba(28,38,50,0.08)"
+              : "none",
           outlineColor: hoveredSelect === "role" ? C.amber : C.cream,
         }}
       >
-        {(["All", "Student", "Landlord", "Housing Admin", "Guest"] as UserTypeFilter[]).map((t) => (
-          <option key={t} value={t}>{t === "All" ? "All Roles" : t}</option>
+        {(
+          [
+            "All",
+            "Student",
+            "Landlord",
+            "Housing Admin",
+            "Guest",
+          ] as UserTypeFilter[]
+        ).map((t) => (
+          <option key={t} value={t}>
+            {t === "All" ? "All Roles" : t}
+          </option>
         ))}
       </select>
 
@@ -116,16 +145,27 @@ export default function UserFilters({
         value={housingStatus}
         onChange={(e) => onHousingStatus(e.target.value as HousingFilter)}
         onMouseEnter={() => setHoveredSelect("housing")}
-        onMouseLeave={() => setHoveredSelect((current) => (current === "housing" ? null : current))}
+        onMouseLeave={() =>
+          setHoveredSelect((current) =>
+            current === "housing" ? null : current,
+          )
+        }
         style={{
           ...selectBase,
           minWidth: 170,
-          boxShadow: hoveredSelect === "housing" ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+          boxShadow:
+            hoveredSelect === "housing"
+              ? "0 8px 18px rgba(28,38,50,0.08)"
+              : "none",
           outlineColor: hoveredSelect === "housing" ? C.amber : C.cream,
         }}
       >
-        {(["All", "Assigned", "Not Assigned", "Pending"] as HousingFilter[]).map((s) => (
-          <option key={s} value={s}>{s === "All" ? "All Housing Status" : s}</option>
+        {(
+          ["All", "Assigned", "Not Assigned", "Pending"] as HousingFilter[]
+        ).map((s) => (
+          <option key={s} value={s}>
+            {s === "All" ? "All Housing Status" : s}
+          </option>
         ))}
       </select>
 
@@ -136,19 +176,27 @@ export default function UserFilters({
         value={accountStatus}
         onChange={(e) => onAccountStatus(e.target.value as AccountStatusFilter)}
         onMouseEnter={() => setHoveredSelect("account")}
-        onMouseLeave={() => setHoveredSelect((current) => (current === "account" ? null : current))}
+        onMouseLeave={() =>
+          setHoveredSelect((current) =>
+            current === "account" ? null : current,
+          )
+        }
         style={{
           ...selectBase,
           minWidth: 140,
-          boxShadow: hoveredSelect === "account" ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+          boxShadow:
+            hoveredSelect === "account"
+              ? "0 8px 18px rgba(28,38,50,0.08)"
+              : "none",
           outlineColor: hoveredSelect === "account" ? C.amber : C.cream,
         }}
       >
         {(["All", "Active", "Removed"] as AccountStatusFilter[]).map((s) => (
-          <option key={s} value={s}>{s === "All" ? "All Accounts" : s}</option>
+          <option key={s} value={s}>
+            {s === "All" ? "All Accounts" : s}
+          </option>
         ))}
       </select>
-
     </div>
   );
 }

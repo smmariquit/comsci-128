@@ -1,53 +1,66 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import { supabase } from "@/app/lib/supabase";
+import { useAutoSave } from "@/app/hooks/useAutoSave";
+import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
 
 function ForgotPasswordForm() {
   const [step, setStep] = useState(1);
-  const [email, setEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
   const [status, setStatus] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
+  const [form, setForm, clearSaved, _hasSavedData, saveState] = useAutoSave(
+    "casa-forgot-password",
+    {
+      email: "",
+    },
+  );
+  const [newPassword, setNewPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
-    const code = searchParams.get("code");
-    if (!code) return;
+    const hash = window.location.hash;
+    if (hash.includes("error=")) {
+      const params = new URLSearchParams(hash.slice(1));
+      const desc = params.get("error_description");
+      setError(
+        desc ? desc.replace(/\+/g, " ") : "Reset link is invalid or expired.",
+      );
+      window.history.replaceState(null, "", "/forgot-password");
+      return;
+    }
 
-    supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-      if (error) {
-        setError("Reset Link is Invalid or Expired.");
-      } else {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
         setStep(3);
-        router.replace("/forgot-password");
+        window.history.replaceState(null, "", "/forgot-password");
       }
     });
-  }, [searchParams, router]);
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setStatus("");
 
-    // Here you would trigger the email send
-    const res = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+    const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
+      redirectTo: `${window.location.origin}/forgot-password`,
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error ?? "Something went wrong.");
+    if (error) {
+      setError(error.message);
     } else {
       setStep(2);
-      setStatus("Check your email for a reset link.");
     }
   }
 
@@ -60,72 +73,157 @@ function ForgotPasswordForm() {
       return;
     }
 
-    // Here you would actually change the password
     const { error } = await supabase.auth.updateUser({ password: newPassword });
 
     if (error) {
       setError(error.message);
     } else {
       setStatus("Password changed!");
+      clearSaved();
+      setNewPassword("");
+      setConfirm("");
       router.push("/login");
     }
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+    <div
+      className="relative w-full min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div
+        className="absolute inset-0 bg-[#0f1418]/72 backdrop-blur-md"
+        aria-hidden="true"
+      />
       <form
-        className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
+        className="relative z-10 w-full max-w-md flex flex-col gap-4 rounded-3xl border border-white/10 bg-[#111820]/88 p-10 shadow-2xl backdrop-blur-sm"
         autoComplete="off"
         onSubmit={step === 1 ? handleEmailSubmit : handlePasswordSubmit}
       >
-        <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
-          Forgot Password
-        </h2>
-        {status && <div className="text-green-400 text-center">{status}</div>}
-        {error && <div className="text-red-400 text-center">{error}</div>}
-        {step === 1 && (
-          <>
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition"
-            >
-              Send reset code
-            </button>
-          </>
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-16 h-16 bg-[#c9642a]/20 rounded-2xl flex items-center justify-center mb-4 border border-[#c9642a]/30 shadow-inner">
+            <Lock className="text-[#c9642a]" size={32} />
+          </div>
+          <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
+            Reset Password
+          </h2>
+          <p className="text-stone-400 text-sm text-center">
+            {step === 1
+              ? "Enter your email to receive a reset link."
+              : step === 2
+                ? "We've sent you an email."
+                : "Create your new password below."}
+          </p>
+        </div>
+
+        {status && (
+          <div className="flex items-start gap-3 p-4 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 text-sm font-medium">
+            <CheckCircle size={18} className="shrink-0 mt-0.5" />
+            <span>{status}</span>
+          </div>
         )}
-        {step === 3 && (
-          <>
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="password"
-              placeholder="Enter new password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-            <input
-              className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-              type="password"
-              placeholder="Confirm new password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              required
-            />
+        {error && (
+          <div className="flex items-start gap-3 p-4 rounded-xl border bg-red-500/10 border-red-500/30 text-red-400 text-sm font-medium">
+            <AlertCircle size={18} className="shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <AutosaveStatus saveState={saveState} className="mx-auto" />
+        
+        {step === 1 && (
+          <div className="flex flex-col gap-4">
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
+                <Mail size={20} />
+              </div>
+              <input
+                className="w-full bg-gray-700 text-stone-200 rounded-xl py-3 pl-12 pr-4 outline-none border border-stone-200 focus:border-[#c9642a] transition-all"
+                type="email"
+                aria-label="Email address"
+                placeholder="Enter your email address"
+                value={form.email}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, email: e.target.value }))
+                }
+                required
+              />
+            </div>
             <button
               type="submit"
-              className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 hover:bg-orange-400 transition"
+              className="bg-[#c9642a] text-white font-bold rounded-xl py-3 mt-2 hover:brightness-110 transition shadow-md active:scale-[0.98]"
             >
-              Change password
+              Send Reset Code
             </button>
-          </>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="flex flex-col items-center justify-center p-6 bg-gray-700/30 rounded-2xl border border-gray-600 border-dashed text-center mt-2">
+            <Mail size={40} className="text-stone-400 mb-4 opacity-50" />
+            <p className="text-stone-300 font-medium">
+              Check your inbox!
+            </p>
+            <p className="text-stone-400 text-sm mt-2">
+              If an account exists for that email, we have sent a secure password reset link.
+            </p>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="flex flex-col gap-4">
+            <div className="relative">
+              <input
+                className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200 focus:border-[#c9642a] transition-all"
+                type={showNewPassword ? "text" : "password"}
+                aria-label="New password"
+                placeholder="Enter new password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
+                aria-label={showNewPassword ? "Hide password" : "Show password"}
+              >
+                {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200 focus:border-[#c9642a] transition-all"
+                type={showConfirmPassword ? "text" : "password"}
+                aria-label="Confirm new password"
+                placeholder="Confirm new password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <button
+              type="submit"
+              className="bg-[#c9642a] text-white font-bold rounded-xl py-3 mt-2 hover:brightness-110 transition shadow-md active:scale-[0.98]"
+            >
+              Update Password
+            </button>
+          </div>
         )}
         <div className="text-center text-stone-200 mt-2">
           <a href="/login" className="font-bold underline">

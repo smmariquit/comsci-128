@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";
 import { getHousingStatus } from "@/app/lib/data/student-dashboard";
 import { userData } from "@/app/lib/data/user-data";
-import { getCompleteDashboardData } from "@/app/lib/services/student-dashboard.service";
+import { getCompleteDashboardData } from "@/app/lib/services/student-dashboard-service";
 import AssignedDashboard from "./_components/AssignedDashboard";
 import NotAssignedDashboard from "./_components/NotAssignedDashboard";
 import StateMessage from "@/app/components/ui/state-message";
@@ -18,24 +18,39 @@ export default async function DashboardPage() {
 
   if (!getValue) {
     return (
-      <StateMessage
-        title="No student record found"
-        description="We could not find your profile data yet."
-      />
+      <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
+        <StudentNavBar path={"Dashboard"} />
+        <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col justify-center items-center gap-4 overflow-hidden">
+          <StateMessage
+            title="No student record found"
+            description="We could not find your profile data yet."
+          />
+        </div>
+      </div>
     );
   }
 
   const account_number = parseInt(getValue, 10);
   let currUser: Awaited<ReturnType<typeof userData.findById>> | null = null;
-  let userHousingStatus: Awaited<ReturnType<typeof getHousingStatus>> | null = null;
-  let userHousingDetails: Awaited<ReturnType<
-    typeof getCompleteDashboardData
-  >> | null = null;
+  let userHousingStatus: Awaited<ReturnType<typeof getHousingStatus>> | null =
+    null;
+  let userHousingDetails: Awaited<
+    ReturnType<typeof getCompleteDashboardData>
+  > | null = null;
+
+  const renderErrorState = (content: React.ReactNode, isCentered = true) => (
+    <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
+      <StudentNavBar path={"Dashboard"} userId={account_number} />
+      <div className={`w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col items-center gap-4 overflow-hidden ${isCentered ? 'justify-center' : 'justify-start'}`}>
+        {content}
+      </div>
+    </div>
+  );
 
   try {
     currUser = await userData.findById(account_number);
     if (!currUser) {
-      return (
+      return renderErrorState(
         <StateMessage
           title="No student record found"
           description="We could not find your profile data yet."
@@ -48,17 +63,17 @@ export default async function DashboardPage() {
       currUser.account_number,
     );
   } catch (error) {
-    return (
+    return renderErrorState(
       <StateMessage
         variant="error"
         title="Unable to load dashboard"
-        description="Please try again in a moment."
+        description="You appear to be offline or our servers are temporarily unreachable."
       />
     );
   }
 
   if (!userHousingDetails) {
-    return (
+    return renderErrorState(
       <StateMessage
         title="No dashboard data yet"
         description="Once your housing data is available, it will show here."
@@ -80,10 +95,16 @@ export default async function DashboardPage() {
     // MAIN PAGE
     <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
       {/* NAVBAR */}
-      <StudentNavBar path={"Dashboard"} userId={currUser.account_number} userName={userName} />
+      <StudentNavBar
+        path={"Dashboard"}
+        userId={currUser.account_number}
+        firstName={currUser.first_name}
+        lastName={currUser.last_name}
+        profilePicture={currUser.profile_picture}
+      />
 
       {/* BODY */}
-      <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col justify-start items-center gap-4 overflow-hidden">
+      <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-3 flex flex-col justify-start items-center gap-3 overflow-hidden">
         {DashboardContent(userHousingStatus?.housing_status)}
       </div>
     </div>

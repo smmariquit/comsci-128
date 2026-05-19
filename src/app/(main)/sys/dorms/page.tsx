@@ -13,15 +13,26 @@ import { ViewDormModal } from '@/app/(main)/sys/component/view-dorm';
 export interface Dorm {
   id: string;
   name: string;
+  type?: string;
+  housingType?: 'UP Housing' | 'Non-UP Housing';
   status: 'Accepting' | 'Disabled' | string;
   dormitory: string;
   dormAddress?: string;
+  managerName?: string;
   managerEmail?: string;
+  landlordName?: string;
+  landlordEmail?: string;
   capacity?: number;
   rooms?: number;
   occupied?: number;
+  monthlyRate?: number;
 }
 
+interface LandlordOption {
+  id: string;
+  name: string;
+  email: string;
+}
 
 // Sidebar + notifications
 export interface DormManagementProps {
@@ -41,18 +52,11 @@ export interface Notification {
   time: string;
 }
 
-// Hardcoded stubs for development - to be replaced with real data fetching logic
-const stubDorm: SidebarUser = {
-  name: 'Luthelle Fernandez',
-  role: 'System Admin',
-  initials: 'LF',
-};
-
 // Hardcoded notifications for the bell dropdown - in a real app, this would also come from an API
 const stubNotifications = [
-  { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime',       read: false, time: '1h ago'    },
-  { id: '2', title: 'New Dorm registered', body: 'Dorm Ivanne signed up for Dorm 1', read: false, time: '3h ago'    },
-  { id: '3', title: 'Occupancy alert',     body: 'Dorm 2 is at 95% capacity',        read: true,  time: 'Yesterday' },
+  { id: '1', title: 'Maintenance tonight', body: '02:00 UTC — brief downtime', read: false, time: '1h ago' },
+  { id: '2', title: 'New Dorm registered', body: 'Dorm Ivanne signed up for Dorm 1', read: false, time: '3h ago' },
+  { id: '3', title: 'Occupancy alert', body: 'Dorm 2 is at 95% capacity', read: true, time: 'Yesterday' },
 ];
 
 // Number of items to show per page in the paging
@@ -85,11 +89,10 @@ function StatusBadge({ status }: { status: string }) {
   const isAccepting = status === 'Accepting';
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
-        isAccepting
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${isAccepting
           ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
           : 'bg-rose-50 text-rose-600 ring-1 ring-rose-200'
-      }`}
+        }`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${isAccepting ? 'bg-emerald-500' : 'bg-rose-400'}`} />
       {status}
@@ -99,7 +102,6 @@ function StatusBadge({ status }: { status: string }) {
 
 // Main Dorm Management Page component
 export default function DormManagementPage({
-  Dorm = stubDorm,
   notifications = stubNotifications,
   onLogout,
 }: DormManagementProps) {
@@ -110,59 +112,111 @@ export default function DormManagementPage({
   const [editingDorm, setEditingDorm] = useState<Dorm | null>(null); //edit dorm
   const [viewingDorm, setViewingDorm] = useState<Dorm | null>(null); // view dorm
   const [filters, setFilters] = useState<UserFiltersState>({
-    search: '', status: 'All Status', occupancy: 'All',
+    search: '', status: 'All Status', occupancy: 'All', housingType: 'All Types', sortBy: 'None',
   });
   const [managersList, setManagersList] = useState<{ id: string; name: string; email: string }[]>([]);
-  
-  // Fetch dorms from API
+  const [landlordList, setLandlordList] = useState<LandlordOption[]>([]);
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
   useEffect(() => {
-      const fetchDorms = async () => {
-          try {
-              setLoading(true);
-              setError(null);
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
 
-              const response = await fetch('/api/housing/occupancy');
+  const fetchDorms = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-              if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-              }
+      const [housingResponse, occupancyResponse, landlordResponse, managerResponse] = await Promise.all([
+        fetch('/api/housing'),
+        fetch('/api/housing/occupancy'),
+        fetch('/api/landlord'),
+        fetch('/api/housing-admin'),
+      ]);
 
-              const data = await response.json();
+      if (!housingResponse.ok) throw new Error(`HTTP error! status: ${housingResponse.status}`);
+      if (!occupancyResponse.ok) throw new Error(`HTTP error! status: ${occupancyResponse.status}`);
+      if (!landlordResponse.ok) throw new Error(`HTTP error! status: ${landlordResponse.status}`);
+      if (!managerResponse.ok) throw new Error(`HTTP error! status: ${managerResponse.status}`);
 
-              console.log('Raw dorm data:', data);
+      const housingData = await housingResponse.json();
+      const occupancyData = await occupancyResponse.json();
+      const landlordData = await landlordResponse.json();
+      const managerData = await managerResponse.json();
 
-              // Handle different response formats
-              const rawDorms = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
+      // Build occupancy lookup map by housingId
+      const rawOccupancy = Array.isArray(occupancyData) ? occupancyData : occupancyData.data ?? [];
+      const occupancyMap = new Map(rawOccupancy.map((o: any) => [String(o.housingId), o]));
 
-              // Transform DB fields to match Dorm interface 
-              const transformed: Dorm[] = rawDorms
-                  .map((dorm: any) => ({
-                      id: String(dorm.housingId || ''), 
-                      name: dorm.name || 'Unknown', 
-                      status: 'Accepting', 
-                      dormitory: 'Unassigned', // Fix later in the query
-                      dormAddress: dorm.address || undefined, 
-                      managerEmail: undefined, // FIx later in the query
-                      capacity: dorm.occupancyRate|| undefined, 
-                      rooms: dorm.totalRooms || undefined,
-                      occupied: dorm.occupiedRooms || undefined,
-                      type: dorm.housingType
-                  }));
+      // Build manager lookup map
+      const rawManagers = managerData?.data?.data ?? [];
+      const transformedManagers = rawManagers.map((m: any) => {
+        const user = m.manager?.user;
+        return {
+          id: String(m.account_number),
+          name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+          email: user?.account_email || '',
+        };
+      });
+      const managerMap = new Map(transformedManagers.map((m: any) => [m.id, m]));
 
-              console.log('Transformed dorms:', transformed);
+      // Use housing as base, map occupancy data onto it
+      const rawHousing = Array.isArray(housingData) ? housingData : housingData.data ?? [];
 
-              setDormList(transformed);
-          } catch (error) {
-              console.error('Error fetching dorms:', error);
-              setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
-              setDormList([]);
-              setManagersList([]);
-          } finally {
-              setLoading(false);
-          }
-      };
+      // Transform landlords
+      const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
+      const transformedLandlords: LandlordOption[] = rawLandlords.map((l: any) => {
+        const user = l.manager?.user;
+        return {
+          id: String(l.account_number),
+          name: `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+          email: user?.account_email || '',
+        };
+      });
 
-      fetchDorms();
+      const transformed: Dorm[] = rawHousing.map((housing: any) => {
+        const housingId = String(housing.housing_id ?? '');
+        const occupancy = occupancyMap.get(housingId) as any;
+        const managerId = String(housing.manager_account_number ?? '');
+        const landlordId = String(housing.landlord_account_number ?? '');
+        const manager = managerMap.get(managerId) as { id: string; name: string; email: string } | undefined;
+        const landlord = transformedLandlords.find((l) => l.id === landlordId);
+
+        return {
+          id: housingId,
+          name: housing.housing_name ?? 'Unknown',
+          status: 'Accepting',
+          type: housing.housing_type,
+          housingType: (housing.housing_type as 'UP Housing' | 'Non-UP Housing') || 'UP Housing',
+          dormitory: manager?.name || 'Unassigned',
+          dormAddress: housing.housing_address ?? '',
+          managerName: manager?.name || undefined,
+          managerEmail: manager?.email || undefined,
+          landlordName: landlord?.name || undefined,
+          landlordEmail: landlord?.email || undefined,
+          capacity: occupancy?.totalRooms ?? 0,
+          rooms: occupancy?.totalRooms ?? 0,
+          occupied: occupancy?.occupiedRooms ?? 0,
+          monthlyRate: housing.rent_price ?? undefined,
+        };
+      });
+      setDormList(transformed);
+      setLandlordList(transformedLandlords);
+      setManagersList(transformedManagers);
+    } catch (error) {
+      console.error('Error fetching dorms:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch dorms');
+      setDormList([]);
+      setLandlordList([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchDorms();
   }, []);
 
   const [page, setPage] = useState(1);
@@ -185,63 +239,78 @@ export default function DormManagementPage({
     const matchOccupancy =
       filters.occupancy === 'All' || bucket === filters.occupancy;
 
-    return matchSearch && matchStatus && matchOccupancy;
+    const matchHousingType =
+      filters.housingType === 'All Types' || u.housingType === filters.housingType;
+
+    return matchSearch && matchStatus && matchOccupancy && matchHousingType;
   });
 
-  const totalPages  = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated   = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
-  const showingFrom = filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
-  const showingTo   = Math.min(page * ITEMS_PER_PAGE, filtered.length);
+  const sorted = [...filtered].sort((a, b) => {
+    if (filters.sortBy === 'Rent: Low to High') {
+      return (a.monthlyRate ?? 0) - (b.monthlyRate ?? 0);
+    }
+    if (filters.sortBy === 'Rent: High to Low') {
+      return (b.monthlyRate ?? 0) - (a.monthlyRate ?? 0);
+    }
+    return 0;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE));
+  const paginated = sorted.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const showingFrom = sorted.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
+  const showingTo = Math.min(page * ITEMS_PER_PAGE, sorted.length);
 
   // Loading state
-    if (loading) {
-      return (
-        <div className="flex min-h-screen bg-[#eae8e1]">
-          <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
-              <p className="text-[#1a2332]/60">Loading Dorms...</p>
-            </div>
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-[#eae8e1] overflow-hidden">
+        <Sidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
+            <p className="text-[#1a2332]/60">Loading Dorms...</p>
           </div>
         </div>
-      );
-    }
-  
-    // Error state
-    if (error) {
-      return (
-        <div className="flex min-h-screen bg-[#eae8e1]">
-          <div className="flex-1 flex items-center justify-center">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
-              <p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
-              <p className="text-red-500 text-sm mb-4">{error}</p>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                Try Again
-              </button>
-            </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex h-screen bg-[#eae8e1] overflow-hidden">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
+            <p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
+            <p className="text-red-500 text-sm mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Try Again
+            </button>
           </div>
         </div>
-      );
+      </div>
+    );
   }
   return (
-    <div className="flex min-h-screen bg-[#eae8e1]">
+    <div className="flex h-screen bg-[#eae8e1] overflow-hidden">
 
       {/* 'Add Manager' Modal */}
       <AddDormModal
         open={showModal}
         onClose={() => setShowModal(false)}
         onAdd={handleAddDorm}
+        landlords={landlordList}
+        managers={managersList}
       />
 
       {/* Sidebar */}
-      <Sidebar user={Dorm} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+      <Sidebar />
 
       {/* Main */}
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex-1 flex flex-col overflow-y-auto">
 
         {/* Header */}
         <div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-[#1a2332]/6">
@@ -249,7 +318,7 @@ export default function DormManagementPage({
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Dorm Management</h1>
             <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Assign and manage roles for Dorms and dormitory managers</p>
           </div>
-          <NotificationBell notifications={notifications} />
+          <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">
@@ -268,8 +337,8 @@ export default function DormManagementPage({
             {/* Table Title */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#1a2332]/6">
               <h2 className="text-[15px] font-bold text-[#1a2332]">Dorms</h2>
-              <span className="text-xs text-[#1a2332]/40">
-                Showing {showingFrom}–{showingTo} of {filtered.length} dorms
+              <span className="text-xs text-[#1a2332]/65 font-medium">
+                Showing {showingFrom}–{showingTo} of {sorted.length} dorms
               </span>
             </div>
 
@@ -323,8 +392,13 @@ export default function DormManagementPage({
                     {/* OCCUPIED */}
                     <span className="text-sm text-[#1a2332]/70">{u.occupied ?? '—'}</span>
 
-                    {/* STATUS */}
-                    <span className="text-sm text-[#1a2332]/70">{u.occupied ?? 'Mixed'}</span>
+                    {/* TYPE */}
+                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold w-fit ${u.type === 'non-up'
+                        ? 'bg-purple-100 text-red-700'
+                        : 'bg-blue-100 text-green-700'
+                      }`}>
+                      {u.type ? u.type.toUpperCase() : '—'}
+                    </span>
 
                     {/* ACTIONS */}
                     <div className="flex items-center gap-2">
@@ -348,15 +422,19 @@ export default function DormManagementPage({
 
             {/* Pagination Controls */}
             <div className="flex items-center justify-between px-6 py-4 border-t border-[#1a2332]/6">
-              <span className="text-xs text-[#1a2332]/40">
-                Showing {showingFrom}–{showingTo} of {filtered.length} dorms
+              <span className="text-xs text-[#1a2332]/65 font-medium">
+                Showing {showingFrom}–{showingTo} of {sorted.length} dorms
               </span>
               <div className="flex items-center gap-1">
                 <PageBtn onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
                   <ChevronLeft size={14} />
                 </PageBtn>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <PageBtn key={p} onClick={() => setPage(p)} active={p === page}>{p}</PageBtn>
+                {getVisiblePages(page, totalPages).map((p, idx) => (
+                  typeof p === 'number' ? (
+                    <PageBtn key={idx} onClick={() => setPage(p)} active={p === page}>{p}</PageBtn>
+                  ) : (
+                    <span key={idx} className="px-2 text-sm text-[#1a2332]/40 select-none">...</span>
+                  )
                 ))}
                 <PageBtn onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
                   <ChevronRight size={14} />
@@ -368,27 +446,72 @@ export default function DormManagementPage({
       </div>
       {viewingDorm && (
         <ViewDormModal
-          dorm={viewingDorm}
+          dorm={{
+            ...viewingDorm,
+            housingType: viewingDorm.housingType,
+            landlordName: viewingDorm.landlordName,
+            landlordEmail: viewingDorm.landlordEmail,
+            monthlyRate: viewingDorm.monthlyRate,
+          }}
           onClose={() => setViewingDorm(null)}
           onEdit={() => setEditingDorm(viewingDorm)}
         />
       )}
-      {/* {editingDorm && (
+
+      {editingDorm && (
         <EditDormModal
-          dorm={editingDorm}
+          dorm={editingDorm as any}
           managers={managersList}
+          landlords={landlordList}
           onClose={() => setEditingDorm(null)}
           onSave={(id, updates) => {
+            const { id: _ignored, ...safeUpdates } = updates as any;
+
             setDormList((prev) =>
-              prev.map((d) => (d.id === id ? { ...d, ...updates } : d))
+              prev.map((d) =>
+                d.id === String(id)
+                  ? {
+                    ...d,
+                    name: safeUpdates.housing_name ?? d.name,
+                    dormAddress: safeUpdates.housing_address ?? d.dormAddress,
+                    type: safeUpdates.housing_type ?? d.type,
+                    managerEmail: d.managerEmail, // unchanged unless you recompute
+                  }
+                  : d
+              )
             );
             setEditingDorm(null);
           }}
         />
-      )} */}
+      )}
     </div>
   );
 }
+
+// Helper to limit visible pagination buttons
+const getVisiblePages = (currentPage: number, totalPages: number) => {
+  const pages: (number | string)[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    pages.push(1);
+    if (currentPage > 3) {
+      pages.push('...');
+    }
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 2) {
+      pages.push('...');
+    }
+    pages.push(totalPages);
+  }
+  return pages;
+};
 
 // Paging Button
 function PageBtn({ children, onClick, active, disabled }: {
@@ -401,13 +524,12 @@ function PageBtn({ children, onClick, active, disabled }: {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-8 h-8 rounded-lg text-sm font-medium flex items-center justify-center transition-colors ${
-        active
+      className={`w-8 h-8 rounded-lg text-sm font-medium flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d4622a] focus-visible:ring-offset-2 ${active
           ? 'bg-[#1a2332] text-white'
           : disabled
-          ? 'text-[#1a2332]/20 cursor-not-allowed'
-          : 'text-[#1a2332]/50 hover:bg-[#eae8e1]'
-      }`}
+            ? 'text-[#1a2332]/20 cursor-not-allowed'
+            : 'text-[#1a2332]/65 hover:bg-[#eae8e1]'
+        }`}
     >
       {children}
     </button>

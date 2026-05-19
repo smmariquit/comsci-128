@@ -59,7 +59,7 @@ export default function RecentApplications({ data }: Props) {
         </div>
         <div
           style={{
-            fontSize: 11,
+            fontSize: 13,
             color: C.teal,
             marginTop: 2,
             fontFamily: "'DM Mono', monospace",
@@ -88,7 +88,7 @@ export default function RecentApplications({ data }: Props) {
                   style={{
                     padding: "10px 24px",
                     textAlign: "left",
-                    fontSize: 10,
+                    fontSize: 13,
                     fontWeight: 600,
                     color: C.teal,
                     textTransform: "uppercase",
@@ -136,7 +136,7 @@ export default function RecentApplications({ data }: Props) {
                       padding: "12px 24px",
                       color: C.teal,
                       fontFamily: "'DM Mono', monospace",
-                      fontSize: 12,
+                      fontSize: 13,
                     }}
                   >
                     {row.expected_moveout_date}

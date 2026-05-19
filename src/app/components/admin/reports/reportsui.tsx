@@ -43,7 +43,7 @@ export function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
       <div
         style={{
           color: C.teal,
-          fontSize: 10.5,
+          fontSize: 13,
           fontFamily: "'DM Mono', monospace",
           fontWeight: 500,
           textTransform: "uppercase",
@@ -77,7 +77,7 @@ export function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
             <span
               style={{
                 color: deltaColor,
-                fontSize: 11,
+                fontSize: 13,
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 600,
               }}
@@ -89,7 +89,7 @@ export function StatCard({ label, value, delta, deltaSub }: StatCardProps) {
             <span
               style={{
                 color: C.teal,
-                fontSize: 11,
+                fontSize: 13,
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 400,
               }}
@@ -135,7 +135,7 @@ export function ActionBtn({
       style={{
         ...BTN_STYLE[variant],
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: 11,
+        fontSize: 13,
         padding: "4px 10px",
         borderRadius: 6,
         cursor: disabled ? "not-allowed" : "pointer",
@@ -162,8 +162,8 @@ export function TableShell({
     <div
       style={{
         background: "#fff",
-        borderRadius: 12,
-        outline: `1px solid ${C.cream}`,
+        borderRadius: 16,
+        border: "1px solid rgba(26,35,50,0.06)",
         overflow: "hidden",
       }}
     >
@@ -176,11 +176,11 @@ export function TableShell({
         <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
           {title}
         </div>
-        <div style={{ fontSize: 11, color: C.teal }}>{count} total</div>
+        <div style={{ fontSize: 13, color: C.teal }}>{count} total</div>
       </div>
       <div style={{ overflowX: "auto" }}>
         <table
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}
+          style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13 }}
         >
           {children}
         </table>
@@ -195,13 +195,13 @@ export function Th({ children }: { children: React.ReactNode }) {
       style={{
         padding: "8px 14px",
         textAlign: "left",
-        fontSize: 10,
+        fontSize: 13,
         color: C.teal,
         textTransform: "uppercase",
         fontFamily: "'DM Sans', sans-serif",
         fontWeight: 600,
         whiteSpace: "nowrap",
-        background: C.cream,
+        background: "rgba(234,232,225,0.5)",
       }}
     >
       {children}
@@ -245,7 +245,7 @@ export function EmptyRow({ cols }: { cols: number }) {
           textAlign: "center",
           color: C.teal,
           opacity: 0.5,
-          fontSize: 12,
+          fontSize: 13,
           fontFamily: "'DM Sans', sans-serif",
         }}
       >
@@ -258,7 +258,6 @@ export function EmptyRow({ cols }: { cols: number }) {
 // ── Badges ────────────────────────────────────────────────────────────────────
 
 import { Badge } from "@/app/components/ui/Badge";
-
 
 // ── Typed badge helpers ───────────────────────────────────────────────────────
 
@@ -367,7 +366,7 @@ export function ExportButton({
         onClick={onExportCSV}
         style={{
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: 600,
           background: "#fff",
           color: C.navy,
@@ -387,7 +386,7 @@ export function ExportButton({
         onClick={onExportPDF}
         style={{
           fontFamily: "'DM Sans', sans-serif",
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: 600,
           background: C.orange,
           color: "#fff",

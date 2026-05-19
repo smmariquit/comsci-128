@@ -2,14 +2,23 @@ import { housingData } from "@/app/lib/data/housing-data";
 import { Housing, HousingWithRooms } from "@/models/housing";
 import { validateAction, validateOwnership } from "./authorization-service";
 import { AppAction } from "../models/permissions";
+import { createAuditLog } from "./audit-log-service";
 
 const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
-	try {
-		await validateAction(AppAction.CREATE_HOUSING);
+  try {
+    await validateAction(AppAction.CREATE_HOUSING);
 
-		const housingDetail = await housingData.create(HousingDetail);
+    const housingDetail = await housingData.create(HousingDetail);
 
-		if (!housingDetail) return null;
+    if (!housingDetail) return null;
+
+        await createAuditLog(
+            housingDetail.landlord_account_number,
+            "",
+            "Create Housing",
+            `New Entity House ${HousingDetail.housing_name} created`,
+            housingDetail.manager_account_number
+        );
 
 		return housingDetail;
 	} catch (error) {
@@ -20,55 +29,60 @@ const addHousing = async (HousingDetail: Housing): Promise<Housing | null> => {
 
 // getProfile - INPUT: userId | OUTPUT: user (if found), null/error (if not)
 const getHousing = async (housingId: number): Promise<Housing | null> => {
-	try {
-		const housingDetail = await housingData.findById(housingId);
+  try {
+    const housingDetail = await housingData.findById(housingId);
 
-		if (!housingDetail) return null;
+    if (!housingDetail) return null;
 
-		return housingDetail;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Error");
-	}
+    return housingDetail;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Error");
+  }
 };
 
 const getAllHousing = async (): Promise<Housing[] | null> => {
-	try {
-		const housingDetail = await housingData.findAll();
+  try {
+    const housingDetail = await housingData.findAll();
 
-		if (!housingDetail) return null;
+    if (!housingDetail) return null;
 
-		return housingDetail;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Error");
-	}
+    return housingDetail;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Error");
+  }
 };
 
 const updateHousing = async (
-	housingId: number,
-	housingDetail: Partial<Housing>,
+  housingId: number,
+  housingDetail: Partial<Housing>,
 ): Promise<Housing | null> => {
-	try {
-		// rbac
-		await validateAction(AppAction.UPDATE_HOUSING);
+  try {
+    // rbac
+    await validateAction(AppAction.UPDATE_HOUSING);
 
-		// obac
-		const currentHousing = await housingData.findById(housingId);
-		if (currentHousing) {
-			await validateOwnership(currentHousing.landlord_account_number);
-		}
+    // obac
+    const currentHousing = await housingData.findById(housingId);
+    if (currentHousing) {
+      await validateOwnership(currentHousing.landlord_account_number);
+    }
 
-		const { housing_id, ...allowedUpdates } = housingDetail;
-		allowedUpdates;
+    const { housing_id, ...allowedUpdates } = housingDetail;
+    allowedUpdates;
 
-		console.log(allowedUpdates);
-		const updatedHousing = await housingData.update(
-			housingId,
-			allowedUpdates,
+    console.log(allowedUpdates);
+    const updatedHousing = await housingData.update(housingId, allowedUpdates);
+
+    if (!updatedHousing) return null;
+
+		await createAuditLog(
+			updatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${updatedHousing.housing_name} updated`,
+			updatedHousing.manager_account_number,
 		);
-
-		if (!updatedHousing) return null;
 
 		return updatedHousing;
 	} catch (error) {
@@ -78,103 +92,122 @@ const updateHousing = async (
 };
 
 const deactivateHousing = async (
-	housingId: number,
+  housingId: number,
 ): Promise<Housing | null> => {
-	try {
-		// RBAC
-		await validateAction(AppAction.UPDATE_HOUSING);
+  try {
+    // RBAC
+    await validateAction(AppAction.UPDATE_HOUSING);
 
-		const housing = await housingData.findById(housingId);
-		if (!housing) {
-			throw new Error("Housing record not found or already deactivated.");
-		}
+    const housing = await housingData.findById(housingId);
+    if (!housing) {
+      throw new Error("Housing record not found or already deactivated.");
+    }
 
-		// OBAC
-		await validateOwnership(housing.landlord_account_number);
+    // OBAC
+    await validateOwnership(housing.landlord_account_number);
 
-		/**
-		 * TODO: Integration Task
-		 * Once 'room-delete' PR is merged,
-		 * add cascading soft delete for rooms of housing
-		 */
+    /**
+     * TODO: Integration Task
+     * Once 'room-delete' PR is merged,
+     * add cascading soft delete for rooms of housing
+     */
 
 		const deactivatedHousing = await housingData.deactivate(housingId);
-		return deactivatedHousing ?? null;
+		if (!deactivatedHousing) return null;
+
+		await createAuditLog(
+			deactivatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${deactivatedHousing.housing_name} deactivated`,
+			deactivatedHousing.manager_account_number,
+		);
+		return deactivatedHousing;
 	} catch (error: any) {
 		if (error.message.includes("not found")) {
 			throw error;
 		}
 
-		console.error("Service Error (removeHousing): ", error.message);
-		throw new Error(
-			"Failed to deactivate housing record due to a system error.",
-		);
-	}
+    console.error("Service Error (removeHousing): ", error.message);
+    throw new Error(
+      "Failed to deactivate housing record due to a system error.",
+    );
+  }
 };
 
 const getHousingCount = async (): Promise<number | null> => {
-	try {
-		const housingCount = await housingData.countAllHousing();
-		if (!housingCount) return null;
+  try {
+    const housingCount = await housingData.countAllHousing();
+    if (!housingCount) return null;
 
-		return housingCount;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Error");
-	}
+    return housingCount;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Error");
+  }
 };
 
 // fetching all housing with all rooms linked to respective housing
 const getAllHousingWithRooms = async (): Promise<HousingWithRooms[] | null> => {
-	try {
-		const housings = await housingData.findAllWithRooms();
-		if (!housings) return null;
-		return housings;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Failed to fetch housing with rooms");
-	}
+  try {
+    const housings = await housingData.findAllWithRooms();
+    if (!housings) return null;
+    return housings;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Failed to fetch housing with rooms");
+  }
 };
 // fetching all rooms linked to specific housing
 const getHousingWithRooms = async (
-	housingId: number,
+  housingId: number,
 ): Promise<HousingWithRooms | null> => {
-	try {
-		// RBAC
-		await validateAction(AppAction.UPDATE_HOUSING);
+  try {
+    // RBAC
+    await validateAction(AppAction.UPDATE_HOUSING);
 
-		// Housing Check
-		const housing = await housingData.findWithRooms(housingId);
-		if (!housing) return null;
+    // Housing Check
+    const housing = await housingData.findWithRooms(housingId);
+    if (!housing) return null;
 
-		// OBAC
-		await validateOwnership(housing.landlord_account_number);
+    // OBAC
+    await validateOwnership(housing.landlord_account_number);
 
-		return housing;
-	} catch (error) {
-		console.error("Error: ", error);
-		throw error;
-	}
+    return housing;
+  } catch (error) {
+    console.error("Error: ", error);
+    throw error;
+  }
 };
 
 const uploadHousingImage = async (
-	housingId: number,
-	file: File,
+  housingId: number,
+  file: File,
 ): Promise<Housing | null> => {
-	try {
-		// RBAC
-		await validateAction(AppAction.UPDATE_HOUSING);
+  try {
+    // RBAC
+    await validateAction(AppAction.UPDATE_HOUSING);
 
-		// Housing Check
-		const housing = await housingData.findById(housingId);
-		if (!housing) {
-			throw new Error("Housing Not Found.");
-		}
+    // Housing Check
+    const housing = await housingData.findById(housingId);
+    if (!housing) {
+      throw new Error("Housing Not Found.");
+    }
 
-		// OBAC
-		await validateOwnership(housing.landlord_account_number);
+    // OBAC
+    await validateOwnership(housing.landlord_account_number);
 
-		return await housingData.uploadHousingImage(housingId, file);
+		const updatedHousing = await housingData.uploadHousingImage(housingId, file);
+		if (!updatedHousing) return null;
+
+		await createAuditLog(
+			updatedHousing.landlord_account_number,
+			"",
+			"Update Housing",
+			`Housing ${updatedHousing.housing_name} image updated`,
+			updatedHousing.manager_account_number,
+		);
+		return updatedHousing;
 	} catch (error) {
 		console.error("Error: ", error);
 		throw new Error("Failed to upload housing image");
@@ -182,17 +215,20 @@ const uploadHousingImage = async (
 };
 
 const getOccupancyRate = async () => {
-	try {
-		return await housingData.getHousingCardsData();
-	} catch (error) {
-		console.error("Error: ", error);
-		throw new Error("Failed to fetch Housing Cards");
-	}
-}
-
-const getAllHousingByManager = async (managerAccountNumber: number): Promise<Housing[] | null> => {
   try {
-    const housingDetail = await housingData.findAllByManager(managerAccountNumber);
+    return await housingData.getHousingCardsData();
+  } catch (error) {
+    console.error("Error: ", error);
+    throw new Error("Failed to fetch Housing Cards");
+  }
+};
+
+const getAllHousingByManager = async (
+  managerAccountNumber: number,
+): Promise<Housing[] | null> => {
+  try {
+    const housingDetail =
+      await housingData.findAllByManager(managerAccountNumber);
     if (!housingDetail) return null;
     return housingDetail;
   } catch (error) {
@@ -201,9 +237,12 @@ const getAllHousingByManager = async (managerAccountNumber: number): Promise<Hou
   }
 };
 
-const getAllHousingWithRoomsByManager = async (managerAccountNumber: number): Promise<HousingWithRooms[] | null> => {
+const getAllHousingWithRoomsByManager = async (
+  managerAccountNumber: number,
+): Promise<HousingWithRooms[] | null> => {
   try {
-    const housings = await housingData.findAllWithRoomsByManager(managerAccountNumber);
+    const housings =
+      await housingData.findAllWithRoomsByManager(managerAccountNumber);
     if (!housings) return null;
     return housings;
   } catch (error) {
@@ -213,16 +252,16 @@ const getAllHousingWithRoomsByManager = async (managerAccountNumber: number): Pr
 };
 
 export const housingService = {
-	addHousing,
-	getHousing,
-	getAllHousing,
-	getHousingCount,
-	getAllHousingWithRooms,
-	getHousingWithRooms,
-	uploadHousingImage,
-	updateHousing,
-	deactivateHousing,
-	getOccupancyRate,
-	getAllHousingByManager,
-	getAllHousingWithRoomsByManager
+  addHousing,
+  getHousing,
+  getAllHousing,
+  getHousingCount,
+  getAllHousingWithRooms,
+  getHousingWithRooms,
+  uploadHousingImage,
+  updateHousing,
+  deactivateHousing,
+  getOccupancyRate,
+  getAllHousingByManager,
+  getAllHousingWithRoomsByManager,
 };

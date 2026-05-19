@@ -15,7 +15,7 @@ const ACTION_STYLES: Record<string, { bg: string; text: string }> = {
   Create: C.actionCreate,
   Update: C.actionUpdate,
   Delete: C.actionDelete,
-  Login:  C.actionLogin,
+  Login: C.actionLogin,
   Logout: C.actionLogout,
 };
 
@@ -42,15 +42,42 @@ export default function RecentAuditLog({ data }: Props) {
           paddingBottom: 18,
         }}
       >
-        <div style={{ padding: "18px 24px 14px", borderBottom: `1px solid ${C.dividerLight}` }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Recent Audit Activity</div>
-          <div style={{ fontSize: 11, color: C.teal, marginTop: 2, fontFamily: "'DM Mono', monospace" }}>
+        <div
+          style={{
+            padding: "18px 24px 14px",
+            borderBottom: `1px solid ${C.dividerLight}`,
+          }}
+        >
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
+            Recent Audit Activity
+          </div>
+          <div
+            style={{
+              fontSize: 13,
+              color: C.teal,
+              marginTop: 2,
+              fontFamily: "'DM Mono', monospace",
+            }}
+          >
             Latest system actions
           </div>
         </div>
-        <div style={{ padding: "28px 24px", textAlign: "center", color: C.teal }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.navy, marginBottom: 4 }}>No audit events yet</div>
-          <div style={{ fontSize: 11 }}>Activity logs will appear here when actions are recorded.</div>
+        <div
+          style={{ padding: "28px 24px", textAlign: "center", color: C.teal }}
+        >
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: C.navy,
+              marginBottom: 4,
+            }}
+          >
+            No audit events yet
+          </div>
+          <div style={{ fontSize: 13 }}>
+            Activity logs will appear here when actions are recorded.
+          </div>
         </div>
       </div>
     );
@@ -72,14 +99,29 @@ export default function RecentAuditLog({ data }: Props) {
         overflow: "hidden",
         transform: hoveredCard ? "translateY(-2px)" : "translateY(0)",
         boxShadow: hoveredCard ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
-        transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+        transition:
+          "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
         outlineColor: hoveredCard ? C.amber : C.cream,
       }}
     >
       {/* Header */}
-      <div style={{ padding: "18px 24px 14px", borderBottom: `1px solid ${C.dividerLight}` }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Recent Audit Activity</div>
-        <div style={{ fontSize: 11, color: C.teal, marginTop: 2, fontFamily: "'DM Mono', monospace" }}>
+      <div
+        style={{
+          padding: "18px 24px 14px",
+          borderBottom: `1px solid ${C.dividerLight}`,
+        }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
+          Recent Audit Activity
+        </div>
+        <div
+          style={{
+            fontSize: 13,
+            color: C.teal,
+            marginTop: 2,
+            fontFamily: "'DM Mono', monospace",
+          }}
+        >
           Latest system actions
         </div>
       </div>
@@ -99,7 +141,8 @@ export default function RecentAuditLog({ data }: Props) {
                 padding: "12px 24px",
                 borderTop: i === 0 ? "none" : `1px solid ${C.dividerLight}`,
                 alignItems: "flex-start",
-                background: hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent",
+                background:
+                  hoveredRow === i ? "rgba(28,38,50,0.03)" : "transparent",
                 transition: "background 0.15s ease",
               }}
             >
@@ -125,12 +168,21 @@ export default function RecentAuditLog({ data }: Props) {
 
               {/* Content */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: C.navy, fontWeight: 500 }}>
+                <div style={{ fontSize: 13, color: C.navy, fontWeight: 500 }}>
                   {entry.audit_description}
                 </div>
-                <div style={{ fontSize: 11, color: C.teal, marginTop: 3, fontFamily: "'DM Mono', monospace" }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: C.teal,
+                    marginTop: 3,
+                    fontFamily: "'DM Mono', monospace",
+                  }}
+                >
                   by{" "}
-                  <span style={{ color: C.orange, fontWeight: 600 }}>{entry.user_name}</span>
+                  <span style={{ color: C.orange, fontWeight: 600 }}>
+                    {entry.user_name}
+                  </span>
                   {" · "}
                   {entry.timestamp}
                 </div>

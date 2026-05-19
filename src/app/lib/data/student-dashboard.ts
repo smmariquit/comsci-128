@@ -1,9 +1,11 @@
 import { supabase } from "@/app/lib/supabase";
 
-export async function getStudentApplicationStatus(studentAccountNumber: number) {
-    const { data, error } = await supabase
-        .from("application")
-        .select(`
+export async function getStudentApplicationStatus(
+  studentAccountNumber: number,
+) {
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
             *,
             room:room_id (
                 room_type,
@@ -14,20 +16,33 @@ export async function getStudentApplicationStatus(studentAccountNumber: number) 
                 )
             )
         `)
-        .eq("student_account_number", studentAccountNumber)
-        .eq("is_deleted", false)
-        .order("application_id", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+    .eq("student_account_number", studentAccountNumber)
+    .eq("is_deleted", false)
+    .order("application_id", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-    if (error) throw error;
-    return data;
+  if (error) throw error;
+  return data;
+}
+
+export async function getStudentActiveApplications(
+  studentAccountNumber: number,
+) {
+  const { data, error } = await supabase
+    .from("application")
+    .select("application_id, housing_name, application_status")
+    .eq("student_account_number", studentAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) throw error;
+  return data ?? [];
 }
 
 export async function getStudentBillingHistory(studentAccountNumber: number) {
-    const { data, error } = await supabase
-        .from("bill") 
-        .select(`
+  const { data, error } = await supabase
+    .from("bill")
+    .select(`
             transaction_id,
             amount,
             status,
@@ -36,65 +51,69 @@ export async function getStudentBillingHistory(studentAccountNumber: number) {
             issue_date,
             date_paid,
             proof_of_payment_url
-        `) 
-        .eq("student_account_number", studentAccountNumber)
-        .order("issue_date", { ascending: false });
+        `)
+    .eq("student_account_number", studentAccountNumber)
+    .order("issue_date", { ascending: false });
 
-    if (error) throw error;
-    return data;
+  if (error) throw error;
+  return data;
 }
 
 /**
  * Fetches all non-deleted applications to show history
  */
 export async function getAccommodationHistory(studentAccountNumber: number) {
-    const { data, error } = await supabase
-        .from("application")
-        .select(`
+  const { data, error } = await supabase
+    .from("application")
+    .select(`
             application_id,
             application_status,
             created_at,
+            housing_name,
             room:room_id (
                 room_type,
                 housing:housing_id (housing_name)
             )
         `)
-        .eq("student_account_number", studentAccountNumber)
-        .eq("is_deleted", false)
-        .order("created_at", { ascending: false });
+    .eq("student_account_number", studentAccountNumber)
+    .eq("is_deleted", false)
+    .order("created_at", { ascending: false });
 
-    if (error) throw error;
-    return data;
+  if (error) throw error;
+  return data;
 }
 
 /**
  * Links the uploaded proof of payment URL to a specific bill
  */
-export async function updateBillPaymentProof(transactionId: string, publicUrl: string) {
-    const { data, error } = await supabase
-        .from("bill")
-        .update({ 
-            proof_of_payment_url: publicUrl, 
-            status: "Pending", // Change from 'Unpaid' to 'Pending' for manager review
-            date_paid: new Date().toISOString() 
-        })
-        .eq("transaction_id", transactionId)
-        .select();
+export async function updateBillPaymentProof(
+  transactionId: string,
+  publicUrl: string,
+) {
+  const { data, error } = await supabase
+    .from("bill")
+    .update({
+      proof_of_payment_url: publicUrl,
+      status: "Pending", // Change from 'Unpaid' to 'Pending' for manager review
+      date_paid: new Date().toISOString(),
+    })
+    .eq("transaction_id", transactionId)
+    .select();
 
-    if (error) throw error;
-    return data;
+  if (error) throw error;
+  return data;
 }
 
 export async function getHousingStatus(studentAccountNumber: number) {
-    const {data, error} = await supabase
-        .from("student")
-        .select(`
+  const { data, error } = await supabase
+    .from("student")
+    .select(`
             housing_status
         `)
-        .eq("account_number", studentAccountNumber)
-        .limit(1)
-        .maybeSingle();
-    
-    if(error) throw error;
-    return data;
+    .eq("account_number", studentAccountNumber)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
 }

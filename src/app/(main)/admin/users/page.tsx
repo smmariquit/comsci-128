@@ -11,18 +11,18 @@ export const metadata: Metadata = { title: "User Management" };
 export default async function UsersPage() {
   const managedHousingIds = [3, 12, 13, 14, 16, 18]; // temporary — no auth yet
 
-  let liveUsers: Awaited<ReturnType<typeof userData.getUsersForHousingAdmin>> = [];
-  let liveApplications: Awaited<ReturnType<
-    typeof applicationData.getApplicationsForApproval
-  >> = [];
+  let liveUsers: Awaited<ReturnType<typeof userData.getUsersForHousingAdmin>> =
+    [];
+  let liveApplications: Awaited<
+    ReturnType<typeof applicationData.getApplicationsForApproval>
+  > = [];
 
   try {
     [liveUsers] = await Promise.all([
       userData.getUsersForHousingAdmin(managedHousingIds),
     ]);
-    liveApplications = await applicationData.getApplicationsForApproval(
-      managedHousingIds,
-    );
+    liveApplications =
+      await applicationData.getApplicationsForApproval(managedHousingIds);
   } catch (error) {
     return (
       <StateMessage
@@ -46,7 +46,10 @@ export default async function UsersPage() {
     <div className="flex flex-col gap-4 p-6 font-sans">
       <PageTabs
         usersContent={
-          <UsersFilterTableWrapper liveUsers={liveUsers} liveApplications={[]} />
+          <UsersFilterTableWrapper
+            liveUsers={liveUsers}
+            liveApplications={[]}
+          />
         }
         applicationsContent={
           <ApplicationTabs liveApplications={liveApplications} />

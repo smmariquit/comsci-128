@@ -1,33 +1,42 @@
-
 "use client";
 
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { PaymentStatus, BillType } from "./billingtable";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
-export type StatusFilter   = "All" | PaymentStatus;
+export type StatusFilter = "All" | PaymentStatus;
 export type BillTypeFilter = "All" | BillType;
+export type SortFilter =
+  | "due_date_asc"
+  | "due_date_desc"
+  | "amount_asc"
+  | "amount_desc"
+  | "issue_date_asc"
+  | "issue_date_desc";
 
 interface Props {
-  search:         string;
-  status:         StatusFilter;
-  billType:       BillTypeFilter;
-  housing:        string;
+  search: string;
+  status: StatusFilter;
+  billType: BillTypeFilter;
+  housing: string;
   housingOptions: string[];
-  dueDateFrom:    string;
-  dueDateTo:      string;
-  onSearch:       (v: string)          => void;
-  onStatus:       (v: StatusFilter)    => void;
-  onBillType:     (v: BillTypeFilter)  => void;
-  onHousing:      (v: string)          => void;
-  onDueDateFrom:  (v: string)          => void;
-  onDueDateTo:    (v: string)          => void;
+  dueDateFrom: string;
+  dueDateTo: string;
+  sort: SortFilter;
+  onSearch: (v: string) => void;
+  onStatus: (v: StatusFilter) => void;
+  onBillType: (v: BillTypeFilter) => void;
+  onHousing: (v: string) => void;
+  onDueDateFrom: (v: string) => void;
+  onDueDateTo: (v: string) => void;
+  onSort: (v: SortFilter) => void;
 }
 
 const inputBase: React.CSSProperties = {
   fontFamily: "'DM Sans', sans-serif",
-  fontSize: 12,
+  fontSize: 13,
   color: C.navy,
   background: "#fff",
   border: `1px solid ${C.cream}`,
@@ -46,7 +55,7 @@ const selectBase: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: 13,
   fontWeight: 600,
   color: C.teal,
   textTransform: "uppercase",
@@ -57,9 +66,21 @@ const labelStyle: React.CSSProperties = {
 };
 
 export default function BillFilters({
-  search, status, billType, housing, housingOptions,
-  dueDateFrom, dueDateTo,
-  onSearch, onStatus, onBillType, onHousing, onDueDateFrom, onDueDateTo,
+  search,
+  status,
+  billType,
+  housing,
+  housingOptions,
+  dueDateFrom,
+  dueDateTo,
+  sort,
+  onSearch,
+  onStatus,
+  onBillType,
+  onHousing,
+  onDueDateFrom,
+  onDueDateTo,
+  onSort,
 }: Props) {
   const [hoveredInput, setHoveredInput] = useState(false);
   const [hoveredSelect, setHoveredSelect] = useState<string | null>(null);
@@ -69,24 +90,52 @@ export default function BillFilters({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {/* Row 1 — search + dropdowns */}
-      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         {/* Search */}
-        <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160, transform: hoveredInput ? "translateY(-1px)" : "translateY(0)", transition: "transform 0.15s ease" }}>
+        <div
+          style={{
+            position: "relative",
+            flex: "1 1 180px",
+            minWidth: 160,
+            transform: hoveredInput ? "translateY(-1px)" : "translateY(0)",
+            transition: "transform 0.15s ease",
+          }}
+        >
           <Search
             size={14}
             color={C.teal}
             strokeWidth={2}
-            style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+            style={{
+              position: "absolute",
+              left: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              pointerEvents: "none",
+            }}
           />
           <input
             type="text"
-            placeholder="Search student name..."
+            placeholder="Search by Student Account #..."
             value={search}
             onChange={(e) => onSearch(e.target.value)}
             onMouseEnter={() => setHoveredInput(true)}
             onMouseLeave={() => setHoveredInput(false)}
-            style={{ ...inputBase, width: "100%", paddingLeft: 32, boxShadow: hoveredInput ? "0 8px 18px rgba(28,38,50,0.08)" : "none", outlineColor: hoveredInput ? C.amber : C.cream }}
+            style={{
+              ...inputBase,
+              width: "100%",
+              paddingLeft: 32,
+              boxShadow: hoveredInput
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+              outlineColor: hoveredInput ? C.amber : C.cream,
+            }}
           />
         </div>
 
@@ -97,11 +146,27 @@ export default function BillFilters({
           value={housing}
           onChange={(e) => onHousing(e.target.value)}
           onMouseEnter={() => setHoveredSelect("housing")}
-          onMouseLeave={() => setHoveredSelect((current) => (current === "housing" ? null : current))}
-          style={{ ...selectBase, minWidth: 180, boxShadow: hoveredSelect === "housing" ? "0 8px 18px rgba(28,38,50,0.08)" : "none", outlineColor: hoveredSelect === "housing" ? C.amber : C.cream }}
+          onMouseLeave={() =>
+            setHoveredSelect((current) =>
+              current === "housing" ? null : current,
+            )
+          }
+          style={{
+            ...selectBase,
+            minWidth: 180,
+            boxShadow:
+              hoveredSelect === "housing"
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+            outlineColor: hoveredSelect === "housing" ? C.amber : C.cream,
+          }}
         >
           <option value="All">All Properties</option>
-          {housingOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+          {housingOptions.map((h) => (
+            <option key={h} value={h}>
+              {h}
+            </option>
+          ))}
         </select>
 
         {/* Bill type */}
@@ -111,11 +176,31 @@ export default function BillFilters({
           value={billType}
           onChange={(e) => onBillType(e.target.value as BillTypeFilter)}
           onMouseEnter={() => setHoveredSelect("type")}
-          onMouseLeave={() => setHoveredSelect((current) => (current === "type" ? null : current))}
-          style={{ ...selectBase, minWidth: 150, boxShadow: hoveredSelect === "type" ? "0 8px 18px rgba(28,38,50,0.08)" : "none", outlineColor: hoveredSelect === "type" ? C.amber : C.cream }}
+          onMouseLeave={() =>
+            setHoveredSelect((current) => (current === "type" ? null : current))
+          }
+          style={{
+            ...selectBase,
+            minWidth: 150,
+            boxShadow:
+              hoveredSelect === "type"
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+            outlineColor: hoveredSelect === "type" ? C.amber : C.cream,
+          }}
         >
-          {(["All", "Rent", "Utility", "Maintenance", "Miscellaneous"] as BillTypeFilter[]).map((t) => (
-            <option key={t} value={t}>{t === "All" ? "All Types" : t}</option>
+          {(
+            [
+              "All",
+              "Rent",
+              "Utility",
+              "Maintenance",
+              "Miscellaneous",
+            ] as BillTypeFilter[]
+          ).map((t) => (
+            <option key={t} value={t}>
+              {t === "All" ? "All Types" : t}
+            </option>
           ))}
         </select>
 
@@ -126,49 +211,101 @@ export default function BillFilters({
           value={status}
           onChange={(e) => onStatus(e.target.value as StatusFilter)}
           onMouseEnter={() => setHoveredSelect("status")}
-          onMouseLeave={() => setHoveredSelect((current) => (current === "status" ? null : current))}
-          style={{ ...selectBase, minWidth: 140, boxShadow: hoveredSelect === "status" ? "0 8px 18px rgba(28,38,50,0.08)" : "none", outlineColor: hoveredSelect === "status" ? C.amber : C.cream }}
+          onMouseLeave={() =>
+            setHoveredSelect((current) =>
+              current === "status" ? null : current,
+            )
+          }
+          style={{
+            ...selectBase,
+            minWidth: 140,
+            boxShadow:
+              hoveredSelect === "status"
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+            outlineColor: hoveredSelect === "status" ? C.amber : C.cream,
+          }}
         >
-          {(["All", "Pending", "Paid", "Overdue"] as StatusFilter[]).map((s) => (
-            <option key={s} value={s}>{s === "All" ? "All Statuses" : s}</option>
-          ))}
+          {(["All", "Pending", "Paid", "Overdue"] as StatusFilter[]).map(
+            (s) => (
+              <option key={s} value={s}>
+                {s === "All" ? "All Statuses" : s}
+              </option>
+            ),
+          )}
+        </select>
+
+        {/* Sort select dropdown */}
+        <select
+          title="Sort by"
+          aria-label="Sort by"
+          value={sort}
+          onChange={(e) => onSort(e.target.value as SortFilter)}
+          onMouseEnter={() => setHoveredSelect("sort")}
+          onMouseLeave={() =>
+            setHoveredSelect((current) =>
+              current === "sort" ? null : current,
+            )
+          }
+          style={{
+            ...selectBase,
+            minWidth: 170,
+            boxShadow:
+              hoveredSelect === "sort"
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+            outlineColor: hoveredSelect === "sort" ? C.amber : C.cream,
+          }}
+        >
+          <option value="due_date_asc">Due Date (Earliest)</option>
+          <option value="due_date_desc">Due Date (Latest)</option>
+          <option value="amount_asc">Amount (Low to High)</option>
+          <option value="amount_desc">Amount (High to Low)</option>
+          <option value="issue_date_asc">Issue Date (Earliest)</option>
+          <option value="issue_date_desc">Issue Date (Latest)</option>
         </select>
       </div>
 
       {/* Row 2 — due date range */}
-      <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "flex-end",
+          flexWrap: "wrap",
+        }}
+      >
         <div style={{ display: "flex", flexDirection: "column" }}>
           <span style={labelStyle}>Due Date From</span>
-          <input
-            type="date"
+          <ThemedDatePicker
             value={dueDateFrom}
-            onChange={(e) => onDueDateFrom(e.target.value)}
-            onMouseEnter={() => setHoveredDate("from")}
-            onMouseLeave={() => setHoveredDate((current) => (current === "from" ? null : current))}
-            style={{ ...inputBase, minWidth: 150, boxShadow: hoveredDate === "from" ? "0 8px 18px rgba(28,38,50,0.08)" : "none", outlineColor: hoveredDate === "from" ? C.amber : C.cream }}
+            onChange={onDueDateFrom}
+            placeholder="From"
+            style={{ ...inputBase, minWidth: 150 }}
           />
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <span style={labelStyle}>Due Date To</span>
-          <input
-            type="date"
+          <ThemedDatePicker
             value={dueDateTo}
-            onChange={(e) => onDueDateTo(e.target.value)}
-            onMouseEnter={() => setHoveredDate("to")}
-            onMouseLeave={() => setHoveredDate((current) => (current === "to" ? null : current))}
-            style={{ ...inputBase, minWidth: 150, boxShadow: hoveredDate === "to" ? "0 8px 18px rgba(28,38,50,0.08)" : "none", outlineColor: hoveredDate === "to" ? C.amber : C.cream }}
+            onChange={onDueDateTo}
+            placeholder="To"
+            style={{ ...inputBase, minWidth: 150 }}
           />
         </div>
 
         {/* Clear dates shortcut */}
         {(dueDateFrom || dueDateTo) && (
           <button
-            onClick={() => { onDueDateFrom(""); onDueDateTo(""); }}
+            onClick={() => {
+              onDueDateFrom("");
+              onDueDateTo("");
+            }}
             onMouseEnter={() => setHoveredClear(true)}
             onMouseLeave={() => setHoveredClear(false)}
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 11,
+              fontSize: 13,
               color: C.orange,
               background: "rgba(201,100,42,0.08)",
               border: `1px solid rgba(201,100,42,0.2)`,
@@ -177,7 +314,9 @@ export default function BillFilters({
               height: 36,
               cursor: "pointer",
               transform: hoveredClear ? "translateY(-1px)" : "translateY(0)",
-              boxShadow: hoveredClear ? "0 6px 14px rgba(201,100,42,0.12)" : "none",
+              boxShadow: hoveredClear
+                ? "0 6px 14px rgba(201,100,42,0.12)"
+                : "none",
               transition: "transform 0.15s ease, box-shadow 0.15s ease",
             }}
           >

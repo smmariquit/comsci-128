@@ -1,32 +1,36 @@
+import { Armchair, Bed, FileCheck, FileX, Home, UserCheck } from "lucide-react";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getManagerAccountNumber } from "@/app/lib/auth";
 import { applicationService } from "@/app/lib/services/application-service";
+import { auditLogService } from "@/app/lib/services/audit-log-service";
+import { billingService } from "@/app/lib/services/billing-service";
 import { housingService } from "@/app/lib/services/housing-service";
 import { getRoomStats } from "@/app/lib/services/room-service";
-import { billingService } from "@/app/lib/services/billing-service";
-import { getManagerAccountNumber } from "@/app/lib/auth";
-import { redirect } from "next/navigation";
-import { auditLogService } from "@/app/lib/services/audit-log-service";
+import StateMessage from "@/app/components/ui/state-message";
+import ExportButtonsClient from "./ExportButtonsClient";
 import DormsSection from "./DormsSection";
-import Link from "next/link";
-
-import { Home, FileCheck, FileX, Bed, UserCheck, Armchair} from 'lucide-react';
-
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
-  description: "Overview of properties, applications, and tenant activity for managed properties",
+  description:
+  "Overview of properties, applications, and tenant activity for managed properties",
 };
-import StateMessage from "@/app/components/ui/state-message";
 
 function GrossRevenueCard({ value }: { value: number }) {
   return (
-    <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between h-full">
-      <p className="text-3xl text-(--cream) uppercase tracking-widest">Gross Revenue</p>
-      <div>
-        <p className="text-6xl font-bold text-[var(--dark-orange)]">
-          ₱{value.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
-        </p>
-        <p className="text-sm text-gray-400 mt-2">Total from paid bills</p>
+    <div className="relative overflow-hidden rounded-[28px] bg-[#1C2632] p-6 text-white shadow-[0_20px_40px_rgba(28,38,50,0.22)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(227,175,100,0.18),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(86,115,117,0.24),transparent_35%)]" />
+      <div className="relative flex min-h-[260px] flex-col justify-between gap-6">
+        <div>
+          <p className="text-sm uppercase tracking-[0.32em] text-white/70">
+            Gross Revenue
+          </p>
+          <p className="mt-3 text-5xl font-semibold leading-tight text-[var(--dark-orange)] lg:text-6xl">
+            ₱{value.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+          </p>
+        </div>
+        <p className="text-sm text-white/70">Total from paid bills</p>
       </div>
     </div>
   );
@@ -42,48 +46,18 @@ function StatCard({
   icon: React.ElementType;
 }) {
   return (
-    <div className="bg-[var(--cream)] py-3 px-6 rounded-lg flex items-center gap-4 border-t-4 border-[var(--dark-orange)] shadow-md">
-      <IconComponent className="w-12 h-12 text-orange-800" strokeWidth={1.5} />
-      <div className="flex flex-col justify-center">
-        <p className="text-lg font-bold text-[var(--dark-blue)]">{value}</p>
-        <p className="text-sm text-[var(--dark-orange)]">{label}</p>
-      </div>
-    </div>
-  );
-}
-
-function DormCard({
-  id,
-  name,
-  image,
-  location,
-}: {
-  id: number;
-  name: string;
-  image: string;
-  location: string;
-}) {
-  return (
-    <Link href={`/manage/accommodations/${id}`}>
-      <div className="relative h-84 rounded-xl overflow-hidden shadow cursor-pointer group border border-gray-800">
-        <img
-          src={image || "/assets/placeholders/housing-card.svg"}
-          alt={name}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-        />
-        <div className="absolute bottom-0 w-full bg-[var(--dark-blue)]/90 text-[var(--light-yellow)] p-2 text-center">
-          <p className="font-bold leading-tight">{name}</p>
-          <p className="text-xs opacity-90">{location}</p>
+    <div className="rounded-[20px] border border-[#d8d0c2] bg-white/90 px-5 py-4 shadow-sm">
+      <div className="flex items-center gap-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f3e7d5] text-[#8b3e15]">
+          <IconComponent className="h-6 w-6" strokeWidth={1.8} />
+        </div>
+        <div className="flex flex-col justify-center">
+          <p className="text-xl font-bold leading-none text-[var(--dark-blue)]">
+            {value}
+          </p>
+          <p className="mt-1 text-sm text-[var(--dark-orange)]">{label}</p>
         </div>
       </div>
-    </Link>
-  );
-}
-
-function ActivityItem({ text }: { text: string }) {
-  return (
-    <div className="bg-gray-100 p-3 rounded text-sm text-gray-800">
-      {text}
     </div>
   );
 }
@@ -99,7 +73,7 @@ export default async function MgrDashboardPage() {
   let roomStats: Awaited<ReturnType<typeof getRoomStats>>;
   let dorms: Awaited<ReturnType<typeof housingService.getAllHousingByManager>>;
   let grossRevenue: number;
-  let logs: any[];
+  let logs: Array<Record<string, any>>;
 
   try {
     [stats, roomStats, dorms, grossRevenue, logs] = await Promise.all([
@@ -109,68 +83,102 @@ export default async function MgrDashboardPage() {
       billingService.getGrossRevenue(managerAccountNumber ?? undefined),
       auditLogService.getRecentLogsByManager(managerAccountNumber),
     ]);
-  } catch (error) {
+  } catch (_error) {
     return (
-      <StateMessage
-        variant="error"
-        title="Unable to load dashboard"
-        description="Please try again in a moment."
-      />
+      <div className="flex h-full min-h-[60vh] w-full items-center justify-center p-6">
+        <StateMessage
+          variant="error"
+          title="Unable to load dashboard"
+          description="You appear to be offline or our servers are temporarily unreachable."
+        />
+      </div>
     );
   }
 
+  const recentLogs = (logs || []).slice(0, 5);
+
   return (
-    <div className="flex flex-col gap-10 text-[var(--dark-orange)] bg-[var(--cream)]">
-
-      <section className="flex flex-col gap-6 p-6">
-        <h1 className="text-2xl font-bold text-[var(--dark-blue)]">Manager Dashboard</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-          <div className="md:col-span-1">
-            <GrossRevenueCard value={grossRevenue} />
+    <div className="min-h-full bg-[var(--cream)] text-[var(--dark-orange)]">
+      <section className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold text-[var(--dark-blue)]">
+              Manager Dashboard
+            </h1>
           </div>
+          <div className="self-start lg:self-auto">
+            <ExportButtonsClient logs={logs ?? []} />
+          </div>
+        </div>
 
-          <div className="md:col-span-2 grid grid-cols-2 gap-4">
-            <StatCard label="Total Occupants" value={roomStats.totalOccupants} icon={UserCheck} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_1.9fr]">
+          <GrossRevenueCard value={grossRevenue} />
+
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard
+              label="Total Occupants"
+              value={roomStats.totalOccupants}
+              icon={UserCheck}
+            />
             <StatCard label="New Applicants" value={stats.pending} icon={Home} />
-            <StatCard label="Approved Applications" value={stats.approved} icon={FileCheck} />
-            <StatCard label="Rejected Applications" value={stats.rejected} icon={FileX} />
+            <StatCard
+              label="Approved Applications"
+              value={stats.approved}
+              icon={FileCheck}
+            />
+            <StatCard
+              label="Rejected Applications"
+              value={stats.rejected}
+              icon={FileX}
+            />
             <StatCard label="Total Rooms" value={roomStats.totalRooms} icon={Bed} />
-            <StatCard label="Rooms with vacancy" value={roomStats.totalFreeRooms} icon={Armchair}/>
+            <StatCard
+              label="Rooms with vacancy"
+              value={roomStats.totalFreeRooms}
+              icon={Armchair}
+            />
           </div>
-
         </div>
       </section>
 
-      <section className="flex flex-col gap-4 p-6 bg-[var(--teal)]/70">
-        <h2 className="text-3xl text-[var(--dark-blue)] font-extrabold"> Dorms Managed</h2>
-
+      <section className="mx-auto w-full max-w-7xl px-4 pb-6 md:px-8">
+        <div className="flex flex-col gap-4 mb-4">
+          <h2 className="text-2xl font-bold text-[var(--dark-blue)]">
+            Dorms Managed
+          </h2>
+        </div>
         <DormsSection dorms={dorms ?? []} />
-
       </section>
 
-      <section className="flex flex-col gap-4 px-6 pb-6">
-        <h2 className="text-xl font-semibold text-[var(--dark-orange)]">Recent Activities</h2>
-        <div className="flex flex-col gap-2">
-          {logs.length === 0 ? (
-            <p className="text-gray-500 text-sm">No recent activity.</p>
-          ) : (
-            logs.map((log: any) => (
-              <div
-                key={log.audit_id}
-                className="bg-gray-100 p-3 rounded text-sm text-gray-800 flex justify-between items-center border border-gray-300"
-              >
-                <span><span className="font-bold">{log.action_type}</span> — {log.audit_description ?? "No description"}</span>
-                <span className="text-sm text-gray-110 shrink-0 ml-4">
-                  {new Date(log.timestamp).toLocaleString("en-PH")}
-                </span>
-              </div>
-            ))
-          )}
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 md:px-8">
+        <div className="rounded-[28px] border border-[#d8d0c2] bg-white/90 p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-[var(--dark-blue)]">
+            Recent Activities
+          </h2>
+          <div className="mt-4 flex flex-col gap-2">
+            {recentLogs.length === 0 ? (
+              <p className="text-sm text-[#567375]">No recent activity.</p>
+            ) : (
+              recentLogs.map((log) => (
+                <div
+                  key={log.audit_id}
+                  className="flex items-center justify-between gap-4 rounded-xl border border-[#e4d9ca] bg-[#f7f2e8] p-3.5 text-sm text-[#111820]"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="font-bold text-[#1C2632]">
+                      {log.action_type}
+                    </span>{" "}
+                    — {log.audit_description ?? "No description"}
+                  </span>
+                  <span className="shrink-0 text-xs text-[#567375]">
+                    {new Date(log.timestamp).toLocaleString("en-PH")}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </section>
-
     </div>
   );
 }

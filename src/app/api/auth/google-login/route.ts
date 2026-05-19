@@ -3,6 +3,7 @@ import type { UserRole } from "@/models/permissions";
 import { createSupabaseServerClient } from "@/lib/server-client";
 import { getCurrentUserRole } from "@/services/authorization-service";
 import { userService } from "@/services/user-service";
+import { createAuditLog } from "@/services/audit-log-service";
 
 const roleRedirects: Record<UserRole, string> = {
   public: "/login",
@@ -35,7 +36,7 @@ async function resolveManagerRole(accountNumber: number) {
   }
 
   const managerType = managerData?.manager_type?.toLowerCase();
-  if (managerType === "housing administrator") 
+  if (managerType === "housing administrator")
     return "housing_admin" as UserRole;
 
   return "landlord" as UserRole;
@@ -65,7 +66,10 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+      return NextResponse.json(
+        { error: "Authentication required." },
+        { status: 401 },
+      );
     }
 
     const profile = {
@@ -75,8 +79,16 @@ export async function POST(request: NextRequest) {
         user.user_metadata?.name?.split(/\s+/).filter(Boolean)[0] ||
         "",
       lastName:
-        user.user_metadata?.full_name?.split(/\s+/).filter(Boolean).slice(1).join(" ") ||
-        user.user_metadata?.name?.split(/\s+/).filter(Boolean).slice(1).join(" ") ||
+        user.user_metadata?.full_name
+          ?.split(/\s+/)
+          .filter(Boolean)
+          .slice(1)
+          .join(" ") ||
+        user.user_metadata?.name
+          ?.split(/\s+/)
+          .filter(Boolean)
+          .slice(1)
+          .join(" ") ||
         "",
     };
 
@@ -100,11 +112,14 @@ export async function POST(request: NextRequest) {
         {
           error: "account already exist",
           redirectTo: "/register",
-          googleData: buildRegisterData({
-            email: "",
-            firstName: "",
-            lastName: "",
-          }, "account already exist"),
+          googleData: buildRegisterData(
+            {
+              email: "",
+              firstName: "",
+              lastName: "",
+            },
+            "account already exist",
+          ),
         },
         { status: 409 },
       );
@@ -122,7 +137,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ role, redirectTo: roleRedirects[role], user: dbUser });
+    // Record successful login event in the system audit logs
+    const userName = `${dbUser.first_name} ${dbUser.last_name}`.trim();
+    await createAuditLog(
+      dbUser.account_number,
+      userName,
+      "Auth Login",
+      "User logged in via Google OAuth"
+    ).catch((err) => console.error("Failed to log Google login event:", err));
+
+    return NextResponse.json({
+      role,
+      redirectTo: roleRedirects[role],
+      user: dbUser,
+    });
   } catch (error: any) {
     console.error("Google login post-auth error:", error);
     return NextResponse.json(

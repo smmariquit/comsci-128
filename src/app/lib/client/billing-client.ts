@@ -5,7 +5,7 @@ import type { BillRow } from "@/app/components/admin/billings/billingtable";
 const API_BASE = "/api/billing";
 
 const fetchAllBills = async (
-	managedHousingIds: number[] = [],
+  managedHousingIds: number[] = [],
 ): Promise<BillRow[]> => {
   const params = new URLSearchParams();
   managedHousingIds.forEach((housingId) => {
@@ -13,8 +13,8 @@ const fetchAllBills = async (
   });
 
   const res = await fetch(`${API_BASE}?${params}`, { method: "GET" });
-	if (!res.ok) throw new Error(`Failed to fetch bills (${res.status})`);
-	return (await res.json()) as BillRow[];
+  if (!res.ok) throw new Error(`Failed to fetch bills (${res.status})`);
+  return (await res.json()) as BillRow[];
 };
 
 const markAsPaid = async (txnId: number) => {

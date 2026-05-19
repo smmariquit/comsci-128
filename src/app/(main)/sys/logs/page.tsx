@@ -26,7 +26,7 @@ export interface AuditLog {
   module: ModuleType;
   ipAddress: string;
   status: StatusType;
-  description?: string;
+  audit_description?: string;
 }
 
 export interface AuditLogsPageProps {
@@ -35,13 +35,6 @@ export interface AuditLogsPageProps {
   notifications?: { id: string; title: string; body: string; read: boolean; time: string }[];
   onLogout?: () => void;
 }
-
-// Hardcoded datas -- 
-const stubUser: SidebarUser = {
-  name: 'Luthelle Fernandez',
-  role: 'System Admin',
-  initials: 'LF',
-};
 
 
 const stubNotifications = [
@@ -129,18 +122,6 @@ function ModuleChip({ module }: { module: ModuleType }) {
   );
 }
 
-// Status badge design -> success or failed action
-function StatusBadge({ status }: { status: StatusType }) {
-  return status === 'Success' ? (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
-      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Success
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 ring-1 ring-rose-200">
-      <span className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Failed
-    </span>
-  );
-}
 
 // Pagingn button design
 function PageBtn({ children, onClick, active, disabled }: {
@@ -162,18 +143,24 @@ function PageBtn({ children, onClick, active, disabled }: {
 
 // Main Component
 export default function AuditLogsPage({
-  user = stubUser,
   notifications = stubNotifications,
   onLogout,
 }: AuditLogsPageProps) {
   const [filters, setFilters] = useState<AuditFiltersState>({
-    search: '', action: 'All Actions', module: 'All Modules', status: 'All Status',
+    search: '', action: 'All Actions', module: 'All Modules', status: 'All Status', sortBy: 'Newest First',
   });
   const [page, setPage] = useState(1);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
   const [viewingLog, setViewingLog] = useState<AuditLog | null>(null); // view modal
+
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
 
   // Fetch audit logs from API
   useEffect(() => {
@@ -207,7 +194,7 @@ export default function AuditLogsPage({
           module: log.module || 'Auth',
           ipAddress: log.partial_ip || '—',
           status: log.status || 'Success',
-          description: log.audit_description || '',
+          audit_description: log.audit_description || '',
         }));
 
         console.log('Transformed logs:', transformed);
@@ -248,8 +235,8 @@ export default function AuditLogsPage({
   // CSV export (only exports the currently filtered rows)
   const handleExport = () => {
     const rows = [
-      ['Timestamp', 'User', 'Role', 'Action', 'Module', 'IP Address', 'Status'],
-      ...filtered.map((l) => [l.timestamp, l.userName, l.userRole, l.action, l.module, l.ipAddress, l.status]),
+      ['Timestamp', 'User', 'Action', 'IP Address', 'Description'],
+      ...filtered.map((l) => [l.timestamp, l.userName,  l.action, l.ipAddress, l.audit_description]),
     ];
     const csv = rows.map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -263,7 +250,7 @@ export default function AuditLogsPage({
   if (loading) {
     return (
       <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+        <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
@@ -278,7 +265,7 @@ export default function AuditLogsPage({
   if (error) {
     return (
       <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+        <Sidebar/>
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
             <p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
@@ -299,7 +286,7 @@ export default function AuditLogsPage({
     <div className="flex min-h-screen bg-[#eae8e1]">
 
       {/* Sidebar */}
-      <Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+      <Sidebar />
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-auto">
@@ -310,7 +297,7 @@ export default function AuditLogsPage({
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Audit Logs</h1>
             <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Track all system activity, changes, and access events</p>
           </div>
-          <NotificationBell notifications={notifications} />
+          <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">
@@ -335,7 +322,7 @@ export default function AuditLogsPage({
 
             {/* Column headers */}
             <div className={`grid ${GRID_COLS} gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6`}>
-              {['TIMESTAMP', 'USER', 'ACTION', 'MODULE', 'IP ADDRESS', 'STATUS', 'DETAILS'].map((col) => (
+              {['TIMESTAMP', 'USER', 'ACTION', 'IP ADDRESS', 'DESCRIPTION'].map((col) => (
                 <span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">
                   {col}
                 </span>
@@ -365,31 +352,18 @@ export default function AuditLogsPage({
                       </div>
                       <div className="min-w-0">
                         <p className="text-[12px] font-semibold text-[#1a2332] truncate">{log.userName}</p>
-                        <p className="text-[10px] text-[#1a2332]/40">{log.userRole}</p>
                       </div>
                     </div>
 
                     {/* ACTION */}
                     <div><ActionBadge action={log.action} /></div>
 
-                    {/* MODULE */}
-                    <div><ModuleChip module={log.module} /></div>
 
                     {/* IP ADDRESS */}
                     <span className="text-[11px] font-mono text-[#1a2332]/60">{log.ipAddress}</span>
 
-                    {/* STATUS */}
-                    <div><StatusBadge status={log.status} /></div>
-
-                    {/* DETAILS */}
-                    <div>
-                      <button
-                      onClick={() => setViewingLog(log)}
-                      className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
-                    >
-                      View
-                    </button>
-                    </div>
+                     {/* IP ADDRESS */}
+                    <span className="text-[11px] font-mono text-[#1a2332]/60">{log.audit_description}</span>
                   </div>
                 ))
               )}

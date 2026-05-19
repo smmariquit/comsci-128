@@ -40,7 +40,14 @@ export default function Loading() {
           <div style={{ fontSize: 16, fontWeight: 700, color: "#1C2632" }}>
             Loading admin area
           </div>
-          <div style={{ marginTop: 4, fontSize: 12, color: "#8AABAC", lineHeight: 1.5 }}>
+          <div
+            style={{
+              marginTop: 4,
+              fontSize: 13,
+              color: "#8AABAC",
+              lineHeight: 1.5,
+            }}
+          >
             Fetching your dashboard, tables, and permissions.
           </div>
         </div>

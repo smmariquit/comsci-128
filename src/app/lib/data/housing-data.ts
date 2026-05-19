@@ -129,7 +129,7 @@ async function getHousingCardsData() {
             *,
             room!inner(*)
         `)
-  .eq("is_deleted", false)
+    .eq("is_deleted", false)
     .order("housing_name", { ascending: true });
 
   if (error) throw new Error(error.message);
@@ -149,6 +149,7 @@ async function getHousingCardsData() {
 
     return {
       housingId: housing.housing_id.toString(),
+      housingIdNum: housing.housing_id,
       name: housing.housing_name,
       address: housing.housing_address,
       totalRooms,
@@ -156,7 +157,12 @@ async function getHousingCardsData() {
       vacantRooms,
       occupancyRate,
       minRent: housing.rent_price,
-      imageUrl: housing.housing_image ?? undefined,
+      managerAccountNumber: housing.manager_account_number?.toString() || null,
+      latitude: housing.latitude,
+      longitude: housing.longitude,
+      image: housing.housing_image,
+      housingType: housing.housing_type,
+      rooms: activeRooms,
     };
   });
 }
@@ -273,13 +279,13 @@ async function getStudentsByRoom(roomId: number) {
     `)
     .eq("room_id", roomId)
     //.eq("application_status", "Approved")
-    .gt("moveout_date", new Date().toISOString().split('T')[0])
+    .gt("moveout_date", new Date().toISOString().split("T")[0]);
 
   if (error) throw new Error(`failed to fetch students: ${error.message}`);
 
   return (data || []).map((app: any) => ({
     account_number: app.account_number,
-    full_name: `${app.student.user.first_name} ${app.student.user.last_name}`
+    full_name: `${app.student.user.first_name} ${app.student.user.last_name}`,
   }));
 }
 
@@ -290,7 +296,8 @@ async function findbyLandlord(landlordId: number): Promise<Housing[] | []> {
     .eq("landlord_account_number", landlordId)
     .eq("is_deleted", false);
 
-  if (error) throw new Error ("Failed to fetch housing by landlord: " + error.message);
+  if (error)
+    throw new Error("Failed to fetch housing by landlord: " + error.message);
 
   return data ?? [];
 }
@@ -394,5 +401,5 @@ export const housingData = {
   getOccupancyRate,
   getStudentsHoused,
   findAllByManager,
-  findAllWithRoomsByManager
+  findAllWithRoomsByManager,
 };

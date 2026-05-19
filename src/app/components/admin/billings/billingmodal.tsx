@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,6 +5,7 @@ import { AlertCircle, ChevronDown, Trash2, X } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { BillRow, PaymentStatus, BillType } from "./billingtable";
 import { housingData } from "@/app/lib/data/housing-data";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 type ExtendedBillType = BillType | "Other";
 
@@ -27,7 +27,7 @@ const T = {
 // ── Shared style constants ────────────────────────────────────────────────────
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10.5,
+  fontSize: 13,
   fontFamily: "'DM Sans', sans-serif",
   fontWeight: 600,
   color: T.teal,
@@ -78,53 +78,93 @@ export interface IssueBillForm {
   housing_name: string;
   student_account_number: number | null; // null until Supabase join available
   room_code: string;
-  due_date: string;   // "YYYY-MM-DD"
-  issue_date: string;   // auto-set to today
+  due_date: string; // "YYYY-MM-DD"
+  issue_date: string; // auto-set to today
   charges: ChargeItem[];
 }
 
 // ── Shared UI helpers ─────────────────────────────────────────────────────────
 
-function CloseBtn({ onClose, light = false }: { onClose: () => void; light?: boolean }) {
+function CloseBtn({
+  onClose,
+  light = false,
+}: {
+  onClose: () => void;
+  light?: boolean;
+}) {
   return (
     <button
       onClick={onClose}
       aria-label="Close modal"
       style={{
         background: light ? "rgba(255,255,255,0.12)" : T.bg,
-        border: "none", borderRadius: 8,
-        width: 30, height: 30, cursor: "pointer",
-        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        border: "none",
+        borderRadius: 8,
+        width: 30,
+        height: 30,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
       }}
     >
-      <X size={13} color={light ? "#f5f3ef" : T.teal} strokeWidth={2.5} aria-hidden="true" />
+      <X
+        size={13}
+        color={light ? "#f5f3ef" : T.teal}
+        strokeWidth={2.5}
+        aria-hidden="true"
+      />
     </button>
   );
 }
 
 function CancelBtn({ onClose }: { onClose: () => void }) {
   return (
-    <button onClick={onClose} style={{
-      fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500,
-      padding: "9px 20px", borderRadius: 9,
-      border: "1px solid #e2ddd6", background: "#fff", color: T.navy, cursor: "pointer",
-    }}>
+    <button
+      onClick={onClose}
+      style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13,
+        fontWeight: 500,
+        padding: "9px 20px",
+        borderRadius: 9,
+        border: "1px solid #e2ddd6",
+        background: "#fff",
+        color: T.navy,
+        cursor: "pointer",
+      }}
+    >
       Cancel
     </button>
   );
 }
 
-function PrimaryBtn({ label, onClick, disabled = false }: {
-  label: string; onClick: () => void; disabled?: boolean;
+function PrimaryBtn({
+  label,
+  onClick,
+  disabled = false,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
-    <button onClick={onClick} disabled={disabled} style={{
-      fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
-      padding: "9px 22px", borderRadius: 9, border: "none",
-      background: disabled ? "#ccc" : T.orange,
-      color: "#fff",
-      cursor: disabled ? "not-allowed" : "pointer",
-    }}>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 13,
+        fontWeight: 600,
+        padding: "9px 22px",
+        borderRadius: 9,
+        border: "none",
+        background: disabled ? "#ccc" : T.orange,
+        color: "#fff",
+        cursor: disabled ? "not-allowed" : "pointer",
+      }}
+    >
       {label}
     </button>
   );
@@ -132,12 +172,25 @@ function PrimaryBtn({ label, onClick, disabled = false }: {
 
 function SectionDivider({ label }: { label: string }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "2px 0" }}>
-      <span style={{
-        fontSize: 10, fontWeight: 700, color: T.teal,
-        textTransform: "uppercase", letterSpacing: 1,
-        fontFamily: "'DM Sans', sans-serif", whiteSpace: "nowrap",
-      }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        margin: "2px 0",
+      }}
+    >
+      <span
+        style={{
+          fontSize: 13,
+          fontWeight: 700,
+          color: T.teal,
+          textTransform: "uppercase",
+          letterSpacing: 1,
+          fontFamily: "'DM Sans', sans-serif",
+          whiteSpace: "nowrap",
+        }}
+      >
         {label}
       </span>
       <div style={{ flex: 1, height: 1, background: "#ece8e0" }} />
@@ -145,15 +198,33 @@ function SectionDivider({ label }: { label: string }) {
   );
 }
 
-function SelectField({ id, label, value, onChange, children, flex }: {
-  id: string; label: string; value: string;
-  onChange: (v: string) => void; children: React.ReactNode; flex?: number;
+function SelectField({
+  id,
+  label,
+  value,
+  onChange,
+  children,
+  flex,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+  flex?: number;
 }) {
   return (
     <div style={{ flex: flex ?? 1, display: "flex", flexDirection: "column" }}>
-      <label htmlFor={id} style={labelStyle}>{label}</label>
+      <label htmlFor={id} style={labelStyle}>
+        {label}
+      </label>
       <div style={{ position: "relative" }}>
-        <select id={id} value={value} onChange={(e) => onChange(e.target.value)} style={selectStyle}>
+        <select
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={selectStyle}
+        >
           {children}
         </select>
         <ChevronDown
@@ -161,7 +232,13 @@ function SelectField({ id, label, value, onChange, children, flex }: {
           color={T.teal}
           strokeWidth={2.5}
           aria-hidden="true"
-          style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+          style={{
+            position: "absolute",
+            right: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+            pointerEvents: "none",
+          }}
         />
       </div>
     </div>
@@ -173,28 +250,31 @@ function SelectField({ id, label, value, onChange, children, flex }: {
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface IssueBillModalProps {
-  open:           boolean;
-  managedIds: { housing_id: number; housing_name: string }[];          // list of housing_name strings
-  onClose:        () => void;
-  onSubmit:       (form: IssueBillForm) => void;
-  isSubmitting?:  boolean;
+  open: boolean;
+  managedIds: { housing_id: number; housing_name: string }[]; // list of housing_name strings
+  onClose: () => void;
+  onSubmit: (form: IssueBillForm) => void;
+  isSubmitting?: boolean;
 }
 
 export default function IssueBillModal({
-  open, managedIds, onClose, onSubmit, isSubmitting = false,
+  open,
+  managedIds,
+  onClose,
+  onSubmit,
+  isSubmitting = false,
 }: IssueBillModalProps) {
-
   const today = new Date().toISOString().split("T")[0];
 
   // ── Form state (IDs) ──────────────────────────────────────────────────────────
   const [selectedHousingId, setSelectedHousingId] = useState<number | "">("");
-  const [selectedRoomId,    setSelectedRoomId]    = useState<number | "">("");
+  const [selectedRoomId, setSelectedRoomId] = useState<number | "">("");
   const [selectedStudentId, setSelectedStudentId] = useState<number | "">("");
-  const [dueDate,           setDueDate]           = useState("");
+  const [dueDate, setDueDate] = useState("");
 
   // ── Options state (Fetched data) ──────────────────────────────────────────────
   const [housingOptions, setHousingOptions] = useState<any[]>([]);
-  const [roomOptions,    setRoomOptions]    = useState<any[]>([]);
+  const [roomOptions, setRoomOptions] = useState<any[]>([]);
   const [studentOptions, setStudentOptions] = useState<any[]>([]);
 
   const [charges, setCharges] = useState<ChargeItem[]>([
@@ -207,8 +287,8 @@ export default function IssueBillModal({
     if (open) {
       setHousingOptions(managedIds);
       // Reset all
-      setSelectedHousingId(""); 
-      setSelectedRoomId(""); 
+      setSelectedHousingId("");
+      setSelectedRoomId("");
       setSelectedStudentId("");
     }
   }, [open, managedIds]);
@@ -216,7 +296,7 @@ export default function IssueBillModal({
   // Fetch rooms
   useEffect(() => {
     if (selectedHousingId) {
-      housingData.findWithRooms(Number(selectedHousingId)).then(data => {
+      housingData.findWithRooms(Number(selectedHousingId)).then((data) => {
         setRoomOptions(data.room || []);
       });
     } else {
@@ -231,10 +311,9 @@ export default function IssueBillModal({
   // Fetch students
   useEffect(() => {
     if (selectedRoomId) {
-      housingData.getStudentsByRoom(Number(selectedRoomId))
-        .then(t => {
-          setStudentOptions(t);
-        });
+      housingData.getStudentsByRoom(Number(selectedRoomId)).then((t) => {
+        setStudentOptions(t);
+      });
     } else {
       setStudentOptions([]);
     }
@@ -244,7 +323,10 @@ export default function IssueBillModal({
 
   // ── Charge helpers ──────────────────────────────────────────────────────────
   function addCharge() {
-    setCharges((p) => [...p, { id: String(Date.now()), type: "Other", amount: "" }]);
+    setCharges((p) => [
+      ...p,
+      { id: String(Date.now()), type: "Other", amount: "" },
+    ]);
   }
 
   function removeCharge(id: string) {
@@ -252,41 +334,53 @@ export default function IssueBillModal({
   }
 
   function updateCharge(id: string, field: "type" | "amount", value: string) {
-    setCharges((p) => p.map((c) => c.id === id ? { ...c, [field]: value } : c));
+    setCharges((p) =>
+      p.map((c) => (c.id === id ? { ...c, [field]: value } : c)),
+    );
   }
 
   const validCharges = charges.filter((c) => parseFloat(c.amount) > 0);
-  const totalAmount  = charges.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
-  const isValid      = !!selectedStudentId && !!dueDate && validCharges.length > 0;
+  const totalAmount = charges.reduce(
+    (sum, c) => sum + (parseFloat(c.amount) || 0),
+    0,
+  );
+  const isValid = !!selectedStudentId && !!dueDate && validCharges.length > 0;
 
   function handleSubmit() {
-  if (!isValid) return;
+    if (!isValid) return;
 
-  // Resolve names for the form artifact
-  const student = studentOptions.find(s => s.account_number === Number(selectedStudentId));
-  const housing = housingOptions.find(h => h.housing_id === Number(selectedHousingId));
-  const room    = roomOptions.find(r => r.room_id === Number(selectedRoomId));
+    // Resolve names for the form artifact
+    const student = studentOptions.find(
+      (s) => s.account_number === Number(selectedStudentId),
+    );
+    const housing = housingOptions.find(
+      (h) => h.housing_id === Number(selectedHousingId),
+    );
+    const room = roomOptions.find((r) => r.room_id === Number(selectedRoomId));
 
-  onSubmit({
-    student_account_number: Number(selectedStudentId),
-    student_name: student?.full_name || "",
-    housing_name: housing?.housing_name || "",
-    room_code:    room?.room_code || "",
-    due_date:     dueDate,
-    issue_date:   today,
-    charges,
-  });
-}
+    onSubmit({
+      student_account_number: Number(selectedStudentId),
+      student_name: student?.full_name || "",
+      housing_name: housing?.housing_name || "",
+      room_code: room?.room_code || "",
+      due_date: dueDate,
+      issue_date: today,
+      charges,
+    });
+  }
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0,
+        position: "fixed",
+        inset: 0,
         background: "rgba(28,38,50,0.45)",
         zIndex: 50,
-        display: "flex", alignItems: "center", justifyContent: "center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         padding: 16,
       }}
     >
@@ -305,21 +399,29 @@ export default function IssueBillModal({
           overflow: "hidden",
         }}
       >
-
         {/* ── Header ─────────────────────────────────────────────────────── */}
-        <div style={{
-          padding: "20px 24px 18px",
-          background: T.navy,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          flexShrink: 0,
-        }}>
+        <div
+          style={{
+            padding: "20px 24px 18px",
+            background: T.navy,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexShrink: 0,
+          }}
+        >
           <div>
-            <div style={{ fontSize: 17, fontWeight: 700, color: "#f5f3ef", letterSpacing: -0.2 }}>
+            <div
+              style={{
+                fontSize: 17,
+                fontWeight: 700,
+                color: "#f5f3ef",
+                letterSpacing: -0.2,
+              }}
+            >
               Issue a Bill
             </div>
-            <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>
+            <div style={{ fontSize: 13, color: "#7a9ea0", marginTop: 3 }}>
               Generate a new billing record for a tenant
             </div>
           </div>
@@ -327,34 +429,42 @@ export default function IssueBillModal({
         </div>
 
         {/* ── Body ───────────────────────────────────────────────────────── */}
-        <div style={{
-          flex: 1, overflowY: "auto",
-          padding: "22px 24px",
-          display: "flex", flexDirection: "column", gap: 18,
-        }}>
-
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "22px 24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 18,
+          }}
+        >
           {/* Section 1 — Billing Target */}
           <SectionDivider label="Billing Target" />
 
           {/* Row: Housing + Due Date */}
           <div style={{ display: "flex", gap: 14 }}>
             <SelectField
-              id="bill-housing" label="Property"
-              value={String(selectedHousingId)} 
+              id="bill-housing"
+              label="Property"
+              value={String(selectedHousingId)}
               onChange={(v) => setSelectedHousingId(Number(v))}
             >
               <option value="">Select Property...</option>
-              {housingOptions.map(h => <option key={h.housing_id} value={h.housing_id}>{h.housing_name}</option>)}
+              {housingOptions.map((h) => (
+                <option key={h.housing_id} value={h.housing_id}>
+                  {h.housing_name}
+                </option>
+              ))}
             </SelectField>
 
             <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
               <label htmlFor="bill-due" style={labelStyle}>Due Date</label>
-              <input
+              <ThemedDatePicker
                 id="bill-due"
-                type="date"
                 value={dueDate}
-                min={today}
-                onChange={(e) => setDueDate(e.target.value)}
+                minDate={today}
+                onChange={(val) => setDueDate(val)}
                 style={inputStyle}
               />
             </div>
@@ -362,35 +472,51 @@ export default function IssueBillModal({
 
           {/* Row: Room Select */}
           <SelectField
-            id="bill-room" label="Room / Unit"
-            value={String(selectedRoomId)} 
+            id="bill-room"
+            label="Room / Unit"
+            value={String(selectedRoomId)}
             onChange={(v) => setSelectedRoomId(Number(v))}
           >
-            <option value="">{selectedHousingId ? "Select Room..." : "Select Property first"}</option>
-            {roomOptions.map(r => <option key={r.room_id} value={r.room_id}>{r.room_code}</option>)}
+            <option value="">
+              {selectedHousingId ? "Select Room..." : "Select Property first"}
+            </option>
+            {roomOptions.map((r) => (
+              <option key={r.room_id} value={r.room_id}>
+                {r.room_code}
+              </option>
+            ))}
           </SelectField>
 
           {/* Row: Student Select */}
           <SelectField
-            id="bill-student" label="Student"
-            value={String(selectedStudentId)} 
+            id="bill-student"
+            label="Student"
+            value={String(selectedStudentId)}
             onChange={(v) => setSelectedStudentId(Number(v))}
           >
-            <option value="">{selectedRoomId ? "Select Student..." : "Select Room first"}</option>
-            {studentOptions.map(s => <option key={s.account_number} value={s.account_number}>{s.full_name}</option>)}
+            <option value="">
+              {selectedRoomId ? "Select Student..." : "Select Room first"}
+            </option>
+            {studentOptions.map((s) => (
+              <option key={s.account_number} value={s.account_number}>
+                {s.full_name}
+              </option>
+            ))}
           </SelectField>
 
           {/* Issue date — read-only */}
           <div style={{ display: "flex", gap: 14 }}>
             <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <label htmlFor="bill-issue" style={labelStyle}>Issue Date</label>
+              <label htmlFor="bill-issue" style={labelStyle}>
+                Issue Date
+              </label>
               <input
                 id="bill-issue"
                 readOnly
                 value={today}
                 style={readonlyStyle}
               />
-              <span style={{ fontSize: 10.5, color: T.teal, marginTop: 5 }}>
+              <span style={{ fontSize: 13, color: T.teal, marginTop: 5 }}>
                 Auto-set to today
               </span>
             </div>
@@ -401,40 +527,67 @@ export default function IssueBillModal({
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {charges.map((charge, idx) => (
-              <div key={charge.id} style={{
-                display: "flex", gap: 10, alignItems: "center",
-                background: T.bg,
-                border: "1px solid #e8e4db",
-                borderRadius: 10,
-                padding: "11px 14px",
-              }}>
+              <div
+                key={charge.id}
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  background: T.bg,
+                  border: "1px solid #e8e4db",
+                  borderRadius: 10,
+                  padding: "11px 14px",
+                }}
+              >
                 {/* Index */}
-                <span style={{
-                  fontSize: 11, fontWeight: 700, color: T.teal,
-                  width: 18, flexShrink: 0, textAlign: "center",
-                }}>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: T.teal,
+                    width: 18,
+                    flexShrink: 0,
+                    textAlign: "center",
+                  }}
+                >
                   {idx + 1}
                 </span>
 
                 {/* Bill type select */}
                 <div style={{ flex: 1, position: "relative" }}>
-                  <label htmlFor={`c-type-${charge.id}`}
-                    style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0 }}>
+                  <label
+                    htmlFor={`c-type-${charge.id}`}
+                    style={{
+                      position: "absolute",
+                      width: 1,
+                      height: 1,
+                      overflow: "hidden",
+                      opacity: 0,
+                    }}
+                  >
                     Charge Type
                   </label>
                   <select
                     id={`c-type-${charge.id}`}
                     value={charge.type}
-                    onChange={(e) => updateCharge(charge.id, "type", e.target.value)}
+                    onChange={(e) =>
+                      updateCharge(charge.id, "type", e.target.value)
+                    }
                     style={{
                       ...selectStyle,
-                      background: "transparent", border: "none",
+                      background: "transparent",
+                      border: "none",
                       padding: "0 20px 0 0",
-                      fontWeight: 600, fontSize: 13, color: T.navy, width: "100%",
+                      fontWeight: 600,
+                      fontSize: 13,
+                      color: T.navy,
+                      width: "100%",
                     }}
                   >
                     {(["Rent", "Utility", "Other"] as BillType[]).map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
                     ))}
                   </select>
                   <ChevronDown
@@ -442,18 +595,50 @@ export default function IssueBillModal({
                     color={T.teal}
                     strokeWidth={2.5}
                     aria-hidden="true"
-                    style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
+                    style={{
+                      position: "absolute",
+                      right: 2,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      pointerEvents: "none",
+                    }}
                   />
                 </div>
 
                 {/* Vertical divider */}
-                <div style={{ width: 1, height: 20, background: "#e2ddd6", flexShrink: 0 }} />
+                <div
+                  style={{
+                    width: 1,
+                    height: 20,
+                    background: "#e2ddd6",
+                    flexShrink: 0,
+                  }}
+                />
 
                 {/* Amount */}
-                <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: T.teal }}>₱</span>
-                  <label htmlFor={`c-amt-${charge.id}`}
-                    style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    flexShrink: 0,
+                  }}
+                >
+                  <span
+                    style={{ fontSize: 13, fontWeight: 600, color: T.teal }}
+                  >
+                    ₱
+                  </span>
+                  <label
+                    htmlFor={`c-amt-${charge.id}`}
+                    style={{
+                      position: "absolute",
+                      width: 1,
+                      height: 1,
+                      overflow: "hidden",
+                      opacity: 0,
+                    }}
+                  >
                     Charge Amount
                   </label>
                   <input
@@ -462,12 +647,18 @@ export default function IssueBillModal({
                     min={0}
                     placeholder="0.00"
                     value={charge.amount}
-                    onChange={(e) => updateCharge(charge.id, "amount", e.target.value)}
+                    onChange={(e) =>
+                      updateCharge(charge.id, "amount", e.target.value)
+                    }
                     style={{
                       ...inputStyle,
                       width: 110,
-                      background: "transparent", border: "none", padding: 0,
-                      fontWeight: 700, fontSize: 14, textAlign: "right",
+                      background: "transparent",
+                      border: "none",
+                      padding: 0,
+                      fontWeight: 700,
+                      fontSize: 14,
+                      textAlign: "right",
                       color: parseFloat(charge.amount) > 0 ? T.navy : "#aaa",
                     }}
                   />
@@ -478,15 +669,28 @@ export default function IssueBillModal({
                   onClick={() => removeCharge(charge.id)}
                   aria-label={`Remove ${charge.type} charge`}
                   style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    width: 26, height: 26, borderRadius: 6,
-                    color: "#bbb", flexShrink: 0, transition: "color 0.15s",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 26,
+                    height: 26,
+                    borderRadius: 6,
+                    color: "#bbb",
+                    flexShrink: 0,
+                    transition: "color 0.15s",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = T.orange)}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "#bbb")}
                 >
-                  <Trash2 size={13} color="currentColor" strokeWidth={2.5} aria-hidden="true" />
+                  <Trash2
+                    size={13}
+                    color="currentColor"
+                    strokeWidth={2.5}
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
             ))}
@@ -495,11 +699,16 @@ export default function IssueBillModal({
             <button
               onClick={addCharge}
               style={{
-                fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600,
-                padding: "10px 0", borderRadius: 10,
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 13,
+                fontWeight: 600,
+                padding: "10px 0",
+                borderRadius: 10,
                 border: "1.5px dashed #d4cfc6",
-                background: "transparent", color: T.teal,
-                cursor: "pointer", width: "100%",
+                background: "transparent",
+                color: T.teal,
+                cursor: "pointer",
+                width: "100%",
                 transition: "border-color 0.15s, background 0.15s",
               }}
               onMouseEnter={(e) => {
@@ -518,19 +727,28 @@ export default function IssueBillModal({
           {/* Section 3 — Summary */}
           <SectionDivider label="Summary" />
 
-          <div style={{
-            background: T.bg,
-            border: "1px solid #e8e4db",
-            borderRadius: 10,
-            padding: "14px 166px",
-            display: "flex", flexDirection: "column", gap: 8,
-          }}>
+          <div
+            style={{
+              background: T.bg,
+              border: "1px solid #e8e4db",
+              borderRadius: 10,
+              padding: "14px 166px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
             {/* Per-charge lines */}
             {validCharges.map((c) => (
-              <div key={c.id} style={{
-                display: "flex", justifyContent: "space-between",
-                fontSize: 12, color: T.teal,
-              }}>
+              <div
+                key={c.id}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 13,
+                  color: T.teal,
+                }}
+              >
                 <span>{c.type}</span>
                 <span style={{ fontFamily: "'DM Mono', monospace" }}>
                   ₱{parseFloat(c.amount).toLocaleString("en-PH")}
@@ -539,57 +757,95 @@ export default function IssueBillModal({
             ))}
 
             {validCharges.length > 0 && (
-              <div style={{ height: 1, background: "#e2ddd6", margin: "2px 0" }} />
+              <div
+                style={{ height: 1, background: "#e2ddd6", margin: "2px 0" }}
+              />
             )}
 
             {/* Grand total */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{
-                fontSize: 12, fontWeight: 700, color: T.navy,
-                textTransform: "uppercase", letterSpacing: 0.5,
-              }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: T.navy,
+                  textTransform: "uppercase",
+                  letterSpacing: 0.5,
+                }}
+              >
                 Total Amount
               </span>
-              <span style={{
-                fontSize: 18, fontWeight: 800,
-                color: totalAmount > 0 ? T.navy : "#bbb",
-                fontFamily: "'DM Mono', monospace",
-              }}>
-                ₱{totalAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+              <span
+                style={{
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: totalAmount > 0 ? T.navy : "#bbb",
+                  fontFamily: "'DM Mono', monospace",
+                }}
+              >
+                ₱
+                {totalAmount.toLocaleString("en-PH", {
+                  minimumFractionDigits: 2,
+                })}
               </span>
             </div>
 
             {/* Validation hint */}
             {!isValid && (
-              <div style={{
-                fontSize: 11, color: T.orange,
-                display: "flex", alignItems: "center", gap: 5, marginTop: 2,
-              }}>
-                <AlertCircle size={12} color="currentColor" strokeWidth={2.5} aria-hidden="true" />
-                {!selectedHousingId ? "Select a property to continue"
-                  : !selectedRoomId ? "Select a room"
-                  : !selectedStudentId ? "Select a student"
-                  : !dueDate ? "Set a due date"
-                  : "Add at least one charge with an amount"}
+              <div
+                style={{
+                  fontSize: 13,
+                  color: T.orange,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  marginTop: 2,
+                }}
+              >
+                <AlertCircle
+                  size={12}
+                  color="currentColor"
+                  strokeWidth={2.5}
+                  aria-hidden="true"
+                />
+                {!selectedHousingId
+                  ? "Select a property to continue"
+                  : !selectedRoomId
+                    ? "Select a room"
+                    : !selectedStudentId
+                      ? "Select a student"
+                      : !dueDate
+                        ? "Set a due date"
+                        : "Add at least one charge with an amount"}
               </div>
             )}
           </div>
-
         </div>
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
-        <div style={{
-          padding: "16px 24px",
-          borderTop: "1px solid #f0ece4",
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          flexShrink: 0, background: "#faf9f7",
-        }}>
-          <span style={{ fontSize: 11, color: T.teal }}>
+        <div
+          style={{
+            padding: "16px 24px",
+            borderTop: "1px solid #f0ece4",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexShrink: 0,
+            background: "#faf9f7",
+          }}
+        >
+          <span style={{ fontSize: 13, color: T.teal }}>
             {isSubmitting
               ? "Issuing bills..."
               : validCharges.length > 0
-              ? `${validCharges.length} bill${validCharges.length > 1 ? "s" : ""} will be created`
-              : "No charges added yet"}
+                ? `${validCharges.length} bill${validCharges.length > 1 ? "s" : ""} will be created`
+                : "No charges added yet"}
           </span>
           <div style={{ display: "flex", gap: 10 }}>
             <CancelBtn onClose={onClose} />
@@ -600,7 +856,6 @@ export default function IssueBillModal({
             />
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -610,35 +865,73 @@ export default function IssueBillModal({
 // ViewBillModal (unchanged — kept here for co-location)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const STATUS_COLOR: Record<PaymentStatus, { text: string; bg: string; dot: string }> = {
+const STATUS_COLOR: Record<
+  PaymentStatus,
+  { text: string; bg: string; dot: string }
+> = {
   Paid: { text: "#2a7d4f", bg: "rgba(42,125,79,0.10)", dot: "#2a7d4f" },
   Pending: { text: "#A07820", bg: "rgba(227,175,100,0.18)", dot: "#c8960a" },
   Overdue: { text: C.orange, bg: "rgba(201,100,42,0.13)", dot: C.orange },
 };
 
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
   return (
-    <div style={{
-      display: "flex", justifyContent: "space-between", alignItems: "center",
-      padding: "10px 0", borderBottom: "1px solid #f0ece4",
-    }}>
-      <span style={{
-        fontSize: 10.5, fontWeight: 600, color: T.teal,
-        textTransform: "uppercase", letterSpacing: 0.7,
-        fontFamily: "'DM Sans', sans-serif",
-      }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "10px 0",
+        borderBottom: "1px solid #f0ece4",
+      }}
+    >
+      <span
+        style={{
+          fontSize: 13,
+          fontWeight: 600,
+          color: T.teal,
+          textTransform: "uppercase",
+          letterSpacing: 0.7,
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
         {label}
       </span>
-      <span style={{ fontSize: 13, fontWeight: 500, color: T.navy, fontFamily: "'DM Sans', sans-serif" }}>
+      <span
+        style={{
+          fontSize: 13,
+          fontWeight: 500,
+          color: T.navy,
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
         {value}
       </span>
     </div>
   );
 }
 
-export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () => void }) {
+export function ViewBillModal({
+  bill,
+  onClose,
+}: {
+  bill: BillRow;
+  onClose: () => void;
+}) {
   const fmtDate = (iso?: string) =>
-    iso ? new Date(iso).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" }) : "—";
+    iso
+      ? new Date(iso).toLocaleDateString("en-PH", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "—";
 
   const s = STATUS_COLOR[bill.status];
 
@@ -646,54 +939,94 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0,
+        position: "fixed",
+        inset: 0,
         background: "rgba(28,38,50,0.45)",
         zIndex: 50,
-        display: "flex", alignItems: "center", justifyContent: "center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         padding: 16,
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff", borderRadius: 16, width: 460, maxWidth: "92vw",
-          border: "1px solid #e2ddd6", overflow: "hidden",
+          background: "#fff",
+          borderRadius: 16,
+          width: 460,
+          maxWidth: "92vw",
+          border: "1px solid #e2ddd6",
+          overflow: "hidden",
           fontFamily: "'DM Sans', sans-serif",
         }}
       >
         {/* Dark header */}
-        <div style={{
-          padding: "20px 24px 18px", background: T.navy,
-          display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-        }}>
+        <div
+          style={{
+            padding: "20px 24px 18px",
+            background: T.navy,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: "#f5f3ef" }}>
               #{String(bill.transaction_id).padStart(6, "0")}
             </div>
-            <div style={{ fontSize: 11, color: "#7a9ea0", marginTop: 3 }}>Bill Details</div>
+            <div style={{ fontSize: 13, color: "#7a9ea0", marginTop: 3 }}>
+              Bill Details
+            </div>
           </div>
-          <button onClick={onClose} aria-label="Close modal" style={{
-            background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8,
-            width: 30, height: 30, cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#f5f3ef",
-          }}>
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            style={{
+              background: "rgba(255,255,255,0.12)",
+              border: "none",
+              borderRadius: 8,
+              width: 30,
+              height: 30,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#f5f3ef",
+            }}
+          >
             <X size={13} color="#f5f3ef" strokeWidth={2.5} aria-hidden="true" />
           </button>
         </div>
 
         {/* Status strip */}
-        <div style={{
-          padding: "10px 24px",
-          background: s.bg,
-          borderBottom: "1px solid #f0ece4",
-          display: "flex", alignItems: "center", gap: 7,
-        }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.dot }} />
-          <span style={{
-            fontSize: 12, fontWeight: 700, color: s.text,
-            textTransform: "uppercase", letterSpacing: 0.6,
-          }}>
+        <div
+          style={{
+            padding: "10px 24px",
+            background: s.bg,
+            borderBottom: "1px solid #f0ece4",
+            display: "flex",
+            alignItems: "center",
+            gap: 7,
+          }}
+        >
+          <span
+            style={{
+              width: 7,
+              height: 7,
+              borderRadius: "50%",
+              background: s.dot,
+            }}
+          />
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              color: s.text,
+              textTransform: "uppercase",
+              letterSpacing: 0.6,
+            }}
+          >
             {bill.status}
           </span>
         </div>
@@ -703,24 +1036,40 @@ export function ViewBillModal({ bill, onClose }: { bill: BillRow; onClose: () =>
           <DetailRow label="Student" value={bill.student_name} />
           <DetailRow label="Property" value={bill.housing_name} />
           <DetailRow label="Bill Type" value={bill.bill_type} />
-          <DetailRow label="Amount" value={
-            <strong style={{ fontSize: 15, color: T.navy }}>
-              ₱{bill.amount.toLocaleString("en-PH")}
-            </strong>
-          } />
+          <DetailRow
+            label="Amount"
+            value={
+              <strong style={{ fontSize: 15, color: T.navy }}>
+                ₱{bill.amount.toLocaleString("en-PH")}
+              </strong>
+            }
+          />
           <DetailRow label="Due Date" value={fmtDate(bill.due_date)} />
           <DetailRow label="Date Paid" value={fmtDate(bill.date_paid)} />
         </div>
 
-        <div style={{
-          padding: "14px 24px", borderTop: "1px solid #f0ece4",
-          display: "flex", justifyContent: "flex-end",
-        }}>
-          <button onClick={onClose} style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600,
-            padding: "9px 22px", borderRadius: 9, border: "none",
-            background: T.orange, color: "#fff", cursor: "pointer",
-          }}>
+        <div
+          style={{
+            padding: "14px 24px",
+            borderTop: "1px solid #f0ece4",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <button
+            onClick={onClose}
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              fontWeight: 600,
+              padding: "9px 22px",
+              borderRadius: 9,
+              border: "none",
+              background: T.orange,
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
             Close
           </button>
         </div>

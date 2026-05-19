@@ -30,13 +30,36 @@ export default function StudentHousingStatus({ data }: Props) {
           padding: "18px 24px 24px",
         }}
       >
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Student Housing Status</div>
-        <div style={{ fontSize: 11, color: C.teal, marginTop: 2, marginBottom: 20, fontFamily: "'DM Mono', monospace" }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
+          Student Housing Status
+        </div>
+        <div
+          style={{
+            fontSize: 13,
+            color: C.teal,
+            marginTop: 2,
+            marginBottom: 20,
+            fontFamily: "'DM Mono', monospace",
+          }}
+        >
           0 total students
         </div>
-        <div style={{ textAlign: "center", padding: "24px 12px", color: C.teal }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.navy, marginBottom: 4 }}>No housing assignments yet</div>
-          <div style={{ fontSize: 11 }}>This widget will populate once students are assigned to properties.</div>
+        <div
+          style={{ textAlign: "center", padding: "24px 12px", color: C.teal }}
+        >
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: C.navy,
+              marginBottom: 4,
+            }}
+          >
+            No housing assignments yet
+          </div>
+          <div style={{ fontSize: 13 }}>
+            This widget will populate once students are assigned to properties.
+          </div>
         </div>
       </div>
     );
@@ -58,12 +81,23 @@ export default function StudentHousingStatus({ data }: Props) {
         padding: "18px 24px 24px",
         transform: hoveredCard ? "translateY(-2px)" : "translateY(0)",
         boxShadow: hoveredCard ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
-        transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+        transition:
+          "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
         outlineColor: hoveredCard ? C.amber : C.cream,
       }}
     >
-      <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>Student Housing Status</div>
-      <div style={{ fontSize: 11, color: C.teal, marginTop: 2, marginBottom: 20, fontFamily: "'DM Mono', monospace" }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
+        Student Housing Status
+      </div>
+      <div
+        style={{
+          fontSize: 13,
+          color: C.teal,
+          marginTop: 2,
+          marginBottom: 20,
+          fontFamily: "'DM Mono', monospace",
+        }}
+      >
         {total} total students
       </div>
 
@@ -78,11 +112,20 @@ export default function StudentHousingStatus({ data }: Props) {
               style={{
                 padding: "8px 10px 10px",
                 borderRadius: 10,
-                background: hoveredRow === item.label ? "rgba(28,38,50,0.03)" : "transparent",
+                background:
+                  hoveredRow === item.label
+                    ? "rgba(28,38,50,0.03)"
+                    : "transparent",
                 transition: "background 0.15s ease",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 6,
+                }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div
                     style={{
@@ -93,11 +136,20 @@ export default function StudentHousingStatus({ data }: Props) {
                       flexShrink: 0,
                     }}
                   />
-                  <span style={{ fontSize: 12, fontWeight: 500, color: C.navy }}>{item.label}</span>
+                  <span
+                    style={{ fontSize: 13, fontWeight: 500, color: C.navy }}
+                  >
+                    {item.label}
+                  </span>
                 </div>
-                <span style={{ fontSize: 11, color: C.teal, fontFamily: "'DM Mono', monospace" }}>
-                  {item.count}{" "}
-                  <span style={{ color: C.amber }}>({pct}%)</span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    color: C.teal,
+                    fontFamily: "'DM Mono', monospace",
+                  }}
+                >
+                  {item.count} <span style={{ color: C.amber }}>({pct}%)</span>
                 </span>
               </div>
               <div
@@ -115,7 +167,8 @@ export default function StudentHousingStatus({ data }: Props) {
                     background: item.color,
                     borderRadius: 6,
                     transition: "width 0.5s ease, filter 0.15s ease",
-                    filter: hoveredRow === item.label ? "brightness(1.05)" : "none",
+                    filter:
+                      hoveredRow === item.label ? "brightness(1.05)" : "none",
                   }}
                 />
               </div>

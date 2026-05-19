@@ -5,6 +5,8 @@ import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { setCookie } from "@/app/lib/utils";
+import PageLoading from "@/app/components/ui/page-loading";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [form, setForm] = useState({
@@ -12,18 +14,41 @@ export default function LoginPage() {
     password: "",
   });
   const [status, setStatus] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "email") {
+      if (value && !emailRegex.test(value)) {
+        setEmailError("Invalid email format");
+      } else {
+        setEmailError("");
+      }
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (emailError) {
+      setStatus("Please enter a valid email");
+      setStatusType("error");
+      return;
+    }
+
     setStatus("");
+    setStatusType("");
+    setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.password,
@@ -31,8 +56,11 @@ export default function LoginPage() {
 
     if (error) {
       setStatus(error.message);
+      setStatusType("error");
+      setLoading(false);
     } else {
       setStatus("Signed in successfully");
+      setStatusType("success");
       setCurrentUser(data.user);
 
       const { data: profile } = await supabase
@@ -45,15 +73,15 @@ export default function LoginPage() {
         const userType = profile.user_type?.toLowerCase();
 
         await supabase.auth.updateUser({
-          data: { account_number: profile.account_number }
+          data: { account_number: profile.account_number },
         });
 
         const { data: manager } = await supabase
-        .from("manager")
-        .select("manager_type")
-        .eq("account_number", profile.account_number)
-        .single();
-      
+          .from("manager")
+          .select("manager_type")
+          .eq("account_number", profile.account_number)
+          .single();
+
         const managerType = manager?.manager_type?.toLowerCase();
 
         if (userType === "manager") {
@@ -64,6 +92,18 @@ export default function LoginPage() {
 
         setCookie("account_number", String(profile.account_number), 1);
         setCookie("is_logged_in", "true", 1);
+
+        // Record successful login event in the system audit logs for WCAG Compliance auditability
+        fetch("/api/auth/log-event", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "Auth Login",
+            description: "User logged in with email and password",
+          }),
+        }).catch((err) => console.error("Failed to log login event:", err));
 
         let target = "/";
 
@@ -79,7 +119,10 @@ export default function LoginPage() {
             .single();
 
           const managerType = manager?.manager_type?.toLowerCase();
-          if (managerType === "housing administrator" || managerType === "house admin") {
+          if (
+            managerType === "housing administrator" ||
+            managerType === "house admin"
+          ) {
             target = "/admin";
           } else {
             target = "/manage";
@@ -91,6 +134,7 @@ export default function LoginPage() {
   }
 
   async function handleGoogleSignIn() {
+    setLoading(true);
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -100,59 +144,131 @@ export default function LoginPage() {
     });
   }
 
+  if (loading) {
+    return <PageLoading label="Logging in..." />;
+  }
+
   return (
-  <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
-    <form
-      className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
-      onSubmit={handleSubmit}
-      autoComplete="off"
+    <div
+      className="relative w-full min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
-      <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">Login</h2>
-      {status && <div className="text-red-400 text-center">{status}</div>}
-      <input
-        className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={handleChange}
-        required
+      <div
+        className="absolute inset-0 bg-[#0f1418]/72 backdrop-blur-md"
+        aria-hidden="true"
       />
-      <input
-        className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-200"
-        type="password"
-        name="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={handleChange}
-        required
-      />
-      <button
-        type="submit"
-        className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"
+      <form
+        className="relative z-10 w-full max-w-md flex flex-col gap-4 rounded-3xl border border-white/10 bg-[#111820]/88 p-10 shadow-2xl backdrop-blur-sm"
+        onSubmit={handleSubmit}
+        autoComplete="off"
       >
-        Login
-      </button>
-      <div className="text-center text-stone-200 mt-2">
-        Don’t have an account?{' '}
-        <a href="/register" className="font-bold underline">Sign up</a>
-      </div>
-      <div className="flex items-center gap-2 mt-4">
-        <div className="flex-grow h-px bg-stone-400" />
-        <span className="text-stone-400 text-xs">or</span>
-        <div className="flex-grow h-px bg-stone-400" />
-      </div>
-      <button
-        type="button"
-        className="bg-stone-50 text-black rounded-lg py-3 mt-2 flex items-center justify-center gap-2 font-normal"
-        onClick={handleGoogleSignIn}
-      >
-        Sign in using Google
-      </button>
-      <div className="text-center text-stone-200 mt-2">
-        <a href="/forgot-password" className="font-bold underline">Forgot password?</a>
-      </div>
-    </form>
-  </div>
+        <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
+          Welcome back
+        </h2>
+        {status && (
+          <div
+            className={`text-center ${statusType === "success" ? "text-green-400" : "text-red-400"}`}
+          >
+            {status}
+          </div>
+        )}
+        <div>
+          <input
+            className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+              emailError ? "border-red-500" : "border-stone-200"
+            }`}
+            type="email"
+            name="email"
+            aria-label="Email address"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          {emailError && (
+            <p className="text-red-400 text-sm mt-1">{emailError}</p>
+          )}
+        </div>
+        <div>
+          <div className="relative">
+            <input
+              className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              aria-label="Password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+        </div>
+        <button
+          type="submit"
+          className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"
+        >
+          Login
+        </button>
+        <div className="text-center text-stone-200 mt-2">
+          Don’t have an account?{" "}
+          <a href="/register" className="font-bold underline">
+            Sign up
+          </a>
+        </div>
+        <div className="flex items-center gap-2 mt-4">
+          <div className="flex-grow h-px bg-stone-400" />
+          <span className="text-stone-400 text-xs">or</span>
+          <div className="flex-grow h-px bg-stone-400" />
+        </div>
+        <button
+          type="button"
+          className="bg-stone-50 text-black rounded-lg py-3 mt-2 flex items-center justify-center gap-2 font-normal"
+          onClick={handleGoogleSignIn}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4"
+            />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1 .67-2.28 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853"
+            />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335"
+            />
+          </svg>
+          Sign in using Google
+        </button>
+        <div className="text-center text-stone-200 mt-2">
+          <a href="/forgot-password" className="font-bold underline">
+            Forgot password?
+          </a>
+        </div>
+      </form>
+    </div>
   );
 }

@@ -1,3 +1,5 @@
+import { Search } from "lucide-react";
+
 type StateVariant = "empty" | "error";
 
 export default function StateMessage({
@@ -20,10 +22,11 @@ export default function StateMessage({
           : "border-[#CEC7B0] bg-white text-[#1C2632]"
       }`}
     >
-      {/* house illustration */}
-      <div className="flex justify-center mb-4">
-        {isError ? <ErrorHouse /> : <EmptyHouse />}
+      {/* illustration */}
+      <div className="flex justify-center mb-4 text-[#C9642A]">
+        {isError ? <ErrorHouse /> : <Search className="w-12 h-12 stroke-[1.5]" />}
       </div>
+
 
       <div className="text-lg font-semibold">{title}</div>
       {description && (
@@ -82,17 +85,82 @@ function EmptyHouse() {
         fill="none"
       />
       {/* window left */}
-      <rect x="21" y="39" width="8" height="8" rx="1" fill="#E3AF64" fillOpacity="0.2" stroke="#E3AF64" strokeWidth="1" />
-      <line x1="25" y1="39" x2="25" y2="47" stroke="#E3AF64" strokeWidth="0.5" />
-      <line x1="21" y1="43" x2="29" y2="43" stroke="#E3AF64" strokeWidth="0.5" />
+      <rect
+        x="21"
+        y="39"
+        width="8"
+        height="8"
+        rx="1"
+        fill="#E3AF64"
+        fillOpacity="0.2"
+        stroke="#E3AF64"
+        strokeWidth="1"
+      />
+      <line
+        x1="25"
+        y1="39"
+        x2="25"
+        y2="47"
+        stroke="#E3AF64"
+        strokeWidth="0.5"
+      />
+      <line
+        x1="21"
+        y1="43"
+        x2="29"
+        y2="43"
+        stroke="#E3AF64"
+        strokeWidth="0.5"
+      />
       {/* window right */}
-      <rect x="51" y="39" width="8" height="8" rx="1" fill="#E3AF64" fillOpacity="0.2" stroke="#E3AF64" strokeWidth="1" />
-      <line x1="55" y1="39" x2="55" y2="47" stroke="#E3AF64" strokeWidth="0.5" />
-      <line x1="51" y1="43" x2="59" y2="43" stroke="#E3AF64" strokeWidth="0.5" />
+      <rect
+        x="51"
+        y="39"
+        width="8"
+        height="8"
+        rx="1"
+        fill="#E3AF64"
+        fillOpacity="0.2"
+        stroke="#E3AF64"
+        strokeWidth="1"
+      />
+      <line
+        x1="55"
+        y1="39"
+        x2="55"
+        y2="47"
+        stroke="#E3AF64"
+        strokeWidth="0.5"
+      />
+      <line
+        x1="51"
+        y1="43"
+        x2="59"
+        y2="43"
+        stroke="#E3AF64"
+        strokeWidth="0.5"
+      />
       {/* chimney */}
-      <rect x="54" y="12" width="5" height="12" rx="0.5" fill="white" stroke="#CEC7B0" strokeWidth="1" />
+      <rect
+        x="54"
+        y="12"
+        width="5"
+        height="12"
+        rx="0.5"
+        fill="white"
+        stroke="#CEC7B0"
+        strokeWidth="1"
+      />
       {/* ground line */}
-      <line x1="4" y1="62" x2="76" y2="62" stroke="#CEC7B0" strokeWidth="1" strokeDasharray="4 3" />
+      <line
+        x1="4"
+        y1="62"
+        x2="76"
+        y2="62"
+        stroke="#CEC7B0"
+        strokeWidth="1"
+        strokeDasharray="4 3"
+      />
     </svg>
   );
 }
@@ -147,18 +215,79 @@ function ErrorHouse() {
         fill="none"
       />
       {/* window left — X mark */}
-      <rect x="21" y="39" width="8" height="8" rx="1" fill="#fef2f2" stroke="#fca5a5" strokeWidth="1" />
-      <path d="M23 41 L27 45 M27 41 L23 45" stroke="#ef4444" strokeWidth="1" strokeLinecap="round" />
+      <rect
+        x="21"
+        y="39"
+        width="8"
+        height="8"
+        rx="1"
+        fill="#fef2f2"
+        stroke="#fca5a5"
+        strokeWidth="1"
+      />
+      <path
+        d="M23 41 L27 45 M27 41 L23 45"
+        stroke="#ef4444"
+        strokeWidth="1"
+        strokeLinecap="round"
+      />
       {/* window right — X mark */}
-      <rect x="51" y="39" width="8" height="8" rx="1" fill="#fef2f2" stroke="#fca5a5" strokeWidth="1" />
-      <path d="M53 41 L57 45 M57 41 L53 45" stroke="#ef4444" strokeWidth="1" strokeLinecap="round" />
+      <rect
+        x="51"
+        y="39"
+        width="8"
+        height="8"
+        rx="1"
+        fill="#fef2f2"
+        stroke="#fca5a5"
+        strokeWidth="1"
+      />
+      <path
+        d="M53 41 L57 45 M57 41 L53 45"
+        stroke="#ef4444"
+        strokeWidth="1"
+        strokeLinecap="round"
+      />
       {/* warning triangle above chimney */}
-      <path d="M58 4 L63 13 L53 13 Z" fill="#ef4444" fillOpacity="0.15" stroke="#ef4444" strokeWidth="1" strokeLinejoin="round" />
-      <text x="58" y="12" textAnchor="middle" fill="#ef4444" fontSize="7" fontWeight="bold">!</text>
+      <path
+        d="M58 4 L63 13 L53 13 Z"
+        fill="#ef4444"
+        fillOpacity="0.15"
+        stroke="#ef4444"
+        strokeWidth="1"
+        strokeLinejoin="round"
+      />
+      <text
+        x="58"
+        y="12"
+        textAnchor="middle"
+        fill="#ef4444"
+        fontSize="7"
+        fontWeight="bold"
+      >
+        !
+      </text>
       {/* chimney */}
-      <rect x="54" y="12" width="5" height="12" rx="0.5" fill="white" stroke="#fca5a5" strokeWidth="1" />
+      <rect
+        x="54"
+        y="12"
+        width="5"
+        height="12"
+        rx="0.5"
+        fill="white"
+        stroke="#fca5a5"
+        strokeWidth="1"
+      />
       {/* ground line */}
-      <line x1="4" y1="62" x2="76" y2="62" stroke="#fca5a5" strokeWidth="1" strokeDasharray="4 3" />
+      <line
+        x1="4"
+        y1="62"
+        x2="76"
+        y2="62"
+        stroke="#fca5a5"
+        strokeWidth="1"
+        strokeDasharray="4 3"
+      />
     </svg>
   );
 }

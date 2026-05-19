@@ -1,5 +1,13 @@
 "use client";
-import { ArrowRight, Camera, Check, LoaderCircle, MapPin, Trash2, Upload } from "lucide-react";
+import {
+  ArrowRight,
+  Camera,
+  Check,
+  LoaderCircle,
+  MapPin,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface DormCardProps {
@@ -48,7 +56,9 @@ export default function DormCard({
   const [draftName, setDraftName] = useState(initialName);
   const [draftAddress, setDraftAddress] = useState(initialAddress);
   const [draftRent, setDraftRent] = useState(initialRent);
-  const [draftImageUrl, setDraftImageUrl] = useState<string | undefined>(initialImageUrl);
+  const [draftImageUrl, setDraftImageUrl] = useState<string | undefined>(
+    initialImageUrl,
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -83,7 +93,14 @@ export default function DormCard({
     setDeleteInput("");
     setModalState("manage");
     onManage();
-  }, [cardAddress, cardImageUrl, cardName, cardRent, clearPreviewObjectUrl, onManage]);
+  }, [
+    cardAddress,
+    cardImageUrl,
+    cardName,
+    cardRent,
+    clearPreviewObjectUrl,
+    onManage,
+  ]);
 
   const openDeleteModal = useCallback(() => {
     openModal();
@@ -97,16 +114,19 @@ export default function DormCard({
     setDeleteInput("");
   }, [clearPreviewObjectUrl]);
 
-  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleImageUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-    clearPreviewObjectUrl();
-    setSelectedFile(file);
-    const url = URL.createObjectURL(file);
-    previewObjectUrlRef.current = url;
-    setDraftImageUrl(url);
-  }, [clearPreviewObjectUrl]);
+      clearPreviewObjectUrl();
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      previewObjectUrlRef.current = url;
+      setDraftImageUrl(url);
+    },
+    [clearPreviewObjectUrl],
+  );
 
   const handleSave = useCallback(async () => {
     setModalState("loading");
@@ -119,20 +139,24 @@ export default function DormCard({
 
       // Send the text data updates to your backend
       const updateResponse = await fetch(`/api/housing/${numericId}`, {
-        method: "PATCH", 
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          housing_name: draftName, 
+          housing_name: draftName,
           housing_address: draftAddress,
-          rent_price: draftRent, 
+          rent_price: draftRent,
         }),
       });
 
       if (!updateResponse.ok) {
         const payload = await updateResponse.json().catch(() => null);
-        throw new Error(payload?.message ?? payload?.error ?? "Failed to update housing details.");
+        throw new Error(
+          payload?.message ??
+            payload?.error ??
+            "Failed to update housing details.",
+        );
       }
 
       // Handle File Upload ONLY if a new file was selected
@@ -147,7 +171,9 @@ export default function DormCard({
 
         if (!imageResponse.ok) {
           const payload = await imageResponse.json().catch(() => null);
-          throw new Error(payload?.error ?? "Text updated, but image upload failed.");
+          throw new Error(
+            payload?.error ?? "Text updated, but image upload failed.",
+          );
         }
       }
 
@@ -155,26 +181,39 @@ export default function DormCard({
       setCardName(draftName);
       setCardAddress(draftAddress);
       setCardRent(draftRent);
-      if (selectedFile) setCardImageUrl(draftImageUrl); 
-      
+      if (selectedFile) setCardImageUrl(draftImageUrl);
+
       clearPreviewObjectUrl();
       setSelectedFile(null); // Clear selected file after successful save
 
       // 4. Propagate changes to parent (if the parent needs to update its own state)
-      onSave({ 
-        name: draftName, 
-        address: draftAddress, 
-        minRent: draftRent, 
-        imageUrl: draftImageUrl 
+      onSave({
+        name: draftName,
+        address: draftAddress,
+        minRent: draftRent,
+        imageUrl: draftImageUrl,
       });
 
       setModalState("success");
     } catch (error) {
       console.error("Save failed:", error);
-      alert(error instanceof Error ? error.message : "Failed to save changes. Please try again.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to save changes. Please try again.",
+      );
       setModalState("manage"); // Revert to manage state so user doesn't lose their typed input
     }
-  }, [clearPreviewObjectUrl, draftAddress, draftImageUrl, draftName, draftRent, housingId, onSave, selectedFile]);
+  }, [
+    clearPreviewObjectUrl,
+    draftAddress,
+    draftImageUrl,
+    draftName,
+    draftRent,
+    housingId,
+    onSave,
+    selectedFile,
+  ]);
 
   const handleDelete = useCallback(async () => {
     const normalizedId = String(housingId).trim();
@@ -186,12 +225,15 @@ export default function DormCard({
     setModalState("deleting");
 
     try {
-      const response = await fetch(`/api/housing/${encodeURIComponent(normalizedId)}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: "Bearer local-dev-token",
+      const response = await fetch(
+        `/api/housing/${encodeURIComponent(normalizedId)}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: "Bearer local-dev-token",
+          },
         },
-      });
+      );
 
       const payload = await response.json().catch(() => null);
 
@@ -203,13 +245,21 @@ export default function DormCard({
       window.location.reload();
     } catch (error) {
       console.error("Delete failed:", error);
-      alert(error instanceof Error ? error.message : "Failed to deactivate housing. Please try again.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to deactivate housing. Please try again.",
+      );
       setModalState("manage");
     }
   }, [housingId, onDelete]);
 
   const occupancyColor =
-    occupancyRate >= 80 ? "#1D9E75" : occupancyRate >= 50 ? "#E6A817" : "#D95F5F";
+    occupancyRate >= 80
+      ? "#1D9E75"
+      : occupancyRate >= 50
+        ? "#E6A817"
+        : "#D95F5F";
 
   const stats = useMemo(
     () => [
@@ -258,7 +308,8 @@ export default function DormCard({
           fontFamily: "'Geist', 'DM Sans', sans-serif",
           transform: cardHover ? "translateY(-3px)" : "translateY(0)",
           boxShadow: cardHover ? "0 18px 36px rgba(28,38,50,0.12)" : "none",
-          transition: "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
+          transition:
+            "transform 0.18s ease, box-shadow 0.18s ease, outline-color 0.18s ease",
           outlineColor: cardHover ? "#E6A817" : "#CEC7B0",
         }}
       >
@@ -288,7 +339,7 @@ export default function DormCard({
               backdropFilter: "blur(6px)",
               borderRadius: 6,
               padding: "3px 8px",
-              fontSize: 10,
+              fontSize: 13,
               color: "#8AABAC",
               letterSpacing: "0.08em",
               fontWeight: 600,
@@ -296,7 +347,9 @@ export default function DormCard({
           >
             #{housingId}
           </div>
-          <div style={{ position: "absolute", bottom: 14, left: 16, right: 16 }}>
+          <div
+            style={{ position: "absolute", bottom: 14, left: 16, right: 16 }}
+          >
             <div
               style={{
                 fontSize: 15,
@@ -312,7 +365,7 @@ export default function DormCard({
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "#8AABAC",
                 marginTop: 2,
                 display: "flex",
@@ -344,12 +397,19 @@ export default function DormCard({
                 borderRight: i < 2 ? "1px solid #EDE9DE" : undefined,
               }}
             >
-              <span style={{ fontSize: 18, fontWeight: 700, color: "#1C2632", lineHeight: 1 }}>
+              <span
+                style={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: "#1C2632",
+                  lineHeight: 1,
+                }}
+              >
                 {s.value}
               </span>
               <span
                 style={{
-                  fontSize: 10,
+                  fontSize: 13,
                   color: "#8AABAC",
                   marginTop: 3,
                   letterSpacing: "0.04em",
@@ -373,7 +433,7 @@ export default function DormCard({
           >
             <span
               style={{
-                fontSize: 11,
+                fontSize: 13,
                 color: "#8AABAC",
                 fontWeight: 500,
                 letterSpacing: "0.04em",
@@ -382,12 +442,19 @@ export default function DormCard({
             >
               Occupancy
             </span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: occupancyColor }}>
+            <span
+              style={{ fontSize: 13, fontWeight: 700, color: occupancyColor }}
+            >
               {occupancyRate}%
             </span>
           </div>
           <div
-            style={{ height: 5, background: "#EDE9DE", borderRadius: 99, overflow: "hidden" }}
+            style={{
+              height: 5,
+              background: "#EDE9DE",
+              borderRadius: 99,
+              overflow: "hidden",
+            }}
           >
             <div
               style={{
@@ -397,8 +464,8 @@ export default function DormCard({
                   occupancyRate >= 80
                     ? "linear-gradient(90deg,#1D9E75,#22c994)"
                     : occupancyRate >= 50
-                    ? "#E6A817"
-                    : "#D95F5F",
+                      ? "#E6A817"
+                      : "#D95F5F",
                 borderRadius: 99,
                 transition: "width 0.4s ease",
               }}
@@ -416,11 +483,11 @@ export default function DormCard({
           }}
         >
           <div style={{ display: "flex", alignItems: "baseline", gap: 2 }}>
-            <span style={{ fontSize: 11, color: "#8AABAC" }}>from </span>
+            <span style={{ fontSize: 13, color: "#8AABAC" }}>from </span>
             <span style={{ fontSize: 15, fontWeight: 800, color: "#1D9E75" }}>
               ₱{cardRent.toLocaleString()}
             </span>
-            <span style={{ fontSize: 11, color: "#8AABAC" }}>/mo</span>
+            <span style={{ fontSize: 13, color: "#8AABAC" }}>/mo</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <button
@@ -432,14 +499,18 @@ export default function DormCard({
                 background: "#FFF8F8",
                 cursor: "pointer",
                 color: "#D95F5F",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 display: "flex",
                 alignItems: "center",
                 gap: 5,
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#FFF0F0")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "#FFF8F8")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#FFF0F0")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "#FFF8F8")
+              }
             >
               Delete
               <Trash2 size={11} color="#D95F5F" strokeWidth={2.2} />
@@ -453,14 +524,18 @@ export default function DormCard({
                 background: "#1C2632",
                 cursor: "pointer",
                 color: "#EDE9DE",
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 600,
                 display: "flex",
                 alignItems: "center",
                 gap: 5,
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#243342")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "#1C2632")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#243342")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "#1C2632")
+              }
             >
               Manage
               <ArrowRight size={11} color="#8AABAC" strokeWidth={2.2} />
@@ -493,7 +568,10 @@ export default function DormCard({
                 size={56}
                 color="#1D9E75"
                 strokeWidth={2.2}
-                style={{ animation: "dormCardSpin 0.85s linear infinite", display: "block" }}
+                style={{
+                  animation: "dormCardSpin 0.85s linear infinite",
+                  display: "block",
+                }}
               />
             </div>
             <div style={{ textAlign: "center" }}>
@@ -508,8 +586,10 @@ export default function DormCard({
               >
                 Saving changes…
               </div>
-              <div style={{ fontSize: 12, color: "#8AABAC" }}>
-                {selectedFile ? "Uploading image & saving data" : "Please wait a moment"}
+              <div style={{ fontSize: 13, color: "#8AABAC" }}>
+                {selectedFile
+                  ? "Uploading image & saving data"
+                  : "Please wait a moment"}
               </div>
             </div>
           </div>
@@ -539,7 +619,10 @@ export default function DormCard({
                 size={56}
                 color="#D95F5F"
                 strokeWidth={2.2}
-                style={{ animation: "dormCardDeleteSpin 0.85s linear infinite", display: "block" }}
+                style={{
+                  animation: "dormCardDeleteSpin 0.85s linear infinite",
+                  display: "block",
+                }}
               />
             </div>
             <div style={{ textAlign: "center" }}>
@@ -554,7 +637,7 @@ export default function DormCard({
               >
                 Deleting housing…
               </div>
-              <div style={{ fontSize: 12, color: "#8AABAC" }}>
+              <div style={{ fontSize: 13, color: "#8AABAC" }}>
                 Please wait while the record is removed
               </div>
             </div>
@@ -608,8 +691,8 @@ export default function DormCard({
                 Changes saved!
               </div>
               <div style={{ fontSize: 13, color: "#8AABAC", lineHeight: 1.65 }}>
-                <strong style={{ color: "#1C2632" }}>{cardName}</strong> has been updated
-                successfully.
+                <strong style={{ color: "#1C2632" }}>{cardName}</strong> has
+                been updated successfully.
               </div>
             </div>
             <button
@@ -626,8 +709,12 @@ export default function DormCard({
                 fontWeight: 700,
                 letterSpacing: "0.02em",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#243342")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "#1C2632")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#243342")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "#1C2632")
+              }
             >
               Done
             </button>
@@ -707,10 +794,12 @@ export default function DormCard({
                 >
                   <Upload size={24} color="#EDE9DE" strokeWidth={2} />
                 </div>
-                <span style={{ color: "#EDE9DE", fontSize: 14, fontWeight: 700 }}>
+                <span
+                  style={{ color: "#EDE9DE", fontSize: 14, fontWeight: 700 }}
+                >
                   Upload New Photo
                 </span>
-                <span style={{ color: "rgba(255,255,255,0.65)", fontSize: 12 }}>
+                <span style={{ color: "rgba(255,255,255,0.65)", fontSize: 13 }}>
                   Drag & drop or click to browse
                 </span>
               </div>
@@ -721,7 +810,9 @@ export default function DormCard({
                   position: "absolute",
                   bottom: 22,
                   right: 26,
-                  background: imgHover ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.15)",
+                  background: imgHover
+                    ? "rgba(255,255,255,0.25)"
+                    : "rgba(255,255,255,0.15)",
                   backdropFilter: "blur(8px)",
                   border: "1px solid rgba(255,255,255,0.25)",
                   borderRadius: 99,
@@ -767,8 +858,12 @@ export default function DormCard({
                   zIndex: 3,
                   transition: "background 0.2s",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(28,38,50,0.7)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(28,38,50,0.52)")}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "rgba(28,38,50,0.7)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "rgba(28,38,50,0.52)")
+                }
               >
                 ✕
               </button>
@@ -784,7 +879,7 @@ export default function DormCard({
                   backdropFilter: "blur(6px)",
                   borderRadius: 6,
                   padding: "3px 10px",
-                  fontSize: 11,
+                  fontSize: 13,
                   color: "#8AABAC",
                   letterSpacing: "0.08em",
                   fontWeight: 600,
@@ -853,8 +948,16 @@ export default function DormCard({
                 {/* Dorm Info */}
                 <div>
                   <div style={sectionLabelStyle}>Dorm Info</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
                       <label style={fieldLabelStyle}>Name</label>
                       <input
                         value={draftName}
@@ -862,7 +965,13 @@ export default function DormCard({
                         style={inputStyle}
                       />
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 4,
+                      }}
+                    >
                       <label style={fieldLabelStyle}>Address</label>
                       <input
                         value={draftAddress}
@@ -876,7 +985,9 @@ export default function DormCard({
                 {/* Pricing */}
                 <div>
                   <div style={sectionLabelStyle}>Pricing</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 4 }}
+                  >
                     <label style={fieldLabelStyle}>Starting Monthly Rent</label>
                     <div style={{ display: "flex" }}>
                       <span
@@ -898,7 +1009,11 @@ export default function DormCard({
                         min={0}
                         value={draftRent}
                         onChange={(e) => setDraftRent(Number(e.target.value))}
-                        style={{ ...inputStyle, borderRadius: "0 8px 8px 0", width: "100%" }}
+                        style={{
+                          ...inputStyle,
+                          borderRadius: "0 8px 8px 0",
+                          width: "100%",
+                        }}
                       />
                     </div>
                   </div>
@@ -916,7 +1031,7 @@ export default function DormCard({
                   >
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 13,
                         fontWeight: 700,
                         color: "#D95F5F",
                         letterSpacing: "0.06em",
@@ -928,14 +1043,15 @@ export default function DormCard({
                     </div>
                     <div
                       style={{
-                        fontSize: 12,
+                        fontSize: 13,
                         color: "#8AABAC",
                         marginBottom: 10,
                         lineHeight: 1.45,
                       }}
                     >
-                      Permanently delete this dorm listing. This cannot be undone and will remove
-                      all associated room and tenant data.
+                      Permanently delete this dorm listing. This cannot be
+                      undone and will remove all associated room and tenant
+                      data.
                     </div>
                     <button
                       onClick={() => setShowDeleteConfirm(true)}
@@ -978,12 +1094,24 @@ export default function DormCard({
                       gap: 12,
                     }}
                   >
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "#D95F5F" }}>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 800,
+                        color: "#D95F5F",
+                      }}
+                    >
                       Are you absolutely sure?
                     </div>
-                    <div style={{ fontSize: 12, color: "#1C2632", lineHeight: 1.5 }}>
-                      This will permanently delete <strong>{draftName}</strong> and all its data.
-                      Type <strong>DELETE</strong> to confirm.
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "#1C2632",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      This will permanently delete <strong>{draftName}</strong>{" "}
+                      and all its data. Type <strong>DELETE</strong> to confirm.
                     </div>
                     <input
                       value={deleteInput}
@@ -1076,8 +1204,12 @@ export default function DormCard({
                   fontSize: 14,
                   letterSpacing: "0.01em",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#243342")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#1C2632")}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#243342")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "#1C2632")
+                }
               >
                 Save Changes
               </button>
@@ -1090,7 +1222,7 @@ export default function DormCard({
 }
 
 const sectionLabelStyle: React.CSSProperties = {
-  fontSize: 11,
+  fontSize: 13,
   color: "#8AABAC",
   fontWeight: 700,
   letterSpacing: "0.09em",
@@ -1099,7 +1231,7 @@ const sectionLabelStyle: React.CSSProperties = {
 };
 
 const fieldLabelStyle: React.CSSProperties = {
-  fontSize: 12,
+  fontSize: 13,
   color: "#8AABAC",
   fontWeight: 500,
 };

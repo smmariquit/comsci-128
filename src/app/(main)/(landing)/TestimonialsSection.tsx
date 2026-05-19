@@ -4,21 +4,24 @@ import { useRef, useEffect } from "react";
 
 const testimonials = [
   {
-    quote: "Found my dorm in literally two days! Filters made it so easy to find something near my college and within my allowance.",
+    quote:
+      "Found my dorm in literally two days! Filters made it so easy to find something near my college and within my allowance.",
     name: "Luthelle Fernandez",
     course: "BS Computer Science, 3rd Year",
     initials: "LF",
     avatar: "bg-[#1C2632]",
   },
   {
-    quote: "Got a perfect dorm for me. I had someone from my course as roommate — we've been living together for two semesters now.",
+    quote:
+      "Got a perfect dorm for me. I had someone from my course as roommate — we've been living together for two semesters now.",
     name: "Justine Ivanne Antonio",
     course: "BS Computer Science, 3rd Year",
     initials: "JA",
     avatar: "bg-[#C9642A]",
   },
   {
-    quote: "Didn't expect it to be this easy. Found a great dorm near campus in no time.",
+    quote:
+      "Didn't expect it to be this easy. Found a great dorm near campus in no time.",
     name: "Paul Hadley Fababeir",
     course: "BS Computer Science, 3rd Year",
     initials: "PF",
@@ -28,8 +31,8 @@ const testimonials = [
 
 export default function TestimonialsSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const headerRef  = useRef<HTMLDivElement>(null);
-  const cardRefs   = useRef<(HTMLDivElement | null)[]>([]);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -44,17 +47,20 @@ export default function TestimonialsSection() {
         }, 60);
 
         cardRefs.current.forEach((card, i) => {
-          setTimeout(() => {
-            if (card) {
-              card.classList.remove("opacity-0", "translate-y-4");
-              card.classList.add("fade-up");
-            }
-          }, 200 + i * 130);
+          setTimeout(
+            () => {
+              if (card) {
+                card.classList.remove("opacity-0", "translate-y-4");
+                card.classList.add("fade-up");
+              }
+            },
+            200 + i * 130,
+          );
         });
 
         observer.disconnect();
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
 
     if (sectionRef.current) observer.observe(sectionRef.current);
@@ -88,9 +94,7 @@ export default function TestimonialsSection() {
           className="text-4xl md:text-5xl font-bold text-[#1C2632] leading-tight"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
-          What{" "}
-          <em className="text-[#C9642A] italic">Works</em>
-          {" "}Says
+          What <em className="text-[#C9642A] italic">Students</em> Say
         </h2>
       </div>
 
@@ -99,16 +103,24 @@ export default function TestimonialsSection() {
         {testimonials.map((t, i) => (
           <div
             key={i}
-            ref={(el) => { cardRefs.current[i] = el; }}
+            ref={(el) => {
+              cardRefs.current[i] = el;
+            }}
             className="opacity-0 bg-white rounded-2xl p-6 flex flex-col gap-6 border border-black/5 transition-transform duration-300 ease-out hover:-translate-y-2 hover:shadow-lg"
           >
             {/* Quote mark */}
-            <span className="text-2xl font-black text-[#567375]" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <span
+              className="text-2xl font-black text-[#567375]"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
               "
             </span>
 
             {/* Quote text */}
-            <p className="text-sm leading-relaxed text-[#1C2632]/70 flex-1" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+            <p
+              className="text-sm leading-relaxed text-[#1C2632]/70 flex-1"
+              style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+            >
               {t.quote}
             </p>
 
@@ -122,8 +134,14 @@ export default function TestimonialsSection() {
                 </span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-[#1C2632]"> {t.name} </p>
-                <p className="text-xs text-[#1C2632]/50" style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                <p className="text-sm font-semibold text-[#1C2632]">
+                  {" "}
+                  {t.name}{" "}
+                </p>
+                <p
+                  className="text-xs text-[#1C2632]/50"
+                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+                >
                   {t.course}
                 </p>
               </div>

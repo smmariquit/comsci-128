@@ -69,11 +69,13 @@ export default async function Page() {
     liveData = await getHousingAdmingDashboardData(adminId);
   } catch (error) {
     return (
-      <StateMessage
-        variant="error"
-        title="Unable to load dashboard"
-        description="Please try again in a moment."
-      />
+      <div className="flex h-full min-h-[60vh] w-full items-center justify-center p-6">
+        <StateMessage
+          variant="error"
+          title="Unable to load dashboard"
+          description="You appear to be offline or our servers are temporarily unreachable."
+        />
+      </div>
     );
   }
   const housingStatusData = [
@@ -110,10 +112,30 @@ export default async function Page() {
           gap: 16,
         }}
       >
-        <StatCard label="Total Students" value={liveData.totalStudents.toString()} delta={0} deltaSub="Live Students" />
-        <StatCard label="Occupancy Rate" value={`${liveData.occupancyRate}%`} delta={0} deltaSub="Live Occupancy Rate" />
-        <StatCard label="Pending Applications" value={liveData.totalPendingApplication.toString()} delta={0} deltaSub="Pending Applications" />
-        <StatCard label="Active Accommodations" value={liveData.activeAccommodations.toString()} delta={0} deltaSub="Currently accommodated" />
+        <StatCard
+          label="Total Students"
+          value={liveData.totalStudents.toString()}
+          delta={0}
+          deltaSub="Live Students"
+        />
+        <StatCard
+          label="Occupancy Rate"
+          value={`${liveData.occupancyRate}%`}
+          delta={0}
+          deltaSub="Live Occupancy Rate"
+        />
+        <StatCard
+          label="Pending Applications"
+          value={liveData.totalPendingApplication.toString()}
+          delta={0}
+          deltaSub="Pending Applications"
+        />
+        <StatCard
+          label="Active Accommodations"
+          value={liveData.activeAccommodations.toString()}
+          delta={0}
+          deltaSub="Currently accommodated"
+        />
       </section>
 
       <section

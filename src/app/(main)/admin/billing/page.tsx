@@ -1,72 +1,113 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { AlertTriangle, Check, Clock3, DollarSign, ReceiptText } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Clock3,
+  DollarSign,
+  ReceiptText,
+} from "lucide-react";
 import { C } from "@/lib/palette";
-import BillTable, { MOCK_BILLS } from "@/app/components/admin/billings/billingtable";
+import BillTable, {
+  MOCK_BILLS,
+  BillRow,
+} from "@/app/components/admin/billings/billingtable";
 import BillFilters from "@/app/components/admin/billings/billingfilters";
-import  IssueBillModal, {ViewBillModal} from "@/app/components/admin/billings/billingmodal";
-import type { BillRow } from "@/app/components/admin/billings/billingtable";
-import type { StatusFilter, BillTypeFilter } from "@/app/components/admin/billings/billingfilters";
+import IssueBillModal, {
+  ViewBillModal,
+} from "@/app/components/admin/billings/billingmodal";
+import type {
+  StatusFilter,
+  BillTypeFilter,
+  SortFilter,
+} from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
 import { housingData } from "@/app/lib/data/housing-data";
 import { billingClient } from "@/app/lib/client/billing-client";
 import BillingPageLoading from "./loading";
-import { ActionFeedbackModal, type ActionFeedbackState } from "@/app/components/admin/action_feedback_modal";
+import {
+  ActionFeedbackModal,
+  type ActionFeedbackState,
+} from "@/app/components/admin/action_feedback_modal";
 import StateMessage from "@/app/components/ui/state-message";
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
 function SummaryCard({
-  label, value, accent, icon,
+  label,
+  value,
+  accent,
+  icon,
 }: {
-  label:  string;
-  value:  string | number;
+  label: string;
+  value: string | number;
   accent: string;
-  icon:   React.ReactNode;
+  icon: React.ReactNode;
 }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div style={{
-      background: "#fff",
-      borderRadius: 12,
-      border: "1px solid #e8e4db",
-      padding: "16px 18px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 10,
-      flex: "1 1 150px",
-      transform: hovered ? "translateY(-2px)" : "translateY(0)",
-      boxShadow: hovered ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
-      transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
-      borderColor: hovered ? accent : "#e8e4db",
-    }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: 12,
+        border: "1px solid #e8e4db",
+        padding: "16px 18px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        flex: "1 1 150px",
+        transform: hovered ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hovered ? "0 12px 24px rgba(28,38,50,0.08)" : "none",
+        transition:
+          "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+        borderColor: hovered ? accent : "#e8e4db",
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       {/* icon + label row */}
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-        <div style={{
-          width: 28, height: 28, borderRadius: 8,
-          background: `${accent}18`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-          color: accent,
-        }}>
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 8,
+            background: `${accent}18`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            color: accent,
+          }}
+        >
           {icon}
         </div>
-        <span style={{
-          fontSize: 10.5, fontWeight: 600, color: "#7a9ea0",
-          textTransform: "uppercase", letterSpacing: "0.06em",
-          fontFamily: "'DM Sans', sans-serif",
-        }}>
+        <span
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: "#7a9ea0",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            fontFamily: "'DM Sans', sans-serif",
+          }}
+        >
           {label}
         </span>
       </div>
 
       {/* value */}
-      <div style={{
-        fontSize: 22, fontWeight: 800, color: accent,
-        fontFamily: "'DM Mono', monospace", lineHeight: 1,
-      }}>
+      <div
+        style={{
+          fontSize: 22,
+          fontWeight: 800,
+          color: accent,
+          fontFamily: "'DM Mono', monospace",
+          lineHeight: 1,
+        }}
+      >
         {value}
       </div>
     </div>
@@ -75,7 +116,13 @@ function SummaryCard({
 
 // ── Issue Bill button ─────────────────────────────────────────────────────────
 
-function IssueBillButton({ onClick, isLoading = false }: { onClick: () => void; isLoading?: boolean }) {
+function IssueBillButton({
+  onClick,
+  isLoading = false,
+}: {
+  onClick: () => void;
+  isLoading?: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -103,12 +150,17 @@ function IssueBillButton({ onClick, isLoading = false }: { onClick: () => void; 
         flexShrink: 0,
         width: "fit-content",
         transform: hovered && !isLoading ? "translateY(-1px)" : "translateY(0)",
-        boxShadow: hovered && !isLoading ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
+        boxShadow:
+          hovered && !isLoading ? "0 8px 18px rgba(201,100,42,0.18)" : "none",
         transition: "transform 0.15s ease, box-shadow 0.15s ease",
-        
       }}
     >
-      <ReceiptText size={14} color="#fff" strokeWidth={2.2} aria-hidden="true" />
+      <ReceiptText
+        size={14}
+        color="#fff"
+        strokeWidth={2.2}
+        aria-hidden="true"
+      />
       {isLoading ? "Issuing..." : "Issue New Bill"}
     </button>
   );
@@ -121,32 +173,55 @@ function IssueBillButton({ onClick, isLoading = false }: { onClick: () => void; 
 // ── Issue Bill button ─────────────────────────────────────────────────────────
 
 export default function BillingPage() {
-  
   const [bills, setBills] = useState<BillRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [pageError, setPageError] = useState<string | null>(null);
   const [managedHousingIds, setManagedHousingIds] = useState<number[]>([]);
-  const [managedHousings, setManagedHousings] = useState<{housing_id: number, housing_name: string}[]>([]);
+  const [managedHousings, setManagedHousings] = useState<
+    { housing_id: number; housing_name: string }[]
+  >([]);
+  const [managerAccountNumber, setManagerAccountNumber] = useState<number>(0);
 
   // ── Fetch Data ─────────────────────────────────────────────────────────
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
     const accountNumber = match ? Number(decodeURIComponent(match[1])) : 0;
+    setManagerAccountNumber(accountNumber);
 
-    if (!accountNumber) return;
-    housingData.findbyLandlord(accountNumber).then((housings) => {
-      setManagedHousings(housings);
-      setManagedHousingIds(housings.map(h => h.housing_id));
-    });
-  },[]);
+    if (!accountNumber) {
+      setIsLoading(false);
+      setPageError("Unable to identify account. Please sign in again.");
+      return;
+    }
+
+    housingData
+      .findbyLandlord(accountNumber)
+      .then((housings) => {
+        setManagedHousings(housings);
+        setManagedHousingIds(housings.map((h) => h.housing_id));
+        if (housings.length === 0) {
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load managed housings:", error);
+        setPageError("Failed to load managed properties.");
+        setIsLoading(false);
+      });
+  }, []);
 
   const [selectedBill, setSelectedBill] = useState<BillRow | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    if (managedHousingIds.length > 0) loadBills();
+    if (managedHousingIds.length > 0) {
+      loadBills();
+      return;
+    }
+
+    setIsLoading(false);
   }, [managedHousingIds]);
 
   async function loadBills() {
@@ -168,12 +243,13 @@ export default function BillingPage() {
   }
 
   // ── Filter state ────────────────────────────────────────────────────────────
-  const [search,      setSearch]      = useState("");
-  const [status,      setStatus]      = useState<StatusFilter>("All");
-  const [billType,    setBillType]    = useState<BillTypeFilter>("All");
-  const [housing,     setHousing]     = useState("All");
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<StatusFilter>("All");
+  const [billType, setBillType] = useState<BillTypeFilter>("All");
+  const [housing, setHousing] = useState("All");
   const [dueDateFrom, setDueDateFrom] = useState("");
-  const [dueDateTo,   setDueDateTo]   = useState("");
+  const [dueDateTo, setDueDateTo] = useState("");
+  const [sort, setSort] = useState<SortFilter>("due_date_asc");
 
   // ── Modal state ─────────────────────────────────────────────────────────────
   const [issueOpen, setIssueOpen] = useState(false);
@@ -183,24 +259,69 @@ export default function BillingPage() {
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     if (!bills) return [];
-    return bills.filter((b) => {
-      const q              = search.toLowerCase();
-      const matchesSearch  = !q || b.student_name.toLowerCase().includes(q);
-      const matchesStatus  = status   === "All" || b.status      === status;
-      const matchesType    = billType === "All" || b.bill_type   === billType;
-      const matchesHousing = housing  === "All" || b.housing_name === housing;
+    let result = bills.filter((b) => {
+      const q = search.toLowerCase();
+      const matchesSearch =
+        !q || String(b.student_account_number || "").toLowerCase().includes(q);
+      const matchesStatus = status === "All" || b.status === status;
+      const matchesType = billType === "All" || b.bill_type === billType;
+      const matchesHousing = housing === "All" || b.housing_name === housing;
 
-      const due         = new Date(b.due_date);
+      const due = new Date(b.due_date);
       const matchesFrom = !dueDateFrom || due >= new Date(dueDateFrom);
-      const matchesTo   = !dueDateTo   || due <= new Date(dueDateTo);
+      const matchesTo = !dueDateTo || due <= new Date(dueDateTo);
 
-      return matchesSearch && matchesStatus && matchesType && matchesHousing && matchesFrom && matchesTo;
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesType &&
+        matchesHousing &&
+        matchesFrom &&
+        matchesTo
+      );
     });
-  }, [bills, search, status, billType, housing, dueDateFrom, dueDateTo]);
+
+    result.sort((a, b) => {
+      if (sort === "due_date_asc") {
+        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+      }
+      if (sort === "due_date_desc") {
+        return new Date(b.due_date).getTime() - new Date(a.due_date).getTime();
+      }
+      if (sort === "amount_asc") {
+        return a.amount - b.amount;
+      }
+      if (sort === "amount_desc") {
+        return b.amount - a.amount;
+      }
+      if (sort === "issue_date_asc") {
+        return (
+          new Date(a.issue_date).getTime() - new Date(b.issue_date).getTime()
+        );
+      }
+      if (sort === "issue_date_desc") {
+        return (
+          new Date(b.issue_date).getTime() - new Date(a.issue_date).getTime()
+        );
+      }
+      return 0;
+    });
+
+    return result;
+  }, [
+    bills,
+    search,
+    status,
+    billType,
+    housing,
+    dueDateFrom,
+    dueDateTo,
+    sort,
+  ]);
 
   // ── Summary stats ───────────────────────────────────────────────────────────
-  const totalAmount  = filtered.reduce((s, b) => s + b.amount, 0);
-  const paidCount    = filtered.filter((b) => b.status === "Paid").length;
+  const totalAmount = filtered.reduce((s, b) => s + b.amount, 0);
+  const paidCount = filtered.filter((b) => b.status === "Paid").length;
   const pendingCount = filtered.filter((b) => b.status === "Pending").length;
   const overdueCount = filtered.filter((b) => b.status === "Overdue").length;
 
@@ -230,12 +351,15 @@ export default function BillingPage() {
         message: `Transaction #${row.transaction_id} was marked as paid successfully.`,
       });
     } catch (error) {
-      console.error ("Error handleMarkPaid: ", error);
+      console.error("Error handleMarkPaid: ", error);
       setFeedback({
         open: true,
         kind: "error",
         title: "Could not update bill",
-        message: error instanceof Error ? error.message : "The bill could not be marked as paid.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "The bill could not be marked as paid.",
       });
     } finally {
       setIsLoading(false);
@@ -256,25 +380,27 @@ export default function BillingPage() {
         message: `Transaction #${row.transaction_id} was deleted successfully.`,
       });
     } catch (error) {
-      console.error ("Error handleDelete: ", error);
+      console.error("Error handleDelete: ", error);
       setFeedback({
         open: true,
         kind: "error",
         title: "Could not delete bill",
-        message: error instanceof Error ? error.message : "The bill could not be deleted.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "The bill could not be deleted.",
       });
     } finally {
       setIsLoading(false);
     }
   }
 
-
   // ── Issue Bill submit ───────────────────────────────────────────────────────
   async function handleIssue(form: IssueBillForm) {
     try {
       setIsIssueSubmitting(true);
 
-      const studentId = form.student_account_number
+      const studentId = form.student_account_number;
 
       if (!studentId) {
         setFeedback({
@@ -285,12 +411,13 @@ export default function BillingPage() {
         });
         return;
       }
-  
+
       const issuePromises = form.charges
-        .filter(c => parseFloat(c.amount) > 0)
-        .map(charge => {
-          const dbType = charge.type === "Other" ? "Miscellaneous" : charge.type;
-          // const studentId = form.student_account_number ?? 
+        .filter((c) => parseFloat(c.amount) > 0)
+        .map((charge) => {
+          const dbType =
+            charge.type === "Other" ? "Miscellaneous" : charge.type;
+          // const studentId = form.student_account_number ??
           //   bills.find(b => b.student_name === form.student_name)?.student_account_number;
 
           return billingClient.createBill({
@@ -299,34 +426,39 @@ export default function BillingPage() {
             amount: parseFloat(charge.amount),
             due_date: form.due_date,
             issue_date: form.issue_date,
-            status: "Pending"
+            status: "Pending",
+            manager_account_number: managerAccountNumber,
           });
         });
-      
-        await Promise.all(issuePromises);
 
-        setIssueOpen(false);
-        await loadBills();
-        setFeedback({
-          open: true,
-          kind: "success",
-          title: "Bills issued",
-          message: `${issuePromises.length} bill${issuePromises.length === 1 ? "" : "s"} were created successfully for ${form.student_name}.`,
-        });
+      await Promise.all(issuePromises);
+
+      setIssueOpen(false);
+      await loadBills();
+      setFeedback({
+        open: true,
+        kind: "success",
+        title: "Bills issued",
+        message: `${issuePromises.length} bill${issuePromises.length === 1 ? "" : "s"} were created successfully for ${form.student_name}.`,
+      });
     } catch (error) {
       console.error("Failed to handleIssue: ", error);
       setFeedback({
         open: true,
         kind: "error",
         title: "Issue bill failed",
-        message: error instanceof Error ? error.message : "The bill could not be issued.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "The bill could not be issued.",
       });
     } finally {
       setIsIssueSubmitting(false);
     }
   }
 
-  if (!isMounted || (isLoading && bills.length === 0)) return <BillingPageLoading />;
+  if (!isMounted || (isLoading && bills.length === 0))
+    return <BillingPageLoading />;
   if (pageError) {
     return (
       <StateMessage
@@ -341,15 +473,16 @@ export default function BillingPage() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      gap: 18,
-      padding: "24px 28px",
-      fontFamily: "'DM Sans', sans-serif",
-      minHeight: "100vh",
-    }}>
-
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 18,
+        padding: "24px 28px",
+        fontFamily: "'DM Sans', sans-serif",
+        minHeight: "100vh",
+      }}
+    >
       {/* ── Summary cards ─────────────────────────────────────────────────── */}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <SummaryCard
@@ -379,22 +512,35 @@ export default function BillingPage() {
       </div>
 
       {/* ── Filters row + Issue button ─────────────────────────────────────── */}
-      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         <div style={{ flex: 1, minWidth: 0 }}>
           <BillFilters
-            search={search}           onSearch={setSearch}
-            status={status}           onStatus={setStatus}
-            billType={billType}       onBillType={setBillType}
-            housing={housing}         onHousing={setHousing}
+            search={search}
+            onSearch={setSearch}
+            status={status}
+            onStatus={setStatus}
+            billType={billType}
+            onBillType={setBillType}
+            housing={housing}
+            onHousing={setHousing}
             housingOptions={HOUSING_OPTIONS}
-            dueDateFrom={dueDateFrom} onDueDateFrom={setDueDateFrom}
-            dueDateTo={dueDateTo}     onDueDateTo={setDueDateTo}
+            dueDateFrom={dueDateFrom}
+            onDueDateFrom={setDueDateFrom}
+            dueDateTo={dueDateTo}
+            onDueDateTo={setDueDateTo}
+            sort={sort}
+            onSort={setSort}
           />
-          
         </div>
-        
       </div>
-          
+
       {/* ── Table ─────────────────────────────────────────────────────────── */}
       {isEmpty ? (
         <StateMessage
@@ -410,11 +556,12 @@ export default function BillingPage() {
         />
       )}
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <IssueBillButton onClick={() => setIssueOpen(true)} isLoading={isIssueSubmitting} />
+        <IssueBillButton
+          onClick={() => setIssueOpen(true)}
+          isLoading={isIssueSubmitting}
+        />
       </div>
-      
 
-        
       {/* ── Issue Bill Modal ───────────────────────────────────────────────── */}
       <IssueBillModal
         open={issueOpen}
@@ -425,17 +572,13 @@ export default function BillingPage() {
       />
 
       {selectedBill && (
-        <ViewBillModal 
-          bill={selectedBill} 
-          onClose={() => setSelectedBill(null)} 
+        <ViewBillModal
+          bill={selectedBill}
+          onClose={() => setSelectedBill(null)}
         />
       )}
 
-      <ActionFeedbackModal
-        state={feedback}
-        onClose={() => setFeedback(null)}
-      />
-
+      <ActionFeedbackModal state={feedback} onClose={() => setFeedback(null)} />
     </div>
   );
 }

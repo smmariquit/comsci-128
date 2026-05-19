@@ -8,11 +8,18 @@ import {
 } from "@/components/admin/rooms/roommodal";
 import type { RoomForm } from "@/components/admin/rooms/roommodal";
 import RoomTable from "@/components/admin/rooms/roomtable";
-import type { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
+import type {
+  OccupancyStatus,
+  RoomRow,
+} from "@/components/admin/rooms/roomtable";
 import RoomFilters from "@/components/admin/rooms/roomfilters";
-import type { OccupancyFilter, TypeFilter } from "@/components/admin/rooms/roomfilters";
+import type {
+  OccupancyFilter,
+  TypeFilter,
+} from "@/components/admin/rooms/roomfilters";
 import { roomData } from "@/app/lib/data/room-data";
 import * as roomService from "@/app/lib/services/room-service";
+import { housingData } from "@/lib/data/housing-data";
 import { C } from "@/lib/palette";
 import { Receipt, Loader2 } from "lucide-react";
 import type { RoomType } from "@/app/lib/models/room";
@@ -25,6 +32,7 @@ export default function Page() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   // ── Raw Data ──────────────────────────────────────────
   const [rooms, setRooms] = useState<RoomRow[]>([]);
+  const [managedHousings, setManagedHousings] = useState<{ housing_id: number; housing_name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [adminId, setAdminId] = useState<number>(0);
 
@@ -33,9 +41,12 @@ export default function Page() {
   const [occupancy, setOccupancy] = useState<OccupancyFilter>("All");
   const [roomType, setRoomType] = useState<TypeFilter>("All");
   const [housing, setHousing] = useState("All");
+  const [sortBy, setSortBy] = useState("None");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   // ── Derived Options ───────────────────────────────────
-  const housingOptions = Array.from(new Set(rooms.map((r) => r.housing_name)));
+  const housingOptions = managedHousings.map((h) => h.housing_name);
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
@@ -59,6 +70,33 @@ export default function Page() {
 
     return matchesSearch && matchesOccupancy && matchesType && matchesHousing;
   });
+
+  // ── Sorting Logic ─────────────────────────────────────
+  const sortedRooms = [...filteredRooms].sort((a, b) => {
+    if (sortBy === "occupants_count_asc") {
+      const aCount = a.assigned_tenants?.length || 0;
+      const bCount = b.assigned_tenants?.length || 0;
+      return aCount - bCount;
+    }
+    if (sortBy === "occupants_count_desc") {
+      const aCount = a.assigned_tenants?.length || 0;
+      const bCount = b.assigned_tenants?.length || 0;
+      return bCount - aCount;
+    }
+    return 0;
+  });
+
+  // Reset page when filters or sorting change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, occupancy, roomType, housing, sortBy]);
+
+  const paginatedRooms = sortedRooms.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(sortedRooms.length / itemsPerPage) || 1;
 
   const handleView = (room: RoomRow) => {
     setSelectedRoom(room);
@@ -119,11 +157,10 @@ export default function Page() {
         setIsLoading(true);
 
         const dbStatus = form.occupancy_status;
-        const selectedHousing = rooms.find(
-          (r) => r.housing_name === form.housing_name,
+        const selectedHousing = managedHousings.find(
+          (h) => h.housing_name === form.housing_name,
         );
-        const housingId = (selectedHousing as RoomRow & { housing_id?: number })
-          .housing_id;
+        const housingId = selectedHousing?.housing_id;
 
         if (!form.room_type || !dbStatus) {
           throw new Error("Room type and occupancy status are required.");
@@ -142,8 +179,7 @@ export default function Page() {
           occupancy_status: dbStatus,
         });
 
-        const updatedRooms = await roomData.findAllRoomDetailed();
-        setRooms(updatedRooms);
+        await refreshRooms(adminId);
 
         setShowAddModal(false);
       } catch (err) {
@@ -172,8 +208,7 @@ export default function Page() {
         occupancy_status: dbStatus,
       });
 
-      const updatedRooms = await roomData.findAllRoomDetailed();
-      setRooms(updatedRooms);
+      await refreshRooms(adminId);
 
       setShowFormModal(false);
       setSelectedRoom(null);
@@ -191,8 +226,7 @@ export default function Page() {
       setIsLoading(true);
       await roomService.assignRoom(selectedRoom.room_id, studentId);
 
-      const liveRooms = await roomData.findAllRoomDetailed();
-      setRooms(liveRooms);
+      await refreshRooms(adminId);
 
       setShowAssignModal(false);
       setSelectedRoom(null);
@@ -210,7 +244,8 @@ export default function Page() {
       setIsLoading(true);
       await roomService.unassignRoom(selectedRoom.room_id, studentId);
 
-      const liveRooms = await roomData.findAllRoomDetailed();
+      const managedIds = managedHousings.map((h) => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
       setRooms(liveRooms);
 
       const updateSelected = liveRooms.find(
@@ -231,30 +266,38 @@ export default function Page() {
   };
 
   // ── Fetch Data ────────────────────────────────────────
-  useEffect(() => {
-    async function loadLiveData() {
-      try {
-        const liveRooms = await roomData.findAllRoomDetailed();
-        setRooms(liveRooms);
-      } catch (err) {
-        console.error("Failed to fetch rooms:", err);
-      } finally {
-        setIsLoading(false);
-      }
+  const refreshRooms = async (idForFetch: number) => {
+    if (!idForFetch) return;
+    try {
+      const housings = await housingData.findbyLandlord(idForFetch);
+      setManagedHousings(housings);
+
+      const managedIds = housings.map((h: { housing_id: any; }) => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
+      setRooms(liveRooms);
+    } catch (err) {
+      console.error("Failed to fetch rooms:", err);
     }
-    loadLiveData();
-  }, []);
+  };
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
     setAdminId(match ? Number(decodeURIComponent(match[1])) : 0);
   }, []);
 
+  useEffect(() => {
+    if (!adminId) return;
+    setIsLoading(true);
+    refreshRooms(adminId).finally(() => setIsLoading(false));
+  }, [adminId]);
+
   if (isLoading)
     return (
       <div className="flex items-center justify-center h-64 text-[#1C2632]">
         <Loader2 className="animate-spin mr-2" size={24} />
-        <span className="font-semibold font-sans">Syncing with the database...</span>
+        <span className="font-semibold font-sans">
+          Syncing with the database...
+        </span>
       </div>
     );
 
@@ -268,16 +311,18 @@ export default function Page() {
         roomType={roomType}
         housing={housing}
         housingOptions={housingOptions}
+        sortBy={sortBy}
         onSearch={setSearch}
         onOccupancy={setOccupancy}
         onRoomType={setRoomType}
         onHousing={setHousing}
+        onSortBy={setSortBy}
       />
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
         <RoomTable
-          data={filteredRooms}
+          data={paginatedRooms}
           onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
@@ -285,6 +330,86 @@ export default function Page() {
           onToggleOccupancy={handleToggle}
         />
       </div>
+
+      {/* Pagination Toolbar */}
+      {totalPages > 1 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: 8,
+            borderTop: "1px solid #e3d8c9",
+            paddingTop: 16,
+            flexWrap: "wrap",
+            gap: 10,
+            fontFamily: "'DM Sans', sans-serif",
+          }}
+        >
+          <span style={{ fontSize: 13, color: "#567375" }}>
+            Showing <strong>{sortedRooms.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</strong> to <strong>{Math.min(currentPage * itemsPerPage, sortedRooms.length)}</strong> of <strong>{sortedRooms.length}</strong> rooms
+          </span>
+
+          <div style={{ display: "flex", gap: 5 }}>
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: currentPage === 1 ? "#ccc" : "#1C2632",
+                background: "#fff",
+                border: "1px solid #e8e4db",
+                borderRadius: 8,
+                padding: "6px 12px",
+                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+              }}
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                onClick={() => setCurrentPage(p)}
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: currentPage === p ? "#fff" : "#1C2632",
+                  background: currentPage === p ? "#8b3e15" : "#fff",
+                  border: `1px solid ${currentPage === p ? "#8b3e15" : "#e8e4db"}`,
+                  borderRadius: 8,
+                  width: 32,
+                  height: 32,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                {p}
+              </button>
+            ))}
+
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: currentPage === totalPages ? "#ccc" : "#1C2632",
+                background: "#fff",
+                border: "1px solid #e8e4db",
+                borderRadius: 8,
+                padding: "6px 12px",
+                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+              }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Add Room Button */}
       <div style={{ display: "flex", justifyContent: "flex-end" }}>

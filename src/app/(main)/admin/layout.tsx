@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import PageHeader from "@/app/components/admin/pageheader";
 import Sidebar from "@/app/components/admin/sidebar";
 import { createSupabaseServerClient } from "@/app/lib/server-client";
+import HelpWidget from "@/app/components/ui/HelpWidget";
+
 
 export const metadata: Metadata = {
   title: "Housing Administrator",
@@ -30,6 +32,7 @@ export default async function AdminLayout({
   let sidebarUserName = "Housing Admin";
   let sidebarUserRole = "Housing Admin";
   let sidebarUserInitials = "HA";
+  let sidebarUserProfilePicture: string | null = null;
 
   const {
     data: { user: authUser },
@@ -38,7 +41,7 @@ export default async function AdminLayout({
   if (authUser?.email) {
     const { data: userRow } = await supabase
       .from("user")
-      .select("account_number, first_name, last_name, user_type")
+      .select("account_number, first_name, last_name, user_type, profile_picture")
       .eq("account_email", authUser.email)
       .maybeSingle();
 
@@ -55,7 +58,10 @@ export default async function AdminLayout({
         .maybeSingle();
 
       sidebarUserName = fullName || authUser.email || sidebarUserName;
-      sidebarUserRole = housingAdminRow ? "Housing Admin" : (userRow.user_type ?? "Housing Admin");
+      sidebarUserProfilePicture = userRow.profile_picture ?? null;
+      sidebarUserRole = housingAdminRow
+        ? "Housing Admin"
+        : (userRow.user_type ?? "Housing Admin");
       sidebarUserInitials = buildInitials(sidebarUserName);
     }
   }
@@ -74,6 +80,7 @@ export default async function AdminLayout({
         userInitials={sidebarUserInitials}
         userName={sidebarUserName}
         userRole={sidebarUserRole}
+        profilePicture={sidebarUserProfilePicture}
       />
 
       <main
@@ -90,6 +97,7 @@ export default async function AdminLayout({
           {children}
         </div>
       </main>
+      <HelpWidget role="admin" />
     </div>
   );
 }
