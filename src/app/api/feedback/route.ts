@@ -1,3 +1,4 @@
+import { feedbackService } from "@/app/lib/services/feedback-service";
 import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/app/lib/server-client";
 import { v4 as uuidv4 } from "uuid";
@@ -5,45 +6,68 @@ import { v4 as uuidv4 } from "uuid";
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const subject = formData.get("subject") as string;
-  const description = formData.get("description") as string;
+  const text = formData.get("description") as string;
+  const feedback_type = formData.get("type") as string;
+  const category = formData.get("category") as string;
   const screenshot = formData.get("screenshot") as File | null;
+  const involved_housing_id = formData.get("involved_housing_id") as string | null;
+  const involved_manager_id = formData.get("involved_manager_id") as string | null;
 
-  // Get user info
+  // Get user info (prefer cookie-set account_number, fallback to auth metadata)
   const supabase = await createSupabaseServerClient();
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData.user?.id;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const accountCookie = req.cookies.get("account_number")?.value;
+  let accountNumber: number | null = accountCookie ? Number(accountCookie) : null;
+  if (!accountNumber) {
+    const { data: userData } = await supabase.auth.getUser();
+    const metaAccount = (userData as any)?.user?.user_metadata?.account_number;
+    if (metaAccount) accountNumber = Number(metaAccount);
+  }
+
+  if (!accountNumber) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   let screenshotUrl = null;
   if (screenshot) {
     const fileExt = screenshot.name.split(".").pop();
-    const fileName = `complaints/${userId}/${uuidv4()}.${fileExt}`;
+    const fileName = `feedback/${accountNumber}/${uuidv4()}.${fileExt}`;
     const { data, error } = await supabase.storage
-      .from("complaints")
+      .from("feedback")
       .upload(fileName, screenshot, { contentType: screenshot.type });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     screenshotUrl = data?.path;
   }
 
-  const { error } = await supabase.from("complaints").insert([
-    {
-      user_id: userId,
-      subject,
-      description,
-      screenshot_url: screenshotUrl,
-      status: "pending",
-      created_at: new Date().toISOString(),
-    },
-  ]);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // const { error } = await supabase.from("feedback").insert([
+  //   {
+  //     user_id: userId,
+  //     subject,
+  //     text,
+  //     screenshot_url: screenshotUrl,
+  //     status: "pending",
+  //     created_at: new Date().toISOString(),
+  //   },
+  // ]);
+
+  const data = await feedbackService.createFeedback({
+    account_number: accountNumber,
+    subject,
+    text,
+    feedback_type,
+    category,
+    status: "Pending",
+    created_at: new Date().toISOString(),
+    updated_at: null,
+    screenshotUrl: screenshotUrl,
+  });
+
+  // if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
 
-// Manager: fetch all complaints
+// Manager: fetch all feedback
 export async function GET(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
   // TODO: Add role check for manager
-  const { data, error } = await supabase.from("complaints").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("feedback").select("*").order("created_at", { ascending: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ complaints: data });
+  return NextResponse.json({ feedback: data });
 }
