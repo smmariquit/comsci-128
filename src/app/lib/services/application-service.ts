@@ -9,6 +9,7 @@ import App from "next/app";
 import { AppAction } from "../models/permissions";
 import { roomData } from "../data/room-data";
 import { createAuditLog } from "./audit-log-service";
+import { sendApplicationStatusEmail } from "./email-service";
 
 function formatStudentName(user?: {
   first_name?: string | null;
@@ -105,6 +106,13 @@ const updateApplicationStatus = async (
         `Application ${applicationId} status set to ${status} for ${label}`,
         landlordAccountNumber,
       );
+
+      // Send status update email notification to student asynchronously
+      const studentEmail = studentUser?.account_email;
+      if (studentEmail && status) {
+        const housingName = appDetail?.housing_name || "your housing application";
+        sendApplicationStatusEmail(studentEmail, studentName || "Student", housingName, status as any);
+      }
     }
 
     return updated
