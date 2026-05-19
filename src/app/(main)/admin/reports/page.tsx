@@ -12,12 +12,19 @@ export const metadata: Metadata = {
 
 export default async function ReportsPage() {
   const storedCookie = await cookies();
-  const accountNumber = Number(storedCookie.get("account_number")?.value ?? "0");
+  const accountNumber = Number(
+    storedCookie.get("account_number")?.value ?? "0",
+  );
   const housings = await housingData.findbyLandlord(accountNumber);
   const managedHousingIds = housings.map((h) => h.housing_id);
 
   // server-side fetch
-  const [liveOccupancy, liveApplications, liveAccommodationHistory, liveRevenue] = await Promise.all([
+  const [
+    liveOccupancy,
+    liveApplications,
+    liveAccommodationHistory,
+    liveRevenue,
+  ] = await Promise.all([
     reportData.getOccupancyReport(managedHousingIds),
     reportData.getApplicationReport(managedHousingIds),
     reportData.getAccommodationHistoryReport(managedHousingIds),

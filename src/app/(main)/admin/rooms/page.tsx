@@ -8,11 +8,18 @@ import {
 } from "@/components/admin/rooms/roommodal";
 import type { RoomForm } from "@/components/admin/rooms/roommodal";
 import RoomTable from "@/components/admin/rooms/roomtable";
-import type { OccupancyStatus, RoomRow } from "@/components/admin/rooms/roomtable";
+import type {
+  OccupancyStatus,
+  RoomRow,
+} from "@/components/admin/rooms/roomtable";
 import RoomFilters from "@/components/admin/rooms/roomfilters";
-import type { OccupancyFilter, TypeFilter } from "@/components/admin/rooms/roomfilters";
+import type {
+  OccupancyFilter,
+  TypeFilter,
+} from "@/components/admin/rooms/roomfilters";
 import { roomData } from "@/app/lib/data/room-data";
 import * as roomService from "@/app/lib/services/room-service";
+import { housingData } from "@/lib/data/housing-data";
 import { C } from "@/lib/palette";
 import { Receipt, Loader2 } from "lucide-react";
 import type { RoomType } from "@/app/lib/models/room";
@@ -25,6 +32,7 @@ export default function Page() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   // ── Raw Data ──────────────────────────────────────────
   const [rooms, setRooms] = useState<RoomRow[]>([]);
+  const [managedHousings, setManagedHousings] = useState<{ housing_id: number; housing_name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [adminId, setAdminId] = useState<number>(0);
 
@@ -35,7 +43,7 @@ export default function Page() {
   const [housing, setHousing] = useState("All");
 
   // ── Derived Options ───────────────────────────────────
-  const housingOptions = Array.from(new Set(rooms.map((r) => r.housing_name)));
+  const housingOptions = managedHousings.map((h) => h.housing_name);
 
   // ── Filtering Logic ───────────────────────────────────
   const filteredRooms = rooms.filter((room) => {
@@ -119,11 +127,10 @@ export default function Page() {
         setIsLoading(true);
 
         const dbStatus = form.occupancy_status;
-        const selectedHousing = rooms.find(
-          (r) => r.housing_name === form.housing_name,
+        const selectedHousing = managedHousings.find(
+          (h) => h.housing_name === form.housing_name,
         );
-        const housingId = (selectedHousing as RoomRow & { housing_id?: number })
-          .housing_id;
+        const housingId = selectedHousing?.housing_id;
 
         if (!form.room_type || !dbStatus) {
           throw new Error("Room type and occupancy status are required.");
@@ -142,8 +149,7 @@ export default function Page() {
           occupancy_status: dbStatus,
         });
 
-        const updatedRooms = await roomData.findAllRoomDetailed();
-        setRooms(updatedRooms);
+        await refreshRooms(adminId);
 
         setShowAddModal(false);
       } catch (err) {
@@ -172,8 +178,7 @@ export default function Page() {
         occupancy_status: dbStatus,
       });
 
-      const updatedRooms = await roomData.findAllRoomDetailed();
-      setRooms(updatedRooms);
+      await refreshRooms(adminId);
 
       setShowFormModal(false);
       setSelectedRoom(null);
@@ -191,8 +196,7 @@ export default function Page() {
       setIsLoading(true);
       await roomService.assignRoom(selectedRoom.room_id, studentId);
 
-      const liveRooms = await roomData.findAllRoomDetailed();
-      setRooms(liveRooms);
+      await refreshRooms(adminId);
 
       setShowAssignModal(false);
       setSelectedRoom(null);
@@ -210,7 +214,8 @@ export default function Page() {
       setIsLoading(true);
       await roomService.unassignRoom(selectedRoom.room_id, studentId);
 
-      const liveRooms = await roomData.findAllRoomDetailed();
+      const managedIds = managedHousings.map((h) => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
       setRooms(liveRooms);
 
       const updateSelected = liveRooms.find(
@@ -231,30 +236,38 @@ export default function Page() {
   };
 
   // ── Fetch Data ────────────────────────────────────────
-  useEffect(() => {
-    async function loadLiveData() {
-      try {
-        const liveRooms = await roomData.findAllRoomDetailed();
-        setRooms(liveRooms);
-      } catch (err) {
-        console.error("Failed to fetch rooms:", err);
-      } finally {
-        setIsLoading(false);
-      }
+  const refreshRooms = async (idForFetch: number) => {
+    if (!idForFetch) return;
+    try {
+      const housings = await housingData.findbyLandlord(idForFetch);
+      setManagedHousings(housings);
+
+      const managedIds = housings.map((h: { housing_id: any; }) => h.housing_id);
+      const liveRooms = await roomData.findAllRoomDetailed(managedIds);
+      setRooms(liveRooms);
+    } catch (err) {
+      console.error("Failed to fetch rooms:", err);
     }
-    loadLiveData();
-  }, []);
+  };
 
   useEffect(() => {
     const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
     setAdminId(match ? Number(decodeURIComponent(match[1])) : 0);
   }, []);
 
+  useEffect(() => {
+    if (!adminId) return;
+    setIsLoading(true);
+    refreshRooms(adminId).finally(() => setIsLoading(false));
+  }, [adminId]);
+
   if (isLoading)
     return (
       <div className="flex items-center justify-center h-64 text-[#1C2632]">
         <Loader2 className="animate-spin mr-2" size={24} />
-        <span className="font-semibold font-sans">Syncing with the database...</span>
+        <span className="font-semibold font-sans">
+          Syncing with the database...
+        </span>
       </div>
     );
 

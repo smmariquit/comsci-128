@@ -70,17 +70,30 @@ export function ActionFeedbackModal({
                 width: 42,
                 height: 42,
                 borderRadius: 12,
-                background: isSuccess ? "rgba(86,115,117,0.14)" : "rgba(201,100,42,0.14)",
+                background: isSuccess
+                  ? "rgba(86,115,117,0.14)"
+                  : "rgba(201,100,42,0.14)",
                 color: isSuccess ? C.teal : C.orange,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              {isSuccess ? <CheckCircle2 size={22} strokeWidth={2.2} /> : <AlertTriangle size={22} strokeWidth={2.2} />}
+              {isSuccess ? (
+                <CheckCircle2 size={22} strokeWidth={2.2} />
+              ) : (
+                <AlertTriangle size={22} strokeWidth={2.2} />
+              )}
             </div>
             <div>
-              <div style={{ fontSize: 17, fontWeight: 800, color: C.navy, lineHeight: 1.1 }}>
+              <div
+                style={{
+                  fontSize: 17,
+                  fontWeight: 800,
+                  color: C.navy,
+                  lineHeight: 1.1,
+                }}
+              >
                 {state.title}
               </div>
               <div style={{ marginTop: 3, fontSize: 11, color: C.teal }}>
@@ -114,7 +127,13 @@ export function ActionFeedbackModal({
             {state.message}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 18 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: 18,
+            }}
+          >
             <button
               onClick={onClose}
               style={{

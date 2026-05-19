@@ -6,14 +6,25 @@ import UserTable from "@/app/components/admin/user/usertable";
 import UserFilters from "@/app/components/admin/user/userfilters";
 import { C } from "@/lib/palette";
 import type { UserRow } from "@/app/components/admin/user/usertable";
-import type { UserTypeFilter, HousingFilter, AccountStatusFilter } from "@/app/components/admin/user/userfilters";
+import type {
+  UserTypeFilter,
+  HousingFilter,
+  AccountStatusFilter,
+} from "@/app/components/admin/user/userfilters";
 
-export default function UsersFilterTableWrapper({ liveUsers, liveApplications }: { liveUsers: UserRow[]; liveApplications: UserRow[] }) {
+export default function UsersFilterTableWrapper({
+  liveUsers,
+  liveApplications,
+}: {
+  liveUsers: UserRow[];
+  liveApplications: UserRow[];
+}) {
   // ── Filter state ──────────────────────────────────────────────────────────
-  const [search, setSearch]               = useState("");
-  const [userType, setUserType]           = useState<UserTypeFilter>("All");
+  const [search, setSearch] = useState("");
+  const [userType, setUserType] = useState<UserTypeFilter>("All");
   const [housingStatus, setHousingStatus] = useState<HousingFilter>("All");
-  const [accountStatus, setAccountStatus] = useState<AccountStatusFilter>("All");
+  const [accountStatus, setAccountStatus] =
+    useState<AccountStatusFilter>("All");
   const [viewRow, setViewRow] = useState<UserRow | null>(null);
   const [users, setUsers] = useState(liveUsers);
 
@@ -31,12 +42,10 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
         u.account_email.toLowerCase().includes(q) ||
         (u.phone_number ?? "").includes(q);
 
-      const matchesType =
-        userType === "All" || u.user_type === userType;
+      const matchesType = userType === "All" || u.user_type === userType;
 
       const matchesHousing =
-        housingStatus === "All" ||
-        u.housing_status === housingStatus;
+        housingStatus === "All" || u.housing_status === housingStatus;
 
       const matchesAccount =
         accountStatus === "All" ||
@@ -64,7 +73,9 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
         throw new Error("Failed to remove user");
       }
 
-      setUsers((prev) => prev.filter((user) => user.account_number !== row.account_number));
+      setUsers((prev) =>
+        prev.filter((user) => user.account_number !== row.account_number),
+      );
       if (viewRow?.account_number === row.account_number) {
         setViewRow(null);
       }
@@ -75,36 +86,40 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
 
   const initials = viewRow
     ? viewRow.full_name
-      .split(" ")
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase()
+        .split(" ")
+        .map((part) => part[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
     : "";
 
   const detailRows = viewRow
     ? [
-      { label: "Full Name", value: viewRow.full_name },
-      { label: "Account Number", value: String(viewRow.account_number) },
-      { label: "Email", value: viewRow.account_email },
-      { label: "Phone", value: viewRow.phone_number || "—" },
-      { label: "Role", value: viewRow.user_type },
-      { label: "Account Status", value: viewRow.is_deleted ? "Removed" : "Active" },
-      { label: "Housing Status", value: viewRow.housing_status || "N/A" },
-      { label: "Property", value: viewRow.housing_name || "—" },
-      { label: "Sex", value: viewRow.sex },
-    ]
+        { label: "Full Name", value: viewRow.full_name },
+        { label: "Account Number", value: String(viewRow.account_number) },
+        { label: "Email", value: viewRow.account_email },
+        { label: "Phone", value: viewRow.phone_number || "—" },
+        { label: "Role", value: viewRow.user_type },
+        {
+          label: "Account Status",
+          value: viewRow.is_deleted ? "Removed" : "Active",
+        },
+        { label: "Housing Status", value: viewRow.housing_status || "N/A" },
+        { label: "Property", value: viewRow.housing_name || "—" },
+        { label: "Sex", value: viewRow.sex },
+      ]
     : [];
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      gap: 16,
-      fontFamily: "'DM Sans', sans-serif",
-    }}>
-
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 16,
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
       {/* Filters */}
       <UserFilters
         search={search}
@@ -118,11 +133,7 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
       />
 
       {/* Table */}
-      <UserTable
-        data={filtered}
-        onView={handleView}
-        onRemove={handleRemove}
-      />
+      <UserTable data={filtered} onView={handleView} onRemove={handleRemove} />
 
       {viewRow && (
         <div
@@ -130,7 +141,8 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
           style={{
             position: "fixed",
             inset: 0,
-            background: "linear-gradient(140deg, rgba(28,38,50,0.62), rgba(86,115,117,0.42))",
+            background:
+              "linear-gradient(140deg, rgba(28,38,50,0.62), rgba(86,115,117,0.42))",
             backdropFilter: "blur(4px)",
             display: "flex",
             alignItems: "center",
@@ -186,18 +198,32 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
                   {initials}
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: C.navy, lineHeight: 1.1 }}>
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 6 }}
+                >
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: 20,
+                      fontWeight: 800,
+                      color: C.navy,
+                      lineHeight: 1.1,
+                    }}
+                  >
                     {viewRow.full_name}
                   </h3>
-                  <div style={{ fontSize: 13, color: C.teal }}>{viewRow.account_email}</div>
+                  <div style={{ fontSize: 13, color: C.teal }}>
+                    {viewRow.account_email}
+                  </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <span
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
                         gap: 5,
-                        background: viewRow.is_deleted ? "rgba(201,100,42,0.10)" : "rgba(86,115,117,0.12)",
+                        background: viewRow.is_deleted
+                          ? "rgba(201,100,42,0.10)"
+                          : "rgba(86,115,117,0.12)",
                         color: viewRow.is_deleted ? C.orange : C.teal,
                         fontSize: 11,
                         fontWeight: 700,
@@ -270,7 +296,10 @@ export default function UsersFilterTableWrapper({ liveUsers, liveApplications }:
                     gridTemplateColumns: "165px 1fr",
                     gap: 12,
                     padding: "10px 12px",
-                    borderTop: idx === 0 ? "none" : `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
+                    borderTop:
+                      idx === 0
+                        ? "none"
+                        : `1px solid ${C.dividerLight || "rgba(0,0,0,0.05)"}`,
                     alignItems: "center",
                     background: idx % 2 === 0 ? "#fff" : "#FBFAF7",
                   }}

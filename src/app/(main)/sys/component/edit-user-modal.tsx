@@ -2,10 +2,9 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import { X, AlertTriangle } from "lucide-react";
-import { Role } from "@/app/lib/models/audit_log";
 
 // Roles of Users (For UI only) different from enums Role
-type userType = "Student" | "Landlord" | "Dorm Manager" | "Housing Manager";
+type userType = "Student" | "Landlord" | "Housing Administrator";
 
 interface User {
   id: string | number;
@@ -16,51 +15,52 @@ interface User {
   status: "Active" | "Disabled";
 }
 
+export interface Dorm {
+  id: string;
+  name: string;
+  status: 'Accepting' | 'Disabled' | string;
+  dormitory: string;
+  dormAddress?: string;
+  managerEmail?: string;
+  capacity?: number;
+  rooms?: number;
+  occupied?: number;
+}
+
 interface EditUserModalProps {
   user: User;
-  dormitories?: string[];
+  dormitories?: Dorm[];
   onClose: () => void;
-  onSave: (userId: User["id"], newuserType: userType, newDormitory?: string) => void;
+  onSave: (userId: User["id"], newuserType: userType, newDormitory?: Dorm) => void;
 }
 
-// userType options description for display in the modal - userType, label, and description for each userType type 
 const userTypeS: { value: userType; label: string; description: string }[] = [
-  { value: "Student",         label: "Student",         description: "Tenant access only"        },
-  { value: "Landlord",        label: "Landlord",        description: "Owner-level access"        },
-  { value: "Dorm Manager",    label: "Dorm Manager",    description: "Manage dorm and tenants"   },
-  { value: "Housing Manager", label: "Housing Manager", description: "Owner-level property access"},
+  { value: "Landlord",              label: "Landlord",              description: "Owner-level access"         },
+  { value: "Housing Administrator", label: "Housing Administrator", description: "Manage dorm and tenants"    },
 ];
 
-// If userType is one of these, dorm assignment is required before saving changes. 
-// Otherwise, dorm assignment is optional and will be cleared on userType change.
-const DORM_REQUIRED_userTypeS: userType[] = ["Dorm Manager", "Landlord", "Housing Manager"];
+const DORM_REQUIRED_userTypeS: userType[] = ["Landlord", "Housing Administrator"];
 
-// Avatar helper - Logo
 function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 }
 
-// Modal component
 export function EditUserModal({
   user,
-  dormitories = ["Dorm 1", "Dorm 2", "Dorm 3", "Dorm 4"], // hard coded for now
+  dormitories,
   onClose,
   onSave,
 }: EditUserModalProps) {
-  const [selecteduserType, setSelecteduserType] = useState<userType>(user.userType);
-  const [selectedDorm, setSelectedDorm] = useState<string>(user.dormitory ?? "");
+  const [selecteduserType, setSelecteduserType] = useState<userType>(
+  user.userType === "Student" ? "Landlord" : user.userType
+);
+  const [selectedDorm, setSelectedDorm] = useState<Dorm | undefined>(undefined);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const dormRequired = DORM_REQUIRED_userTypeS.includes(selecteduserType);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -72,24 +72,23 @@ export function EditUserModal({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Reset when dormRequired turns off
   useEffect(() => {
     if (!dormRequired) {
       setQuery("");
       setOpen(false);
+      setSelectedDorm(undefined);
     }
   }, [dormRequired]);
 
-  // While typing in the dorm search box, filter the dorm list based on the query. 
-  // If query is empty, show all dorms.
   const filteredDorms = useMemo(() => {
+    if (!dormitories) return [];
     if (!query) return dormitories;
     return dormitories.filter((d) =>
-      d.toLowerCase().includes(query.toLowerCase())
+      d.name.toLowerCase().includes(query.toLowerCase())
     );
   }, [query, dormitories]);
 
-  const displayValue = query !== "" ? query : selectedDorm;
+  const displayValue = query !== "" ? query : selectedDorm?.name ?? "";
 
   function handleSave() {
     onSave(user.id, selecteduserType, selectedDorm || undefined);
@@ -112,9 +111,7 @@ export function EditUserModal({
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 id="modal-title" className="text-xl font-bold text-[#1a2332]">
-                  Edit User
-                </h2>
+                <h2 className="text-xl font-bold text-[#1a2332]">Edit User</h2>
                 <p className="text-sm text-[#1a2332]/50 font-mono mt-0.5">
                   Update the assigned userType and dormitory for this user
                 </p>
@@ -168,104 +165,129 @@ export function EditUserModal({
               </div>
             </div>
 
-            <div className="border-t border-gray-100" />
 
-            {/* Assign userType */}
-            <div>
-              <p className="text-sm font-bold text-[#1a2332] mb-3">Assign New userType</p>
-              <div className="grid grid-cols-2 gap-3">
-                {userTypeS.map((userType) => {
-                  const isSelected = selecteduserType === userType.value;
-                  return (
-                    <button
-                      key={userType.value}
-                      type="button"
-                      onClick={() => {
-                        setSelecteduserType(userType.value);
-                        if (!DORM_REQUIRED_userTypeS.includes(userType.value)) setSelectedDorm("");
-                      }}
-                      className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all
-                        ${isSelected
-                          ? "border-[#b85c28] bg-[#fdf0e8]"
-                          : "border-[#e8e6e1] bg-[#faf9f7] hover:border-[#c8c4bc]"
-                        }`}
-                    >
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-                        ${isSelected ? "border-[#b85c28]" : "border-[#c8c4bc]"}`}>
-                        {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#b85c28]" />}
-                      </div>
-                      <div>
-                        <p className={`text-sm font-bold ${isSelected ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
-                          {userType.label}
-                        </p>
-                        <p className="text-xs text-[#1a2332]/45 font-mono">{userType.description}</p>
-                      </div>
-                    </button>
-                  );
-                })}
+            {/* Non-student message */}
+            {user.userType !== "Student" && (
+              <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#f3f4f5] border border-gray-200">
+                <AlertTriangle size={15} className="text-[#1a2332]/40 shrink-0 mt-0.5" />
+                <p className="text-xs text-[#1a2332]/50 font-mono">
+                This user is already assigned as <span className="font-bold text-[#1a2332]/70">{user.userType}</span>.
+                </p>
               </div>
-            </div>
+            )}
 
-            {/* Dorm select — searchable input */}
-            <div ref={containerRef} className="relative">
-              <p className={`text-sm font-bold mb-2 ${dormRequired ? "text-[#b85c28]" : "text-[#1a2332]/40"}`}>
-                Assign to Dormitory
-              </p>
-              <input
-                value={displayValue}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setSelectedDorm("");
-                  setOpen(true);
-                }}
-                onFocus={() => {
-                  if (dormRequired) {
-                    setQuery("");
-                    setOpen(true);
-                  }
-                }}
-                disabled={!dormRequired}
-                placeholder="Select a Dormitory ..."
-                className={`w-full px-4 py-3 rounded-xl border text-sm text-black
-                  ${dormRequired
-                    ? "border-gray-200 bg-[#f3f4f5]"
-                    : "border-gray-100 bg-[#f3f4f5]/50 cursor-not-allowed text-gray-400"
-                  }`}
-              />
-              {open && dormRequired && (
-                <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-60 overflow-y-auto">
-                  {filteredDorms.length > 0 ? (
-                    filteredDorms.map((d) => (
-                      <option
-                        key={d}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                          setSelectedDorm(d);
-                          setQuery("");
-                          setOpen(false);
-                        }}
-                        className={`block w-full px-4 py-3 text-sm cursor-pointer hover:bg-gray-200
-                          ${d === selectedDorm ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}
-                      >
-                        {d}
-                      </option>
-                    ))
-                  ) : (
-                    <div className="px-4 py-3 text-sm text-gray-400">
-                      No dorm found
+          {/* Assign userType — only for Students */}
+            {user.userType === "Student" && (
+              <>
+                <div className="border-t border-gray-100" />
+
+                {/* Assign userType */}
+                <div>
+                  <p className="text-sm font-bold text-[#1a2332] mb-3">Assign New userType</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {userTypeS.map((userType) => {
+                      const isSelected = selecteduserType === userType.value;
+                      return (
+                        <button
+                          key={userType.value}
+                          type="button"
+                          onClick={() => {
+                            setSelecteduserType(userType.value);
+                            if (!DORM_REQUIRED_userTypeS.includes(userType.value)) {
+                              setSelectedDorm(undefined);
+                            }
+                          }}
+                          className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all
+                            ${isSelected
+                              ? "border-[#b85c28] bg-[#fdf0e8]"
+                              : "border-[#e8e6e1] bg-[#faf9f7] hover:border-[#c8c4bc]"
+                            }`}
+                        >
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
+                            ${isSelected ? "border-[#b85c28]" : "border-[#c8c4bc]"}`}>
+                            {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#b85c28]" />}
+                          </div>
+                          <div>
+                            <p className={`text-sm font-bold ${isSelected ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
+                              {userType.label}
+                            </p>
+                            <p className="text-xs text-[#1a2332]/45 font-mono">{userType.description}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Dorm select — searchable input */}
+                <div ref={containerRef} className="relative">
+                  <p className={`text-sm font-bold mb-2 ${dormRequired ? "text-[#b85c28]" : "text-[#1a2332]/40"}`}>
+                    Assign to Dormitory
+                  </p>
+                  <input
+                    value={displayValue}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setSelectedDorm(undefined);
+                      setOpen(true);
+                    }}
+                    onFocus={() => {
+                      if (dormRequired) {
+                        setQuery("");
+                        setOpen(true);
+                      }
+                    }}
+                    disabled={!dormRequired}
+                    placeholder="Select a Dormitory ..."
+                    className={`w-full px-4 py-3 rounded-xl border text-sm text-black
+                      ${dormRequired
+                        ? "border-gray-200 bg-[#f3f4f5]"
+                        : "border-gray-100 bg-[#f3f4f5]/50 cursor-not-allowed text-gray-400"
+                      }`}
+                  />
+                  {open && dormRequired && (
+                    <div className="absolute z-10 mt-1 w-full bg-[#f3f4f5] border border-gray-200 rounded-xl shadow-md max-h-60 overflow-y-auto">
+                      {filteredDorms.length > 0 ? (
+                        filteredDorms.map((d) => (
+                          <div
+                            key={d.id}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              setSelectedDorm(d);
+                              setQuery("");
+                              setOpen(false);
+                            }}
+                            className={`block w-full px-4 py-3 text-sm cursor-pointer hover:bg-gray-200
+                              ${d.id === selectedDorm?.id ? "bg-[#fdf0e8] text-[#b85c28]" : "text-black"}`}
+                          >
+                            {d.name}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-sm text-gray-400">
+                          No dorm found
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
 
-            {/* Warning */}
-            <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
-              <AlertTriangle size={15} className="text-[#b85c28]" />
-              <p className="text-xs text-[#b85c28] font-mono">
-                Changing a userType will immediately update the user&apos;s access permissions.
-              </p>
-            </div>
+                {/* Warning */}
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
+                  <AlertTriangle size={15} className="text-[#b85c28]" />
+                  <p className="text-xs text-[#b85c28] font-mono">
+                    Changing a userType will immediately update the user&apos;s access permissions.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200">
+                  <AlertTriangle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-500 font-mono">
+                    Changing a user&apos;s role is <span className="font-bold">permanent</span> and cannot be undone.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Footer */}
@@ -276,13 +298,16 @@ export function EditUserModal({
             >
               Cancel
             </button>
+             {/* Only show Save for Students */}
+          {user.userType === "Student" && (
             <button
               onClick={handleSave}
               disabled={dormRequired && !selectedDorm}
-              className="px-6 py-2.5 text-sm font-semibold text-white bg-[#b85c28] rounded-xl disabled:opacity-40"
+              className="px-6 py-2.5 text-sm font-semibold text-white bg-[#b85c28] rounded-xl disabled:opacity-40 hover:bg-[#9e4f22] transition-colors"
             >
-              Save Changes
+              Assign Role
             </button>
+          )}
           </div>
 
         </div>

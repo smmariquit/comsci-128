@@ -31,7 +31,9 @@ export default async function Page({
 
   const units = housing.room.map((room) => {
     const max = room.maximum_occupants ?? 0;
-    const currentOccupants = tenants.filter((t: any) => t.room?.room_id === room.room_id).length;
+    const currentOccupants = tenants.filter(
+      (t: any) => t.room?.room_id === room.room_id,
+    ).length;
     const freeSlots = Math.max(0, max - currentOccupants);
 
     return {

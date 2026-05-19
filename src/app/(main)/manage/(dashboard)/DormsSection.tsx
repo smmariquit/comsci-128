@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import Link from "next/link";
@@ -10,7 +8,17 @@ import type { Database } from "@/app/types/database.types";
 type Housing = Database["public"]["Tables"]["housing"]["Row"];
 type SortOption = "name-asc" | "name-desc" | "address-asc" | "address-desc";
 
-function DormCard({ id, name, image, location }: { id: number; name: string; image: string | null; location: string; }) {
+function DormCard({
+  id,
+  name,
+  image,
+  location,
+}: {
+  id: number;
+  name: string;
+  image: string | null;
+  location: string;
+}) {
   return (
     <Link href={`/manage/accommodations/${id}`}>
       <div className="relative h-84 rounded-xl overflow-hidden shadow cursor-pointer group border border-gray-800">
@@ -29,34 +37,34 @@ function DormCard({ id, name, image, location }: { id: number; name: string; ima
 }
 
 export default function DormsSection({ dorms }: { dorms: Housing[] }) {
-
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("name-asc");
 
   const filtered = useMemo(() => {
     let result = [...dorms];
     const q = search.trim().toLowerCase();
-    if (q) result = result.filter((h) => h.housing_name.toLowerCase().includes(q));
+    if (q)
+      result = result.filter((h) => h.housing_name.toLowerCase().includes(q));
 
     result.sort((a, b) => {
-        const nameA = a.housing_name.trim().toLowerCase();
-        const nameB = b.housing_name.trim().toLowerCase();
-        const addressA = a.housing_address.trim().toLowerCase();
-        const addressB = b.housing_address.trim().toLowerCase();
-        
-        switch (sort) {
-            case "name-asc":
-            return nameA.localeCompare(nameB);
-            case "name-desc":
-            return nameB.localeCompare(nameA);  
-            case "address-asc":
-            return addressA.localeCompare(addressB);
-            case "address-desc":
-            return addressB.localeCompare(addressA);
-            default:
-            return 0;
-        }
-        });
+      const nameA = a.housing_name.trim().toLowerCase();
+      const nameB = b.housing_name.trim().toLowerCase();
+      const addressA = a.housing_address.trim().toLowerCase();
+      const addressB = b.housing_address.trim().toLowerCase();
+
+      switch (sort) {
+        case "name-asc":
+          return nameA.localeCompare(nameB);
+        case "name-desc":
+          return nameB.localeCompare(nameA);
+        case "address-asc":
+          return addressA.localeCompare(addressB);
+        case "address-desc":
+          return addressB.localeCompare(addressA);
+        default:
+          return 0;
+      }
+    });
     return result;
   }, [dorms, search, sort]);
 
@@ -67,7 +75,10 @@ export default function DormsSection({ dorms }: { dorms: Housing[] }) {
       <div className="flex flex-col gap-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={16}
+            />
             <input
               type="text"
               value={search}
@@ -77,7 +88,10 @@ export default function DormsSection({ dorms }: { dorms: Housing[] }) {
             />
           </div>
           <div className="relative">
-            <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+            <SlidersHorizontal
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={16}
+            />
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortOption)}
@@ -92,7 +106,9 @@ export default function DormsSection({ dorms }: { dorms: Housing[] }) {
                 <option value="address-desc">Address: Z → A</option>
               </optgroup>
             </select>
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▾</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">
+              ▾
+            </span>
           </div>
         </div>
         <p className="text-xs text-gray-600">

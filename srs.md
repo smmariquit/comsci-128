@@ -4,7 +4,7 @@
 
 # **for**
 
-# **University Student Accommodation Tracker**
+# **UPLB CASA**
 
 **In partial fulfillment of the requirements of CMSC 128**
 
@@ -100,7 +100,7 @@
 
    1. ## **Purpose**  {#purpose}
 
-This Software Requirements Specification (SRS) document outlines the requirements for the University Student Accommodation Tracker version 1.0. The scope of this product includes a centralized web-based platform designed to manage the entire lifecycle of student housing at the University of the Philippines Los Baños. This includes the digital application process, room allocation, occupancy monitoring, and administrative reporting. This system is intended to replace current fragmented manual forms and spreadsheets with a unified digital workflow.
+This Software Requirements Specification (SRS) document outlines the requirements for UPLB CASA version 1.0. The scope of this product includes a centralized web-based platform designed to manage the entire lifecycle of student housing at the University of the Philippines Los Baños. This includes the digital application process, room allocation, occupancy monitoring, and administrative reporting. This system is intended to replace current fragmented manual forms and spreadsheets with a unified digital workflow.
 
 2. ## **Document Conventions**
 
@@ -113,7 +113,7 @@ This document is intended for the stakeholders (developers, product owner, and c
 
 4. ## **Product Scope**
 
-The University Student Accommodation Tracker is a management system developed for CMSC 128 (*Introduction to Software Engineering*) to streamline student housing operations. This software serves as a bridge between students seeking housing and the administrators managing on-campus dormitories, off-campus university housing, and partner private accommodations.
+UPLB CASA is a management system developed for CMSC 128 (*Introduction to Software Engineering*) to streamline student housing operations. This software serves as a bridge between students seeking housing and the administrators managing on-campus dormitories, off-campus university housing, and partner private accommodations.
 
 The primary objectives and benefits of the system include, but are not limited to, the following: 1\) centralization by replacing manual forms, email exchanges, and fragmented spreadsheets with a single platform for all housing transactions; 2\) efficiency by automating the application and approval workflow, including initial screening by dorm managers and final approval by housing admins; 3\) transparency by providing students updates on their application status and room assignments; 4\) resource management by ensuring proper tracking of occupancy and preventing overbooking; and, 5\) accountability by implementing role-based access control and audit trails for all approvals and assignments, ensuring data integrity.
 
@@ -125,7 +125,7 @@ This document is based on a template downloaded from IEEE, distributed by Dr. Sh
 
    1. ## **Product Perspective** {#product-perspective}
 
-The University Student Accommodation Tracker is a responsive web-based application designed to streamline the fragmented accommodation processes of the university. It provides a centralized platform for managing applications, room assignments, occupancy records, billing, and related administrative tasks.
+UPLB CASA is a responsive web-based application designed to streamline the fragmented accommodation processes of the university. It provides a centralized platform for managing applications, room assignments, occupancy records, billing, and related administrative tasks.
 
 The system supports secure authentication and notifications through UP Mail. The system also supports role-based access, ensuring that students, dormitory managers, and housing administrators have access only to functions relevant to their responsibilities.
 
@@ -189,7 +189,7 @@ The system shall include a README file in Markdown format which contains a detai
 
 7. ## **Assumptions and Dependencies**
 
-1. The users of the University Student Accommodation Tracker must have basic computer literacy skills to be able to access, navigate, and interact with the system.  
+1. The users of UPLB CASA must have basic computer literacy skills to be able to access, navigate, and interact with the system.  
 2. The device which the user intends to use must be able to run a modern and up-to-date web browser supporting JavaScript to be able to access the system.  
 3. In line with AD-2, the device must also be able to sustain a stable internet connection for as long as is necessary in the facilitation of secure and authorized transactions between the client and the server.  
 4. All data transmission between the client and the server is done via HTTPS, which is required to ensure data confidentiality and integrity in transit.  
@@ -498,7 +498,7 @@ REQ-8: 	The system shall clear and invalidate the session upon user logout.
 
 4.2.1	Description and Priority
 
-This feature sets and maintains the digital identities of all individuals interacting with the University Student Accommodation Tracker. Ensures accurate user records, enables profile personalization, and structures the organizational hierarchy within the system.
+This feature sets and maintains the digital identities of all individuals interacting with UPLB CASA. Ensures accurate user records, enables profile personalization, and structures the organizational hierarchy within the system.
 
 **For Students**: This feature allows them to automatically create an account via UP Mail upon their first login, complete their profile setup, and maintain updated personal and emergency contact information.
 
@@ -968,7 +968,7 @@ REQ-1: 	The system shall generate an audit log entry for every transaction withi
 
 2. ## **Safety Requirements**
 
-The University Student Accommodation Tracker is a web-based information system. At the same time, it does not directly control physical hardware or infrastructure; the following safety requirement must be observed to prevent harm arising from data loss.
+UPLB CASA is a web-based information system. At the same time, it does not directly control physical hardware or infrastructure; the following safety requirement must be observed to prevent harm arising from data loss.
 
 **5.2.1  Data Integrity and Loss Prevention**   
 The system shall ensure that no accommodation, assignment record, billing entry, or student documents are permanently lost due to accidental deletion or system failure. All deletions of critical records shall require administrator-level confirmation. The system shall maintain database backups at regular intervals to enable recovery in case of failure. 

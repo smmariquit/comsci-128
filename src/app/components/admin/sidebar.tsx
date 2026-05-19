@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, ChevronRight, Home, DoorOpen, Users, Receipt, FileText, ClipboardList, X } from "lucide-react";
+import {
+  LayoutGrid,
+  ChevronRight,
+  Home,
+  DoorOpen,
+  Users,
+  Receipt,
+  FileText,
+  ClipboardList,
+  X,
+} from "lucide-react";
 import Logo from "@/app/components/Logo";
 
 const navItems = [
@@ -158,6 +168,7 @@ export default function Sidebar({
               key={item.href}
               href={item.href}
               onClick={onNavigate}
+              className="rounded-lg"
               style={{
                 width: "100%",
                 height: 47,
@@ -211,7 +222,9 @@ export default function Sidebar({
           position: "relative",
         }}
       >
-        <div
+        <button
+          className="rounded-lg text-left"
+          type="button"
           style={{
             width: 286,
             height: 51,
@@ -222,6 +235,9 @@ export default function Sidebar({
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
+            background: "transparent",
+            border: "none",
+            padding: 0,
           }}
         >
           {/* Avatar */}
@@ -269,12 +285,11 @@ export default function Sidebar({
               {userRole}
             </div>
           </div>
-
           {/* Chevron */}
           <div style={{ marginRight: 10 }}>
             <ChevronRight size={14} color="rgba(237,233,222,0.30)" />
           </div>
-        </div>
+        </button>
       </div>
     </aside>
   );

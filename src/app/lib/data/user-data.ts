@@ -145,7 +145,7 @@ async function deactivate(email: string): Promise<UpdateUser | null> {
   return data && data.length > 0 ? data[0] : null;
 }
 
-async function findStudents(): Promise<User[]> {
+async function findStudents(): Promise<any[]> {
   // returns students ONLY
   const { data, error } = await supabase
     .from("user")
@@ -170,7 +170,7 @@ async function findStudents(): Promise<User[]> {
 // plus get managers from housing
 async function getUsersForHousingAdmin(
   managedHousingIds: number[],
-): Promise<HousingAdminUser[]> {
+): Promise<any[]> {
   // get student accommodation history of managed housings
   const { data: histories, error: histError } = await supabase
     .from("student_accommodation_history")
@@ -185,7 +185,7 @@ async function getUsersForHousingAdmin(
         `)
     .in("room.housing_id", managedHousingIds);
 
-  if (histError) throw new Error(`History Error: ${histError.message}`);
+  if (histError) throw new Error("History Error: " + histError.message);
 
   const { data: managers, error: dormManagerError } = await supabase
     .from("housing")
@@ -201,9 +201,11 @@ async function getUsersForHousingAdmin(
     throw new Error(`Property Error: ${dormManagerError.message}`);
 
   const userIds = new Set<number>();
+    
   histories?.forEach((h) => {
     userIds.add(h.account_number);
   });
+    
   managers?.forEach((m) => {
     userIds.add(m.manager_account_number);
   });
