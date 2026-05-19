@@ -1,83 +1,110 @@
+import { Bell } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Logo from "@/app/components/Logo";
+import Breadcrumbs from "./components/Breadcrumbs";
+import Avatar from "@/app/components/Avatar";
+import { getManagerAccountNumber } from "@/app/lib/auth";
+import { userData } from "@/app/lib/data/user-data";
+import NotificationBell from "./components/NotificationBell";
+import { notificationService, NotificationItem } from "@/app/lib/services/notification-service";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
+  description:
+    "Manager panel for managing properties, applications, and tenants.",
 };
 
-export default function ManageLayout({
+export default async function ManageLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const accountNumber = await getManagerAccountNumber();
+  let managerUser = null;
+  let notifications: NotificationItem[] = [];
+  try {
+    if (accountNumber) {
+      managerUser = await userData.findById(accountNumber);
+      notifications = await notificationService.getManagerNotifications(accountNumber);
+    }
+  } catch (error) {
+    console.warn("Offline: Could not load manager user for layout.");
+  }
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="w-full">
-        {/*top navbar*/}
-        <nav className="px-6 py-3 bg-[var(--dark-blue)] text-[var(--cream)]">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-10">
-              <h1 className="text-lg font-bold">Manager</h1>
+    <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
+      {/* NAV BAR */}
+      <header className="w-full bg-[#1C2632] text-m">
+        <div className="w-full max-w-7xl mx-auto flex h-16 md:h-20 items-center justify-between px-4 md:px-10">
+          <div className="flex items-center gap-4 md:gap-8">
+            <Logo size={28} href="/manage" />
 
-              <div className="flex items-center text-sm">
-                <Link
-                  href="/manage"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
-                >
-                  Dashboard
-                </Link>
-
-                <span className="mx-2 opacity-60">|</span>
-
-                <Link
-                  href="/manage/accommodations"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
-                >
-                  Accommodations
-                </Link>
-
-                <span className="mx-2 opacity-60">|</span>
-
-                <Link
-                  href="/manage/applications"
-                  className="px-4 font-medium hover:text-[var(--light-yellow)] transition-colors"
-                >
-                  Applications
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6 text-sm">
-              {/* change for notifs later*/}
+            <nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
               <Link
                 href="/manage"
-                className="hover:text-[var(--light-yellow)] transition-colors"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
-                Notifications
+                Dashboard
               </Link>
-
               <Link
-                href="/profile"
-                className="hover:text-[var(--light-yellow)] transition-colors"
+                href="/manage/accommodations"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
-                Profile
+                Accommodations
               </Link>
+              <Link
+                href="/manage/applications"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
+              >
+                Applications
+              </Link>
+              <Link
+                href="/manage/complaints"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
+              >
+                Complaints
+              </Link>
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2 md:gap-4 text-sm">
+            {/* Mobile Nav Link */}
+            <Link
+              href="/manage"
+              className="md:hidden text-[#EDE9DE] text-xs font-medium hover:bg-white/10 focus-visible:bg-white/10 rounded-full px-3 py-1.5"
+            >
+              Dashboard
+            </Link>
+
+            <NotificationBell notifications={notifications} />
+
+            <div className="py-2">
+              <Avatar
+                firstName={managerUser?.first_name}
+                lastName={managerUser?.last_name}
+                profilePicture={(managerUser as any)?.profile_picture}
+                size={32}
+                href={`/manage/profile/${accountNumber}`}
+              />
             </div>
           </div>
-        </nav>
-
-        {/*breadcrumbs to be implemented*/}
-        <nav className="px-6 py-1 bg-[var(--teal)] text-[var(--dark-blue)] text-sm">
-          <Link href="/manage" className="font-medium hover:font-bold">
-            Dashboard
-          </Link>
-        </nav>
+        </div>
       </header>
 
-      <main className="flex-1 px-6 bg-[var(--dark-blue)]">{children}</main>
+      {/* BREAD CRUMBS */}
+      <div className="w-full bg-[#567375] font-[family-name:var(--font-geist-sans)]">
+        <div className="w-full max-w-7xl mx-auto flex items-center px-4 md:px-10 min-h-[44px] align-middle">
+          <Breadcrumbs />
+        </div>
+      </div>
 
-      <footer className="bg-[var(--dark-blue)] text-[var(--cream)] px-6 py-10 text-sm">
-        © 2026 CMSC 128 Project
+      {/* MAIN CONTENT */}
+      <main className="flex-1 bg-[var(--cream)]">{children}</main>
+
+      {/* FOOTER */}
+      <footer className="bg-[#1C2632] text-[#EDE9DE] px-6 py-10 text-sm">
+        <div className="max-w-7xl mx-auto">© 2026 CMSC 128 Project</div>
       </footer>
     </div>
   );

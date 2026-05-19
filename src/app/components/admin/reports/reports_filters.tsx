@@ -1,9 +1,10 @@
-
 "use client";
 
+import { useState } from "react";
+import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { ReportType } from "@/app/components/admin/reports/reports_wrapper";
-import { Search } from "lucide-react";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 interface Props {
   reportType: ReportType;
@@ -22,23 +23,32 @@ interface Props {
 
 const inputBase: React.CSSProperties = {
   fontFamily: "'DM Sans', sans-serif",
-  fontSize: 12, color: C.navy, background: "#fff",
-  border: `1px solid ${C.cream}`, borderRadius: 8,
-  padding: "8px 12px", outline: "none",
-  height: 36, boxSizing: "border-box" as const,
+  fontSize: 12,
+  color: C.navy,
+  background: "#fff",
+  border: `1px solid ${C.cream}`,
+  borderRadius: 8,
+  padding: "8px 12px",
+  outline: "none",
+  height: 36,
+  boxSizing: "border-box" as const,
 };
 
 const selectBase: React.CSSProperties = {
-  ...inputBase, cursor: "pointer", appearance: "none" as const,
-  paddingRight: 28,
-  backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23567375' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-  backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center",
+  ...inputBase,
+  cursor: "pointer",
+  paddingRight: 12,
+  appearance: "auto" as const,
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10, fontWeight: 600, color: C.teal,
-  textTransform: "uppercase", letterSpacing: "0.04em",
-  marginBottom: 4, display: "block",
+  fontSize: 10,
+  fontWeight: 600,
+  color: C.teal,
+  textTransform: "uppercase",
+  letterSpacing: "0.04em",
+  marginBottom: 4,
+  display: "block",
   fontFamily: "'DM Sans', sans-serif",
 };
 
@@ -95,75 +105,191 @@ const SHOW_DATE: Record<ReportType, boolean> = {
 };
 
 export default function ReportFilters({
-  reportType, search, housing, housingOptions, status,
-  dateFrom, dateTo, onSearch, onHousing, onStatus, onDateFrom, onDateTo,
+  reportType,
+  search,
+  housing,
+  housingOptions,
+  status,
+  dateFrom,
+  dateTo,
+  onSearch,
+  onHousing,
+  onStatus,
+  onDateFrom,
+  onDateTo,
 }: Props) {
   const showDate = SHOW_DATE[reportType];
+  const [hoveredInput, setHoveredInput] = useState(false);
+  const [hoveredSelect, setHoveredSelect] = useState<string | null>(null);
+  const [hoveredFrom, setHoveredFrom] = useState(false);
+  const [hoveredTo, setHoveredTo] = useState(false);
+  const [hoveredClear, setHoveredClear] = useState(false);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {/* Row 1 */}
-      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         {/* Search */}
-        <div style={{ position: "relative", flex: "1 1 180px", minWidth: 160 }}>
+        <div
+          style={{
+            position: "relative",
+            flex: "1 1 180px",
+            minWidth: 160,
+            transform: hoveredInput ? "translateY(-1px)" : "translateY(0)",
+            transition: "transform 0.15s ease",
+          }}
+        >
           <Search
-            style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}
             size={14}
             color={C.teal}
+            strokeWidth={2}
+            style={{
+              position: "absolute",
+              left: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              pointerEvents: "none",
+            }}
           />
           <input
             type="text"
             placeholder={SEARCH_PLACEHOLDER[reportType]}
             value={search}
             onChange={(e) => onSearch(e.target.value)}
-            style={{ ...inputBase, width: "100%", paddingLeft: 32 }}
+            onMouseEnter={() => setHoveredInput(true)}
+            onMouseLeave={() => setHoveredInput(false)}
+            style={{
+              ...inputBase,
+              width: "100%",
+              paddingLeft: 32,
+              boxShadow: hoveredInput
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+              outlineColor: hoveredInput ? C.amber : C.cream,
+            }}
           />
         </div>
 
         {/* Property */}
         <select
-          title="Filter by property" aria-label="Filter by property"
-          value={housing} onChange={(e) => onHousing(e.target.value)}
-          style={{ ...selectBase, minWidth: 200 }}
+          title="Filter by property"
+          aria-label="Filter by property"
+          value={housing}
+          onChange={(e) => onHousing(e.target.value)}
+          onMouseEnter={() => setHoveredSelect("housing")}
+          onMouseLeave={() =>
+            setHoveredSelect((current) =>
+              current === "housing" ? null : current,
+            )
+          }
+          style={{
+            ...selectBase,
+            minWidth: 200,
+            boxShadow:
+              hoveredSelect === "housing"
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+            outlineColor: hoveredSelect === "housing" ? C.amber : C.cream,
+          }}
         >
           <option value="All">All Properties</option>
-          {housingOptions.map((h) => <option key={h} value={h}>{h}</option>)}
+          {housingOptions.map((h) => (
+            <option key={h} value={h}>
+              {h}
+            </option>
+          ))}
         </select>
 
         {/* Status / room type */}
         <select
           title={`Filter by ${STATUS_LABEL[reportType]}`}
           aria-label={`Filter by ${STATUS_LABEL[reportType]}`}
-          value={status} onChange={(e) => onStatus(e.target.value)}
-          style={{ ...selectBase, minWidth: 170 }}
+          value={status}
+          onChange={(e) => onStatus(e.target.value)}
+          onMouseEnter={() => setHoveredSelect("status")}
+          onMouseLeave={() =>
+            setHoveredSelect((current) =>
+              current === "status" ? null : current,
+            )
+          }
+          style={{
+            ...selectBase,
+            minWidth: 170,
+            boxShadow:
+              hoveredSelect === "status"
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+            outlineColor: hoveredSelect === "status" ? C.amber : C.cream,
+          }}
         >
           {STATUS_OPTIONS[reportType].map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
           ))}
         </select>
       </div>
 
       {/* Row 2 — date range (only for applicable reports) */}
       {showDate && (
-        <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            alignItems: "flex-end",
+            flexWrap: "wrap",
+          }}
+        >
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={labelStyle}>Date From</span>
-            <input type="date" value={dateFrom} onChange={(e) => onDateFrom(e.target.value)}
-              style={{ ...inputBase, minWidth: 150 }} />
+            <ThemedDatePicker
+              value={dateFrom}
+              onChange={onDateFrom}
+              maxDate={new Date().toISOString().split("T")[0]}
+              placeholder="From"
+              style={{ ...inputBase, minWidth: 150 }}
+            />
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={labelStyle}>Date To</span>
-            <input type="date" value={dateTo} onChange={(e) => onDateTo(e.target.value)}
-              style={{ ...inputBase, minWidth: 150 }} />
+            <ThemedDatePicker
+              value={dateTo}
+              onChange={onDateTo}
+              maxDate={new Date().toISOString().split("T")[0]}
+              placeholder="To"
+              style={{ ...inputBase, minWidth: 150 }}
+            />
           </div>
           {(dateFrom || dateTo) && (
             <button
-              onClick={() => { onDateFrom(""); onDateTo(""); }}
+              onClick={() => {
+                onDateFrom("");
+                onDateTo("");
+              }}
+              onMouseEnter={() => setHoveredClear(true)}
+              onMouseLeave={() => setHoveredClear(false)}
               style={{
-                fontFamily: "'DM Sans', sans-serif", fontSize: 11,
-                color: C.orange, background: "rgba(201,100,42,0.08)",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 11,
+                color: C.orange,
+                background: "rgba(201,100,42,0.08)",
                 border: `1px solid rgba(201,100,42,0.2)`,
-                borderRadius: 8, padding: "0 12px", height: 36, cursor: "pointer",
+                borderRadius: 8,
+                padding: "0 12px",
+                height: 36,
+                cursor: "pointer",
+                transform: hoveredClear ? "translateY(-1px)" : "translateY(0)",
+                boxShadow: hoveredClear
+                  ? "0 6px 14px rgba(201,100,42,0.12)"
+                  : "none",
+                transition: "transform 0.15s ease, box-shadow 0.15s ease",
               }}
             >
               Clear dates

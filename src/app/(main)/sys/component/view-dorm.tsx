@@ -4,22 +4,23 @@ import { X, Building2, Pencil } from "lucide-react";
 
 // Types
 
-type DormType = "Mixed" | "Male Only" | "Female Only";
+type DormType = "UP Housing" | "Non-UP Housing";
 
 export interface ViewDormData {
   id: string | number;
   name: string;
   dormAddress?: string;
-  type?: DormType | string;
+  housingType?: DormType;
   capacity?: number;
   rooms?: number;
   occupied?: number;
   monthlyRate?: number;
   description?: string;
   status: string;
-  /** Manager name */
   dormitory?: string;
   managerEmail?: string;
+  landlordName?: string;
+  landlordEmail?: string;
   dateAdded?: string;
 }
 
@@ -47,18 +48,20 @@ function getOccupancyPct(occupied?: number, capacity?: number): number | null {
 
 // Sub-components
 
-/** Dorm type badge — Mixed / Male Only / Female Only */
-function DormTypeBadge({ type }: { type?: string }) {
-  const t = type ?? "Mixed";
+/** Housing type badge — UP Housing / Non-UP Housing */
+function HousingTypeBadge({ type }: { type?: string }) {
+  const t = type ?? "UP Housing";
   const styles =
-    t === "Female Only"
+    t === "UP Housing"
       ? "bg-pink-50 text-pink-700 border-pink-200"
       : t === "Male Only"
-      ? "bg-blue-50 text-blue-700 border-blue-200"
-      : "bg-purple-50 text-purple-700 border-purple-200";
+        ? "bg-blue-50 text-blue-700 border-blue-200"
+        : "bg-purple-50 text-purple-700 border-purple-200";
 
   return (
-    <span className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border ${styles}`}>
+    <span
+      className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border ${styles}`}
+    >
       {t}
     </span>
   );
@@ -70,18 +73,20 @@ function StatusBadge({ status }: { status: string }) {
     status === "Accepting"
       ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
       : status === "Full"
-      ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
-      : "bg-rose-50 text-rose-600 ring-1 ring-rose-200";
+        ? "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+        : "bg-rose-50 text-rose-600 ring-1 ring-rose-200";
 
   const dotColor =
     status === "Accepting"
       ? "bg-emerald-500"
       : status === "Full"
-      ? "bg-amber-400"
-      : "bg-rose-400";
+        ? "bg-amber-400"
+        : "bg-rose-400";
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${styles}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${styles}`}
+    >
       <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
       {status}
     </span>
@@ -118,7 +123,9 @@ function InfoCell({ label, value }: { label: string; value?: string }) {
       <span className="text-[10px] font-semibold text-[#1a2332]/40 uppercase tracking-wider">
         {label}
       </span>
-      <span className="text-sm text-[#1a2332]/80 font-medium">{value ?? "—"}</span>
+      <span className="text-sm text-[#1a2332]/80 font-medium">
+        {value ?? "—"}
+      </span>
     </div>
   );
 }
@@ -126,8 +133,8 @@ function InfoCell({ label, value }: { label: string; value?: string }) {
 // Main component
 
 export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
-  const pct      = getOccupancyPct(dorm.occupied, dorm.capacity);
-  const isFull   = pct !== null && pct >= 100;
+  const pct = getOccupancyPct(dorm.occupied, dorm.capacity);
+  const isFull = pct !== null && pct >= 100;
   const barColor = isFull
     ? "bg-gradient-to-r from-[#b85c28] to-[#a0501f]"
     : "bg-gradient-to-r from-emerald-500 to-emerald-600";
@@ -143,7 +150,6 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl w-full max-w-[520px] max-h-[90vh] shadow-2xl flex flex-col">
-
           {/* ── Header ── */}
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4">
@@ -152,7 +158,9 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                   <Building2 size={18} className="text-[#1a2332]" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-[#1a2332]">Dorm Details</h2>
+                  <h2 className="text-xl font-bold text-[#1a2332]">
+                    Dorm Details
+                  </h2>
                   <p className="text-sm text-[#1a2332]/50 font-mono mt-0.5">
                     Viewing dormitory information and occupancy
                   </p>
@@ -170,20 +178,23 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
 
           {/* Scrollable body*/}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-
             {/* Hero strip */}
             <div className="flex items-center gap-3.5 p-4 bg-[#f3f4f5] rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-xl bg-[#1a2332] flex items-center justify-center shrink-0">
                 <Building2 size={20} className="text-white/80" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[#1a2332] text-sm leading-tight truncate">{dorm.name}</p>
+                <p className="font-bold text-[#1a2332] text-sm leading-tight truncate">
+                  {dorm.name}
+                </p>
                 {dorm.dormAddress && (
-                  <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">{dorm.dormAddress}</p>
+                  <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">
+                    {dorm.dormAddress}
+                  </p>
                 )}
               </div>
-              {/* Dorm type badge — Mixed / Male Only / Female Only */}
-              <DormTypeBadge type={dorm.type} />
+              {/* Housing type badge — UP Housing / Non-UP Housing */}
+              <HousingTypeBadge type={dorm.housingType} />
             </div>
 
             {/* Stat cards */}
@@ -216,7 +227,9 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                 </div>
                 <div className="flex justify-between text-[10px] text-[#1a2332]/40">
                   <span>Occupancy</span>
-                  <span>{pct}% ({dorm.occupied} / {dorm.capacity})</span>
+                  <span>
+                    {pct}% ({dorm.occupied} / {dorm.capacity})
+                  </span>
                 </div>
               </div>
             )}
@@ -229,14 +242,16 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                 Dormitory Info
               </p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                <InfoCell label="Location"     value={dorm.dormAddress} />
-                <InfoCell label="Type"         value={dorm.type ?? "Mixed"} />
-                <InfoCell label="Date Added"   value={dorm.dateAdded} />
+                <InfoCell label="Location" value={dorm.dormAddress} />
+                <InfoCell label="Housing Type" value={dorm.housingType ?? "UP Housing"} />
                 <InfoCell
                   label="Monthly Rate"
-                  value={dorm.monthlyRate ? `₱${dorm.monthlyRate.toLocaleString()} / mo` : undefined}
+                  value={
+                    dorm.monthlyRate
+                      ? `₱${dorm.monthlyRate.toLocaleString()} / mo`
+                      : undefined
+                  }
                 />
-                <InfoCell label="Status"       value={dorm.status} />
               </div>
             </div>
 
@@ -248,7 +263,9 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                   <p className="text-xs font-bold text-[#1a2332] uppercase tracking-wider">
                     Description
                   </p>
-                  <p className="text-sm text-[#1a2332]/60 leading-relaxed">{dorm.description}</p>
+                  <p className="text-sm text-[#1a2332]/60 leading-relaxed">
+                    {dorm.description}
+                  </p>
                 </div>
               </>
             )}
@@ -268,10 +285,43 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#1a2332] truncate">{dorm.dormitory}</p>
+                    <p className="text-sm font-semibold text-[#1a2332] truncate">
+                      {dorm.dormitory}
+                    </p>
                     {dorm.managerEmail && (
                       <p className="text-[10px] text-[#1a2332]/40 font-mono mt-0.5 truncate">
                         {dorm.managerEmail}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 p-3.5 bg-[#f3f4f5] rounded-xl border border-gray-100">
+                  <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-gray-400">—</span>
+                  </div>
+                  <p className="text-sm text-[#1a2332]/40 italic">Unassigned</p>
+                </div>
+              )}
+            </div>
+
+            {/* Assigned Landlord */}
+            <div className="space-y-2.5">
+              <p className="text-xs font-bold text-[#1a2332] uppercase tracking-wider">
+                Assigned Landlord
+              </p>
+              {dorm.landlordName ? (
+                <div className="flex items-center gap-3 p-3.5 bg-[#f3f4f5] rounded-xl border border-gray-100">
+                  <div className="w-9 h-9 rounded-full bg-blue-500/15 border border-blue-500/25 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-blue-600">
+                      {getInitials(dorm.landlordName)}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#1a2332] truncate">{dorm.landlordName}</p>
+                    {dorm.landlordEmail && (
+                      <p className="text-[10px] text-[#1a2332]/40 font-mono mt-0.5 truncate">
+                        {dorm.landlordEmail}
                       </p>
                     )}
                   </div>
@@ -298,7 +348,10 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
             </button>
             {onEdit && (
               <button
-                onClick={() => { onClose(); onEdit(); }}
+                onClick={() => { 
+                  onEdit(); 
+                  onClose(); 
+                }}
                 className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-[#1a2332] rounded-xl hover:bg-[#2e3f52] transition-colors"
               >
                 <Pencil size={13} />
@@ -306,7 +359,6 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
               </button>
             )}
           </div>
-
         </div>
       </div>
     </>

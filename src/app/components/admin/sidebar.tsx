@@ -2,37 +2,50 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Home, ChevronRight } from "lucide-react";
-
+import {
+  LayoutGrid,
+  ChevronRight,
+  Home,
+  DoorOpen,
+  Users,
+  Receipt,
+  FileText,
+  ClipboardList,
+  X,
+} from "lucide-react";
+import Logo from "@/app/components/Logo";
 
 const navItems = [
-  { label: "Dashboard",            href: "/admin" },
-  { label: "Properties and Dorms", href: "/admin/accommodations" },
-  { label: "Rooms",                href: "/admin/rooms" },
-  { label: "Users",                href: "/admin/users" },
-  { label: "Billings",             href: "/admin/billing" },
-  { label: "Reports",              href: "/admin/reports" },
-  { label: "Audit Logs",           href: "/admin/logs" },
+  { label: "Dashboard", href: "/admin", icon: LayoutGrid },
+  { label: "Properties and Dorms", href: "/admin/accommodations", icon: Home },
+  { label: "Rooms", href: "/admin/rooms", icon: DoorOpen },
+  { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Billings", href: "/admin/billing", icon: Receipt },
+  { label: "Reports", href: "/admin/reports", icon: FileText },
+  { label: "Audit Logs", href: "/admin/logs", icon: ClipboardList },
 ];
 
 interface SidebarProps {
   userInitials?: string;
   userName?: string;
   userRole?: string;
+  onNavigate?: () => void;
 }
 
 export default function Sidebar({
   userInitials = "LF",
   userName = "Luthelle Fernandez",
   userRole = "System Admin",
+  onNavigate,
 }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside
       style={{
-        width: 316,
-        minWidth: 316,
+        width: "100%",
+        minWidth: 0,
+        maxWidth: 316,
         height: "100vh",
         background: "#1C2632",
         display: "flex",
@@ -52,7 +65,7 @@ export default function Sidebar({
           top: -60,
           borderRadius: "50%",
           background: "#2C3D54",
-          opacity: 0.40,
+          opacity: 0.4,
           pointerEvents: "none",
         }}
       />
@@ -60,13 +73,31 @@ export default function Sidebar({
       {/* ── Logo / Header ── */}
       <div
         style={{
-          width: 316,
+          width: "100%",
           height: 132,
           borderBottom: "1px solid rgba(255,255,255,0.07)",
           flexShrink: 0,
           position: "relative",
         }}
       >
+        {onNavigate && (
+          <button
+            onClick={onNavigate}
+            style={{
+              position: "absolute",
+              top: 16,
+              right: 16,
+              background: "transparent",
+              border: "none",
+              color: "#EDE9DE",
+              cursor: "pointer",
+              zIndex: 10,
+            }}
+            aria-label="Close sidebar"
+          >
+            <X size={20} />
+          </button>
+        )}
         {/* Orange icon box */}
         <div
           style={{
@@ -81,9 +112,10 @@ export default function Sidebar({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            overflow: "hidden",
           }}
         >
-          <Home size={20} color="white" />
+          <Logo size={28} showText={false} href={null} />
         </div>
 
         {/* Brand name */}
@@ -96,10 +128,11 @@ export default function Sidebar({
             fontSize: 24,
             fontWeight: 600,
             lineHeight: "16.8px",
-            letterSpacing: 0.10,
+            letterSpacing: 0.1,
+            whiteSpace: "nowrap",
           }}
         >
-          HousingAdmin
+          UPLB CASA
         </div>
 
         {/* Subtitle */}
@@ -120,8 +153,8 @@ export default function Sidebar({
       {/* ── Navigation ── */}
       <nav
         style={{
-          width: 274,
-          marginLeft: 24,
+          width: "calc(100% - 42px)",
+          marginLeft: 21,
           marginTop: 27,
           display: "flex",
           flexDirection: "column",
@@ -134,8 +167,10 @@ export default function Sidebar({
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
+              className="rounded-lg"
               style={{
-                width: 274,
+                width: "100%",
                 height: 47,
                 borderRadius: 9,
                 display: "flex",
@@ -154,9 +189,9 @@ export default function Sidebar({
                   display: "flex",
                 }}
               >
-                <LayoutGrid 
-                  size={17} 
-                  color={isActive ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)"} 
+                <item.icon
+                  size={17}
+                  color={isActive ? "#EDE9DE" : "rgba(237, 233, 222, 0.55)"}
                 />
               </span>
 
@@ -180,14 +215,16 @@ export default function Sidebar({
       {/* ── User footer ── */}
       <div
         style={{
-          width: 316,
+          width: "100%",
           height: 84,
           borderTop: "1px solid rgba(255,255,255,0.07)",
           flexShrink: 0,
           position: "relative",
         }}
       >
-        <div
+        <button
+          className="rounded-lg text-left"
+          type="button"
           style={{
             width: 286,
             height: 51,
@@ -198,6 +235,9 @@ export default function Sidebar({
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
+            background: "transparent",
+            border: "none",
+            padding: 0,
           }}
         >
           {/* Avatar */}
@@ -245,12 +285,11 @@ export default function Sidebar({
               {userRole}
             </div>
           </div>
-
           {/* Chevron */}
           <div style={{ marginRight: 10 }}>
             <ChevronRight size={14} color="rgba(237,233,222,0.30)" />
           </div>
-        </div>
+        </button>
       </div>
     </aside>
   );

@@ -1,15 +1,11 @@
-
-
 import { NextRequest, NextResponse } from "next/server";
 import { applicationService } from "@/app/lib/services/application-service";
 
 export async function PATCH(
-
   request: NextRequest,
-  { params }: { params: Promise<{ applicationId: string }> }
+  { params }: { params: Promise<{ applicationId: string }> },
 ) {
   try {
-
     // TODO: UNCOMMENT WHEN AUTH MIDDLEWARE IS FULLY IMPLEMENTED
 
     // const authHeader = request.headers.get("authorization")
@@ -17,35 +13,69 @@ export async function PATCH(
     //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     // }
 
-    const { applicationId } = await params
-    const application_Id = Number(applicationId)
+    const { applicationId } = await params;
+    const application_Id = Number(applicationId);
 
     if (isNaN(application_Id)) {
-      return NextResponse.json({ message: "Invalid application ID." }, { status: 400 })
+      return NextResponse.json(
+        { message: "Invalid application ID." },
+        { status: 400 },
+      );
     }
 
-    const { application_status } = await request.json()
+    const { application_status } = await request.json();
     if (!application_status) {
-      return NextResponse.json({ message: "application_status is required." }, { status: 400 })
+      return NextResponse.json(
+        { message: "application_status is required." },
+        { status: 400 },
+      );
     }
 
-    const validStatuses = ["Approved", "Rejected", "Pending", "Cancelled"]
+    const validStatuses = [
+      "Pending Manager Approval",
+      "Pending Admin Approval",
+      "Approved",
+      "Rejected",
+      "Cancelled",
+    ];
     if (!validStatuses.includes(application_status)) {
-      return NextResponse.json({ message: "Invalid status value." }, { status: 400 })
+      return NextResponse.json(
+        { message: "Invalid status value." },
+        { status: 400 },
+      );
     }
 
-    const updated = await applicationService.updateApplicationStatus(application_Id, application_status)
+    const updated = await applicationService.updateApplicationStatus(
+      application_Id,
+      application_status,
+    );
+    console.log("Updated resuilt:", updated);
     if (!updated) {
-      return NextResponse.json({ message: "Application not found." }, { status: 404 })
+      return NextResponse.json(
+        { message: "Application not found." },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json({ message: `Application ${application_status} successfully.` }, { status: 200 })
-
-  } catch (error: any) {
-    console.error("Error updating application status:", error)
     return NextResponse.json(
-      { message: "Failed to update application status.", error: error.message },
-      { status: 500 }
-    )
+      { message: `Application processed successfully.` },
+      { status: 200 },
+    );
+  } catch (error: any) {
+    console.error("Error updating application status:", error);
+
+    const isAuthError =
+      error.message.includes("Unauthorized") ||
+      error.message.includes("Access Denied");
+
+    const status = isAuthError ? 403 : 500;
+    const responseMessage = isAuthError
+      ? error.message
+      : "Internal Server Error";
+
+    return NextResponse.json(
+      { message: responseMessage, error: error.message },
+      { status: status },
+    );
   }
 }

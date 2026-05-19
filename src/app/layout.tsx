@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -19,8 +19,17 @@ export const metadata: Metadata = {
   },
   description:
     "UPLB Centralized Accommodation System Application – find and manage student housing near UPLB.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "CASA",
+  },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#1C2632",
+};
 
 export default function RootLayout({
   children,
@@ -29,7 +38,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen overflow-x-hidden`}
+      >
         {children}
       </body>
     </html>

@@ -3,23 +3,37 @@ import { addStudent } from "@/services/student-service";
 
 // POST /api/student
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
+  try {
+    const body = await request.json();
+    const {
+      authUserAlreadyCreated: _authUserAlreadyCreated,
+      ...bodyUserDetails
+    } = body ?? {};
+    const userDetails = body?.userDetails ?? bodyUserDetails;
+    const studentDetails = body?.studentDetails;
+    const studentAcademicDetails = body?.studentAcademicDetails;
+    const authUserAlreadyCreated = body?.authUserAlreadyCreated === true;
 
-        // Call student service
-        const newStudent = await addStudent(body, body.password, body.student_number);
+    const result = await addStudent(
+      userDetails,
+      studentDetails,
+      studentAcademicDetails,
+      { authUserAlreadyCreated },
+    );
 
-        // OK Response upon successful creation
-        return NextResponse.json(
-            { message: "Student created successfully.", student: newStudent },
-            { status: 201 }
-        );
-
-    } catch (error: any) {
-        console.error("Error creating student:", error);
-        return NextResponse.json(
-            { message: error.message || "Failed to create student." },
-            { status: 500 }
-        );
-    }
+    return NextResponse.json(
+      {
+        message: "Student created successfully.",
+        user: result.user,
+        student: result.student,
+      },
+      { status: 201 },
+    );
+  } catch (error: any) {
+    console.error("Error creating student:", error);
+    return NextResponse.json(
+      { message: error.message || "Failed to create student." },
+      { status: 500 },
+    );
+  }
 }

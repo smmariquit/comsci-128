@@ -228,42 +228,145 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          account_number: number
+          category: Database["public"]["Enums"]["FeedbackCategory"]
+          created_at: string
+          feedback_type: Database["public"]["Enums"]["FeedbackType"]
+          id: number
+          involved_housing_id: number | null
+          involved_manager_id: number | null
+          screenshot_url: string | null
+          status: Database["public"]["Enums"]["FeedbackStatus"]
+          subject: string
+          text: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_number: number
+          category: Database["public"]["Enums"]["FeedbackCategory"]
+          created_at?: string
+          feedback_type: Database["public"]["Enums"]["FeedbackType"]
+          id?: number
+          involved_housing_id?: number | null
+          involved_manager_id?: number | null
+          screenshot_url?: string | null
+          status: Database["public"]["Enums"]["FeedbackStatus"]
+          subject: string
+          text: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_number?: number
+          category?: Database["public"]["Enums"]["FeedbackCategory"]
+          created_at?: string
+          feedback_type?: Database["public"]["Enums"]["FeedbackType"]
+          id?: number
+          involved_housing_id?: number | null
+          involved_manager_id?: number | null
+          screenshot_url?: string | null
+          status?: Database["public"]["Enums"]["FeedbackStatus"]
+          subject?: string
+          text?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_account_number_fkey"
+            columns: ["account_number"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["account_number"]
+          },
+          {
+            foreignKeyName: "feedback_involved_housing_id_fkey"
+            columns: ["involved_housing_id"]
+            isOneToOne: false
+            referencedRelation: "housing"
+            referencedColumns: ["housing_id"]
+          },
+          {
+            foreignKeyName: "feedback_involved_manager_id_fkey"
+            columns: ["involved_manager_id"]
+            isOneToOne: false
+            referencedRelation: "manager"
+            referencedColumns: ["account_number"]
+          },
+        ]
+      }
       housing: {
         Row: {
+          allows_visitors: boolean | null
           end_application_date: string | null
+          has_aircon: boolean | null
+          has_kitchen: boolean | null
+          has_laundry: boolean | null
+          has_no_curfew: boolean | null
+          has_parking: boolean | null
+          has_security: boolean | null
+          has_utilities_included: boolean | null
+          has_wifi: boolean | null
           housing_address: string
           housing_id: number
           housing_image: string | null
           housing_name: string
           housing_type: Database["public"]["Enums"]["HousingType"]
           is_deleted: boolean | null
+          is_furnished: boolean | null
           landlord_account_number: number
+          latitude: number | null
+          longitude: number | null
           manager_account_number: number | null
           rent_price: number
           start_application_date: string | null
         }
         Insert: {
+          allows_visitors?: boolean | null
           end_application_date?: string | null
+          has_aircon?: boolean | null
+          has_kitchen?: boolean | null
+          has_laundry?: boolean | null
+          has_no_curfew?: boolean | null
+          has_parking?: boolean | null
+          has_security?: boolean | null
+          has_utilities_included?: boolean | null
+          has_wifi?: boolean | null
           housing_address: string
           housing_id?: number
           housing_image?: string | null
           housing_name: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
-          landlord_account_number?: number
+          is_furnished?: boolean | null
+          landlord_account_number: number
+          latitude?: number | null
+          longitude?: number | null
           manager_account_number?: number | null
           rent_price: number
           start_application_date?: string | null
         }
         Update: {
+          allows_visitors?: boolean | null
           end_application_date?: string | null
+          has_aircon?: boolean | null
+          has_kitchen?: boolean | null
+          has_laundry?: boolean | null
+          has_no_curfew?: boolean | null
+          has_parking?: boolean | null
+          has_security?: boolean | null
+          has_utilities_included?: boolean | null
+          has_wifi?: boolean | null
           housing_address?: string
           housing_id?: number
           housing_image?: string | null
           housing_name?: string
           housing_type?: Database["public"]["Enums"]["HousingType"]
           is_deleted?: boolean | null
+          is_furnished?: boolean | null
           landlord_account_number?: number
+          latitude?: number | null
+          longitude?: number | null
           manager_account_number?: number | null
           rent_price?: number
           start_application_date?: string | null
@@ -280,7 +383,7 @@ export type Database = {
             foreignKeyName: "housing_manager_account_number_fkey"
             columns: ["manager_account_number"]
             isOneToOne: false
-            referencedRelation: "housing_admin"
+            referencedRelation: "user"
             referencedColumns: ["account_number"]
           },
         ]
@@ -288,12 +391,15 @@ export type Database = {
       housing_admin: {
         Row: {
           account_number: number
+          is_deleted: boolean
         }
         Insert: {
           account_number: number
+          is_deleted?: boolean
         }
         Update: {
           account_number?: number
+          is_deleted?: boolean
         }
         Relationships: [
           {
@@ -308,12 +414,15 @@ export type Database = {
       landlord: {
         Row: {
           account_number: number
+          is_deleted: boolean
         }
         Insert: {
           account_number: number
+          is_deleted?: boolean
         }
         Update: {
           account_number?: number
+          is_deleted?: boolean
         }
         Relationships: [
           {
@@ -426,6 +535,8 @@ export type Database = {
         Row: {
           housing_id: number
           is_deleted: boolean | null
+          latitude: number | null
+          longitude: number | null
           maximum_occupants: number | null
           occupancy_status:
             | Database["public"]["Enums"]["OccupancyStatus"]
@@ -439,6 +550,8 @@ export type Database = {
         Insert: {
           housing_id: number
           is_deleted?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           maximum_occupants?: number | null
           occupancy_status?:
             | Database["public"]["Enums"]["OccupancyStatus"]
@@ -452,6 +565,8 @@ export type Database = {
         Update: {
           housing_id?: number
           is_deleted?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           maximum_occupants?: number | null
           occupancy_status?:
             | Database["public"]["Enums"]["OccupancyStatus"]
@@ -479,6 +594,7 @@ export type Database = {
           emergency_contact_number: string | null
           emergency_contact_relationship: string | null
           housing_status: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted: boolean
           student_number: number
         }
         Insert: {
@@ -487,6 +603,7 @@ export type Database = {
           emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
           housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted?: boolean
           student_number: number
         }
         Update: {
@@ -495,6 +612,7 @@ export type Database = {
           emergency_contact_number?: string | null
           emergency_contact_relationship?: string | null
           housing_status?: Database["public"]["Enums"]["HousingStatus"]
+          is_deleted?: boolean
           student_number?: number
         }
         Relationships: [
@@ -540,19 +658,19 @@ export type Database = {
         Row: {
           account_number: number
           movein_date: string
-          moveout_date: string | null
+          moveout_date: string
           room_id: number
         }
         Insert: {
           account_number: number
           movein_date: string
-          moveout_date?: string | null
+          moveout_date: string
           room_id: number
         }
         Update: {
           account_number?: number
           movein_date?: string
-          moveout_date?: string | null
+          moveout_date?: string
           room_id?: number
         }
         Relationships: [
@@ -599,11 +717,12 @@ export type Database = {
           birthday: string | null
           contact_email: string | null
           first_name: string
+          google_identity: string | null
           home_address: string | null
           is_deleted: boolean | null
           last_name: string
           middle_name: string | null
-          password: string
+          password: string | null
           phone_number: string | null
           profile_picture: string | null
           sex: Database["public"]["Enums"]["Sex"]
@@ -611,15 +730,16 @@ export type Database = {
         }
         Insert: {
           account_email: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name: string
+          google_identity?: string | null
           home_address?: string | null
           is_deleted?: boolean | null
           last_name: string
           middle_name?: string | null
-          password: string
+          password?: string | null
           phone_number?: string | null
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
@@ -627,15 +747,16 @@ export type Database = {
         }
         Update: {
           account_email?: string
-          account_number?: never
+          account_number?: number
           birthday?: string | null
           contact_email?: string | null
           first_name?: string
+          google_identity?: string | null
           home_address?: string | null
           is_deleted?: boolean | null
           last_name?: string
           middle_name?: string | null
-          password?: string
+          password?: string | null
           phone_number?: string | null
           profile_picture?: string | null
           sex?: Database["public"]["Enums"]["Sex"]
@@ -677,6 +798,23 @@ export type Database = {
         | "Rejected"
       BillType: "Rent" | "Utility" | "WiFi"
       DocumentType: "Form 5" | "Payment Receipt" | "Contract" | "Waiver"
+      FeedbackCategory:
+        | "Bug"
+        | "UI Issues"
+        | "Feature Request"
+        | "App Performance"
+        | "Cleanliness"
+        | "Maintenance"
+        | "Noise"
+        | "Facilities"
+        | "Security"
+        | "Responsiveness"
+        | "Conduct"
+        | "Communication"
+        | "Rules Enforcement"
+        | "Other"
+      FeedbackStatus: "Pending" | "Reviewed" | "Resolved" | "Dismissed"
+      FeedbackType: "App" | "Manager" | "Housing"
       HousingStatus: "Assigned" | "Not Assigned"
       HousingType: "Non-UP Housing" | "UP Housing"
       ManagerType: "Housing Administrator" | "Landlord"
@@ -842,6 +980,24 @@ export const Constants = {
       ],
       BillType: ["Rent", "Utility", "WiFi"],
       DocumentType: ["Form 5", "Payment Receipt", "Contract", "Waiver"],
+      FeedbackCategory: [
+        "Bug",
+        "UI Issues",
+        "Feature Request",
+        "App Performance",
+        "Cleanliness",
+        "Maintenance",
+        "Noise",
+        "Facilities",
+        "Security",
+        "Responsiveness",
+        "Conduct",
+        "Communication",
+        "Rules Enforcement",
+        "Other",
+      ],
+      FeedbackStatus: ["Pending", "Reviewed", "Resolved", "Dismissed"],
+      FeedbackType: ["App", "Manager", "Housing"],
       HousingStatus: ["Assigned", "Not Assigned"],
       HousingType: ["Non-UP Housing", "UP Housing"],
       ManagerType: ["Housing Administrator", "Landlord"],
