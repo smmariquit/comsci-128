@@ -91,17 +91,19 @@ const updateApplicationStatus = async (
     if (!updated) return null
 
     const landlordAccountNumber = appDetail?.landlord_account_number ?? null;
-    
-    if (landlordAccountNumber) {
-      const student = appDetail?.student as any;
+    const student = appDetail?.student as any;
+    const studentAccountNumber = student?.account_number ?? null;
+
+    if (landlordAccountNumber && studentAccountNumber) {
       const studentUser = student?.user;
       const studentName = formatStudentName(studentUser);
-      const label = studentName || `Student ${student?.account_number ?? ""}`.trim();
+      const label = studentName || `Student ${studentAccountNumber}`.trim();
       await createAuditLog(
-        landlordAccountNumber,
+        studentAccountNumber,
         "",
         "Update Application Status",
         `Application ${applicationId} status set to ${status} for ${label}`,
+        landlordAccountNumber,
       );
     }
 
@@ -141,10 +143,11 @@ const assignApplicantToRoom = async (
       const label = studentName || `Student ${studentAccountNumber}`;
       const housingLabel = appDetail?.housing_name || "housing";
       await createAuditLog(
-        landlordAccountNumber,
+        studentAccountNumber,
         "",
         "Assign Room",
         `Assigned ${label} to room ${roomId} for ${housingLabel}`,
+        landlordAccountNumber,
       );
     }
 

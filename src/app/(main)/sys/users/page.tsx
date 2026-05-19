@@ -79,6 +79,13 @@ export default function UserManagementPage({
 	const [editingUser, setEditingUser] = useState<User | null>(null);
   	const [disableUser, setDisableUser] = useState<User | null>(null);
 
+	const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+	useEffect(() => {
+		const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+		setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+	}, []);
+
 	// Fetch all users from API
 	useEffect(() => {
 		const fetchUsers = async () => {
@@ -101,7 +108,6 @@ export default function UserManagementPage({
 				const dormData = await dormResponse.json();
 				const landlordData = await landlordResponse.json();
 				const housingAdminData = await housingAdminResponse.json();
-
 				const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
 				const rawHousingAdmins = Array.isArray(housingAdminData) ? housingAdminData : housingAdminData.data?.data ?? [];
 
@@ -252,7 +258,7 @@ export default function UserManagementPage({
 						<h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">User Management</h1>
 						<p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Manage tenants, managers, and administrators</p>
 					</div>
-					<NotificationBell/>
+					<NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
 				</div>
 				
 				<div className="px-8 py-6 flex flex-col gap-5">
@@ -335,7 +341,6 @@ export default function UserManagementPage({
 									{u.role || '—'}
 									</span>
 								</td>
-
 								{/* STATUS */}
 								<td className="px-6 py-4">
 									<span
