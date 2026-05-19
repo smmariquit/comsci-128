@@ -56,10 +56,20 @@ const getAllByHousingId = async (housingId: number, sortList: any[] = [], filter
     }
 }
 
+const getAllAppFeedback = async (sortList: any[] = []) => {
+    try {
+        return await feedbackData.getAllAppFeedback(sortList);
+    } catch (error) {
+        console.error("Service Error (getAllAppFeedback): ", error);
+        return [];
+    }
+};
+
 export const feedbackService = {
     createFeedback,
     findFeedbackById,
     fetchAllFeedback,
     getAllByManagerId,
-    getAllByHousingId
+    getAllByHousingId,
+    getAllAppFeedback
 };
