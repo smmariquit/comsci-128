@@ -42,7 +42,7 @@ function Field({
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <span
         style={{
-          fontSize: 10,
+          fontSize: 13,
           fontWeight: 600,
           color: C.teal,
           textTransform: "uppercase",
@@ -300,7 +300,7 @@ export default function ReportDetailModal({ row, onClose }: Props) {
             <div style={{ fontSize: 15, fontWeight: 700, color: C.navy }}>
               {MODAL_TITLE[row.kind]}
             </div>
-            <div style={{ fontSize: 11, color: C.teal, marginTop: 2 }}>
+            <div style={{ fontSize: 13, color: C.teal, marginTop: 2 }}>
               View-only details
             </div>
           </div>
@@ -349,7 +349,7 @@ export default function ReportDetailModal({ row, onClose }: Props) {
             onMouseLeave={() => setFooterHovered(false)}
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 600,
               background: "#fff",
               color: C.navy,

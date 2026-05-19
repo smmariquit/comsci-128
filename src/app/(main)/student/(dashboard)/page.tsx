@@ -104,7 +104,7 @@ export default async function DashboardPage() {
       />
 
       {/* BODY */}
-      <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col justify-start items-center gap-4 overflow-hidden">
+      <div className="w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-3 flex flex-col justify-start items-center gap-3 overflow-hidden">
         {DashboardContent(userHousingStatus?.housing_status)}
       </div>
     </div>

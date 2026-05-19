@@ -25,7 +25,7 @@ export function Badge({
         gap: 5,
         background: bg,
         color: text,
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: 600,
         padding: "3px 10px",
         borderRadius: 20,

@@ -248,7 +248,7 @@ export default function DashboardPage({
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-screen bg-[#eae8e1]">
+      <div className="flex h-screen bg-[#eae8e1] overflow-hidden">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full">
@@ -272,7 +272,7 @@ export default function DashboardPage({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#eae8e1]">
+    <div className="flex h-screen bg-[#eae8e1] overflow-hidden">
       {/* 'Add Manager' Modal */}
       <AddManagerModal
         open={showAddManager}
@@ -295,7 +295,7 @@ export default function DashboardPage({
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex-1 flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="flex items-start justify-between px-8 pt-8 pb-6">
           <div>

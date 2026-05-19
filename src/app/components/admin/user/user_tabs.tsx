@@ -48,7 +48,7 @@ export default function PageTabs({
             onMouseLeave={() => setHoveredTab(null)}
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 600,
               padding: "7px 16px",
               borderRadius: 7,

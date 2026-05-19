@@ -131,7 +131,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
         gap: 5,
         background: s.bg,
         color: s.text,
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: 600,
         padding: "3px 8px",
         borderRadius: 20,
@@ -166,7 +166,7 @@ function BillTypeTag({ type }: { type: BillType }) {
       style={{
         background: s.bg,
         color: s.text,
-        fontSize: 10,
+        fontSize: 13,
         fontWeight: 600,
         padding: "2px 8px",
         borderRadius: 6,
@@ -219,7 +219,7 @@ function ActionBtn({
       style={{
         ...BTN_STYLE[variant],
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: 11,
+        fontSize: 13,
         padding: "4px 10px",
         borderRadius: 6,
         cursor: disabled ? "not-allowed" : "pointer",
@@ -292,14 +292,14 @@ export default function BillTable({
           <div style={{ fontSize: 14, fontWeight: 600, color: C.navy }}>
             Billing Statements
           </div>
-          <div style={{ fontSize: 11, color: C.teal }}>{data.length} total</div>
+          <div style={{ fontSize: 13, color: C.teal }}>{data.length} total</div>
         </div>
       </div>
 
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
         <table
-          style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 12 }}
+          style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13 }}
         >
           <thead>
             <tr style={{ background: "rgba(234,232,225,0.5)", borderBottom: "1px solid rgba(26,35,50,0.06)" }}>
@@ -309,7 +309,7 @@ export default function BillTable({
                   style={{
                     padding: "8px 14px",
                     textAlign: "left",
-                    fontSize: 10,
+                    fontSize: 13,
                     color: C.teal,
                     textTransform: "uppercase",
                     fontFamily: "'DM Sans', sans-serif",
@@ -333,7 +333,7 @@ export default function BillTable({
                     textAlign: "center",
                     color: C.teal,
                     opacity: 0.5,
-                    fontSize: 12,
+                    fontSize: 13,
                     fontFamily: "'DM Sans', sans-serif",
                   }}
                 >

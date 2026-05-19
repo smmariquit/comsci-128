@@ -94,7 +94,7 @@ export default function TestimonialsSection() {
           className="text-4xl md:text-5xl font-bold text-[#1C2632] leading-tight"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
-          What <em className="text-[#C9642A] italic">Works</em> Says
+          What <em className="text-[#C9642A] italic">Students</em> Say
         </h2>
       </div>
 
