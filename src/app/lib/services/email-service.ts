@@ -29,7 +29,12 @@ export async function sendApplicationStatusEmail(
   studentEmail: string,
   studentName: string,
   housingName: string,
-  status: "Pending Manager Approval" | "Pending Admin Approval" | "Approved" | "Rejected" | "Cancelled",
+  status:
+    | "Pending Manager Approval"
+    | "Pending Admin Approval"
+    | "Approved"
+    | "Rejected"
+    | "Cancelled",
 ) {
   try {
     let subject = "";
@@ -137,4 +142,3 @@ export async function sendBillStatusUpdatedEmail(
     console.error("sendBillStatusUpdatedEmail failed:", error);
   }
 }
-
