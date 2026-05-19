@@ -21,6 +21,30 @@ const colors = {
 };
 
 export default function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const isAuth = document.cookie.includes("is_logged_in=true");
+      setIsLoggedIn(isAuth);
+
+      const match = document.cookie.split("; ").find(c => c.startsWith("user_role="));
+      if (match) {
+        setUserRole(match.split("=")[1]);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const getDashboardRoute = () => {
+    if (userRole === "student") return "/student";
+    if (userRole === "system admin" || userRole === "admin") return "/sys";
+    if (userRole === "housing administrator" || userRole === "house admin") return "/admin";
+    if (userRole === "manager") return "/manage";
+    return "/student";
+  };
+
   return (
     <div className="min-h-screen font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
 
@@ -31,12 +55,20 @@ export default function LandingPage() {
       <nav className="flex justify-between items-center px-8 py-6 md:px-16">
         <div className="font-bold text-xl tracking-tight">UPLB CASA</div>
         <div className="flex items-center gap-5">
-          <Link href="/login" className="font-medium text-[#C9642A] hover:underline transition-colors">
-            Log in
-          </Link>
-          <Link href="/register" className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
-            Sign up
-          </Link>
+          {isLoggedIn ? (
+            <Link href={getDashboardRoute()} className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
+              Go to dashboard
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className="font-semibold text-[#C9642A] hover:bg-[#C9642A]/10 px-4 py-2.5 rounded-xl transition-colors">
+                Log in
+              </Link>
+              <Link href="/register" className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
