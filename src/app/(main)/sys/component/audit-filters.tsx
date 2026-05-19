@@ -129,6 +129,18 @@ export default function AuditFilters({
 
         {/* Divider */}
         <div className="w-px h-7 bg-[#1a2332]/10 mx-1" />
+
+        {/* Export */}
+        {onExport && (
+          <button
+            onClick={onExport}
+            className="px-4 py-2.5 rounded-xl border border-[#1a2332]/15 text-sm text-[#1a2332]/60 hover:border-[#d4622a] hover:text-[#d4622a] transition-colors flex items-center gap-2"
+          >
+            <Download size={16} />
+            Export CSV
+          </button>
+        )}
+
       </div>
 
       {/* Active filter tags */}

@@ -7,6 +7,7 @@ import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
 import { useAutoSave } from "@/app/hooks/useAutoSave";
 import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 export function ApplyFormContent() {
   const dateNow = new Date(Date.now()).toISOString().split("T")[0];
@@ -227,16 +228,18 @@ export function ApplyFormContent() {
               <label className="block text-sm font-bold text-[#1C2632]">
                 Expected move-out date:
               </label>
-              <input
-                type="date"
+              <ThemedDatePicker
+                id="move-out-date"
                 value={formData.moveOutDate}
-                onChange={(e) =>
+                onChange={(val) =>
                   setFormData((prev) => ({
                     ...prev,
-                    moveOutDate: e.target.value,
+                    moveOutDate: val,
                   }))
                 }
-                className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:ring-2 focus:ring-[#C9642A]"
+                minDate={new Date().toISOString().split("T")[0]}
+                placeholder="Select move-out date"
+                className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:outline-none focus:ring-2 focus:ring-[#C9642A]"
               />
             </div>
           </div>

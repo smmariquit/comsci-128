@@ -80,6 +80,9 @@ const updateApplicationStatus = async (
     // obac
     const appDetail =
       await applicationData.getApplicationDetailById(applicationId);
+
+    console.log("appDetail: ", JSON.stringify(appDetail,null,2));
+
     if (appDetail?.landlord_account_number) {
       await validateOwnership(appDetail.landlord_account_number);
     }
@@ -88,10 +91,12 @@ const updateApplicationStatus = async (
     if (!updated) return null
 
     const landlordAccountNumber = appDetail?.landlord_account_number ?? null;
+    
     if (landlordAccountNumber) {
-      const studentUser = appDetail?.student[0]?.user;
-      const studentName = formatStudentName(studentUser[0]);
-      const label = studentName || `Student ${appDetail?.student[0]?.account_number ?? ""}`.trim();
+      const student = appDetail?.student as any;
+      const studentUser = student?.user;
+      const studentName = formatStudentName(studentUser);
+      const label = studentName || `Student ${student?.account_number ?? ""}`.trim();
       await createAuditLog(
         landlordAccountNumber,
         "",
@@ -130,8 +135,9 @@ const assignApplicantToRoom = async (
 
     const landlordAccountNumber = appDetail?.landlord_account_number ?? null;
     if (landlordAccountNumber) {
-      const studentUser = appDetail?.student[0]?.user;
-      const studentName = formatStudentName(studentUser[0]);
+      const student = appDetail?.student as any;
+      const studentUser = student?.user;
+      const studentName = formatStudentName(studentUser);
       const label = studentName || `Student ${studentAccountNumber}`;
       const housingLabel = appDetail?.housing_name || "housing";
       await createAuditLog(

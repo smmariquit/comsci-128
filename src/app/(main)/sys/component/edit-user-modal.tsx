@@ -51,7 +51,9 @@ export function EditUserModal({
   onClose,
   onSave,
 }: EditUserModalProps) {
-  const [selecteduserType, setSelecteduserType] = useState<userType>(user.userType);
+  const [selecteduserType, setSelecteduserType] = useState<userType>(
+  user.userType === "Student" ? "Landlord" : user.userType
+);
   const [selectedDorm, setSelectedDorm] = useState<Dorm | undefined>(undefined);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);

@@ -3,22 +3,21 @@ import { User, NewUser, UpdateUser } from "@/models/user";
 import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { managerData } from "@/app/lib/data/manager-data";
 
-async function create(userDetails: NewUser, managerDetails: NewManager) {
-  // Call createManager with manager_type "Landlord"
-  // createManager internally calls createUser with user_type "Manager"
-  const newManagerData = await managerData.create(userDetails, managerDetails);
+async function create(
+  account_number: number, 
+  managerDetails: NewManager
+) {
+  
+  await managerData.create(account_number,managerDetails,);
 
-  managerDetails.account_number = newManagerData.account_number;
-
-  // Insert into housing_admin
   const { data, error: adminError } = await supabase
     .from("landlord")
-    .insert([managerDetails])
+    .insert([{ account_number }])
     .select();
 
   if (adminError) {
-    console.error("Error inserting into housing_admin:", adminError.message);
-    return { data: null, error: adminError };
+    console.error("Landlord insert error:", adminError);
+    throw new Error(`Landlord insert error: ${adminError.message}`);
   }
 
   return data[0];

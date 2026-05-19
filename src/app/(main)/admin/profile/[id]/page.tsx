@@ -4,6 +4,7 @@ import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import StateMessage from "@/app/components/ui/state-message";
+import AccountSettings from "@/app/components/ui/AccountSettings";
 
 export default function AdminProfilePage() {
   const { id } = useParams();
@@ -124,8 +125,8 @@ export default function AdminProfilePage() {
         {/* Inputs Section */}
         <section className="p-12 flex flex-col items-center">
           {/* Horizontal Tabs */}
-          <div className="flex gap-4 mb-12">
-            {["Personal Information", "Bank details"].map((tab) => (
+          <div className="flex gap-4 mb-12 flex-wrap">
+            {["Personal Information", "Bank details", "Account Settings"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -211,6 +212,8 @@ export default function AdminProfilePage() {
                 />
               </>
             )}
+
+            {activeTab === "Account Settings" && <AccountSettings />}
 
             {/* Save Button */}
             <div className="pt-8 flex justify-start">

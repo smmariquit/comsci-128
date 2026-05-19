@@ -1,8 +1,12 @@
+
+"use client"
+
 import Link from "next/link";
 
 interface AvatarProps {
   firstName?: string | null;
   lastName?: string | null;
+  profilePicture?: string | null;
   size?: number;
   href?: string | null;
   className?: string;
@@ -22,6 +26,7 @@ function computeInitials(first?: string | null, last?: string | null) {
 export default function Avatar({
   firstName,
   lastName,
+  profilePicture,
   size = 32,
   href = null,
   className = "",
@@ -30,12 +35,23 @@ export default function Avatar({
 
   const avatar = (
     <div
-      className={`rounded-full bg-[#567375] flex items-center justify-center text-[#EDE9DE] font-bold ${className}`}
+      className={`rounded-full bg-[#567375] flex items-center justify-center text-[#EDE9DE] font-bold overflow-hidden shrink-0 ${className}`}
       style={{ width: size, height: size }}
     >
-      <span className={`text-sm`} style={{ lineHeight: 1 }}>
-        {initials}
-      </span>
+      {profilePicture ? (
+        <img
+          src={profilePicture}
+          alt={initials}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = "none";
+          }}
+        />
+      ) : (
+        <span className={`text-sm`} style={{ lineHeight: 1 }}>
+          {initials}
+        </span>
+      )}
     </div>
   );
 

@@ -60,6 +60,16 @@ export default function AssignmentClient({
   const [selectedApplicants, setSelectedApplicants] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [filterQuery, setFilterQuery] = useState("");
+
+  const filteredApplicants = applicants.filter((app) => {
+    if (!filterQuery.trim()) return true;
+    const user = app.student?.user;
+    const fullName = user
+      ? `${user.first_name ?? ""} ${user.middle_name ?? ""} ${user.last_name ?? ""}`.toLowerCase()
+      : "";
+    return fullName.includes(filterQuery.toLowerCase().trim());
+  });
 
   const handleConfirm = async () => {
     if (!selectedUnit || selectedApplicants.length === 0) return;
@@ -156,9 +166,13 @@ export default function AssignmentClient({
             <h2 className="text-lg font-semibold">
               Unassigned Approved Tenants
             </h2>
-            <div className="bg-gray-200 h-8 rounded flex items-center px-3 text-xs text-gray-600 w-full">
-              Filter (to be implemented)
-            </div>
+            <input
+              type="text"
+              placeholder="Search by name..."
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              className="h-8 rounded border border-gray-300 px-3 text-xs text-gray-700 w-full focus:outline-none focus:ring-2 focus:ring-[var(--dark-orange)] focus:border-transparent"
+            />
           </div>
           <div className="border rounded-lg overflow-hidden bg-yellow-100">
             <table className="w-full text-sm table-auto">
@@ -169,14 +183,16 @@ export default function AssignmentClient({
                 </tr>
               </thead>
               <tbody>
-                {applicants.length === 0 ? (
+                {filteredApplicants.length === 0 ? (
                   <tr>
                     <td colSpan={2} className="p-3 text-gray-400">
-                      No unassigned applicants.
+                      {applicants.length === 0
+                        ? "No unassigned applicants."
+                        : "No applicants match your search."}
                     </td>
                   </tr>
                 ) : (
-                  applicants.map((app) => {
+                  filteredApplicants.map((app) => {
                     const user = app.student?.user;
                     const fullName = user
                       ? `${user.first_name} ${user.middle_name ? user.middle_name + " " : ""}${user.last_name}`

@@ -6,6 +6,8 @@ import Breadcrumbs from "./components/Breadcrumbs";
 import Avatar from "@/app/components/Avatar";
 import { getManagerAccountNumber } from "@/app/lib/auth";
 import { userData } from "@/app/lib/data/user-data";
+import NotificationBell from "./components/NotificationBell";
+import { notificationService, NotificationItem } from "@/app/lib/services/notification-service";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -20,8 +22,12 @@ export default async function ManageLayout({
 }) {
   const accountNumber = await getManagerAccountNumber();
   let managerUser = null;
+  let notifications: NotificationItem[] = [];
   try {
-    managerUser = accountNumber ? await userData.findById(accountNumber) : null;
+    if (accountNumber) {
+      managerUser = await userData.findById(accountNumber);
+      notifications = await notificationService.getManagerNotifications(accountNumber);
+    }
   } catch (error) {
     console.warn("Offline: Could not load manager user for layout.");
   }
@@ -59,12 +65,6 @@ export default async function ManageLayout({
               >
                 Complaints
               </Link>
-              <Link
-                href="/manage/logs"
-                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
-              >
-                Audit Logs
-              </Link>
             </nav>
           </div>
 
@@ -77,18 +77,13 @@ export default async function ManageLayout({
               Dashboard
             </Link>
 
-            <button
-              type="button"
-              className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center justify-center rounded-full p-2"
-              aria-label="Notifications"
-            >
-              <Bell size={22} strokeWidth={2} />
-            </button>
+            <NotificationBell notifications={notifications} />
 
             <div className="py-2">
               <Avatar
                 firstName={managerUser?.first_name}
                 lastName={managerUser?.last_name}
+                profilePicture={(managerUser as any)?.profile_picture}
                 size={32}
                 href={`/manage/profile/${accountNumber}`}
               />
