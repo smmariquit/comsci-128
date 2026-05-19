@@ -293,6 +293,7 @@ export default function AuditLogsPage({
 
         {/* Header */}
         <div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-[#1a2332]/6">
+          <div>
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Audit Logs</h1>
             <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Track all system activity, changes, and access events</p>
           </div>

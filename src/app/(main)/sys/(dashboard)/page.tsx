@@ -234,7 +234,7 @@ export default function DashboardPage({
   if (loading) {
     return (
       <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar user={user} onLogout={onLogout} />
+        <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
@@ -249,7 +249,7 @@ export default function DashboardPage({
   if (error) {
     return (
       <div className="flex min-h-screen bg-[#eae8e1]">
-        <Sidebar user={user} onLogout={onLogout} />
+        <Sidebar />
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full">
             <StateMessage
@@ -292,7 +292,7 @@ export default function DashboardPage({
       />
 
       {/*Sidebar */}
-      <Sidebar user={user} onLogout={onLogout || (() => (window.location.href = "/"))} />
+      <Sidebar />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-auto">
