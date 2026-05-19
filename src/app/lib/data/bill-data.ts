@@ -1,5 +1,6 @@
 import type { Bill } from "@/lib/models/bill";
 import { supabase } from "../supabase";
+import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill";
 
 type BillingHistoryFilters = {
   status?: "Unpaid" | "Overdue";
@@ -8,6 +9,7 @@ type BillingHistoryFilters = {
   page?: number;
   pageSize?: number;
 };
+
 
 const create = async (billData: Bill) => {
   return await supabase.from("bill").insert([billData]).select().single();
@@ -149,22 +151,19 @@ const getOverdueBills = async () => {
 
 // total balance per student
 const getTotalBalance = async (accountNumber: number) => {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("bill")
     .select("amount, status")
     .eq("student_account_number", accountNumber)
     .eq("is_deleted", false);
 
-  const total = data?.reduce(
-    (sum: number, bill: { amount: number; status: string }) => {
-      if (bill.status === "Pending") {
-        return sum + Number(bill.amount);
-      } else {
-        return sum;
-      }
-    },
-    0,
-  );
+  const total = data?.reduce((sum: number, bill: any) => {
+    if (bill.status == "Pending") {
+      return sum + Number(bill.amount);
+    } else {
+      return sum;
+    }
+  }, 0);
   return total ?? 0;
 };
 

@@ -84,7 +84,7 @@ export async function getCurrentUserRole(): Promise<UserRole> {
   if (!accountNumber) {
     const storedCookie = await cookies();
     accountNumber = storedCookie.get("account_number")?.value;
-  };
+  }
 
   if (!accountNumber) return "public";
 
@@ -96,7 +96,7 @@ export async function getCurrentUserRole(): Promise<UserRole> {
 
   if (!userData) return "public";
 
-  const baseRole = userData.user_type?.toLowerCase();
+  const baseRole = userData.user_type?.toLowerCase().replace(/ /g, "_");
 
   if (baseRole === "manager") {
     const { data: managerData } = await supabase
@@ -105,9 +105,9 @@ export async function getCurrentUserRole(): Promise<UserRole> {
       .eq("account_number", accountNumber)
       .single();
 
-    const subRole = managerData?.manager_type?.toLowerCase();
+    const subRole = managerData?.manager_type?.toLowerCase().replace(/ /g, "_");
 
-    if (subRole === "housing administrator") {
+    if (subRole === "housing_administrator") {
       return "housing_admin";
     }
     return "landlord";

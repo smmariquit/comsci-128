@@ -11,7 +11,8 @@ export async function POST(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
   const userId = userData.user?.id;
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!userId)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   let screenshotUrl = null;
   if (screenshot) {
@@ -20,7 +21,8 @@ export async function POST(req: NextRequest) {
     const { data, error } = await supabase.storage
       .from("complaints")
       .upload(fileName, screenshot, { contentType: screenshot.type });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
     screenshotUrl = data?.path;
   }
 
@@ -34,7 +36,8 @@ export async function POST(req: NextRequest) {
       created_at: new Date().toISOString(),
     },
   ]);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
 
@@ -42,7 +45,11 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
   // TODO: Add role check for manager
-  const { data, error } = await supabase.from("complaints").select("*").order("created_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const { data, error } = await supabase
+    .from("complaints")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ complaints: data });
 }

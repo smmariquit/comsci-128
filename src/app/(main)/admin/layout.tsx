@@ -55,7 +55,9 @@ export default async function AdminLayout({
         .maybeSingle();
 
       sidebarUserName = fullName || authUser.email || sidebarUserName;
-      sidebarUserRole = housingAdminRow ? "Housing Admin" : (userRow.user_type ?? "Housing Admin");
+      sidebarUserRole = housingAdminRow
+        ? "Housing Admin"
+        : (userRow.user_type ?? "Housing Admin");
       sidebarUserInitials = buildInitials(sidebarUserName);
     }
   }

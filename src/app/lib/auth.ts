@@ -28,15 +28,14 @@ export async function authenticate(req: NextRequest) {
   return { user: data.user };
 }
 
-
 export async function getManagerAccountNumber(): Promise<number | null> {
   const cookieStore = await cookies();
   const accountNumberCookie = cookieStore.get("account_number");
-  
+
   if (!accountNumberCookie) {
     return null;
   }
-  
+
   const accountNumber = parseInt(accountNumberCookie.value, 10);
   return isNaN(accountNumber) ? null : accountNumber;
 }

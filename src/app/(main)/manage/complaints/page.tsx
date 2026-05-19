@@ -18,8 +18,8 @@ export default function ManagerComplaintsPage() {
 
   useEffect(() => {
     fetch("/api/complaints?all=1")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setComplaints(data.complaints || []);
         setLoading(false);
       });
@@ -34,7 +34,7 @@ export default function ManagerComplaintsPage() {
         <div>No complaints found.</div>
       ) : (
         <ul className="space-y-4">
-          {complaints.map(c => (
+          {complaints.map((c) => (
             <li key={c.id} className="border rounded p-4">
               <div className="font-semibold">{c.subject}</div>
               <div className="text-gray-700 mb-2">{c.description}</div>
@@ -49,7 +49,8 @@ export default function ManagerComplaintsPage() {
                 </a>
               )}
               <div className="text-xs text-gray-500 mt-2">
-                Status: {c.status} | Submitted: {new Date(c.created_at).toLocaleString()}
+                Status: {c.status} | Submitted:{" "}
+                {new Date(c.created_at).toLocaleString()}
               </div>
             </li>
           ))}

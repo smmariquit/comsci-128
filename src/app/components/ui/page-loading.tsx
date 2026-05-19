@@ -1,7 +1,24 @@
-export default function PageLoading({ label = "Loading" }: { label?: string }) {
+export default function PageLoading({ 
+  label = "Loading", 
+  overlay = false,
+  variant = 'fullscreen'
+}: { 
+  label?: string;
+  overlay?: boolean;
+  variant?: 'fullscreen' | 'overlay' | 'container';
+}) {
+  const isOverlay = overlay || variant === 'overlay';
+  
+  let containerClass = "min-h-screen w-full flex items-center justify-center bg-[#EDE9DE]";
+  if (isOverlay) {
+    containerClass = "fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm";
+  } else if (variant === 'container') {
+    containerClass = "absolute inset-0 z-50 flex items-center justify-center bg-[#EDE9DE]";
+  }
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#EDE9DE]">
-      <div className="flex flex-col items-center gap-6">
+    <div className={containerClass}>
+      <div className={`flex flex-col items-center gap-6 ${isOverlay ? 'bg-[#EDE9DE] p-10 rounded-[20px] shadow-2xl border border-white/20' : ''}`}>
         {/* Animated house icon — built stroke by stroke */}
         <div className="relative w-16 h-16">
           <svg
@@ -163,7 +180,10 @@ export default function PageLoading({ label = "Loading" }: { label?: string }) {
         {/* Label with gentle fade */}
         <span
           className="text-sm font-semibold tracking-wider uppercase text-[#567375]"
-          style={{ animation: "house-fade-in 0.8s ease-in-out 1s forwards", opacity: 0 }}
+          style={{
+            animation: "house-fade-in 0.8s ease-in-out 1s forwards",
+            opacity: 0,
+          }}
         >
           {label}
         </span>

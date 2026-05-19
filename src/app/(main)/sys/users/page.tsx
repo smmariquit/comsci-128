@@ -14,10 +14,24 @@ export interface User {
 	name: string;
 	gender: string;
 	email: string;
-	role: 'Landlord' | 'Dorm Manager' | 'Student' | string;
+	role: 'Landlord' | 'Housing Administrator' | 'Student' | string;
 	status: 'Active' | 'Disabled' | string;
+	managerType?: string;
 	dormitory: string;
 	room: string;
+}
+
+// Dorm Data Types - showed in table
+export interface Dorm {
+  id: string;
+  name: string;
+  status: 'Accepting' | 'Disabled' | string;
+  dormitory: string;
+  dormAddress?: string;
+  managerEmail?: string;
+  capacity?: number;
+  rooms?: number;
+  occupied?: number;
 }
 
 export interface UserManagementProps {
@@ -54,6 +68,7 @@ export default function UserManagementPage({
 	onLogout,
 }: UserManagementProps) {
 	const [users, setUsers] = useState<User[]>([]);
+	const [dorms, setDormList] = useState<Dorm[]>([])
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [filters, setFilters] = useState<UserFiltersState>({
@@ -71,15 +86,46 @@ export default function UserManagementPage({
 				setLoading(true);
 				setError(null);
 				
-				const response = await fetch('/api/users');
+				const [response, dormResponse, landlordResponse, housingAdminResponse] = await Promise.all([
+					fetch('/api/users'),
+					fetch('/api/housing'),
+					fetch('/api/landlord'),
+					fetch('/api/housing-admin'),
+				]);
 				
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
 				
 				const data = await response.json();
-				
-				console.log('Raw API data:', data); // Debug: see what you're getting
+				const dormData = await dormResponse.json();
+				const landlordData = await landlordResponse.json();
+				const housingAdminData = await housingAdminResponse.json();
+
+				const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
+				const rawHousingAdmins = Array.isArray(housingAdminData) ? housingAdminData : housingAdminData.data?.data ?? [];
+
+				const landlordIds = new Set(rawLandlords.map((l: any) => String(l.account_number)));
+				const housingAdminIds = new Set(rawHousingAdmins.map((m: any) => String(m.account_number)));
+
+				let rawDorms = [];
+				if (Array.isArray(dormData)) {
+					rawDorms = dormData;
+				} else if (dormData.data && Array.isArray(dormData.data)) {
+					rawDorms = dormData.data;
+				}
+		
+				const transformedDorms: Dorm[] = rawDorms.map((dorm: any) => ({
+					id: String(dorm.housing_id || dorm.id || ''),
+					name: dorm.housing_name || dorm.name || 'Unknown',
+					status: 'Accepting',
+					dormitory: dorm.housing_name || dorm.name || 'Unknown',
+					dormAddress: dorm.housing_address || dorm.address || undefined,
+					managerEmail: undefined,
+					capacity: dorm.rent_price || undefined,
+					rooms: dorm.total_rooms || undefined,
+					occupied: dorm.occupied_rooms || undefined,
+				}));
 				
 				// Ensure we always have an array
 				let rawUsers = [];
@@ -95,20 +141,46 @@ export default function UserManagementPage({
 				}
 				
 				// Transform the data to match User interface
-				const transformedUsers: User[] = rawUsers.map((user: any) => ({
-					id: String(user.account_number ?? ''),
+				const transformedUsers: User[] = rawUsers.map((user: any) => {
+				const userId = String(user.account_number);
+				
+				// ✅ Determine manager type
+				let role = user.user_type;
+				let managerType = undefined;
+				
+				if (user.user_type === 'Manager') {
+					if (landlordIds.has(userId)) {
+					managerType = 'Landlord';
+					role = 'Landlord';
+					} else if (housingAdminIds.has(userId)) {
+					managerType = 'Housing Administrator';
+					role = 'Housing Administrator';
+					}
+				}
+
+				const history = user.student?.student_accommodation_history?.[0];
+				const room = history?.room;
+				const studentHousing = room?.housing;
+				const managerHousing = user.manager?.housing_admin?.housing?.[0];
+				const housing = studentHousing || managerHousing;
+
+				return {
+					id: userId,
 					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
 					gender: user.sex,
 					email: user.account_email,
-					role: user.user_type || user.role || 'Student',
+					role,
+					managerType,
 					status: user.is_deleted ? 'Disabled' : 'Active',
-					dormitory: user.dormitory || user.dorm_name || '—',
-					room: user.room || user.room_number || '—',
-				}));
-				
+					dormitory: housing?.housing_name || '—',
+					room: room?.room_code ? String(room.room_code) : '—',
+				};
+				});
+								
 				console.log('Transformed users:', transformedUsers); 
 				
 				setUsers(transformedUsers);
+				setDormList(transformedDorms);
 			} catch (error) {
 				console.error('Error fetching users:', error);
 				setError(error instanceof Error ? error.message : 'Failed to fetch users');
@@ -117,7 +189,7 @@ export default function UserManagementPage({
 				setLoading(false);
 			}
 		};
-		
+
 		fetchUsers();
 	}, []);
 
@@ -138,7 +210,7 @@ export default function UserManagementPage({
 	if (loading) {
 		return (
 			<div className="flex min-h-screen bg-[#eae8e1]">
-				<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+				<Sidebar/>
 				<div className="flex-1 flex items-center justify-center">
 					<div className="text-center">
 						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
@@ -153,7 +225,7 @@ export default function UserManagementPage({
 	if (error) {
 		return (
 			<div className="flex min-h-screen bg-[#eae8e1]">
-				<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+				<Sidebar/>
 				<div className="flex-1 flex items-center justify-center">
 					<div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
 						<p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
@@ -172,7 +244,7 @@ export default function UserManagementPage({
 
 	return (
 		<div className="flex min-h-screen bg-[#eae8e1]">
-			<Sidebar user={user} onLogout={onLogout ?? (() => { window.location.href = '/'; })} />
+			<Sidebar/>
 
 			<div className="flex-1 flex flex-col overflow-auto">
 				<div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-[#1a2332]/6">
@@ -180,13 +252,14 @@ export default function UserManagementPage({
 						<h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">User Management</h1>
 						<p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Manage tenants, managers, and administrators</p>
 					</div>
-					<NotificationBell notifications={notifications} />
+					<NotificationBell/>
 				</div>
 				
 				<div className="px-8 py-6 flex flex-col gap-5">
 					<UserFilters
 						values={filters}
 						onChange={(f) => { setFilters(f); setPage(1); }}
+						dormOptions={['All Dorm', ...dorms.map((d) => d.name)]}
 					/>
 					
 					<div className="bg-white rounded-2xl overflow-hidden">
@@ -293,7 +366,7 @@ export default function UserManagementPage({
 										onClick={() => setEditingUser(u)}
 										className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
 										>
-										Edit
+										Promote
 									</button>
 																			
                   <button
@@ -332,17 +405,105 @@ export default function UserManagementPage({
 				</div>
 			</div>
 			{editingUser && (
-				<EditUserModal
-					user={editingUser as any}  // paayos netoo
-					dormitories={["Dorm 1", "Dorm 2", "Dorm 3"]}
-					onClose={() => setEditingUser(null)}
-					onSave={(id, role, dorm) => {
-					
-					console.log("Updated:", id, role, dorm);
-					setEditingUser(null);
-					}}
-				/>
-			)}
+			<EditUserModal
+			user={{
+				...editingUser,
+				userType: editingUser.role as any, 
+			} as any}
+			dormitories={dorms}  
+			onClose={() => setEditingUser(null)}
+			onSave={async (id, role, dorm) => {
+			try {
+				const userId = id.toString();
+				
+
+				console.log("Saving:", { userId, role, dorm });
+
+				const roleRouteMap: Record<string, string> = {
+					"Landlord":              "landlord",
+					"Housing Administrator": "housing-admin",  
+				};
+
+				// Update role
+				const route = roleRouteMap[role];
+
+				if (!route) {
+				throw new Error(`No API route defined for role: ${role}`);
+				}
+
+				// insert the table of the role
+				const response = await fetch(`/api/${route}/${userId}`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					account_number: userId,
+					manager_type: role,
+				}),
+				});
+				
+				// update user type
+				const userResponse = await fetch(`/api/users/${userId}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						account_number: userId,
+						user_type: "Manager",
+					}),
+				});
+
+				if (!response.ok) throw new Error("Failed to update role");
+				console.log(dorm?.id);
+
+
+				// Delete in Student table
+				const deleteStudent = await fetch(`/api/student/profile/${userId}`, {
+					method: "DELETE",
+					headers: { "Content-Type": "application/json" },
+				});
+
+				// update only if there is a dorm selected
+				if (dorm?.id) {
+				const housingUpdate = await fetch(`/api/housing/${dorm.id}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(
+					role === "Landlord"
+						? { landlord_account_number: userId }
+						: role === "Housing Administrator"
+						? { manager_account_number: userId }
+						: {}
+					),
+				});
+
+				if (!housingUpdate.ok) {
+					console.error("Failed to update housing assignment");
+				}
+				}
+
+
+				// 3. Update UI
+				setUsers((prev) =>
+				prev.map((u) =>
+					u.id === id
+					? {
+						...u,
+						role,
+						dormitory: dorm ? dorm.name : u.dormitory,
+						}
+					: u
+				)
+				);
+
+				setEditingUser(null);
+			} catch (err) {
+				console.error("SAVE ERROR:", err);
+				alert("Failed to update user");
+			}
+			}}
+			/>
+		)}
+
+		
       {disableUser && (
 		<DisableAccountModal
 			user={disableUser as any}
