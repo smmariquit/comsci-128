@@ -864,7 +864,7 @@ export default function HousingMap({
           color: ${BRAND_DARK};
           border-radius: 0.5rem;
           padding: 0.25rem 0.625rem;
-          font-size: 0.75rem;
+          font-size: 0.8125rem;
           font-weight: 600;
           font-family: var(--font-geist-sans), sans-serif;
           white-space: nowrap;

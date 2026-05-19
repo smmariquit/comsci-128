@@ -1,6 +1,5 @@
 "use client";
 
-import { Circle, MapPin } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function NotFoundPage() {
@@ -183,6 +182,10 @@ export default function NotFoundPage() {
         position: "relative",
         background: "#EDE9DE",
         overflowX: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <style>{`
@@ -202,10 +205,9 @@ export default function NotFoundPage() {
         }
 
         .anim-icon    { animation: fadeInUp 0.7s ease-out 0.0s  both; }
-        .anim-code    { animation: fadeInUp 0.7s ease-out 0.15s both; }
-        .anim-heading { animation: fadeInUp 0.7s ease-out 0.28s both; }
-        .anim-desc    { animation: fadeInUp 0.7s ease-out 0.40s both; }
-        .anim-cta     { animation: fadeInUp 0.7s ease-out 0.52s both; }
+        .anim-heading { animation: fadeInUp 0.7s ease-out 0.15s both; }
+        .anim-desc    { animation: fadeInUp 0.7s ease-out 0.28s both; }
+        .anim-cta     { animation: fadeInUp 0.7s ease-out 0.40s both; }
 
         .float { animation: float 4s ease-in-out infinite; }
 
@@ -239,12 +241,39 @@ export default function NotFoundPage() {
         }
         .btn-secondary:hover { border-color: #1C2632; transform: translateY(-3px); box-shadow: 0 8px 18px rgba(28,38,50,0.10); }
 
+        @keyframes house-draw-roof {
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes house-draw-walls {
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes house-draw-door {
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes house-draw-window {
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes house-draw-chimney {
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes house-fade-in {
+          to { opacity: 1; }
+        }
+        @keyframes house-glow {
+          0%, 100% { opacity: 0.15; }
+          50% { opacity: 0.4; }
+        }
+        @keyframes house-smoke {
+          0% { opacity: 0; transform: translateY(0) scale(0.8); }
+          30% { opacity: 0.3; }
+          60% { opacity: 0.15; transform: translateY(-6px) scale(1.2); }
+          100% { opacity: 0; transform: translateY(-12px) scale(1.5); }
+        }
+
         @media (max-width: 768px) {
-          .r-404     { font-size: 110px !important; line-height: 110px !important; }
           .r-heading { font-size: 26px  !important; }
         }
         @media (max-width: 480px) {
-          .r-404     { font-size: 80px !important; line-height: 80px !important; }
           .r-heading { font-size: 22px !important; }
         }
       `}</style>
@@ -266,12 +295,9 @@ export default function NotFoundPage() {
       <div
         style={{
           width: "100%",
-          maxWidth: "1920px",
+          maxWidth: "600px",
           margin: "0 auto",
-          paddingTop: "200px",
-          paddingBottom: "240px",
-          paddingLeft: "24px",
-          paddingRight: "24px",
+          padding: "48px 24px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -280,79 +306,173 @@ export default function NotFoundPage() {
           zIndex: 1,
         }}
       >
-        {/* Icon */}
+        {/* Animated house motif SVG icon */}
         <div className="anim-icon" style={{ paddingBottom: 32 }}>
           <div
-            className="float"
+            className="float animate-pulse"
             style={{
               width: 80,
-              height: 96,
-              position: "relative",
+              height: 80,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <MapPin
-              size={80}
-              strokeWidth={1.75}
-              color="#C05C28"
-              fill="#C05C28"
-              aria-hidden="true"
-            />
-            <Circle
-              size={22}
-              strokeWidth={0}
-              fill="#FFFFFF"
-              color="#FFFFFF"
-              style={{ position: "absolute", top: 26, left: 29, opacity: 0.9 }}
-              aria-hidden="true"
-            />
+            <svg
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ width: 80, height: 80 }}
+            >
+              {/* Roof — triangle */}
+              <path
+                d="M32 8 L56 30 L8 30 Z"
+                stroke="#C05C28"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                style={{
+                  strokeDasharray: 120,
+                  strokeDashoffset: 120,
+                  animation: "house-draw-roof 1.2s ease-out forwards",
+                }}
+              />
+              {/* Walls — rectangle */}
+              <path
+                d="M14 30 L14 54 L50 54 L50 30"
+                stroke="#567375"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                style={{
+                  strokeDasharray: 120,
+                  strokeDashoffset: 120,
+                  animation: "house-draw-walls 1s ease-out 0.4s forwards",
+                }}
+              />
+              {/* Door */}
+              <rect
+                x="26"
+                y="38"
+                width="12"
+                height="16"
+                rx="1"
+                stroke="#1C2632"
+                strokeWidth="2"
+                fill="none"
+                style={{
+                  strokeDasharray: 60,
+                  strokeDashoffset: 60,
+                  animation: "house-draw-door 0.8s ease-out 0.9s forwards",
+                }}
+              />
+              {/* Door knob */}
+              <circle
+                cx="35"
+                cy="47"
+                r="1.2"
+                fill="#E3AF64"
+                style={{
+                  opacity: 0,
+                  animation: "house-fade-in 0.4s ease-out 1.5s forwards",
+                }}
+              />
+              {/* Window left */}
+              <rect
+                x="17"
+                y="36"
+                width="7"
+                height="7"
+                rx="0.5"
+                stroke="#E3AF64"
+                strokeWidth="1.5"
+                fill="none"
+                style={{
+                  strokeDasharray: 30,
+                  strokeDashoffset: 30,
+                  animation: "house-draw-window 0.6s ease-out 1.1s forwards",
+                }}
+              />
+              {/* Window right */}
+              <rect
+                x="40"
+                y="36"
+                width="7"
+                height="7"
+                rx="0.5"
+                stroke="#E3AF64"
+                strokeWidth="1.5"
+                fill="none"
+                style={{
+                  strokeDasharray: 30,
+                  strokeDashoffset: 30,
+                  animation: "house-draw-window 0.6s ease-out 1.2s forwards",
+                }}
+              />
+              {/* Warm glow from windows */}
+              <rect
+                x="18"
+                y="37"
+                width="5"
+                height="5"
+                rx="0.5"
+                fill="#E3AF64"
+                style={{
+                  opacity: 0,
+                  animation: "house-glow 1.8s ease-in-out 1.6s infinite",
+                }}
+              />
+              <rect
+                x="41"
+                y="37"
+                width="5"
+                height="5"
+                rx="0.5"
+                fill="#E3AF64"
+                style={{
+                  opacity: 0,
+                  animation: "house-glow 1.8s ease-in-out 1.7s infinite",
+                }}
+              />
+              {/* Chimney */}
+              <path
+                d="M44 14 L44 22 L48 22 L48 18"
+                stroke="#567375"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                style={{
+                  strokeDasharray: 30,
+                  strokeDashoffset: 30,
+                  animation: "house-draw-chimney 0.5s ease-out 0.6s forwards",
+                }}
+              />
+              {/* Smoke puffs */}
+              <circle
+                cx="46"
+                cy="10"
+                r="2"
+                fill="#567375"
+                style={{
+                  opacity: 0,
+                  animation: "house-smoke 2.4s ease-in-out 2s infinite",
+                }}
+              />
+              <circle
+                cx="49"
+                cy="6"
+                r="1.5"
+                fill="#567375"
+                style={{
+                  opacity: 0,
+                  animation: "house-smoke 2.4s ease-in-out 2.4s infinite",
+                }}
+              />
+            </svg>
           </div>
-        </div>
-
-        {/* 404 */}
-        <div
-          className="anim-code"
-          style={{ paddingBottom: 8, display: "flex", alignItems: "center" }}
-        >
-          <span
-            className="r-404"
-            style={{
-              color: "#1C2632",
-              fontSize: 160,
-              fontFamily: "DM Serif Display, serif",
-              fontWeight: 400,
-              lineHeight: "160px",
-            }}
-          >
-            4
-          </span>
-          <span
-            className="r-404"
-            style={{
-              color: "#C05C28",
-              fontSize: 160,
-              fontFamily: "DM Serif Display, serif",
-              fontStyle: "italic",
-              fontWeight: 400,
-              lineHeight: "160px",
-            }}
-          >
-            0
-          </span>
-          <span
-            className="r-404"
-            style={{
-              color: "#1C2632",
-              fontSize: 160,
-              fontFamily: "DM Serif Display, serif",
-              fontWeight: 400,
-              lineHeight: "160px",
-            }}
-          >
-            4
-          </span>
         </div>
 
         {/* Heading */}
@@ -406,57 +526,8 @@ export default function NotFoundPage() {
           <a href="/" className="btn-primary">
             Go back home
           </a>
-          <a href="/browse" className="btn-secondary">
-            Browse listings
-          </a>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer
-        style={{
-          width: "100%",
-          paddingTop: 21,
-          paddingBottom: 22,
-          paddingLeft: 22,
-          paddingRight: 22,
-          background: "#567375",
-          display: "flex",
-          flexDirection: "column",
-          gap: 4,
-          position: "absolute",
-          bottom: 0,
-          zIndex: 1,
-        }}
-      >
-        {[
-          "© 2026 Website Name",
-          "University of the Philippines Los Baños AY 2025–2026",
-          "In partial fulfillment of the requirements for CMSC 128: Software Engineering",
-        ].map((text, idx) => (
-          <div
-            key={idx}
-            style={{
-              alignSelf: "stretch",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                textAlign: "center",
-                color: "rgba(255,255,255,0.55)",
-                fontSize: 12,
-                fontFamily: "DM Mono, monospace",
-                fontWeight: 400,
-                lineHeight: "21.6px",
-              }}
-            >
-              {text}
-            </div>
-          </div>
-        ))}
-      </footer>
     </main>
   );
 }

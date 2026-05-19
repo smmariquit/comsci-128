@@ -60,7 +60,7 @@ export default function LandingPage() {
               Student Housing Portal
             </p>
 
-            <h1 className="fade-up text-6xl md:text-8xl font-black mb-6 tracking-tight leading-[0.95]">
+            <h1 className="fade-up text-6xl md:text-8xl font-black mb-6 tracking-tight leading-[0.95] text-[#1C2632]">
               Welcome,{" "}
               <span className="text-[#567375] relative">
                 Isko
@@ -69,8 +69,10 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            <p className="pt-4 fade-up-delay text-sm leading-relaxed opacity-60 max-w-md font-(family-name:--font-geist-mono)">
-              Explore a wide range of verified dorms, apartments, and boarding houses near UPLB — helping students find secure, comfortable, and affordable housing with ease.
+            <p className="pt-4 fade-up-delay text-sm leading-relaxed max-w-md font-(family-name:--font-geist-mono) text-[#111820]">
+              Explore a wide range of verified dorms, apartments, and boarding
+              houses near UPLB — helping students find secure, comfortable, and
+              affordable housing with ease.
             </p>
 
             {/* CTA + Scroll Section */}
@@ -87,16 +89,16 @@ export default function LandingPage() {
               </div>
 
               {/* Scroll to explore */}
-             <div className="flex items-center gap-3 mt-5 animate-float">
-              {/* Mouse icon */}
-              <div className="w-6 h-8 border-2 border-[#1a2332]/40 rounded-full flex justify-center pt-1">
-                <div className="w-1.5 h-1.5 bg-[#1a2332]/60 rounded-full animate-scroll-dot"></div>
-              </div>
+              <div className="flex items-center gap-3 mt-5 animate-float">
+                {/* Mouse icon */}
+                <div className="w-6 h-8 border-2 border-[#1a2332] rounded-full flex justify-center pt-1">
+                  <div className="w-1.5 h-1.5 bg-[#1a2332] rounded-full animate-scroll-dot"></div>
+                </div>
 
-              <p className="text-sm text-[#1a2332]/60 font-(--font-geist-mono)">
-                Scroll to explore
-              </p>
-            </div>
+                <p className="text-sm text-[#111820] font-(--font-geist-mono)">
+                  Scroll to explore
+                </p>
+              </div>
             </div>
           </div>
 

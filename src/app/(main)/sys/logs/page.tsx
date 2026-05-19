@@ -147,13 +147,20 @@ export default function AuditLogsPage({
   onLogout,
 }: AuditLogsPageProps) {
   const [filters, setFilters] = useState<AuditFiltersState>({
-    search: '', action: 'All Actions', module: 'All Modules', status: 'All Status',
+    search: '', action: 'All Actions', module: 'All Modules', status: 'All Status', sortBy: 'Newest First',
   });
   const [page, setPage] = useState(1);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
   const [viewingLog, setViewingLog] = useState<AuditLog | null>(null); // view modal
+
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
 
   // Fetch audit logs from API
   useEffect(() => {
@@ -290,7 +297,7 @@ export default function AuditLogsPage({
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Audit Logs</h1>
             <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Track all system activity, changes, and access events</p>
           </div>
-          <NotificationBell />
+          <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">

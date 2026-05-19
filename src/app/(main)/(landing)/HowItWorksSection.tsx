@@ -120,7 +120,7 @@ export default function HowItWorks() {
                     <h4 className="mb-1 leading-snug text-[1.45rem] text-[#f5f2ec] font-['Playfair_Display',serif]">
                       {step.title}
                     </h4>
-                    <p className="leading-relaxed text-[.85rem] text-[rgba(194,211,208,.7)] font-['IBM_Plex_Mono',monospace]">
+                    <p className="leading-relaxed text-[0.8125rem] md:text-[.85rem] text-[rgba(245,242,236,.94)] font-['IBM_Plex_Mono',monospace]">
                       {step.desc}
                     </p>
                   </div>
@@ -136,7 +136,7 @@ export default function HowItWorks() {
             <div className="absolute float-updown w-70 top-25 left-80 z-10 rounded-2xl bg-white/10 border border-[rgba(194,211,208,.18)] p-[1.4rem] shadow-[0_8px_32px_rgba(13,27,42,.25)]">
 
               {/* Verified tag */}
-              <p className="mb-2.5 text-[.65rem] tracking-[.12em] uppercase text-[rgba(194,211,208,.65)] font-['IBM_Plex_Mono',monospace]">
+              <p className="mb-2.5 text-[0.8125rem] tracking-[.12em] uppercase text-[rgba(245,242,236,.94)] font-['IBM_Plex_Mono',monospace]">
                 Verified · Available Slots Now!
               </p>
 
@@ -152,7 +152,7 @@ export default function HowItWorks() {
                 {["WiFi", "Aircon", "Laundry", "Duo"].map((tag) => (
                   <span
                     key={tag}
-                    className="text-[.6rem] px-2 py-0.5 rounded-lg bg-[rgba(184,92,40,.25)] text-[#d4784a] font-['IBM_Plex_Mono',monospace]"
+                    className="text-[0.8125rem] px-2 py-0.5 rounded-lg bg-[#8b3e15] text-white font-['IBM_Plex_Mono',monospace]"
                   >
                     {tag}
                   </span>
@@ -162,7 +162,7 @@ export default function HowItWorks() {
               {/* Price */}
               <p className="text-[1.1rem] text-[#f5f2ec] mt-4 font-['Playfair_Display',serif]">
                 ₱4,000{" "}
-                <span className="text-[.7rem] text-[rgba(194,211,208,.65)] font-['IBM_Plex_Mono',monospace]">
+                <span className="text-[0.8125rem] text-[rgba(245,242,236,.94)] font-['IBM_Plex_Mono',monospace]">
                   / month
                 </span>
               </p>
@@ -172,7 +172,7 @@ export default function HowItWorks() {
             <div className="absolute float-updown w-70 left-5 z-10 rounded-2xl bg-white/10 border border-[rgba(194,211,208,.18)] p-[1.4rem] shadow-[0_8px_32px_rgba(13,27,42,.25)]">
 
               {/* Verified tag */}
-              <p className="mb-2.5 text-[.65rem] tracking-[.12em] uppercase text-[rgba(194,211,208,.65)] font-['IBM_Plex_Mono',monospace]">
+              <p className="mb-2.5 text-[0.8125rem] tracking-[.12em] uppercase text-[rgba(245,242,236,.94)] font-['IBM_Plex_Mono',monospace]">
                 Verified · Available Slots Now!
               </p>
 
@@ -188,7 +188,7 @@ export default function HowItWorks() {
                 {["WiFi", "Aircon", "Laundry", "Solo"].map((tag) => (
                   <span
                     key={tag}
-                    className="text-[.6rem] px-2 py-0.5 rounded-lg bg-[rgba(184,92,40,.25)] text-[#d4784a] font-['IBM_Plex_Mono',monospace]"
+                    className="text-[0.8125rem] px-2 py-0.5 rounded-lg bg-[#8b3e15] text-white font-['IBM_Plex_Mono',monospace]"
                   >
                     {tag}
                   </span>
@@ -198,7 +198,7 @@ export default function HowItWorks() {
               {/* Price */}
               <p className="text-[1.1rem] text-[#f5f2ec] mt-4 font-['Playfair_Display',serif]">
                 ₱3,300{" "}
-                <span className="text-[.7rem] text-[rgba(194,211,208,.65)] font-['IBM_Plex_Mono',monospace]">
+                <span className="text-[0.8125rem] text-[rgba(245,242,236,.94)] font-['IBM_Plex_Mono',monospace]">
                   / month
                 </span>
               </p>

@@ -42,6 +42,8 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
+  const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  const [dpaRequired, setDpaRequired] = useState(true);
   const draftKey = "register-form-draft";
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -63,6 +65,14 @@ export default function RegisterPage() {
   }
 
   useEffect(() => {
+    // Read dpa_required from system configuration cookies
+    const match = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.trim().startsWith("dpa_required="));
+    if (match) {
+      setDpaRequired(match.split("=")[1] !== "false");
+    }
+
     const savedDraft = localStorage.getItem(draftKey);
 
     if (savedDraft) {
@@ -281,6 +291,12 @@ export default function RegisterPage() {
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+
+    if (dpaRequired && !privacyAgreed) {
+      setError("Please check the box to agree with the Data Privacy Act compliance terms.");
+      return;
+    }
+
     setStatus("");
     setLoading(true);
     try {
@@ -676,6 +692,23 @@ export default function RegisterPage() {
                 <p>{form.contact_email || "No contact email provided"}</p>
               </div>
             </div>
+
+            {/* Data Privacy Compliance Checkbox */}
+            {dpaRequired && (
+              <div className="flex items-start gap-3 border-t border-white/10 pt-4 bg-[#18222b]/50 p-4 rounded-xl">
+                <input
+                  id="privacy_conforme"
+                  type="checkbox"
+                  checked={privacyAgreed}
+                  onChange={(e) => setPrivacyAgreed(e.target.checked)}
+                  className="mt-1 h-4 w-4 cursor-pointer rounded border-zinc-600 bg-zinc-700 text-orange-400 focus:ring-orange-500 focus:ring-offset-0 focus:outline-none"
+                  required
+                />
+                <label htmlFor="privacy_conforme" className="text-xs text-stone-300 leading-relaxed cursor-pointer select-none">
+                  I hereby authorize <b>UPLB CASA</b> to collect, process, and store my personal details in strict compliance with the <b>Republic of the Philippines Data Privacy Act of 2012 (RA 10173)</b> and its implementing rules.
+                </label>
+              </div>
+            )}
           </div>
         )}
 

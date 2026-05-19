@@ -4,6 +4,8 @@ import type { ManagerProfile } from "@/models/manager";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import StateMessage from "@/app/components/ui/state-message";
+import AvatarUploadModal from "../../../../components/AvatarUploadModal";
+import Avatar from "@/app/components/Avatar";
 import AccountSettings from "@/app/components/ui/AccountSettings";
 
 export default function AdminProfilePage() {
@@ -12,6 +14,7 @@ export default function AdminProfilePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("Personal Information");
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{
     type: "success" | "error";
     text: string;
@@ -107,11 +110,27 @@ export default function AdminProfilePage() {
         {/* Header Section */}
         <header className="bg-[#EDE9DE] border-b border-[#1C2632]">
           <div className="max-w-2xl ml-[15%] py-12 flex items-center gap-8">
-            <div className="w-32 h-32 bg-[#1C2632] rounded-full flex shrink-0 items-center justify-center shadow-xl">
-              <span className="text-[#EDE9DE] text-4xl font-bold">
-                {profile?.first_name?.[0]}
-                {profile?.last_name?.[0]}
-              </span>
+            <div
+              className="w-32 h-32 rounded-full flex shrink-0 items-center justify-center shadow-xl cursor-pointer"
+              onClick={() => setShowAvatarModal(true)}
+              role="button"
+              tabIndex={0}
+              aria-label="Change profile picture"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setShowAvatarModal(true);
+                }
+              }}
+            >
+              <Avatar
+                firstName={profile?.first_name}
+                lastName={profile?.last_name}
+                profilePicture={(profile as any)?.profile_picture}
+                size={128}
+                className="shadow-xl"
+                showEditIcon={true}
+              />
             </div>
             <div>
               <h2 className="text-4xl font-bold text-[#1C2632]">
@@ -239,6 +258,22 @@ export default function AdminProfilePage() {
           </div>
         </section>
       </main>
+      <AvatarUploadModal
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+        userId={Number(id)}
+        currentAvatarUrl={(profile as any)?.profile_picture}
+        firstName={profile?.first_name}
+        lastName={profile?.last_name}
+        onUploadSuccess={(url) => {
+          if (profile) {
+            setProfile({
+              ...profile,
+              profile_picture: url,
+            } as any);
+          }
+        }}
+      />
     </div>
   );
 }
@@ -252,10 +287,11 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
         placeholder={label}
         value={value || ""}
         onChange={(e) => onChange && onChange(e.target.value)}
-        className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border border-gray-400 rounded-xl bg-gray-100/50 text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
+        className={`font-[family-name:var(--font-geist-sans)] w-full p-4 border border-gray-400 rounded-xl bg-gray-100/50 text-[#1C2632] outline-none transition-focus focus:border-[#C9642A] ${
           disabled ? "opacity-60 cursor-not-allowed bg-gray-200" : ""
         }`}
       />
     </div>
   );
 }
+

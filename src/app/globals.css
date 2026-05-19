@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #5a056f;
+  --foreground: #111820;
 
   /* Original color palette (used for backgrounds/decoration) */
   --dark-blue: #1c2632;
@@ -11,7 +11,7 @@
   --light-yellow: #e3af64;
   --cream: #ede9de;
 
-/* AAA text colors */
+  /* AAA text colors */
   --text-aaa-blue: #111820;
   --text-aaa-teal: #2f4a4c;
   --text-aaa-orange: #8b3e15;
@@ -22,13 +22,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #4f0f0f;
-    --foreground: #ededed;
-  }
 }
 
 html, body {
@@ -42,6 +35,100 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
+  color-scheme: light;
+}
+
+/* ── Custom Scrollbar for Manager Area ── */
+.manage-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.manage-scrollbar::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, rgba(28, 38, 50, 0.03) 0%, rgba(86, 115, 117, 0.03) 100%);
+  border-radius: 10px;
+}
+
+.manage-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #567375 0%, #8b3e15 100%);
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.manage-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4a5f61 0%, #a8512d 100%);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Firefox scrollbar */
+.manage-scrollbar {
+  scrollbar-color: linear-gradient(180deg, #567375 0%, #8b3e15 100%) transparent;
+  scrollbar-width: thin;
+}
+
+/* WCAG AAA guardrails for shared utility-heavy screens. */
+.text-xs,
+.text-\[9px\],
+.text-\[10px\],
+.text-\[11px\],
+.text-\[12px\] {
+  font-size: 12px !important;
+  line-height: 1.125rem !important;
+}
+
+.text-\[0\.75rem\] {
+  font-size: 0.75rem !important;
+  line-height: 1.125rem !important;
+}
+
+[class*="text-[#567375]"],
+[class*="text-[#6E9092]"],
+[class*="text-[#8AABAC]"] {
+  color: var(--text-aaa-teal) !important;
+}
+
+[class*="text-[#C9642A]"],
+[class*="text-[#D66B38]"] {
+  color: var(--text-aaa-orange) !important;
+}
+
+[class*="text-[#1a2332]/"],
+[class*="text-[#1C2632]/"],
+[class*="text-white/40"],
+[class*="text-white/50"],
+[class*="text-white/60"],
+[class*="text-white/70"],
+[class*="text-gray-400"],
+[class*="text-gray-500"],
+[class*="text-stone-400"] {
+  color: #374151 !important;
+}
+
+[class*="text-[rgba(194,211,208"],
+[class*="text-[rgba(255,255,255"] {
+  color: rgba(255, 255, 255, 0.94) !important;
+}
+
+[class*="bg-[#1C2632]"] [class*="text-white/"],
+[class*="bg-[#1a2332]"] [class*="text-white/"],
+[class*="bg-[#1C2632]/"] [class*="text-white/"],
+[class*="bg-[#1C2632]"][class*="text-white/"],
+[class*="bg-[#1a2332]"][class*="text-white/"],
+[class*="bg-[#1C2632]/"][class*="text-white/"] {
+  color: rgba(255, 255, 255, 0.94) !important;
+}
+
+[class*="bg-[#C9642A]"][class*="text-white"],
+[class*="bg-[#D66B38]"][class*="text-white"] {
+  background-color: var(--text-aaa-orange) !important;
+}
+
+.opacity-40,
+.opacity-50,
+.opacity-60,
+.opacity-70,
+.opacity-80,
+.opacity-90 {
+  opacity: 1 !important;
 }
 
 /* Custom Themed Scrollbar */

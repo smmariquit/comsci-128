@@ -61,7 +61,6 @@ function ForgotPasswordForm() {
       setError(error.message);
     } else {
       setStep(2);
-      // Removed setStatus to avoid double messaging
     }
   }
 
@@ -74,7 +73,6 @@ function ForgotPasswordForm() {
       return;
     }
 
-    // Here you would actually change the password
     const { error } = await supabase.auth.updateUser({ password: newPassword });
 
     if (error) {
@@ -89,9 +87,21 @@ function ForgotPasswordForm() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+    <div
+      className="relative w-full min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div
+        className="absolute inset-0 bg-[#0f1418]/72 backdrop-blur-md"
+        aria-hidden="true"
+      />
       <form
-        className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
+        className="relative z-10 w-full max-w-md flex flex-col gap-4 rounded-3xl border border-white/10 bg-[#111820]/88 p-10 shadow-2xl backdrop-blur-sm"
         autoComplete="off"
         onSubmit={step === 1 ? handleEmailSubmit : handlePasswordSubmit}
       >
@@ -100,7 +110,7 @@ function ForgotPasswordForm() {
             <Lock className="text-[#c9642a]" size={32} />
           </div>
           <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
-            Forgot Password
+            Reset Password
           </h2>
           <p className="text-stone-400 text-sm text-center">
             {step === 1
@@ -133,8 +143,9 @@ function ForgotPasswordForm() {
                 <Mail size={20} />
               </div>
               <input
-                className="w-full bg-gray-700 text-stone-200 rounded-xl py-3 pl-12 pr-4 outline-none border border-stone-600 focus:border-[#c9642a] transition-all"
+                className="w-full bg-gray-700 text-stone-200 rounded-xl py-3 pl-12 pr-4 outline-none border border-stone-200 focus:border-[#c9642a] transition-all"
                 type="email"
+                aria-label="Email address"
                 placeholder="Enter your email address"
                 value={form.email}
                 onChange={(e) =>
@@ -168,8 +179,9 @@ function ForgotPasswordForm() {
           <div className="flex flex-col gap-4">
             <div className="relative">
               <input
-                className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-600 focus:border-[#c9642a] transition-all"
+                className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200 focus:border-[#c9642a] transition-all"
                 type={showNewPassword ? "text" : "password"}
+                aria-label="New password"
                 placeholder="Enter new password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -187,8 +199,9 @@ function ForgotPasswordForm() {
             </div>
             <div className="relative">
               <input
-                className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-600 focus:border-[#c9642a] transition-all"
+                className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200 focus:border-[#c9642a] transition-all"
                 type={showConfirmPassword ? "text" : "password"}
+                aria-label="Confirm new password"
                 placeholder="Confirm new password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}

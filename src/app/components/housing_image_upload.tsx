@@ -107,7 +107,7 @@ export default function HousingImageUpload() {
           <label
             style={{
               display: "block",
-              fontSize: 10.5,
+              fontSize: 13,
               fontFamily: "'DM Mono', monospace",
               fontWeight: 500,
               color: C.teal,
@@ -142,7 +142,7 @@ export default function HousingImageUpload() {
           <label
             style={{
               display: "block",
-              fontSize: 10.5,
+              fontSize: 13,
               fontFamily: "'DM Mono', monospace",
               fontWeight: 500,
               color: C.teal,
@@ -201,7 +201,7 @@ export default function HousingImageUpload() {
                   >
                     <span
                       style={{
-                        fontSize: 12,
+                        fontSize: 13,
                         color: C.navy,
                         fontWeight: 500,
                       }}
@@ -217,7 +217,7 @@ export default function HousingImageUpload() {
                         background: "transparent",
                         border: "none",
                         color: C.orange,
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: 700,
                         cursor: isUploading ? "not-allowed" : "pointer",
                         fontFamily: "'DM Sans', sans-serif",

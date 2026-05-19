@@ -181,7 +181,7 @@ export const assignRoom = async (roomId: number, studentId: string) => {
     await roomData.updateStudentHousingStatus(account_number, "Assigned");
 
     await createAuditLog(
-      housing.landlord_account_number,
+      account_number,
       "",
       "Assign Room",
       `Student ${account_number} assigned to room ${room.room_code} in ${housing.housing_name}`,
@@ -235,7 +235,7 @@ export const unassignRoom = async (
     await roomData.updateStudentHousingStatus(account_number, "Not Assigned");
 
     await createAuditLog(
-      housing.landlord_account_number,
+      account_number,
       "",
       "Assign Room",
       `Student ${account_number} unassigned from room ${room.room_code} in ${housing.housing_name}`,

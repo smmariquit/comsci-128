@@ -47,7 +47,7 @@ function Card({
           left: 19,
           top: 17,
           color: C.teal,
-          fontSize: 10.5,
+          fontSize: 13,
           fontFamily: "'DM Mono', monospace",
           fontWeight: 500,
           textTransform: "uppercase",
@@ -77,7 +77,7 @@ function Card({
             left: 19,
             top: 72,
             color: C.teal,
-            fontSize: 11,
+            fontSize: 13,
             fontFamily: "'DM Sans', sans-serif",
           }}
         >

@@ -91,7 +91,7 @@ function ShowcaseCards() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       {/* Big Card*/}
-      <div className="lg:col-span-2 bg-white rounded-3xl overflow-hidden shadow-xl transition hover:scale-[1.02] flex flex-col h-105">
+      <div className="lg:col-span-2 bg-white rounded-3xl overflow-hidden shadow-xl transition hover:scale-[1.02] flex flex-col h-[420px]">
 
         {/* Taller image */}
         <div className="h-72 bg-gray-300" />
@@ -124,7 +124,7 @@ function ShowcaseCards() {
           >
 
             {/* Image */}
-            <div className="w-1/3 bg-gray-300 h-full min-h-25" />
+            <div className="w-1/3 bg-gray-300 h-full min-h-[100px]" />
 
             {/* Text */}
             <div
@@ -150,8 +150,6 @@ function ShowcaseCards() {
     </div>
   );
 }
-
-
 
 export default function ShowcaseSection() {
   return (

@@ -35,7 +35,7 @@ export default function StudentHousingStatus({ data }: Props) {
         </div>
         <div
           style={{
-            fontSize: 11,
+            fontSize: 13,
             color: C.teal,
             marginTop: 2,
             marginBottom: 20,
@@ -57,7 +57,7 @@ export default function StudentHousingStatus({ data }: Props) {
           >
             No housing assignments yet
           </div>
-          <div style={{ fontSize: 11 }}>
+          <div style={{ fontSize: 13 }}>
             This widget will populate once students are assigned to properties.
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function StudentHousingStatus({ data }: Props) {
       </div>
       <div
         style={{
-          fontSize: 11,
+          fontSize: 13,
           color: C.teal,
           marginTop: 2,
           marginBottom: 20,
@@ -137,14 +137,14 @@ export default function StudentHousingStatus({ data }: Props) {
                     }}
                   />
                   <span
-                    style={{ fontSize: 12, fontWeight: 500, color: C.navy }}
+                    style={{ fontSize: 13, fontWeight: 500, color: C.navy }}
                   >
                     {item.label}
                   </span>
                 </div>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     color: C.teal,
                     fontFamily: "'DM Mono', monospace",
                   }}

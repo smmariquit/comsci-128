@@ -3,6 +3,7 @@ import type { UserRole } from "@/models/permissions";
 import { createSupabaseServerClient } from "@/lib/server-client";
 import { getCurrentUserRole } from "@/services/authorization-service";
 import { userService } from "@/services/user-service";
+import { createAuditLog } from "@/services/audit-log-service";
 
 const roleRedirects: Record<UserRole, string> = {
   public: "/login",
@@ -135,6 +136,15 @@ export async function POST(request: NextRequest) {
         role = await resolveManagerRole(dbUser.account_number);
       }
     }
+
+    // Record successful login event in the system audit logs
+    const userName = `${dbUser.first_name} ${dbUser.last_name}`.trim();
+    await createAuditLog(
+      dbUser.account_number,
+      userName,
+      "Auth Login",
+      "User logged in via Google OAuth"
+    ).catch((err) => console.error("Failed to log Google login event:", err));
 
     return NextResponse.json({
       role,

@@ -33,7 +33,7 @@ export default function OccupancyChart({ data }: Props) {
         </div>
         <div
           style={{
-            fontSize: 11,
+            fontSize: 13,
             color: C.teal,
             marginTop: 2,
             marginBottom: 20,
@@ -55,7 +55,7 @@ export default function OccupancyChart({ data }: Props) {
           >
             No occupancy data yet
           </div>
-          <div style={{ fontSize: 11 }}>
+          <div style={{ fontSize: 13 }}>
             Room type occupancy will appear once properties have room records.
           </div>
         </div>
@@ -86,7 +86,7 @@ export default function OccupancyChart({ data }: Props) {
       </div>
       <div
         style={{
-          fontSize: 11,
+          fontSize: 13,
           color: C.teal,
           marginTop: 2,
           marginBottom: 20,
@@ -115,7 +115,7 @@ export default function OccupancyChart({ data }: Props) {
                 outline: `1px solid ${C.cream}`,
               }}
             />
-            <span style={{ fontSize: 11, color: C.teal }}>{l.label}</span>
+            <span style={{ fontSize: 13, color: C.teal }}>{l.label}</span>
           </div>
         ))}
       </div>
@@ -135,12 +135,12 @@ export default function OccupancyChart({ data }: Props) {
                   marginBottom: 6,
                 }}
               >
-                <span style={{ fontSize: 12, fontWeight: 500, color: C.navy }}>
+                <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>
                   {row.room_type}
                 </span>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     color: C.teal,
                     fontFamily: "'DM Mono', monospace",
                   }}
