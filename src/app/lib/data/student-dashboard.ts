@@ -26,6 +26,19 @@ export async function getStudentApplicationStatus(
   return data;
 }
 
+export async function getStudentActiveApplications(
+  studentAccountNumber: number,
+) {
+  const { data, error } = await supabase
+    .from("application")
+    .select("application_id, housing_name, application_status")
+    .eq("student_account_number", studentAccountNumber)
+    .eq("is_deleted", false);
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function getStudentBillingHistory(studentAccountNumber: number) {
   const { data, error } = await supabase
     .from("bill")
@@ -56,6 +69,7 @@ export async function getAccommodationHistory(studentAccountNumber: number) {
             application_id,
             application_status,
             created_at,
+            housing_name,
             room:room_id (
                 room_type,
                 housing:housing_id (housing_name)

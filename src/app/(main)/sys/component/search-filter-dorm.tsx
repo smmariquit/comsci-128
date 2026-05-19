@@ -8,6 +8,8 @@ export interface UserFiltersState {
   search: string;
   status: string;
   occupancy: string;
+  housingType: string;
+  sortBy: string;
 }
 
 // Initial/default filter values - used for resetting filters and as defaults in the component
@@ -35,7 +37,7 @@ export default function UserFilters({
 
   // Clear all filters - resets to initial values
   const clearAll = () =>
-    onChange({ search: "", status: "All Status", occupancy: "All" });
+    onChange({ search: "", status: "All Status", occupancy: "All", housingType: "All Types", sortBy: "None" });
 
   // Active filter tags - only show if the filter value is not the default
   const activeTags = [
@@ -48,6 +50,16 @@ export default function UserFilters({
       key: "occupancy",
       label: `Occupancy: ${values.occupancy}`,
       clear: () => set("occupancy", "All"),
+    },
+    values.housingType !== "All Types" && {
+      key: "housingType",
+      label: `Type: ${values.housingType}`,
+      clear: () => set("housingType", "All Types"),
+    },
+    values.sortBy !== "None" && {
+      key: "sortBy",
+      label: `Sort: ${values.sortBy}`,
+      clear: () => set("sortBy", "None"),
     },
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
 
@@ -64,6 +76,16 @@ export default function UserFilters({
             value={values.search}
             onChange={(e) => set("search", e.target.value)}
             className="bg-transparent text-sm text-[#1a2332] placeholder:text-[#1a2332]/40 outline-none flex-1"
+          />
+        </div>
+
+        {/* Housing Type */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-[#1a2332]/50 font-medium">Type</span>
+          <FilterDropdown
+            value={values.housingType || "All Types"}
+            options={["All Types", "UP Housing", "Non-UP Housing"]}
+            onChange={(v) => set("housingType", v)}
           />
         </div>
 
@@ -86,6 +108,16 @@ export default function UserFilters({
             value={values.occupancy}
             options={occupancyOptions}
             onChange={(v) => set("occupancy", v)}
+          />
+        </div>
+
+        {/* Sort By rent_price */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-[#1a2332]/50 font-medium">Sort</span>
+          <FilterDropdown
+            value={values.sortBy || "None"}
+            options={["None", "Rent: Low to High", "Rent: High to Low"]}
+            onChange={(v) => set("sortBy", v)}
           />
         </div>
 

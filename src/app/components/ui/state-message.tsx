@@ -1,3 +1,5 @@
+import { Search } from "lucide-react";
+
 type StateVariant = "empty" | "error";
 
 export default function StateMessage({
@@ -20,10 +22,11 @@ export default function StateMessage({
           : "border-[#CEC7B0] bg-white text-[#1C2632]"
       }`}
     >
-      {/* house illustration */}
-      <div className="flex justify-center mb-4">
-        {isError ? <ErrorHouse /> : <EmptyHouse />}
+      {/* illustration */}
+      <div className="flex justify-center mb-4 text-[#C9642A]">
+        {isError ? <ErrorHouse /> : <Search className="w-12 h-12 stroke-[1.5]" />}
       </div>
+
 
       <div className="text-lg font-semibold">{title}</div>
       {description && (

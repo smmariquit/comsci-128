@@ -71,7 +71,7 @@ export default function PageHeader({ title, date }: PageHeaderProps) {
         </h1>
         <p
           style={{
-            fontSize: 11,
+            fontSize: 13,
             color: "#9aa3b0",
             margin: 0,
             letterSpacing: "0.02em",

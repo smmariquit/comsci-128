@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import Logo from "@/app/components/Logo";
+import Avatar from "@/app/components/Avatar";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutGrid },
@@ -29,6 +30,7 @@ interface SidebarProps {
   userInitials?: string;
   userName?: string;
   userRole?: string;
+  profilePicture?: string | null;
   onNavigate?: () => void;
 }
 
@@ -36,6 +38,7 @@ export default function Sidebar({
   userInitials = "LF",
   userName = "Luthelle Fernandez",
   userRole = "System Admin",
+  profilePicture = null,
   onNavigate,
 }: SidebarProps) {
   const pathname = usePathname();
@@ -142,7 +145,7 @@ export default function Sidebar({
             left: 82,
             top: 73,
             color: "#6E9092",
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: 400,
           }}
         >
@@ -241,30 +244,13 @@ export default function Sidebar({
           }}
         >
           {/* Avatar */}
-          <div
-            style={{
-              width: 33,
-              height: 33,
-              marginLeft: 10,
-              background: "#567375",
-              borderRadius: "50%",
-              outline: "1px solid rgba(255,255,255,0.12)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <span
-              style={{
-                color: "#EDE9DE",
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: 0.5,
-              }}
-            >
-              {userInitials}
-            </span>
+          <div style={{ marginLeft: 10, flexShrink: 0 }}>
+            <Avatar
+              firstName={userName.split(" ")[0]}
+              lastName={userName.split(" ").slice(1).join(" ")}
+              profilePicture={profilePicture}
+              size={33}
+            />
           </div>
 
           {/* Name + role */}
@@ -281,7 +267,7 @@ export default function Sidebar({
             >
               {userName}
             </div>
-            <div style={{ color: "#6E9092", fontSize: 11, fontWeight: 400 }}>
+            <div style={{ color: "#6E9092", fontSize: 13, fontWeight: 400 }}>
               {userRole}
             </div>
           </div>

@@ -2,21 +2,21 @@ import { headers } from "next/headers";
 import { auditLogData } from "../data/audit-log-data";
 import { AuditLog, Role, ActionType, NewAuditLog } from "../models/audit_log";
 
-// Helper function to securely mask IP addresses (e.g. 192.168.1.100 -> 192.168.1.xxx)
+// Helper function to securely mask IP addresses (e.g. 192.168.1.100 -> 192.168.x.x)
 function maskIp(ip: string | null): string {
   if (!ip) return "Unknown";
   // IPv4 masking
   if (ip.includes(".")) {
     const parts = ip.split(".");
     if (parts.length === 4) {
-      return `${parts[0]}.${parts[1]}.${parts[2]}.xxx`;
+      return `${parts[0]}.${parts[1]}.x.x`;
     }
   }
   // IPv6 masking
   if (ip.includes(":")) {
     const parts = ip.split(":");
     if (parts.length > 4) {
-      return `${parts[0]}:${parts[1]}:${parts[2]}:${parts[3]}:xxxx:xxxx:xxxx:xxxx`;
+      return `${parts[0]}:${parts[1]}:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx`;
     }
   }
   return "Unknown";

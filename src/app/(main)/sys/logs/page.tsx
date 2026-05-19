@@ -147,7 +147,7 @@ export default function AuditLogsPage({
   onLogout,
 }: AuditLogsPageProps) {
   const [filters, setFilters] = useState<AuditFiltersState>({
-    search: '', action: 'All Actions', module: 'All Modules', status: 'All Status',
+    search: '', action: 'All Actions', module: 'All Modules', status: 'All Status', sortBy: 'Newest First',
   });
   const [page, setPage] = useState(1);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);

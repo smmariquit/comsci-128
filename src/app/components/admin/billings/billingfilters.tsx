@@ -8,6 +8,13 @@ import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 export type StatusFilter = "All" | PaymentStatus;
 export type BillTypeFilter = "All" | BillType;
+export type SortFilter =
+  | "due_date_asc"
+  | "due_date_desc"
+  | "amount_asc"
+  | "amount_desc"
+  | "issue_date_asc"
+  | "issue_date_desc";
 
 interface Props {
   search: string;
@@ -17,17 +24,19 @@ interface Props {
   housingOptions: string[];
   dueDateFrom: string;
   dueDateTo: string;
+  sort: SortFilter;
   onSearch: (v: string) => void;
   onStatus: (v: StatusFilter) => void;
   onBillType: (v: BillTypeFilter) => void;
   onHousing: (v: string) => void;
   onDueDateFrom: (v: string) => void;
   onDueDateTo: (v: string) => void;
+  onSort: (v: SortFilter) => void;
 }
 
 const inputBase: React.CSSProperties = {
   fontFamily: "'DM Sans', sans-serif",
-  fontSize: 12,
+  fontSize: 13,
   color: C.navy,
   background: "#fff",
   border: `1px solid ${C.cream}`,
@@ -46,7 +55,7 @@ const selectBase: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: 13,
   fontWeight: 600,
   color: C.teal,
   textTransform: "uppercase",
@@ -64,12 +73,14 @@ export default function BillFilters({
   housingOptions,
   dueDateFrom,
   dueDateTo,
+  sort,
   onSearch,
   onStatus,
   onBillType,
   onHousing,
   onDueDateFrom,
   onDueDateTo,
+  onSort,
 }: Props) {
   const [hoveredInput, setHoveredInput] = useState(false);
   const [hoveredSelect, setHoveredSelect] = useState<string | null>(null);
@@ -111,7 +122,7 @@ export default function BillFilters({
           />
           <input
             type="text"
-            placeholder="Search student name..."
+            placeholder="Search by Student Account #..."
             value={search}
             onChange={(e) => onSearch(e.target.value)}
             onMouseEnter={() => setHoveredInput(true)}
@@ -223,6 +234,36 @@ export default function BillFilters({
             ),
           )}
         </select>
+
+        {/* Sort select dropdown */}
+        <select
+          title="Sort by"
+          aria-label="Sort by"
+          value={sort}
+          onChange={(e) => onSort(e.target.value as SortFilter)}
+          onMouseEnter={() => setHoveredSelect("sort")}
+          onMouseLeave={() =>
+            setHoveredSelect((current) =>
+              current === "sort" ? null : current,
+            )
+          }
+          style={{
+            ...selectBase,
+            minWidth: 170,
+            boxShadow:
+              hoveredSelect === "sort"
+                ? "0 8px 18px rgba(28,38,50,0.08)"
+                : "none",
+            outlineColor: hoveredSelect === "sort" ? C.amber : C.cream,
+          }}
+        >
+          <option value="due_date_asc">Due Date (Earliest)</option>
+          <option value="due_date_desc">Due Date (Latest)</option>
+          <option value="amount_asc">Amount (Low to High)</option>
+          <option value="amount_desc">Amount (High to Low)</option>
+          <option value="issue_date_asc">Issue Date (Earliest)</option>
+          <option value="issue_date_desc">Issue Date (Latest)</option>
+        </select>
       </div>
 
       {/* Row 2 — due date range */}
@@ -264,7 +305,7 @@ export default function BillFilters({
             onMouseLeave={() => setHoveredClear(false)}
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: 11,
+              fontSize: 13,
               color: C.orange,
               background: "rgba(201,100,42,0.08)",
               border: `1px solid rgba(201,100,42,0.2)`,

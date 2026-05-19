@@ -11,6 +11,7 @@ const routeNames: Record<string, string> = {
   assignment: "Assignment",
   issues: "Issues",
   occupants: "Occupants",
+  logs: "Logs",
 };
 
 export default function Breadcrumbs() {
@@ -33,6 +34,7 @@ export default function Breadcrumbs() {
 
   for (let i = 1; i < segments.length; i++) {
     const segment = segments[i];
+    const nextSegment = segments[i + 1];
     const href = "/" + segments.slice(0, i + 1).join("/");
     const isLast = i === segments.length - 1;
 
@@ -42,7 +44,10 @@ export default function Breadcrumbs() {
       name = `ID: ${segment}`;
     }
 
-    breadcrumbs.push({ href, name, isLast });
+    // Check if next segment is a dynamic ID (number) - if so, don't make current clickable
+    const hasIdChild = nextSegment && !isNaN(Number(nextSegment));
+
+    breadcrumbs.push({ href, name, isLast, clickable: !hasIdChild });
   }
 
   return (
@@ -55,10 +60,12 @@ export default function Breadcrumbs() {
           <ChevronRight size={14} className="text-[#EDE9DE]/70" />
           {crumb.isLast ? (
             <span className="px-2 py-1">{crumb.name}</span>
-          ) : (
+          ) : crumb.clickable ? (
             <Link href={crumb.href} className="hover:bg-white/10 px-2 py-1 rounded-md transition-colors min-h-0 h-fit inline-flex items-center">
               {crumb.name}
             </Link>
+          ) : (
+            <span className="px-2 py-1">{crumb.name}</span>
           )}
         </div>
       ))}

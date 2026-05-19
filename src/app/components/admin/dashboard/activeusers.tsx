@@ -34,7 +34,7 @@ export default function ActiveUsers({ data, total }: Props) {
         </div>
         <div
           style={{
-            fontSize: 11,
+            fontSize: 13,
             color: C.teal,
             marginTop: 2,
             marginBottom: 20,
@@ -56,7 +56,7 @@ export default function ActiveUsers({ data, total }: Props) {
           >
             No active users yet
           </div>
-          <div style={{ fontSize: 11 }}>
+          <div style={{ fontSize: 13 }}>
             User counts will appear here once accounts exist in the system.
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function ActiveUsers({ data, total }: Props) {
       </div>
       <div
         style={{
-          fontSize: 11,
+          fontSize: 13,
           color: C.teal,
           marginTop: 2,
           marginBottom: 20,
@@ -127,12 +127,12 @@ export default function ActiveUsers({ data, total }: Props) {
                 hoveredItem === item.label ? "rgba(227,175,100,0.14)" : C.cream,
             }}
           >
-            <span style={{ fontSize: 12, fontWeight: 500, color: C.navy }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: C.navy }}>
               {item.label}
             </span>
             <span
               style={{
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 700,
                 color: C.navy,
                 background: C.amber,

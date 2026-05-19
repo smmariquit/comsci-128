@@ -53,7 +53,7 @@ export default function RecentAuditLog({ data }: Props) {
           </div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 13,
               color: C.teal,
               marginTop: 2,
               fontFamily: "'DM Mono', monospace",
@@ -75,7 +75,7 @@ export default function RecentAuditLog({ data }: Props) {
           >
             No audit events yet
           </div>
-          <div style={{ fontSize: 11 }}>
+          <div style={{ fontSize: 13 }}>
             Activity logs will appear here when actions are recorded.
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function RecentAuditLog({ data }: Props) {
         </div>
         <div
           style={{
-            fontSize: 11,
+            fontSize: 13,
             color: C.teal,
             marginTop: 2,
             fontFamily: "'DM Mono', monospace",
@@ -168,12 +168,12 @@ export default function RecentAuditLog({ data }: Props) {
 
               {/* Content */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: C.navy, fontWeight: 500 }}>
+                <div style={{ fontSize: 13, color: C.navy, fontWeight: 500 }}>
                   {entry.audit_description}
                 </div>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 13,
                     color: C.teal,
                     marginTop: 3,
                     fontFamily: "'DM Mono', monospace",
