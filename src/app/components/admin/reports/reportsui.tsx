@@ -162,8 +162,8 @@ export function TableShell({
     <div
       style={{
         background: "#fff",
-        borderRadius: 12,
-        outline: `1px solid ${C.cream}`,
+        borderRadius: 16,
+        border: "1px solid rgba(26,35,50,0.06)",
         overflow: "hidden",
       }}
     >
@@ -180,7 +180,7 @@ export function TableShell({
       </div>
       <div style={{ overflowX: "auto" }}>
         <table
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}
+          style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 12 }}
         >
           {children}
         </table>
@@ -201,7 +201,7 @@ export function Th({ children }: { children: React.ReactNode }) {
         fontFamily: "'DM Sans', sans-serif",
         fontWeight: 600,
         whiteSpace: "nowrap",
-        background: C.cream,
+        background: "rgba(234,232,225,0.5)",
       }}
     >
       {children}
