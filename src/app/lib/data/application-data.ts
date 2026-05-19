@@ -1,10 +1,7 @@
-import { ApplicationReportRow } from "@/app/components/admin/user/approval_table_wrapper";
+import type { ApplicationReportRow } from "@/app/components/admin/user/approval_table_wrapper";
+import { sendApplicationSubmittedEmail } from "@/app/lib/services/email-service";
 import { supabase } from "@/app/lib/supabase";
-import {
-  Application,
-  NewApplication,
-  UpdateApplication,
-} from "@/models/application";
+import type { Application, NewApplication } from "@/models/application";
 
 async function create(application: NewApplication): Promise<Application> {
   const { data, error } = await supabase
@@ -13,6 +10,44 @@ async function create(application: NewApplication): Promise<Application> {
     .select("*");
 
   if (error) throw error;
+
+  // Send submission email notification to student asynchronously
+  try {
+    const studentAccountNumber = application.student_account_number;
+    if (studentAccountNumber) {
+      supabase
+        .from("student")
+        .select(`
+          user:user!account_number (
+            first_name,
+            last_name,
+            account_email
+          )
+        `)
+        .eq("account_number", studentAccountNumber)
+        .single()
+        .then(({ data: studentData, error: studentError }) => {
+          if (!studentError && studentData) {
+            const studentUser = (studentData as any).user;
+            const studentEmail = studentUser?.account_email;
+            const studentName =
+              `${studentUser?.first_name || ""} ${studentUser?.last_name || ""}`.trim();
+            const housingName =
+              application.housing_name || "your selected housing";
+
+            if (studentEmail) {
+              sendApplicationSubmittedEmail(
+                studentEmail,
+                studentName || "Student",
+                housingName,
+              );
+            }
+          }
+        });
+    }
+  } catch (emailErr) {
+    console.error("Failed to send application submission email:", emailErr);
+  }
 
   return data[0];
 }
@@ -209,7 +244,8 @@ async function getApplicationDetailById(applicationId: number) {
         user:user!account_number (
           first_name,
           middle_name,
-          last_name
+          last_name,
+          account_email
         )
       )
     `,
@@ -304,7 +340,7 @@ async function getApplicationsForApproval(
 
   if (error)
     throw new Error(
-      "Failed to fetch applications for approval: " + error.message,
+      `Failed to fetch applications for approval: ${error.message}`,
     );
 
   return (applications || []).map((app: any) => {

@@ -1,14 +1,13 @@
 import { applicationData } from "@/app/lib/data/application-data";
-import { Database } from "@/app/types/database.types";
+import type { Database } from "@/app/types/database.types";
 
 type ApplicationStatus = Database["public"]["Enums"]["ApplicationStatus"];
 
 import { accommodationHistoryData } from "@/lib/data/accommodation-history-data";
-import { validateAction, validateOwnership } from "./authorization-service";
-import App from "next/app";
 import { AppAction } from "../models/permissions";
-import { roomData } from "../data/room-data";
 import { createAuditLog } from "./audit-log-service";
+import { validateAction, validateOwnership } from "./authorization-service";
+import { sendApplicationStatusEmail } from "./email-service";
 
 function formatStudentName(user?: {
   first_name?: string | null;
@@ -81,14 +80,16 @@ const updateApplicationStatus = async (
     const appDetail =
       await applicationData.getApplicationDetailById(applicationId);
 
-    console.log("appDetail: ", JSON.stringify(appDetail,null,2));
+    console.log("appDetail: ", JSON.stringify(appDetail, null, 2));
 
     if (appDetail?.landlord_account_number) {
       await validateOwnership(appDetail.landlord_account_number);
     }
 
-    const updated = await applicationData.update(applicationId, { application_status: status })
-    if (!updated) return null
+    const updated = await applicationData.update(applicationId, {
+      application_status: status,
+    });
+    if (!updated) return null;
 
     const landlordAccountNumber = appDetail?.landlord_account_number ?? null;
     const student = appDetail?.student as any;
@@ -105,9 +106,22 @@ const updateApplicationStatus = async (
         `Application ${applicationId} status set to ${status} for ${label}`,
         landlordAccountNumber,
       );
+
+      // Send status update email notification to student asynchronously
+      const studentEmail = studentUser?.account_email;
+      if (studentEmail && status) {
+        const housingName =
+          appDetail?.housing_name || "your housing application";
+        sendApplicationStatusEmail(
+          studentEmail,
+          studentName || "Student",
+          housingName,
+          status as any,
+        );
+      }
     }
 
-    return updated
+    return updated;
   } catch (error) {
     console.error("Error: ", error);
     throw error;
@@ -124,10 +138,14 @@ const assignApplicantToRoom = async (
     // rbac
     await validateAction(AppAction.ASSIGN_ROOM);
 
-    const appDetail = await applicationData.getApplicationDetailById(applicationId);
-    
-    const updated = await applicationData.assignRoomToApplication(applicationId, roomId)
-    if (!updated) throw new Error("Failed to assign room to application.")
+    const appDetail =
+      await applicationData.getApplicationDetailById(applicationId);
+
+    const updated = await applicationData.assignRoomToApplication(
+      applicationId,
+      roomId,
+    );
+    if (!updated) throw new Error("Failed to assign room to application.");
 
     await accommodationHistoryData.createTenantRecord(
       studentAccountNumber,
@@ -151,7 +169,7 @@ const assignApplicantToRoom = async (
       );
     }
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
     console.error("Error: ", error);
     throw new Error("Failed to assign applicant to room.");
