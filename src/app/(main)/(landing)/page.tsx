@@ -8,7 +8,7 @@ import ShowcaseSection from "./ShowcaseSection";
 import TestimonialsSection from "./TestimonialsSection";
 import CTASection from "./GSSection";
 import HowItWorks from "./HowItWorksSection";
-import DormDigest from "./DormDigest";
+
 
 // Mapping colors
 const colors = {
@@ -28,7 +28,7 @@ export default function LandingPage() {
 
       {/* ── Navbar ── */}
       <nav className="flex justify-between items-center px-8 py-6 md:px-16">
-        <div className="font-bold text-xl tracking-tight">Title</div>
+        <div className="font-bold text-xl tracking-tight">UPLB CASA</div>
         <div className="flex items-center gap-5">
           <button className="font-medium text-[#C9642A] hover:underline transition-colors">
             Log in
@@ -123,9 +123,7 @@ export default function LandingPage() {
       {/* Services */}
       <ServicesSection />
       
-      {/* Photos slideshow */}
-      <DormDigest /> 
-      
+
       {/* How it works section */}
       <HowItWorks />
       
@@ -135,15 +133,7 @@ export default function LandingPage() {
       {/* Get Started with orange section */}
       <CTASection />
 
-      {/* Footer */}
-      <footer
-        className="py-10 px-8 text-center text-xs font-(family-name:--font-geist-mono) leading-relaxed space-y-1"
-        style={{ backgroundColor: colors.light_blue, color: colors.cream }}
-      >
-        <p>© 2026 Website Name</p>
-        <p>University of the Philippines Los Baños AY 2025-2026</p>
-        <p>In partial fulfillment of the requirements for CMSC 128: Software Engineering</p>
-      </footer>
+
     </div>
   );
 }
