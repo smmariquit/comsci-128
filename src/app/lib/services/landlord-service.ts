@@ -2,6 +2,7 @@ import { NewUser } from "@/models/user";
 import { landlordData } from "@/app/lib/data/landlord-data";
 import { NewManager } from "@/models/manager";
 import { createAuditLog } from "./audit-log-service";
+import { userService } from "./user-service";
 
 function formatUserName(user: {
 	first_name?: string | null;
@@ -14,28 +15,35 @@ function formatUserName(user: {
 	return full || user.account_email?.trim() || "";
 }
 
-const addLandlord = async (userDetails: NewUser, managerDetails: NewManager) => {
-    try {
-        const result = await landlordData.create(userDetails, managerDetails);
-        if (result?.error) {
-            throw new Error(result.error.message || "Failed to add landlord.");
-        }
+const addLandlord = async (
+  accountNumber: number,
+  managerDetails: NewManager,
+): Promise<NewManager | null> => {
+  try {
+    const landlord = await landlordData.create(accountNumber, managerDetails);
+    
+    if (!landlord) return null;
+      const userDetails = await userService.getUser(accountNumber);
 
-		if (result?.account_number) {
-			const userName = formatUserName(userDetails);
-			const label = userName || userDetails.account_email || "Unknown user";
-			await createAuditLog(
-				result.account_number,
-				userName,
-				"Update User Role",
-				`User ${label} promoted to Landlord`,
-			);
-		}
-        return result;
-    } catch (error) {
-        console.error("Error adding landlord:", error);
-        throw new Error("Failed to add landlord.");
+      const userName = `${userDetails!.first_name} ${userDetails!.last_name}`;
+
+      if (landlord && userDetails) {
+      const userName = `${userDetails.first_name} ${userDetails.last_name}`;
+
+      await createAuditLog(
+        accountNumber,
+        userName,
+        "Update User Role",
+        `${userName} updated role from student to landlord`,
+         null
+      );
     }
+    return landlord;
+  } catch (error: any) {
+    console.error("Error adding landlord:", error); 
+    console.error("Error message:", error.message); 
+    throw new Error(`Failed to add landlord: ${error.message}`); 
+  }
 };
 
 const fetchAllHousingAdmins = async () => {

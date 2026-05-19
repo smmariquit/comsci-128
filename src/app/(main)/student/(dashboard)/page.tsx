@@ -98,7 +98,9 @@ export default async function DashboardPage() {
       <StudentNavBar
         path={"Dashboard"}
         userId={currUser.account_number}
-        userName={userName}
+        firstName={currUser.first_name}
+        lastName={currUser.last_name}
+        profilePicture={currUser.profile_picture}
       />
 
       {/* BODY */}
