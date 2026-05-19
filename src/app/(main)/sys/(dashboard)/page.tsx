@@ -334,8 +334,10 @@ export default function DashboardPage({
 
           {/* Notification bell */}
           <div className="relative">
+            {/* biome-ignore lint/a11y/useValidAriaRole: role is a custom react component prop */}
             <NotificationBell
               accountNumber={sysAccountNumber}
+              role="System Admin"
               logsHref="/sys/logs"
             />
           </div>
