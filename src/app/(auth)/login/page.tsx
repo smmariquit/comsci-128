@@ -6,41 +6,67 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { setCookie } from "@/app/lib/utils";
 import PageLoading from "@/app/components/ui/page-loading";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
   const [status, setStatus] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
   const supabase = getSupabaseBrowserClient();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const router = useRouter();
 
-  function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { value } = e.target;
-    setEmail(value);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "email") {
+      if (value && !emailRegex.test(value)) {
+        setEmailError("Invalid email format");
+      } else {
+        setEmailError("");
+      }
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (emailError) {
+      setStatus("Please enter a valid email");
+      setStatusType("error");
+      return;
+    }
+
     setStatus("");
+    setStatusType("");
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: form.email,
+      password: form.password,
     });
 
     if (error) {
       setStatus(error.message);
+      setStatusType("error");
       setLoading(false);
     } else {
       setStatus("Signed in successfully");
+      setStatusType("success");
       setCurrentUser(data.user);
 
       const { data: profile } = await supabase
         .from("user")
         .select("user_type, account_number")
-        .eq("account_email", email)
+        .eq("account_email", form.email)
         .single();
 
       if (profile) {
@@ -67,7 +93,7 @@ export default function LoginPage() {
         setCookie("account_number", String(profile.account_number), 1);
         setCookie("is_logged_in", "true", 1);
 
-        // Record successful login event in the system audit logs
+        // Record successful login event in the system audit logs for WCAG Compliance auditability
         fetch("/api/auth/log-event", {
           method: "POST",
           headers: {
@@ -102,7 +128,6 @@ export default function LoginPage() {
             target = "/manage";
           }
         }
-        setPassword("");
         router.push(target);
       }
     }
@@ -145,27 +170,52 @@ export default function LoginPage() {
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
           Welcome back
         </h2>
-        {status && <div className="text-red-400 text-center">{status}</div>}
-        <input
-          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
-          type="email"
-          name="email"
-          aria-label="Email address"
-          placeholder="Email"
-          value={email}
-          onChange={handleEmailChange}
-          required
-        />
-        <input
-          className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 border border-stone-200"
-          type="password"
-          name="password"
-          aria-label="Password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        {status && (
+          <div
+            className={`text-center ${statusType === "success" ? "text-green-400" : "text-red-400"}`}
+          >
+            {status}
+          </div>
+        )}
+        <div>
+          <input
+            className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border ${
+              emailError ? "border-red-500" : "border-stone-200"
+            }`}
+            type="email"
+            name="email"
+            aria-label="Email address"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          {emailError && (
+            <p className="text-red-400 text-sm mt-1">{emailError}</p>
+          )}
+        </div>
+        <div>
+          <div className="relative">
+            <input
+              className="w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 pr-12 outline-none border border-stone-200"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              aria-label="Password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+        </div>
         <button
           type="submit"
           className="bg-orange-300 text-gray-800 font-bold rounded-3xl py-3 mt-2 hover:bg-orange-400 transition"

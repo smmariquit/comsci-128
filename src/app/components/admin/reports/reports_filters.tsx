@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { ReportType } from "@/app/components/admin/reports/reports_wrapper";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 interface Props {
   reportType: ReportType;
@@ -248,38 +249,22 @@ export default function ReportFilters({
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={labelStyle}>Date From</span>
-            <input
-              type="date"
+            <ThemedDatePicker
               value={dateFrom}
-              onChange={(e) => onDateFrom(e.target.value)}
-              onMouseEnter={() => setHoveredFrom(true)}
-              onMouseLeave={() => setHoveredFrom(false)}
-              style={{
-                ...inputBase,
-                minWidth: 150,
-                boxShadow: hoveredFrom
-                  ? "0 8px 18px rgba(28,38,50,0.08)"
-                  : "none",
-                outlineColor: hoveredFrom ? C.amber : C.cream,
-              }}
+              onChange={onDateFrom}
+              maxDate={new Date().toISOString().split("T")[0]}
+              placeholder="From"
+              style={{ ...inputBase, minWidth: 150 }}
             />
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={labelStyle}>Date To</span>
-            <input
-              type="date"
+            <ThemedDatePicker
               value={dateTo}
-              onChange={(e) => onDateTo(e.target.value)}
-              onMouseEnter={() => setHoveredTo(true)}
-              onMouseLeave={() => setHoveredTo(false)}
-              style={{
-                ...inputBase,
-                minWidth: 150,
-                boxShadow: hoveredTo
-                  ? "0 8px 18px rgba(28,38,50,0.08)"
-                  : "none",
-                outlineColor: hoveredTo ? C.amber : C.cream,
-              }}
+              onChange={onDateTo}
+              maxDate={new Date().toISOString().split("T")[0]}
+              placeholder="To"
+              style={{ ...inputBase, minWidth: 150 }}
             />
           </div>
           {(dateFrom || dateTo) && (

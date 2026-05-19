@@ -12,6 +12,7 @@ export default function SystemConfigPage() {
 
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
 
   // Helper to read cookie values
   const getCookie = (name: string) => {
@@ -45,6 +46,8 @@ export default function SystemConfigPage() {
     if (dpaCookie !== null) {
       setDpaRequired(dpaCookie === 'true');
     }
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
   }, []);
 
   const handleSave = () => {
@@ -72,7 +75,7 @@ export default function SystemConfigPage() {
             <p className="text-xs text-[#1a2332]/50 mt-1">Configure global application overrides, behaviors, and compliance settings.</p>
           </div>
           <div className="flex items-center gap-4">
-            <NotificationBell />
+            <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
           </div>
         </header>
 

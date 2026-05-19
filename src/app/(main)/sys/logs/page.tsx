@@ -26,7 +26,7 @@ export interface AuditLog {
   module: ModuleType;
   ipAddress: string;
   status: StatusType;
-  description?: string;
+  audit_description?: string;
 }
 
 export interface AuditLogsPageProps {
@@ -35,13 +35,6 @@ export interface AuditLogsPageProps {
   notifications?: { id: string; title: string; body: string; read: boolean; time: string }[];
   onLogout?: () => void;
 }
-
-// Hardcoded datas -- 
-const stubUser: SidebarUser = {
-  name: 'Luthelle Fernandez',
-  role: 'System Admin',
-  initials: 'LF',
-};
 
 
 const stubNotifications = [
@@ -129,43 +122,6 @@ function ModuleChip({ module }: { module: ModuleType }) {
   );
 }
 
-// Status badge design -> success or failed action
-function StatusBadge({ status }: { status: StatusType }) {
-  return status === 'Success' ? (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
-      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Success
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 ring-1 ring-rose-200">
-      <span className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Failed
-    </span>
-  );
-}
-
-// Helper to limit visible pagination buttons
-const getVisiblePages = (currentPage: number, totalPages: number) => {
-  const pages: (number | string)[] = [];
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-  } else {
-    pages.push(1);
-    if (currentPage > 3) {
-      pages.push('...');
-    }
-    const start = Math.max(2, currentPage - 1);
-    const end = Math.min(totalPages - 1, currentPage + 1);
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    if (currentPage < totalPages - 2) {
-      pages.push('...');
-    }
-    pages.push(totalPages);
-  }
-  return pages;
-};
 
 // Pagingn button design
 function PageBtn({ children, onClick, active, disabled }: {
@@ -187,7 +143,6 @@ function PageBtn({ children, onClick, active, disabled }: {
 
 // Main Component
 export default function AuditLogsPage({
-  user = stubUser,
   notifications = stubNotifications,
   onLogout,
 }: AuditLogsPageProps) {
@@ -197,8 +152,15 @@ export default function AuditLogsPage({
   const [page, setPage] = useState(1);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
   const [viewingLog, setViewingLog] = useState<AuditLog | null>(null); // view modal
+
+  const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+    setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+  }, []);
 
   // Fetch audit logs from API
   useEffect(() => {
@@ -232,7 +194,7 @@ export default function AuditLogsPage({
           module: log.module || 'Auth',
           ipAddress: log.partial_ip || '—',
           status: log.status || 'Success',
-          description: log.audit_description || '',
+          audit_description: log.audit_description || '',
         }));
 
         console.log('Transformed logs:', transformed);
@@ -265,26 +227,16 @@ export default function AuditLogsPage({
     return matchSearch && matchAction && matchModule && matchStatus;
   });
 
-  // Sorting
-  const sorted = [...filtered].sort((a, b) => {
-    const timeA = new Date(a.timestamp).getTime();
-    const timeB = new Date(b.timestamp).getTime();
-    if (filters.sortBy === 'Oldest First') {
-      return timeA - timeB;
-    }
-    return timeB - timeA; // Newest First default
-  });
-
-  const totalPages = Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE));
-  const paginated = sorted.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
-  const showingFrom = sorted.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
-  const showingTo = Math.min(page * ITEMS_PER_PAGE, sorted.length);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const showingFrom = filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
+  const showingTo = Math.min(page * ITEMS_PER_PAGE, filtered.length);
 
   // CSV export (only exports the currently filtered rows)
   const handleExport = () => {
     const rows = [
-      ['Timestamp', 'User', 'Role', 'Action', 'Module', 'IP Address', 'Status'],
-      ...sorted.map((l) => [l.timestamp, l.userName, l.userRole, l.action, l.module, l.ipAddress, l.status]),
+      ['Timestamp', 'User', 'Action', 'IP Address', 'Description'],
+      ...filtered.map((l) => [l.timestamp, l.userName,  l.action, l.ipAddress, l.audit_description]),
     ];
     const csv = rows.map((r) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -297,7 +249,7 @@ export default function AuditLogsPage({
   // Loading state
   if (loading) {
     return (
-      <div className="flex h-screen bg-[#eae8e1] overflow-hidden">
+      <div className="flex min-h-screen bg-[#eae8e1]">
         <Sidebar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -312,14 +264,14 @@ export default function AuditLogsPage({
   // Error state
   if (error) {
     return (
-      <div className="flex h-screen bg-[#eae8e1] overflow-hidden">
-        <Sidebar />
+      <div className="flex min-h-screen bg-[#eae8e1]">
+        <Sidebar/>
         <div className="flex-1 flex items-center justify-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
             <p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
             <p className="text-red-500 text-sm mb-4">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
+            <button 
+              onClick={() => window.location.reload()} 
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
             >
               Try Again
@@ -331,13 +283,13 @@ export default function AuditLogsPage({
   }
 
   return (
-    <div className="flex h-screen bg-[#eae8e1] overflow-hidden">
+    <div className="flex min-h-screen bg-[#eae8e1]">
 
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
+      <div className="flex-1 flex flex-col overflow-auto">
 
         {/* Header */}
         <div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-[#1a2332]/6">
@@ -345,7 +297,7 @@ export default function AuditLogsPage({
             <h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">Audit Logs</h1>
             <p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Track all system activity, changes, and access events</p>
           </div>
-          <NotificationBell />
+          <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
         </div>
 
         <div className="px-8 py-6 flex flex-col gap-5">
@@ -364,13 +316,13 @@ export default function AuditLogsPage({
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#1a2332]/6">
               <h2 className="text-[15px] font-bold text-[#1a2332]">System Events</h2>
               <span className="text-xs text-[#1a2332]/40">
-                Showing {showingFrom}–{showingTo} of {sorted.length} events
+                Showing {showingFrom}–{showingTo} of {filtered.length} events
               </span>
             </div>
 
             {/* Column headers */}
             <div className={`grid ${GRID_COLS} gap-4 px-6 py-3 bg-[#eae8e1]/50 border-b border-[#1a2332]/6`}>
-              {['TIMESTAMP', 'USER', 'ACTION', 'MODULE', 'IP ADDRESS', 'STATUS', 'DETAILS'].map((col) => (
+              {['TIMESTAMP', 'USER', 'ACTION', 'IP ADDRESS', 'DESCRIPTION'].map((col) => (
                 <span key={col} className="text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase">
                   {col}
                 </span>
@@ -400,31 +352,18 @@ export default function AuditLogsPage({
                       </div>
                       <div className="min-w-0">
                         <p className="text-[12px] font-semibold text-[#1a2332] truncate">{log.userName}</p>
-                        <p className="text-[10px] text-[#1a2332]/40">{log.userRole}</p>
                       </div>
                     </div>
 
                     {/* ACTION */}
                     <div><ActionBadge action={log.action} /></div>
 
-                    {/* MODULE */}
-                    <div><ModuleChip module={log.module} /></div>
 
                     {/* IP ADDRESS */}
                     <span className="text-[11px] font-mono text-[#1a2332]/60">{log.ipAddress}</span>
 
-                    {/* STATUS */}
-                    <div><StatusBadge status={log.status} /></div>
-
-                    {/* DETAILS */}
-                    <div>
-                      <button
-                        onClick={() => setViewingLog(log)}
-                        className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
-                      >
-                        View
-                      </button>
-                    </div>
+                     {/* IP ADDRESS */}
+                    <span className="text-[11px] font-mono text-[#1a2332]/60">{log.audit_description}</span>
                   </div>
                 ))
               )}
@@ -433,18 +372,14 @@ export default function AuditLogsPage({
             {/* Pagination */}
             <div className="flex items-center justify-between px-6 py-4 border-t border-[#1a2332]/6">
               <span className="text-xs text-[#1a2332]/40">
-                Showing {showingFrom}–{showingTo} of {sorted.length} events
+                Showing {showingFrom}–{showingTo} of {filtered.length} events
               </span>
               <div className="flex items-center gap-1">
                 <PageBtn onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
                   <ChevronLeft size={14} />
                 </PageBtn>
-                {getVisiblePages(page, totalPages).map((p, idx) => (
-                  typeof p === 'number' ? (
-                    <PageBtn key={idx} onClick={() => setPage(p)} active={p === page}>{p}</PageBtn>
-                  ) : (
-                    <span key={idx} className="px-2 text-sm text-[#1a2332]/40 select-none">...</span>
-                  )
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <PageBtn key={p} onClick={() => setPage(p)} active={p === page}>{p}</PageBtn>
                 ))}
                 <PageBtn onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
                   <ChevronRight size={14} />

@@ -14,7 +14,7 @@ export interface User {
 	name: string;
 	gender: string;
 	email: string;
-	role: 'Landlord' | 'Dorm Manager' | 'Student' | string;
+	role: 'Landlord' | 'Housing Administrator' | 'Student' | string;
 	status: 'Active' | 'Disabled' | string;
 	managerType?: string;
 	dormitory: string;
@@ -79,6 +79,13 @@ export default function UserManagementPage({
 	const [editingUser, setEditingUser] = useState<User | null>(null);
 	const [disableUser, setDisableUser] = useState<User | null>(null);
 
+	const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
+
+	useEffect(() => {
+		const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
+		setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
+	}, []);
+
 	// Fetch all users from API
 	useEffect(() => {
 		const fetchUsers = async () => {
@@ -101,7 +108,6 @@ export default function UserManagementPage({
 				const dormData = await dormResponse.json();
 				const landlordData = await landlordResponse.json();
 				const housingAdminData = await housingAdminResponse.json();
-
 
 				const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
 				const rawHousingAdmins = Array.isArray(housingAdminData) ? housingAdminData : housingAdminData.data?.data ?? [];
@@ -262,7 +268,7 @@ export default function UserManagementPage({
 						<h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">User Management</h1>
 						<p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Manage tenants, managers, and administrators</p>
 					</div>
-					<NotificationBell />
+					<NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
 				</div>
 
 				<div className="px-8 py-6 flex flex-col gap-5">
@@ -471,6 +477,25 @@ export default function UserManagementPage({
 								method: "DELETE",
 								headers: { "Content-Type": "application/json" },
 							});
+
+							// update only if there is a dorm selected
+							if (dorm?.id) {
+								const housingUpdate = await fetch(`/api/housing/${dorm.id}`, {
+									method: "PATCH",
+									headers: { "Content-Type": "application/json" },
+									body: JSON.stringify(
+										role === "Landlord"
+											? { landlord_account_number: userId }
+											: role === "Housing Administrator"
+											? { manager_account_number: userId }
+											: {}
+									),
+								});
+
+								if (!housingUpdate.ok) {
+									console.error("Failed to update housing assignment");
+								}
+							}
 
 							// 3. Update UI
 							setUsers((prev) =>
