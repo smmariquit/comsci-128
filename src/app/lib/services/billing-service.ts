@@ -3,6 +3,8 @@ import { BillRow } from "@/app/components/admin/billings/billingtable";
 import { validateAction } from "./authorization-service";
 import { AppAction } from "../models/permissions";
 import { createAuditLog } from "./audit-log-service";
+import { supabase } from "@/app/lib/supabase";
+import { sendBillAssignedEmail, sendBillStatusUpdatedEmail } from "./email-service";
 
 function normalizeStatus(rawStatus: unknown): BillRow["status"] {
   const value = String(rawStatus ?? "")
@@ -97,6 +99,40 @@ const markAsPaid = async (txnId: number) => {
                     `Bill ${data.transaction_id} marked as paid`,
                     data.manager_account_number ?? null,
                 );
+
+                // Send payment confirmation email notification to student asynchronously
+                (async () => {
+                    try {
+                        const { data: studentData, error: studentError } = await supabase
+                            .from("student")
+                            .select(`
+                                user:user!account_number (
+                                    first_name,
+                                    last_name,
+                                    account_email
+                                )
+                            `)
+                            .eq("account_number", accountNumber)
+                            .single();
+
+                        if (!studentError && studentData) {
+                            const studentUser = (studentData as any).user;
+                            const studentEmail = studentUser?.account_email;
+                            const studentName = `${studentUser?.first_name || ""} ${studentUser?.last_name || ""}`.trim();
+
+                            if (studentEmail) {
+                                await sendBillStatusUpdatedEmail(
+                                    studentEmail,
+                                    studentName || "Student",
+                                    data.transaction_id,
+                                    "Paid"
+                                );
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Failed to fetch student details for payment email:", err);
+                    }
+                })();
             }
         }
 
@@ -153,6 +189,41 @@ const createBill = async (billDetails: any) => {
                     `Bill ${data.transaction_id} created`,
                     data.manager_account_number ?? null,
                 );
+
+                // Send bill assigned email notification to student asynchronously
+                (async () => {
+                    try {
+                        const { data: studentData, error: studentError } = await supabase
+                            .from("student")
+                            .select(`
+                                user:user!account_number (
+                                    first_name,
+                                    last_name,
+                                    account_email
+                                )
+                            `)
+                            .eq("account_number", accountNumber)
+                            .single();
+
+                        if (!studentError && studentData) {
+                            const studentUser = (studentData as any).user;
+                            const studentEmail = studentUser?.account_email;
+                            const studentName = `${studentUser?.first_name || ""} ${studentUser?.last_name || ""}`.trim();
+
+                            if (studentEmail) {
+                                await sendBillAssignedEmail(
+                                    studentEmail,
+                                    studentName || "Student",
+                                    Number(data.amount),
+                                    data.bill_type || "Housing Bill",
+                                    data.due_date ? new Date(data.due_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "N/A"
+                                );
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Failed to fetch student details for bill creation email:", err);
+                    }
+                })();
             }
         }
 
