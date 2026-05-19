@@ -20,6 +20,7 @@ export default function HousingCards({ cards }: { cards: any[] }) {
           address: data.housing_address,
           housing_type: data.housing_type,
           price: data.rent_price,
+          image: data.housing_image,
           appli_start: data.start_application_date
             ? new Date(data.start_application_date).toLocaleDateString(
                 "en-US",
@@ -52,14 +53,23 @@ export default function HousingCards({ cards }: { cards: any[] }) {
         </div>
       )}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
-        {cards.map((card) => (
+        {cards.map((card) => ( 
           <div
             key={card.id}
             onClick={() => handleCardClick(card.id)}
-            className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02]"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleCardClick(card.id);
+              }
+            }}
+            tabIndex={0}
+            className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2"
           >
             <Image
-              src="/assets/placeholders/housing-414x264.svg"
+              src={
+                card.image || "/assets/placeholders/housing-414x264.svg"
+              }
               alt={`${card.name} placeholder`}
               width={414}
               height={264}

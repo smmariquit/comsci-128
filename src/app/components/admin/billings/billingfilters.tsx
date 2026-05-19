@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { C } from "@/lib/palette";
 import type { PaymentStatus, BillType } from "./billingtable";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 export type StatusFilter = "All" | PaymentStatus;
 export type BillTypeFilter = "All" | BillType;
@@ -235,44 +236,20 @@ export default function BillFilters({
       >
         <div style={{ display: "flex", flexDirection: "column" }}>
           <span style={labelStyle}>Due Date From</span>
-          <input
-            type="date"
+          <ThemedDatePicker
             value={dueDateFrom}
-            onChange={(e) => onDueDateFrom(e.target.value)}
-            onMouseEnter={() => setHoveredDate("from")}
-            onMouseLeave={() =>
-              setHoveredDate((current) => (current === "from" ? null : current))
-            }
-            style={{
-              ...inputBase,
-              minWidth: 150,
-              boxShadow:
-                hoveredDate === "from"
-                  ? "0 8px 18px rgba(28,38,50,0.08)"
-                  : "none",
-              outlineColor: hoveredDate === "from" ? C.amber : C.cream,
-            }}
+            onChange={onDueDateFrom}
+            placeholder="From"
+            style={{ ...inputBase, minWidth: 150 }}
           />
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <span style={labelStyle}>Due Date To</span>
-          <input
-            type="date"
+          <ThemedDatePicker
             value={dueDateTo}
-            onChange={(e) => onDueDateTo(e.target.value)}
-            onMouseEnter={() => setHoveredDate("to")}
-            onMouseLeave={() =>
-              setHoveredDate((current) => (current === "to" ? null : current))
-            }
-            style={{
-              ...inputBase,
-              minWidth: 150,
-              boxShadow:
-                hoveredDate === "to"
-                  ? "0 8px 18px rgba(28,38,50,0.08)"
-                  : "none",
-              outlineColor: hoveredDate === "to" ? C.amber : C.cream,
-            }}
+            onChange={onDueDateTo}
+            placeholder="To"
+            style={{ ...inputBase, minWidth: 150 }}
           />
         </div>
 

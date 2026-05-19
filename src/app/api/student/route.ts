@@ -5,14 +5,20 @@ import { addStudent } from "@/services/student-service";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const userDetails = body?.userDetails ?? body;
+    const {
+      authUserAlreadyCreated: _authUserAlreadyCreated,
+      ...bodyUserDetails
+    } = body ?? {};
+    const userDetails = body?.userDetails ?? bodyUserDetails;
     const studentDetails = body?.studentDetails;
     const studentAcademicDetails = body?.studentAcademicDetails;
+    const authUserAlreadyCreated = body?.authUserAlreadyCreated === true;
 
     const result = await addStudent(
       userDetails,
       studentDetails,
       studentAcademicDetails,
+      { authUserAlreadyCreated },
     );
 
     return NextResponse.json(

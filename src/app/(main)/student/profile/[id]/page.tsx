@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import StudentNavBar from "../../_components/StudentNavBar";
+import Avatar from "@/app/components/Avatar";
 import { StudentProfile } from "@/app/lib/models/student";
-import { LogOut } from "lucide-react";
+import { LogOut, Camera } from "lucide-react";
 import LogoutModal from "../../../../components/LogoutModal";
+import AvatarUploadModal from "../../../../components/AvatarUploadModal";
 import StateMessage from "@/app/components/ui/state-message";
+import AccountSettings from "@/app/components/ui/AccountSettings";
 import { deleteCookie } from "@/app/lib/utils";
 
 type StudentPayload = Omit<StudentProfile, "student"> & {
@@ -21,6 +24,7 @@ export default function StudentProfilePage() {
   const [student, setStudent] = useState<StudentPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [activeTab, setActiveTab] = useState("Personal Information");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<{
@@ -274,11 +278,28 @@ export default function StudentProfilePage() {
         {/* Left Card Sidebar */}
         <div className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-6 md:p-8 flex flex-col items-center shadow-sm h-fit">
           {/* Profile Circle */}
-          <div className="w-32 h-32 bg-[#1C2632] rounded-full mb-6 flex items-center justify-center">
-            <span className="text-[#EDE9DE] text-4xl font-bold">
-              {student?.first_name?.[0]}
-              {student?.last_name?.[0]}
-            </span>
+          <div
+            className="w-32 h-32 mb-6 relative group cursor-pointer"
+            onClick={() => setShowAvatarModal(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowAvatarModal(true);
+              }
+            }}
+          >
+            <Avatar
+              firstName={student?.first_name}
+              lastName={student?.last_name}
+              profilePicture={(student as any)?.profile_picture}
+              size={128}
+              className="border-4 border-[#E3AF64] shadow-md group-hover:opacity-80 transition-opacity"
+            />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full">
+              <Camera className="text-white w-8 h-8" />
+            </div>
           </div>
 
           <h2 className="text-2xl font-bold text-[#1C2632] mb-1 text-center">
@@ -294,6 +315,7 @@ export default function StudentProfilePage() {
               "Personal Information",
               "Emergency Contact",
               "Academic Information",
+              "Account Settings",
             ].map((tab) => (
               <button
                 key={tab}
@@ -436,6 +458,8 @@ export default function StudentProfilePage() {
               />
             </>
           )}
+
+          {activeTab === "Account Settings" && <AccountSettings />}
         </div>
       </div>
 
@@ -452,6 +476,23 @@ export default function StudentProfilePage() {
 				window.location.href = "/";
 			}}
 		/>
+
+      <AvatarUploadModal
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+        userId={Number(accountNumber)}
+        currentAvatarUrl={(student as any)?.profile_picture}
+        firstName={student?.first_name}
+        lastName={student?.last_name}
+        onUploadSuccess={(url) => {
+          if (student) {
+            setStudent({
+              ...student,
+              profile_picture: url,
+            } as any);
+          }
+        }}
+      />
 
 		</div>
 	);

@@ -2,6 +2,7 @@ import { housingAdminData } from "@/app/lib/data/housing-admin-data";
 import { NewUser } from "@/models/user";
 import { NewManager } from "@/models/manager";
 import { createAuditLog } from "./audit-log-service";
+import { userService } from "./user-service";
 
 function formatUserName(user: {
     first_name?: string | null;
@@ -14,22 +15,30 @@ function formatUserName(user: {
     return full || user.account_email?.trim() || "";
 }
 
-const addHousingAdmin = async (userDetails: NewUser, managerDetails: NewManager) => {
+
+const addHousingAdmin = async (account_number: number, managerDetails: NewManager) => {
     try {
-        const result = await housingAdminData.create(userDetails, managerDetails);
+        const result = await housingAdminData.create(account_number, managerDetails);
         if (result?.error) {
             throw new Error(result.error.message || "Failed to add housing admin.");
         }
 
-        if (result?.account_number) {
-            const userName = formatUserName(userDetails);
-            const label = userName || userDetails.account_email || "Unknown user";
-            await createAuditLog(
-                result.account_number,
-                userName,
-                "Update User Role",
-                `User ${label} promoted to Housing Admin`,
-            );
+
+    
+        const userDetails = await userService.getUser(account_number);
+
+        const userName = `${userDetails!.first_name} ${userDetails!.last_name}`;
+
+        if (result && userDetails) {
+        const userName = `${userDetails.first_name} ${userDetails.last_name}`;
+
+        await createAuditLog(
+            account_number,
+            userName,
+            "Update User Role",
+            `${userName} updated role from student to housing admin`,
+            null
+        );
         }
         return result;
     } catch (error) {
@@ -38,6 +47,20 @@ const addHousingAdmin = async (userDetails: NewUser, managerDetails: NewManager)
     }
 };
 
+const fetchAllHousingAdmins = async () => {
+    try {
+        const result = await housingAdminData.getAll();
+        if (result?.error) {
+            throw new Error(result.error.message || "Failed to fetch housing admin.");
+        }
+        return result;
+    } catch (error) {
+        console.error("Error fetching housing admin:", error);
+        throw new Error("Failed to fetch housing admin.");
+    }
+}
+
 export const housingAdminService = {
   addHousingAdmin,
+  fetchAllHousingAdmins
 };

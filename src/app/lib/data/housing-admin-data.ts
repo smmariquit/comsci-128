@@ -4,48 +4,54 @@ import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { managerData } from "@/app/lib/data/manager-data";
 
 // promote User from Student to Housing Admin (Manager rather)
-async function create(userDetails: NewUser, managerDetails: NewManager) {
+async function create(
+  account_number:number, 
+  managerDetails: NewManager) {
   // managerDetails.manager_type must already be set to "Housing Admin"
 
-  const newManagerData = await managerData.create(userDetails, managerDetails);
+  await managerData.create( account_number, managerDetails,);
 
-  managerDetails.account_number = newManagerData.account_number;
+	// Insert into housing_admin
+	const { data, error: adminError } = await supabase
+		.from("housing_admin")
+		.insert([{account_number}])
+		.select();
 
-  // Insert into housing_admin
-  const { data, error: adminError } = await supabase
-    .from("housing_admin")
-    .insert([managerDetails])
-    .select();
+	if (adminError) {
+		console.error(
+			"Error inserting into housing_admin:",
+			adminError.message,
+		);
+		return { data: null, error: adminError };
+	}
 
-  if (adminError) {
-    console.error("Error inserting into housing_admin:", adminError.message);
-    return { data: null, error: adminError };
-  }
-
-  return data[0];
+	return data[0];
 }
 
 // Read all housing admins with user details
 async function getAll() {
-  const { data, error } = await supabase.from("housing_admin").select(`
-      account_number,
-      manager!inner(
-        manager_type,
-        user!inner(
-          account_number,
-          account_email,
-          first_name,
-          middle_name,
-          last_name,
-          sex,
-          birthday,
-          home_address,
-          phone_number,
-          contact_email,
-          user_type,
+  const { data, error } = await supabase
+      .from("housing_admin")
+      .select(`
+        account_number,
+        manager(
+          manager_type,
+          user(
+            account_number,
+            account_email,
+            first_name,
+            middle_name,
+            last_name,
+            sex,
+            birthday,
+            home_address,
+            phone_number,
+            contact_email,
+            user_type
+          )
         )
-      )
-    `);
+      `)
+      .eq("is_deleted", false);
 
   if (error) {
     console.error("Error fetching housing admins:", error.message);

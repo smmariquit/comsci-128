@@ -2068,3 +2068,4 @@ where not exists (
 );
 
 commit;
+update public.housing set latitude = 14.160900149472134, longitude = 121.2406101503917 where housing_name = 'Men''s Residence Hall';

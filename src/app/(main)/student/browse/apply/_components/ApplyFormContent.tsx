@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronLeft, FileText } from "lucide-react";
+import { ChevronDown, ChevronLeft, FileText, Save } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
+import { useAutoSave } from "@/app/hooks/useAutoSave";
+import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
+import ThemedDatePicker from "@/app/components/ui/ThemedDatePicker";
 
 export function ApplyFormContent() {
   const dateNow = new Date(Date.now()).toISOString().split("T")[0];
@@ -16,16 +19,28 @@ export function ApplyFormContent() {
   const room_types = ["Women Only", "Men Only", "Co-ed"] as const;
   type PreferredRoomType = (typeof room_types)[number];
 
-  const [selectedRoomType, setSelectedRoomType] = useState<
-    PreferredRoomType | ""
-  >("");
-  const [moveOutDate, setMoveOutDate] = useState("");
-  const [fileName, setFileName] = useState<string>("");
+  // Auto-save form state
+  const [formData, setFormData, clearSaved, hasSavedData, saveState] =
+    useAutoSave(`casa-apply-${dormId ?? "new"}`, {
+      selectedRoomType: "" as string,
+      moveOutDate: "" as string,
+      fileName: "" as string,
+    });
+
   const [status, setStatus] = useState<{
     message: string;
     type: "success" | "error" | null;
   }>({ message: "", type: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDraftNotice, setShowDraftNotice] = useState(hasSavedData);
+
+  // Dismiss draft notice after 4 seconds
+  useEffect(() => {
+    if (showDraftNotice) {
+      const timer = setTimeout(() => setShowDraftNotice(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showDraftNotice]);
 
   useEffect(() => {
     async function fetchData() {
@@ -44,18 +59,18 @@ export function ApplyFormContent() {
   const submitApplication = async () => {
     setStatus({ message: "", type: null });
 
-    if (moveOutDate <= dateNow) {
+    if (formData.moveOutDate <= dateNow) {
       setStatus({
         message: "Move-out date cannot be in the past",
         type: "error",
       });
       return;
     }
-    if (selectedRoomType === "") {
+    if (formData.selectedRoomType === "") {
       setStatus({ message: "Please select a room type", type: "error" });
       return;
     }
-    if (fileName === "") {
+    if (formData.fileName === "") {
       setStatus({ message: "Please upload a file", type: "error" });
       return;
     }
@@ -64,21 +79,23 @@ export function ApplyFormContent() {
     try {
       const response = await applicationData.create({
         housing_name: dormData?.housing_name || "",
-        preferred_room_type: selectedRoomType,
+        preferred_room_type: formData.selectedRoomType as "Women Only" | "Men Only" | "Co-ed",
         application_status: "Pending Manager Approval",
-        expected_moveout_date: moveOutDate,
+        expected_moveout_date: formData.moveOutDate,
         actual_moveout_date: null,
         room_id: null,
         manager_account_number: dormData?.manager_account_number || null,
         student_account_number: dormData?.student_account_number || null,
         landlord_account_number: dormData?.landlord_account_number || null,
         document_type: "Form 5/Proof of Enrollment",
-        document_url: fileName,
+        document_url: formData.fileName,
         created_at: new Date().toISOString(),
         is_deleted: false,
       });
 
       if (response) {
+        // Clear saved draft on successful submit
+        clearSaved();
         setStatus({
           message:
             "Application submitted successfully! Redirecting to dashboard...",
@@ -114,6 +131,34 @@ export function ApplyFormContent() {
       >
         <ChevronLeft width="24" height="24" strokeWidth={3} />
       </button>
+
+      {/* Draft restored notice */}
+      {showDraftNotice && (
+        <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium animate-[fadeIn_0.3s_ease]">
+          <Save size={16} />
+          Draft restored! Your previous progress has been saved.
+          <button
+            onClick={() => {
+              clearSaved();
+              setFormData({
+                selectedRoomType: "",
+                moveOutDate: "",
+                fileName: "",
+              });
+              setShowDraftNotice(false);
+            }}
+            className="ml-auto text-xs text-blue-500 hover:text-blue-700 underline"
+          >
+            Clear draft
+          </button>
+        </div>
+      )}
+
+      <AutosaveStatus
+        saveState={saveState}
+        variant="light"
+        className="mb-4"
+      />
 
       {status.message && (
         <div
@@ -151,11 +196,14 @@ export function ApplyFormContent() {
               </label>
               <div className="relative">
                 <select
-                  value={selectedRoomType}
+                  value={formData.selectedRoomType}
                   onChange={(e) =>
-                    setSelectedRoomType(e.target.value as PreferredRoomType)
+                    setFormData((prev) => ({
+                      ...prev,
+                      selectedRoomType: e.target.value,
+                    }))
                   }
-                  className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:outline-none focus:ring-2 focus:ring-[#C9642A] appearance-none"
+                  className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:ring-2 focus:ring-[#C9642A] appearance-none"
                 >
                   <option value="" disabled hidden>
                     | Select room type
@@ -180,10 +228,17 @@ export function ApplyFormContent() {
               <label className="block text-sm font-bold text-[#1C2632]">
                 Expected move-out date:
               </label>
-              <input
-                type="date"
-                value={moveOutDate}
-                onChange={(e) => setMoveOutDate(e.target.value)}
+              <ThemedDatePicker
+                id="move-out-date"
+                value={formData.moveOutDate}
+                onChange={(val) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    moveOutDate: val,
+                  }))
+                }
+                minDate={new Date().toISOString().split("T")[0]}
+                placeholder="Select move-out date"
                 className="w-full h-[45px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7] px-3 py-2 text-sm text-[#73716D] focus:outline-none focus:ring-2 focus:ring-[#C9642A]"
               />
             </div>
@@ -195,7 +250,7 @@ export function ApplyFormContent() {
               Upload Form 5/ Proof of Enrollment
             </label>
             <div className="flex flex-col items-center justify-center h-[140px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7]/60 p-6 text-center">
-              {fileName ? (
+              {formData.fileName ? (
                 <div className="flex flex-col items-center gap-2">
                   {/* File Icon */}
                   <FileText
@@ -203,10 +258,13 @@ export function ApplyFormContent() {
                     strokeWidth={2}
                   />
                   <span className="text-sm font-medium text-[#1C2632] truncate max-w-[200px]">
-                    {fileName}
+                    {formData.fileName}
                   </span>
                   <button
-                    onClick={() => setFileName("")}
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) => ({ ...prev, fileName: "" }))
+                    }
                     className="text-xs text-[#D66B38] hover:underline"
                   >
                     Remove
@@ -220,7 +278,11 @@ export function ApplyFormContent() {
                     className="sr-only"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file) setFileName(file.name);
+                      if (file)
+                        setFormData((prev) => ({
+                          ...prev,
+                          fileName: file.name,
+                        }));
                     }}
                   />
                 </label>
@@ -244,6 +306,13 @@ export function ApplyFormContent() {
           </button>
         </div>
       </form>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

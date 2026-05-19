@@ -77,7 +77,7 @@ export default function ExportButtonsClient({ logs }: { logs: LogRow[] }) {
       <button
         type="button"
         onClick={handleExportCSV}
-        className="inline-flex items-center gap-2 rounded-2xl border border-[var(--cream)]/20 bg-white/6 px-3 py-2 text-sm font-semibold text-[var(--cream)] hover:bg-white/12"
+        className="inline-flex items-center gap-2 rounded-2xl border border-[#1C2632]/20 bg-transparent px-3 py-2 text-sm font-semibold text-[#1C2632] hover:bg-[#1C2632]/5"
       >
         <Download size={14} />
         Export CSV

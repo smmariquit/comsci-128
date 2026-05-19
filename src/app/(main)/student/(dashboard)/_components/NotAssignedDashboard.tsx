@@ -110,7 +110,7 @@ export default function NotAssignedDashboard(
             </li>
             <li>
               <span className="font-bold">Room Type:</span>{" "}
-              {getApplication()?.room.room_type}
+              {getApplication()?.room?.room_type ?? "Not yet assigned"}
             </li>
           </ul>
           <span className={tStyle}>
