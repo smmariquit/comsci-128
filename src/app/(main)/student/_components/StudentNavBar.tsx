@@ -5,6 +5,9 @@ import { Bell } from "lucide-react";
 import Logo from "@/app/components/Logo";
 import Avatar from "@/app/components/Avatar";
 import { useEffect, useState } from "react";
+import HelpWidget from "@/app/components/ui/HelpWidget";
+
+
 
 interface StudentNavbarProps {
   path: string;
@@ -26,6 +29,21 @@ export default function StudentNavBar({
   const [avatarUrl, setAvatarUrl] = useState(profilePicture || null);
   const [uid, setUid] = useState(userId);
   const profileLabel = [fName, lName].filter(Boolean).join(" ").trim();
+  const breadcrumbs = path
+    .split(">")
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+    .map((label, index, all) => {
+      const isLast = index === all.length - 1;
+      let href: string | null = null;
+
+      if (label === "Dashboard") href = "/student";
+      if (label === "Browse" || label === "Housing Browser") href = "/student/browse";
+      if (label === "Complaints") href = "/student/complaints";
+      if (label === "Student Profile") href = uid ? `/student/profile/${uid}` : "/student";
+
+      return { label, href, isLast };
+    });
 
   useEffect(() => {
     // If we already have the data from props, don't fetch
@@ -101,12 +119,37 @@ export default function StudentNavBar({
         className="w-full bg-gradient-to-r from-[#567375] to-[#6e9092] text-[#EDE9DE] font-[family-name:var(--font-geist-sans)]"
         aria-label="Student page breadcrumb"
       >
-        <div className="w-full max-w-7xl mx-auto flex items-center px-4 md:px-10 min-h-[44px] text-sm font-medium gap-2">
-          <ol className="max-w-7xl mx-auto px-0 md:px-0 py-2 text-[#EDE9DE] text-sm font-sans">
-            <li aria-current="page">{path}</li>
+        <div className="w-full max-w-7xl mx-auto flex items-center px-4 md:px-10 min-h-[44px] text-sm font-medium">
+          <ol className="flex flex-wrap items-center gap-2 text-[#EDE9DE] text-sm font-sans leading-none">
+            {breadcrumbs.map((crumb) => (
+              <li key={crumb.label} className="inline-flex items-center gap-2 h-7">
+                {crumb.href && !crumb.isLast ? (
+                  <Link
+                    href={crumb.href}
+                    className="inline-flex h-7 items-center rounded-md px-2 hover:bg-white/10 focus-visible:bg-white/10 transition-colors"
+                  >
+                    {crumb.label}
+                  </Link>
+                ) : (
+                  <span
+                    aria-current={crumb.isLast ? "page" : undefined}
+                    className="inline-flex h-7 items-center px-2"
+                  >
+                    {crumb.label}
+                  </span>
+                )}
+                {!crumb.isLast && (
+                  <span aria-hidden="true" className="inline-flex h-7 items-center text-white/70">
+                    /
+                  </span>
+                )}
+              </li>
+            ))}
           </ol>
         </div>
       </nav>
+      <HelpWidget role="student" />
 		</>
 	);
 }
+

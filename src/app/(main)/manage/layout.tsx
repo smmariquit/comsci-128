@@ -6,6 +6,8 @@ import Breadcrumbs from "./components/Breadcrumbs";
 import Avatar from "@/app/components/Avatar";
 import { getManagerAccountNumber } from "@/app/lib/auth";
 import { userData } from "@/app/lib/data/user-data";
+import HelpWidget from "@/app/components/ui/HelpWidget";
+
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -27,7 +29,7 @@ export default async function ManageLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
+    <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)] bg-[var(--cream)]">
       {/* NAV BAR */}
       <header className="w-full bg-[#1C2632] text-m">
         <div className="w-full max-w-7xl mx-auto flex h-16 md:h-20 items-center justify-between px-4 md:px-10">
@@ -106,12 +108,8 @@ export default async function ManageLayout({
       </div>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 bg-[var(--cream)] px-4 md:px-10 mx-auto max-w-7xl w-full">{children}</main>
-
-      {/* FOOTER */}
-      <footer className="bg-[#1C2632] text-[#EDE9DE] px-6 py-10 text-sm">
-        <div className="max-w-7xl mx-auto">© 2026 CMSC 128 Project</div>
-      </footer>
+      <main className="flex-1 w-full bg-[var(--cream)]">{children}</main>
+      <HelpWidget role="manager" />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Edit2 } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 interface AvatarProps {
   firstName?: string | null;
@@ -44,27 +44,40 @@ export default function Avatar({
 
   const avatar = (
     <div
-      className={`rounded-full bg-[#567375] flex items-center justify-center text-[#EDE9DE] font-bold overflow-hidden shrink-0 relative ${className}`}
+      className={`shrink-0 relative rounded-full ${className}`}
       style={{ width: size, height: size }}
     >
-      {profilePicture && !imageFailed ? (
-        <img
-          src={profilePicture}
-          alt={avatarAlt}
-          className="w-full h-full object-cover"
-          onError={() => setImageFailed(true)}
-        />
-      ) : (
-        <span className="text-sm" style={{ lineHeight: 1 }} aria-hidden="true">
-          {initials}
-        </span>
-      )}
+      <div
+        className="w-full h-full rounded-full bg-[#567375] flex items-center justify-center text-[#EDE9DE] font-bold overflow-hidden"
+      >
+        {profilePicture && !imageFailed ? (
+          <img
+            src={profilePicture}
+            alt={avatarAlt}
+            className="w-full h-full object-cover"
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <span className="font-bold" style={{ fontSize: Math.max(12, size * 0.38), lineHeight: 1 }} aria-hidden="true">
+            {initials}
+          </span>
+        )}
+        {showEditIcon && (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 hover:opacity-100 transition-opacity"
+            aria-hidden="true"
+          >
+            <Pencil size={Math.max(12, size * 0.4)} className="text-white" strokeWidth={2} />
+          </div>
+        )}
+      </div>
       {showEditIcon && (
         <div
-          className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 hover:opacity-100 transition-opacity"
+          className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-md border border-gray-200"
           aria-hidden="true"
+          style={{ zIndex: 10 }}
         >
-          <Edit2 size={Math.max(12, size * 0.4)} className="text-white" strokeWidth={2} />
+          <Pencil size={12} className="text-[#8b3e15]" strokeWidth={2.2} />
         </div>
       )}
     </div>

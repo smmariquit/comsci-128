@@ -15,11 +15,16 @@ import {
     LogOut,
 } from 'lucide-react'; // Icons
 
+import Avatar from '@/app/components/Avatar';
+
 // Footer - User info
 export interface SidebarUser {
     name: string;
     role: string;
     initials: string;
+    firstName?: string;
+    lastName?: string;
+    profilePicture?: string | null;
 }
 
 // Navigation items and routing for the sidebar
@@ -34,7 +39,6 @@ const navItems = [
 // Main Sidebar component
 export default function Sidebar() {
     const pathname = usePathname(); // Get current path for active link styling
-    const [menuOpen, setMenuOpen] = useState(false); // State for user profile dropdown menu (Shows logout button) 
     const [accountNumber, setAccountNumber] = useState<number>(0);
     const [user, setUser] = useState<SidebarUser>({name: "",role: "",initials: ""});
 
@@ -73,6 +77,9 @@ export default function Sidebar() {
                         .join("")
                         .toUpperCase()
                         .slice(0, 2),
+                    firstName: userData.first_name,
+                    lastName: userData.last_name,
+                    profilePicture: userData.profile_picture,
                 });
 
                 console.log(userData);
@@ -137,40 +144,30 @@ export default function Sidebar() {
             </nav>
 
             {/* User Profile and Logout */}
-            <div className="px-6 py-4 border-t border-white/6 relative">
-                <button
-                    type="button"
-                    onClick={() => setMenuOpen(!menuOpen)}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/6 transition-colors duration-150"
-                >
+            <div className="px-6 py-4 border-t border-white/6 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
                     <div className="relative shrink-0">
-                        <div className="w-9 h-9 bg-[#2e3f55] rounded-full flex items-center justify-center text-xs font-bold text-white/75 tracking-wider">
-                            {user.initials}
-                        </div>
+                        <Avatar
+                            firstName={user.firstName}
+                            lastName={user.lastName}
+                            profilePicture={user.profilePicture}
+                            size={36}
+                        />
                         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#1a2332]" />
                     </div>
-                    <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex flex-col min-w-0">
                         <span className="text-white text-[13px] font-semibold truncate">{user.name}</span>
                         <span className="text-white/40 text-[11px] mt-0.5">{user.role}</span>
                     </div>
-                    <ChevronRight
-                        size={14}
-                        className={`text-white/30 shrink-0 transition-transform duration-200 ${menuOpen ? 'rotate-90' : ''}`}
-                    />
+                </div>
+                <button
+                    type="button"
+                    onClick={onLogout}
+                    title="Logout"
+                    className="p-2 rounded-xl text-white/40 hover:text-red-400 hover:bg-white/6 transition-all duration-150 cursor-pointer shrink-0"
+                >
+                    <LogOut size={16} />
                 </button>
-
-                    {/* Popup menu */}
-                    {menuOpen && (
-                        <div className="absolute bottom-full left-4 right-4 mb-2 bg-[#243447] rounded-xl overflow-hidden shadow-xl border border-white/6">
-                        <button
-                            onClick={onLogout}
-                                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-white/6 transition-colors duration-150"
-                                >
-                                <LogOut size={16} />
-                                Logout
-                        </button>
-                    </div>
-                )}
             </div>
         </aside>
     );

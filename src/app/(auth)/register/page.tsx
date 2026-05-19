@@ -30,14 +30,25 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleSignupPending, setGoogleSignupPending] = useState(false);
+  const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  const [dpaRequired, setDpaRequired] = useState(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const savedStep = localStorage.getItem("casa-register-step");
-    if (!savedStep) return;
-    const parsed = Number(savedStep);
-    if (!Number.isNaN(parsed) && parsed >= 1 && parsed <= 3) {
-      setStep(parsed);
+    if (savedStep) {
+      const parsed = Number(savedStep);
+      if (!Number.isNaN(parsed) && parsed >= 1 && parsed <= 3) {
+        setStep(parsed);
+      }
+    }
+
+    // Read dpa_required from system configuration cookies
+    const match = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.trim().startsWith("dpa_required="));
+    if (match) {
+      setDpaRequired(match.split("=")[1] !== "false");
     }
   }, []);
 
@@ -103,6 +114,12 @@ export default function RegisterPage() {
   async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+    
+    if (dpaRequired && !privacyAgreed) {
+      setError("Please check the box to agree with the Data Privacy Act compliance terms.");
+      return;
+    }
+
     setLoading(true);
     try {
       const endpoint = googleSignupPending ? "/api" : "/api/student";
@@ -192,9 +209,21 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gray-950">
+    <div
+      className="relative w-full min-h-screen flex items-center justify-center"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div
+        className="absolute inset-0 bg-[#0f1418]/72 backdrop-blur-md"
+        aria-hidden="true"
+      />
       <form
-        className="bg-gray-800 rounded-3xl p-10 w-full max-w-md flex flex-col gap-4 shadow-lg"
+        className="relative z-10 w-full max-w-md flex flex-col gap-4 rounded-3xl border border-white/10 bg-[#111820]/88 p-10 shadow-2xl backdrop-blur-sm"
         onSubmit={
           step === 3
             ? handleRegister
@@ -209,7 +238,7 @@ export default function RegisterPage() {
         autoComplete="off"
       >
         <h2 className="text-3xl font-bold text-zinc-300 text-center mb-2">
-          Sign up
+          Create your account
         </h2>
         {error && <div className="text-red-400 text-center">{error}</div>}
         <AutosaveStatus saveState={saveState} className="mx-auto" />
@@ -312,36 +341,55 @@ export default function RegisterPage() {
         )}
 
         {step === 3 && (
-          <div className="text-stone-200 space-y-2">
-            <div>
-              <b>First name:</b> {form.first_name}
-            </div>
-            {form.middle_name && (
+          <div className="text-stone-200 space-y-4">
+            <div className="space-y-2 bg-gray-800/40 p-4 rounded-xl border border-white/5">
               <div>
-                <b>Middle name:</b> {form.middle_name}
+                <b>First name:</b> {form.first_name}
+              </div>
+              {form.middle_name && (
+                <div>
+                  <b>Middle name:</b> {form.middle_name}
+                </div>
+              )}
+              <div>
+                <b>Last name:</b> {form.last_name}
+              </div>
+              <div>
+                <b>Email:</b> {form.email}
+              </div>
+              <div>
+                <b>Birthday:</b> {form.birthday}
+              </div>
+              <div>
+                <b>Home address:</b> {form.home_address}
+              </div>
+              <div>
+                <b>Phone number:</b> {form.phone_number}
+              </div>
+              <div>
+                <b>Contact email:</b> {form.contact_email}
+              </div>
+              <div>
+                <b>Sex:</b> {form.sex || "Prefer not to say"}
+              </div>
+            </div>
+
+            {/* Data Privacy Compliance Checkbox */}
+            {dpaRequired && (
+              <div className="flex items-start gap-3 border-t border-white/10 pt-4 bg-[#18222b]/50 p-4 rounded-xl">
+                <input
+                  id="privacy_conforme"
+                  type="checkbox"
+                  checked={privacyAgreed}
+                  onChange={(e) => setPrivacyAgreed(e.target.checked)}
+                  className="mt-1 h-4 w-4 cursor-pointer rounded border-zinc-600 bg-zinc-700 text-orange-400 focus:ring-orange-500 focus:ring-offset-0 focus:outline-none"
+                  required
+                />
+                <label htmlFor="privacy_conforme" className="text-xs text-stone-300 leading-relaxed cursor-pointer select-none">
+                  I hereby authorize <b>UPLB CASA</b> to collect, process, and store my personal details in strict compliance with the <b>Republic of the Philippines Data Privacy Act of 2012 (RA 10173)</b> and its implementing rules.
+                </label>
               </div>
             )}
-            <div>
-              <b>Last name:</b> {form.last_name}
-            </div>
-            <div>
-              <b>Email:</b> {form.email}
-            </div>
-            <div>
-              <b>Birthday:</b> {form.birthday}
-            </div>
-            <div>
-              <b>Home address:</b> {form.home_address}
-            </div>
-            <div>
-              <b>Phone number:</b> {form.phone_number}
-            </div>
-            <div>
-              <b>Contact email:</b> {form.contact_email}
-            </div>
-            <div>
-              <b>Sex:</b> {form.sex || "Prefer not to say"}
-            </div>
           </div>
         )}
 

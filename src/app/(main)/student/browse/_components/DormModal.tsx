@@ -25,6 +25,8 @@ interface DormModalProps {
     has_security: boolean;
     has_utilities_included: boolean;
     image?: string | null;
+    raw_start?: string | null;
+    raw_end?: string | null;
   } | null;
   onClose: () => void;
   onViewMap?: () => void;
@@ -138,7 +140,7 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
           </div>
 
           {/* Action Button */}
-          <div className="flex justify-end pt-6 gap-3">
+          <div className="flex justify-end pt-6 gap-3 items-center">
             {onViewMap && (
               <button
                 onClick={onViewMap}
@@ -147,12 +149,52 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
                 View 3D Map
               </button>
             )}
-            <Link
-              href={`/student/browse/apply?id=${dorm.id}`} // Passing the ID via query param
-              className="rounded-full bg-[#8b3e15] px-10 py-2.5 font-bold text-white transition-transform hover:scale-105 active:scale-95 font-[family-name:var(--font-geist-sans)]"
-            >
-              Apply
-            </Link>
+            {(() => {
+              const now = new Date();
+              let isNotStarted = false;
+              let isClosed = false;
+
+              if (dorm.raw_start) {
+                const startDate = new Date(dorm.raw_start);
+                startDate.setHours(0, 0, 0, 0);
+                if (now.getTime() < startDate.getTime()) {
+                  isNotStarted = true;
+                }
+              }
+
+              if (dorm.raw_end) {
+                const endDate = new Date(dorm.raw_end);
+                endDate.setHours(23, 59, 59, 999);
+                if (now.getTime() > endDate.getTime()) {
+                  isClosed = true;
+                }
+              }
+
+              if (isNotStarted) {
+                return (
+                  <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-200 px-6 py-2.5 font-bold text-xs flex items-center justify-center font-[family-name:var(--font-geist-sans)]">
+                    Not Started
+                  </span>
+                );
+              }
+
+              if (isClosed) {
+                return (
+                  <span className="rounded-full bg-red-100 text-red-800 border border-red-200 px-6 py-2.5 font-bold text-xs flex items-center justify-center font-[family-name:var(--font-geist-sans)]">
+                    Closed
+                  </span>
+                );
+              }
+
+              return (
+                <Link
+                  href={`/student/browse/apply?id=${dorm.id}`} // Passing the ID via query param
+                  className="rounded-full bg-[#8b3e15] px-10 py-2.5 font-bold text-white transition-transform hover:scale-105 active:scale-95 font-[family-name:var(--font-geist-sans)]"
+                >
+                  Apply
+                </Link>
+              );
+            })()}
           </div>
         </div>
       </div>

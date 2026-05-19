@@ -14,10 +14,12 @@ interface Props {
   roomType: TypeFilter;
   housing: string;
   housingOptions: string[];
+  sortBy: string;
   onSearch: (v: string) => void;
   onOccupancy: (v: OccupancyFilter) => void;
   onRoomType: (v: TypeFilter) => void;
   onHousing: (v: string) => void;
+  onSortBy: (v: string) => void;
 }
 
 const inputBase: React.CSSProperties = {
@@ -46,10 +48,12 @@ export default function RoomFilters({
   roomType,
   housing,
   housingOptions,
+  sortBy,
   onSearch,
   onOccupancy,
   onRoomType,
   onHousing,
+  onSortBy,
 }: Props) {
   const [hoveredInput, setHoveredInput] = useState(false);
   const [hoveredSelect, setHoveredSelect] = useState<string | null>(null);
@@ -195,6 +199,31 @@ export default function RoomFilters({
             {s === "All" ? "All Occupancy" : s}
           </option>
         ))}
+      </select>
+
+      {/* Sort By occupants_count */}
+      <select
+        title="Sort rooms"
+        aria-label="Sort rooms"
+        value={sortBy}
+        onChange={(e) => onSortBy(e.target.value)}
+        onMouseEnter={() => setHoveredSelect("sort")}
+        onMouseLeave={() =>
+          setHoveredSelect((current) => (current === "sort" ? null : current))
+        }
+        style={{
+          ...selectBase,
+          minWidth: 160,
+          boxShadow:
+            hoveredSelect === "sort"
+              ? "0 8px 18px rgba(28,38,50,0.08)"
+              : "none",
+          outlineColor: hoveredSelect === "sort" ? C.amber : C.cream,
+        }}
+      >
+        <option value="None">Default Sorting</option>
+        <option value="occupants_count_asc">Occupants: Low to High</option>
+        <option value="occupants_count_desc">Occupants: High to Low</option>
       </select>
     </div>
   );

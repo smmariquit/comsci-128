@@ -23,15 +23,15 @@ export interface User {
 
 // Dorm Data Types - showed in table
 export interface Dorm {
-  id: string;
-  name: string;
-  status: 'Accepting' | 'Disabled' | string;
-  dormitory: string;
-  dormAddress?: string;
-  managerEmail?: string;
-  capacity?: number;
-  rooms?: number;
-  occupied?: number;
+	id: string;
+	name: string;
+	status: 'Accepting' | 'Disabled' | string;
+	dormitory: string;
+	dormAddress?: string;
+	managerEmail?: string;
+	capacity?: number;
+	rooms?: number;
+	occupied?: number;
 }
 
 export interface UserManagementProps {
@@ -72,12 +72,12 @@ export default function UserManagementPage({
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [filters, setFilters] = useState<UserFiltersState>({
-		search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm',
+		search: '', role: 'All Roles', status: 'All Status', dorm: 'All Dorm', sex: 'All Sex', sortBy: 'Name',
 	});
-  	// State for pagination and modals
+	// State for pagination and modals
 	const [page, setPage] = useState(1);
 	const [editingUser, setEditingUser] = useState<User | null>(null);
-  	const [disableUser, setDisableUser] = useState<User | null>(null);
+	const [disableUser, setDisableUser] = useState<User | null>(null);
 
 	// Fetch all users from API
 	useEffect(() => {
@@ -85,23 +85,23 @@ export default function UserManagementPage({
 			try {
 				setLoading(true);
 				setError(null);
-				
+
 				const [response, dormResponse, landlordResponse, housingAdminResponse] = await Promise.all([
 					fetch('/api/users'),
 					fetch('/api/housing'),
 					fetch('/api/landlord'),
 					fetch('/api/housing-admin'),
 				]);
-				
+
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
-				
+
 				const data = await response.json();
 				const dormData = await dormResponse.json();
 				const landlordData = await landlordResponse.json();
 				const housingAdminData = await housingAdminResponse.json();
-				
+
 
 				const rawLandlords = Array.isArray(landlordData) ? landlordData : landlordData.data ?? [];
 				const rawHousingAdmins = Array.isArray(housingAdminData) ? housingAdminData : housingAdminData.data?.data ?? [];
@@ -115,7 +115,7 @@ export default function UserManagementPage({
 				} else if (dormData.data && Array.isArray(dormData.data)) {
 					rawDorms = dormData.data;
 				}
-		
+
 				const transformedDorms: Dorm[] = rawDorms.map((dorm: any) => ({
 					id: String(dorm.housing_id || dorm.id || ''),
 					name: dorm.housing_name || dorm.name || 'Unknown',
@@ -127,7 +127,7 @@ export default function UserManagementPage({
 					rooms: dorm.total_rooms || undefined,
 					occupied: dorm.occupied_rooms || undefined,
 				}));
-				
+
 				// Ensure we always have an array
 				let rawUsers = [];
 				if (Array.isArray(data)) {
@@ -140,46 +140,46 @@ export default function UserManagementPage({
 					console.warn('Unexpected API response format:', data);
 					rawUsers = [];
 				}
-				
+
 				// Transform the data to match User interface
 				const transformedUsers: User[] = rawUsers.map((user: any) => {
-				const userId = String(user.account_number);
-				
-				// ✅ Determine manager type
-				let role = user.user_type;
-				let managerType = undefined;
-				
-				if (user.user_type === 'Manager') {
-					if (landlordIds.has(userId)) {
-					managerType = 'Landlord';
-					role = 'Landlord';
-					} else if (housingAdminIds.has(userId)) {
-					managerType = 'Housing Administrator';
-					role = 'Housing Administrator';
+					const userId = String(user.account_number);
+
+					// ✅ Determine manager type
+					let role = user.user_type;
+					let managerType = undefined;
+
+					if (user.user_type === 'Manager') {
+						if (landlordIds.has(userId)) {
+							managerType = 'Landlord';
+							role = 'Landlord';
+						} else if (housingAdminIds.has(userId)) {
+							managerType = 'Housing Administrator';
+							role = 'Housing Administrator';
+						}
 					}
-				}
 
-				const history = user.student?.student_accommodation_history?.[0];
-				const room = history?.room;
-				const studentHousing = room?.housing;
-				const managerHousing = user.manager?.housing_admin?.housing?.[0];
-				const housing = studentHousing || managerHousing;
+					const history = user.student?.student_accommodation_history?.[0];
+					const room = history?.room;
+					const studentHousing = room?.housing;
+					const managerHousing = user.manager?.housing_admin?.housing?.[0];
+					const housing = studentHousing || managerHousing;
 
-				return {
-					id: userId,
-					name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
-					gender: user.sex,
-					email: user.account_email,
-					role,
-					managerType,
-					status: user.is_deleted ? 'Disabled' : 'Active',
-					dormitory: housing?.housing_name || '—',
-					room: room?.room_code ? String(room.room_code) : '—',
-				};
+					return {
+						id: userId,
+						name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+						gender: user.sex,
+						email: user.account_email,
+						role,
+						managerType,
+						status: user.is_deleted ? 'Disabled' : 'Active',
+						dormitory: housing?.housing_name || '—',
+						room: room?.room_code ? String(room.room_code) : '—',
+					};
 				});
-								
-				console.log('Transformed users:', transformedUsers); 
-				
+
+				console.log('Transformed users:', transformedUsers);
+
 				setUsers(transformedUsers);
 				setDormList(transformedDorms);
 			} catch (error) {
@@ -197,21 +197,30 @@ export default function UserManagementPage({
 	// Filter users - with safety check
 	const filtered = users && Array.isArray(users) ? users.filter((u) => {
 		const matchSearch = u.name?.toLowerCase().includes(filters.search.toLowerCase()) ||
-                        	u.email?.toLowerCase().includes(filters.search.toLowerCase());
-		const matchRole   = filters.role   === 'All Roles'  || u.role === filters.role;
+			u.email?.toLowerCase().includes(filters.search.toLowerCase());
+		const matchRole = filters.role === 'All Roles' || u.role === filters.role;
 		const matchStatus = filters.status === 'All Status' || u.status === filters.status;
-		const matchDorm   = filters.dorm   === 'All Dorm'   || u.dormitory === filters.dorm;
-		return matchSearch && matchRole && matchStatus && matchDorm;
+		const matchDorm = filters.dorm === 'All Dorm' || u.dormitory === filters.dorm;
+		const matchSex = filters.sex === 'All Sex' || u.gender === filters.sex;
+		return matchSearch && matchRole && matchStatus && matchDorm && matchSex;
 	}) : [];
-	
-	const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
+	// Sorting
+	const sorted = [...filtered].sort((a, b) => {
+		if (filters.sortBy === 'Account Number') {
+			return Number(a.id || 0) - Number(b.id || 0);
+		}
+		return (a.name || '').localeCompare(b.name || '');
+	});
+
+	const totalPages = Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE));
+	const paginated = sorted.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
 	// Loading state
 	if (loading) {
 		return (
-			<div className="flex min-h-screen bg-[#eae8e1]">
-				<Sidebar/>
+			<div className="flex h-screen bg-[#eae8e1] overflow-hidden">
+				<Sidebar />
 				<div className="flex-1 flex items-center justify-center">
 					<div className="text-center">
 						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2332] mx-auto mb-4"></div>
@@ -225,14 +234,14 @@ export default function UserManagementPage({
 	// Error state
 	if (error) {
 		return (
-			<div className="flex min-h-screen bg-[#eae8e1]">
-				<Sidebar/>
+			<div className="flex h-screen bg-[#eae8e1] overflow-hidden">
+				<Sidebar />
 				<div className="flex-1 flex items-center justify-center">
 					<div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md text-center">
 						<p className="text-red-600 font-semibold mb-2">Error Loading Users</p>
 						<p className="text-red-500 text-sm mb-4">{error}</p>
-						<button 
-							onClick={() => window.location.reload()} 
+						<button
+							onClick={() => window.location.reload()}
 							className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
 						>
 							Try Again
@@ -244,160 +253,161 @@ export default function UserManagementPage({
 	}
 
 	return (
-		<div className="flex min-h-screen bg-[#eae8e1]">
-			<Sidebar/>
+		<div className="flex h-screen bg-[#eae8e1] overflow-hidden">
+			<Sidebar />
 
-			<div className="flex-1 flex flex-col overflow-auto">
+			<div className="flex-1 flex flex-col overflow-y-auto">
 				<div className="flex items-start justify-between px-8 pt-8 pb-6 border-b border-[#1a2332]/6">
 					<div>
 						<h1 className="text-4xl font-bold text-[#1a2332] tracking-tight">User Management</h1>
 						<p className="text-sm text-[#1a2332]/50 mt-1 font-mono">Manage tenants, managers, and administrators</p>
 					</div>
-					<NotificationBell/>
+					<NotificationBell />
 				</div>
-				
+
 				<div className="px-8 py-6 flex flex-col gap-5">
 					<UserFilters
 						values={filters}
 						onChange={(f) => { setFilters(f); setPage(1); }}
 						dormOptions={['All Dorm', ...dorms.map((d) => d.name)]}
 					/>
-					
+
 					<div className="bg-white rounded-2xl overflow-hidden">
 						<div className="flex items-center justify-between px-6 py-4 border-b border-[#1a2332]/6">
 							<h2 className="text-[15px] font-bold text-[#1a2332]">Users</h2>
 							<span className="text-xs text-[#1a2332]/40">
-								Showing {filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} users
+								Showing {sorted.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, sorted.length)} of {sorted.length} users
 							</span>
 						</div>
-						
+
 						<table className="w-full border-separate border-spacing-0">
-						{/* HEADER */}
-						<thead>
-							<tr className="bg-[#eae8e1]/50 border-b border-[#1a2332]/6">
-							{['NAME', 'EMAIL', 'ROLE', 'STATUS', 'DORMITORY', 'ROOM', 'ACTIONS'].map((col) => (
-								<th
-								key={col}
-								className="px-6 py-3 text-left text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase"
-								>
-								{col}
-								</th>
-							))}
-							</tr>
-						</thead>
-
-						{/* BODY */}
-						<tbody className="divide-y divide-[#1a2332]/5">
-							{paginated.length === 0 ? (
-							<tr>
-								<td colSpan={7} className="text-sm text-[#1a2332]/40 text-center py-12">
-								No users found.
-								</td>
-							</tr>
-							) : (
-							paginated.map((u) => (
-								<tr
-								key={u.id}
-								className="hover:bg-[#eae8e1]/30 transition-colors"
-								>
-								{/* NAME */}
-								<td className="px-6 py-4">
-									<div className="flex items-center gap-3 min-w-0">
-									<div className="w-9 h-9 rounded-full bg-[#1a2332] flex items-center justify-center text-white text-xs font-bold shrink-0">
-										{u.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '??'}
-									</div>
-									<div className="min-w-0">
-										<p className="text-sm font-semibold text-[#1a2332] truncate">
-										{u.name || 'Unknown'}
-										</p>
-										<p className="text-[11px] text-[#1a2332]/40">
-										{u.gender || '—'}
-										</p>
-									</div>
-									</div>
-								</td>
-
-								{/* EMAIL */}
-								<td className="px-6 py-4 text-sm text-[#1a2332]/60 truncate">
-									{u.email || '—'}
-								</td>
-
-								{/* ROLE */}
-								<td className="px-6 py-4">
-									<span
-									className={`px-2.5 py-1 rounded-full text-[11px] font-semibold w-fit ${
-										{
-										Admin: 'bg-purple-100 text-purple-700',
-										Manager: 'bg-blue-100 text-blue-700',
-										Student: 'bg-[#eae8e1] text-[#1a2332]/60',
-										}[u.role] ?? 'bg-gray-100 text-gray-600'
-									}`}
-									>
-									{u.role || '—'}
-									</span>
-								</td>
-
-								{/* STATUS */}
-								<td className="px-6 py-4">
-									<span
-									className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border w-fit ${
-										u.status === 'Active'
-										? 'border-emerald-300 text-emerald-600 bg-emerald-50'
-										: 'border-red-200 text-red-500 bg-red-50'
-									}`}
-									>
-									{u.status || '—'}
-									</span>
-								</td>
-
-								{/* DORM */}
-								<td className="px-6 py-4 text-sm text-[#1a2332]/60">
-									{u.dormitory || '—'}
-								</td>
-
-								{/* ROOM */}
-								<td className="px-6 py-4 text-sm text-[#1a2332]/60">
-									{u.room || '—'}
-								</td>
-
-								{/* ACTIONS */}
-								<td className="px-6 py-4">
-									<div className="flex items-center gap-2">
-									<button
-										onClick={() => setEditingUser(u)}
-										className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+							{/* HEADER */}
+							<thead>
+								<tr className="bg-[#eae8e1]/50 border-b border-[#1a2332]/6">
+									{['NAME', 'EMAIL', 'ROLE', 'STATUS', 'DORMITORY', 'ROOM', 'ACTIONS'].map((col) => (
+										<th
+											key={col}
+											className="px-6 py-3 text-left text-[10px] font-semibold tracking-widest text-[#1a2332]/40 uppercase"
 										>
-										Edit
-									</button>
-																			
-                  <button
-                    onClick={() => {
-					setDisableUser(u);
-					}}	
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                      u.status === 'Active'
-                        ? 'text-red-500 border border-red-200 hover:bg-red-50'
-                        : 'text-emerald-600 border border-emerald-200 hover:bg-emerald-50'
-                    }`}
-                  >
-                    {u.status === 'Active' ? 'Disable' : 'Enable'}
-                  </button>
-									</div>
-								</td>
+											{col}
+										</th>
+									))}
 								</tr>
-							))
-							)}
-						</tbody>
+							</thead>
+
+							{/* BODY */}
+							<tbody className="divide-y divide-[#1a2332]/5">
+								{paginated.length === 0 ? (
+									<tr>
+										<td colSpan={7} className="text-sm text-[#1a2332]/40 text-center py-12">
+											No users found.
+										</td>
+									</tr>
+								) : (
+									paginated.map((u) => (
+										<tr
+											key={u.id}
+											className="hover:bg-[#eae8e1]/30 transition-colors"
+										>
+											{/* NAME */}
+											<td className="px-6 py-4">
+												<div className="flex items-center gap-3 min-w-0">
+													<div className="w-9 h-9 rounded-full bg-[#1a2332] flex items-center justify-center text-white text-xs font-bold shrink-0">
+														{u.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '??'}
+													</div>
+													<div className="min-w-0">
+														<p className="text-sm font-semibold text-[#1a2332] truncate">
+															{u.name || 'Unknown'}
+														</p>
+														<p className="text-[11px] text-[#1a2332]/40">
+															{u.gender || '—'}
+														</p>
+													</div>
+												</div>
+											</td>
+
+											{/* EMAIL */}
+											<td className="px-6 py-4 text-sm text-[#1a2332]/60 truncate">
+												{u.email || '—'}
+											</td>
+
+											{/* ROLE */}
+											<td className="px-6 py-4">
+												<span
+													className={`px-2.5 py-1 rounded-full text-[11px] font-semibold w-fit ${{
+															Admin: 'bg-purple-100 text-purple-700',
+															Manager: 'bg-blue-100 text-blue-700',
+															Student: 'bg-[#eae8e1] text-[#1a2332]/60',
+														}[u.role] ?? 'bg-gray-100 text-gray-600'
+														}`}
+												>
+													{u.role || '—'}
+												</span>
+											</td>
+
+											{/* STATUS */}
+											<td className="px-6 py-4">
+												<span
+													className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border w-fit ${u.status === 'Active'
+															? 'border-emerald-300 text-emerald-600 bg-emerald-50'
+															: 'border-red-200 text-red-500 bg-red-50'
+														}`}
+												>
+													{u.status || '—'}
+												</span>
+											</td>
+
+											{/* DORM */}
+											<td className="px-6 py-4 text-sm text-[#1a2332]/60">
+												{u.dormitory || '—'}
+											</td>
+
+											{/* ROOM */}
+											<td className="px-6 py-4 text-sm text-[#1a2332]/60">
+												{u.room || '—'}
+											</td>
+
+											{/* ACTIONS */}
+											<td className="px-6 py-4">
+												<div className="flex items-center gap-2">
+													<button
+														onClick={() => setEditingUser(u)}
+														className="px-3 py-1.5 text-xs font-semibold text-[#1a2332] border border-[#1a2332]/20 rounded-lg hover:border-[#1a2332] transition-colors"
+													>
+														Edit
+													</button>
+
+													<button
+														onClick={() => {
+															setDisableUser(u);
+														}}
+														className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${u.status === 'Active'
+																? 'text-red-500 border border-red-200 hover:bg-red-50'
+																: 'text-emerald-600 border border-emerald-200 hover:bg-emerald-50'
+															}`}
+													>
+														{u.status === 'Active' ? 'Disable' : 'Enable'}
+													</button>
+												</div>
+											</td>
+										</tr>
+									))
+								)}
+							</tbody>
 						</table>
-						
+
 						<div className="flex items-center justify-between px-6 py-4 border-t border-[#1a2332]/6">
 							<span className="text-xs text-[#1a2332]/40">
-								Showing {filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} users
+								Showing {sorted.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, sorted.length)} of {sorted.length} users
 							</span>
 							<div className="flex items-center gap-1">
 								<PageBtn onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}><ChevronLeft size={14} /></PageBtn>
-								{Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-									<PageBtn key={p} onClick={() => setPage(p)} active={p === page}>{p}</PageBtn>
+								{getVisiblePages(page, totalPages).map((p, idx) => (
+									typeof p === 'number' ? (
+										<PageBtn key={idx} onClick={() => setPage(p)} active={p === page}>{p}</PageBtn>
+									) : (
+										<span key={idx} className="px-2 text-sm text-[#1a2332]/40 select-none">...</span>
+									)
 								))}
 								<PageBtn onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}><ChevronRight size={14} /></PageBtn>
 							</div>
@@ -406,107 +416,132 @@ export default function UserManagementPage({
 				</div>
 			</div>
 			{editingUser && (
-			<EditUserModal
-			user={{
-				...editingUser,
-				userType: editingUser.role as any, 
-			} as any}
-			dormitories={dorms}  
-			onClose={() => setEditingUser(null)}
-			onSave={async (id, role, dorm) => {
-			try {
-				const userId = id.toString();
-				
-
-				console.log("Saving:", { userId, role, dorm });
-
-				const roleRouteMap: Record<string, string> = {
-					"Landlord":              "landlord",
-					"Housing Administrator": "housing-admin",  
-				};
-
-				// Update role
-				const route = roleRouteMap[role];
-
-				if (!route) {
-				throw new Error(`No API route defined for role: ${role}`);
-				}
-
-				// insert the table of the role
-				const response = await fetch(`/api/${route}/${userId}`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					account_number: userId,
-					manager_type: role,
-				}),
-				});
-				
-				// update user type
-				const userResponse = await fetch(`/api/users/${userId}`, {
-					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						account_number: userId,
-						user_type: "Manager",
-					}),
-				});
-
-				if (!response.ok) throw new Error("Failed to update role");
-				console.log(dorm?.id);
+				<EditUserModal
+					user={{
+						...editingUser,
+						userType: editingUser.role as any,
+					} as any}
+					dormitories={dorms}
+					onClose={() => setEditingUser(null)}
+					onSave={async (id, role, dorm) => {
+						try {
+							const userId = id.toString();
 
 
-				// Delete in Student table
-				const deleteStudent = await fetch(`/api/student/profile/${userId}`, {
-					method: "DELETE",
-					headers: { "Content-Type": "application/json" },
-				});
+							console.log("Saving:", { userId, role, dorm });
 
-				// 3. Update UI
-				setUsers((prev) =>
-				prev.map((u) =>
-					u.id === id
-					? {
-						...u,
-						role,
-						dormitory: dorm ? dorm.name : u.dormitory,
+							const roleRouteMap: Record<string, string> = {
+								"Landlord": "landlord",
+								"Housing Administrator": "housing-admin",
+							};
+
+							// Update role
+							const route = roleRouteMap[role];
+
+							if (!route) {
+								throw new Error(`No API route defined for role: ${role}`);
+							}
+
+							// insert the table of the role
+							const response = await fetch(`/api/${route}/${userId}`, {
+								method: "POST",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({
+									account_number: userId,
+									manager_type: role,
+								}),
+							});
+
+							// update user type
+							const userResponse = await fetch(`/api/users/${userId}`, {
+								method: "PATCH",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({
+									account_number: userId,
+									user_type: "Manager",
+								}),
+							});
+
+							if (!response.ok) throw new Error("Failed to update role");
+							console.log(dorm?.id);
+
+
+							// Delete in Student table
+							const deleteStudent = await fetch(`/api/student/profile/${userId}`, {
+								method: "DELETE",
+								headers: { "Content-Type": "application/json" },
+							});
+
+							// 3. Update UI
+							setUsers((prev) =>
+								prev.map((u) =>
+									u.id === id
+										? {
+											...u,
+											role,
+											dormitory: dorm ? dorm.name : u.dormitory,
+										}
+										: u
+								)
+							);
+
+							setEditingUser(null);
+						} catch (err) {
+							console.error("SAVE ERROR:", err);
+							alert("Failed to update user");
 						}
-					: u
-				)
-				);
+					}}
+				/>
+			)}
 
-				setEditingUser(null);
-			} catch (err) {
-				console.error("SAVE ERROR:", err);
-				alert("Failed to update user");
-			}
-			}}
-			/>
-		)}
 
-		
-      {disableUser && (
-		<DisableAccountModal
-			user={disableUser as any}
-			onClose={() => setDisableUser(null)}
-			onConfirm={(id) => {
-			setUsers(prev => prev.map(u => 
-				u.id === id 
-				? { ...u, status: u.status === 'Active' ? 'Disabled' : 'Active' }
-				: u
-			));
-			setDisableUser(null);
-			}}
-		/>
-		)}
+			{disableUser && (
+				<DisableAccountModal
+					user={disableUser as any}
+					onClose={() => setDisableUser(null)}
+					onConfirm={(id) => {
+						setUsers(prev => prev.map(u =>
+							u.id === id
+								? { ...u, status: u.status === 'Active' ? 'Disabled' : 'Active' }
+								: u
+						));
+						setDisableUser(null);
+					}}
+				/>
+			)}
 		</div>
 	);
 }
 
+// Helper to limit visible pagination buttons
+const getVisiblePages = (currentPage: number, totalPages: number) => {
+	const pages: (number | string)[] = [];
+	if (totalPages <= 7) {
+		for (let i = 1; i <= totalPages; i++) {
+			pages.push(i);
+		}
+	} else {
+		pages.push(1);
+		if (currentPage > 3) {
+			pages.push('...');
+		}
+		const start = Math.max(2, currentPage - 1);
+		const end = Math.min(totalPages - 1, currentPage + 1);
+		for (let i = start; i <= end; i++) {
+			pages.push(i);
+		}
+		if (currentPage < totalPages - 2) {
+			pages.push('...');
+		}
+		pages.push(totalPages);
+	}
+	return pages;
+};
+
 function PageBtn({ children, onClick, active, disabled }: { children: React.ReactNode; onClick: () => void; active?: boolean; disabled?: boolean }) {
 	return (
 		<button onClick={onClick} disabled={disabled} className={`w-8 h-8 rounded-lg text-sm font-medium flex items-center justify-center transition-colors ${active ? 'bg-[#1a2332] text-white' : disabled ? 'text-[#1a2332]/20 cursor-not-allowed' : 'text-[#1a2332]/50 hover:bg-[#eae8e1]'}`}>
-    		{children}
-    	</button>
+			{children}
+		</button>
 	);
 }

@@ -38,6 +38,33 @@ body {
   color-scheme: light;
 }
 
+/* ── Custom Scrollbar for Manager Area ── */
+.manage-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.manage-scrollbar::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, rgba(28, 38, 50, 0.03) 0%, rgba(86, 115, 117, 0.03) 100%);
+  border-radius: 10px;
+}
+
+.manage-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #567375 0%, #8b3e15 100%);
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.manage-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4a5f61 0%, #a8512d 100%);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Firefox scrollbar */
+.manage-scrollbar {
+  scrollbar-color: linear-gradient(180deg, #567375 0%, #8b3e15 100%) transparent;
+  scrollbar-width: thin;
+}
+
 /* WCAG AAA guardrails for shared utility-heavy screens. */
 .text-xs,
 .text-\[9px\],

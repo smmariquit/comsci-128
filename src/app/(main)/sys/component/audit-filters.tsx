@@ -8,6 +8,7 @@ export interface AuditFiltersState {
   action: string;
   module: string;
   status: string;
+  sortBy: string;
 }
 
 export interface AuditFiltersProps {
@@ -52,6 +53,7 @@ export default function AuditFilters({
       action: "All Actions",
       module: "All Modules",
       status: "All Status",
+      sortBy: "Newest First",
     });
 
   // Active filter tags — only show non-default values
@@ -70,6 +72,11 @@ export default function AuditFilters({
       key: "status",
       label: `Status: ${values.status}`,
       clear: () => set("status", "All Status"),
+    },
+    values.sortBy !== "Newest First" && {
+      key: "sortBy",
+      label: `Sort: ${values.sortBy}`,
+      clear: () => set("sortBy", "Newest First"),
     },
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
 
@@ -116,6 +123,16 @@ export default function AuditFilters({
             value={values.status}
             options={statusOptions}
             onChange={(v) => set("status", v)}
+          />
+        </div>
+
+        {/* Sort */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-[#1a2332]/50 font-medium">Sort</span>
+          <FilterDropdown
+            value={values.sortBy || "Newest First"}
+            options={["Newest First", "Oldest First"]}
+            onChange={(v) => set("sortBy", v)}
           />
         </div>
 

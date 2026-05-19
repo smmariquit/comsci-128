@@ -60,16 +60,16 @@ function SeaBackground() {
 function ShowcaseCards() {
   const data = [
     {
-      title: "New Dorm opening at Location X",
-      desc: "Men only. 4 pax per unit.",
+      title: "Offline-First Search Support",
+      desc: "Internet down or intermittent? Search the entire UPLB housing database, filter dorms, and view interactive maps fully offline on your device.",
     },
     {
-      title: "Tenants Evicted Due to Pets",
-      desc: "Pets were discovered on Apartment X by Landlord A. Following the clause, the tenants who refused to pay the violation fee were evicted",
+      title: "Verified Landlords & Listings",
+      desc: "Every listing goes through strict verification by the housing board to guarantee valid pricing, amenities, and security compliance.",
     },
     {
-      title: "New Site for finding Roommates",
-      desc: "Learn more about our new site that helps people looking someone to fill in the slots of an apartment.",
+      title: "Built-in Roommate Matching",
+      desc: "Find fellow UPLB students from your college or course to share apartments, split costs, and build a lasting roommate community.",
     },
   ];
 
