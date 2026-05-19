@@ -9,6 +9,8 @@ export interface UserFiltersState {
   role: string;
   status: string;
   dorm: string;
+  sex: string;
+  sortBy: string;
 }
 
 // Initial/default filter values - used for resetting filters and as defaults in the component
@@ -18,6 +20,8 @@ export interface UserFiltersProps {
   roleOptions?: string[];
   statusOptions?: string[];
   dormOptions?: string[];
+  sexOptions?: string[];
+  sortByOptions?: string[];
   onAddManager?: () => void;
   showAddManager?: boolean;
 }
@@ -26,9 +30,11 @@ export interface UserFiltersProps {
 export default function UserFilters({
   values,
   onChange,
-  roleOptions = ["All Roles", "Landlord", "Dorm Manager", "Student"],
+  roleOptions = ["All Roles", "Landlord", "Dorm Manager", "Student", "System Admin"],
   statusOptions = ["All Status", "Active", "Disabled"],
   dormOptions = ["All Dorm", "Dorm 1", "Dorm 2", "Dorm 3"],
+  sexOptions = ["All Sex", "Male", "Female", "Prefer not to say"],
+  sortByOptions = ["Name", "Account Number"],
   onAddManager,
   showAddManager = false,
 }: UserFiltersProps) {
@@ -43,6 +49,8 @@ export default function UserFilters({
       role: "All Roles",
       status: "All Status",
       dorm: "All Dorm",
+      sex: "All Sex",
+      sortBy: "Name",
     });
 
   // Active filter tags - only show if the filter value is not the default
@@ -61,6 +69,16 @@ export default function UserFilters({
       key: "dorm",
       label: `Dorm: ${values.dorm}`,
       clear: () => set("dorm", "All Dorm"),
+    },
+    values.sex !== "All Sex" && {
+      key: "sex",
+      label: `Sex: ${values.sex}`,
+      clear: () => set("sex", "All Sex"),
+    },
+    values.sortBy !== "Name" && {
+      key: "sortBy",
+      label: `Sort: ${values.sortBy}`,
+      clear: () => set("sortBy", "Name"),
     },
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
 
@@ -90,6 +108,16 @@ export default function UserFilters({
           />
         </div>
 
+        {/* Sex — label sits outside the dropdown */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-[#1a2332]/50 font-medium">Sex</span>
+          <FilterDropdown
+            value={values.sex || "All Sex"}
+            options={sexOptions}
+            onChange={(v) => set("sex", v)}
+          />
+        </div>
+
         {/* Status — label sits outside the dropdown */}
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-[#1a2332]/50 font-medium">Status</span>
@@ -107,6 +135,16 @@ export default function UserFilters({
             value={values.dorm}
             options={dormOptions}
             onChange={(v) => set("dorm", v)}
+          />
+        </div>
+
+        {/* Sort — label sits outside the dropdown */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-[#1a2332]/50 font-medium">Sort</span>
+          <FilterDropdown
+            value={values.sortBy || "Name"}
+            options={sortByOptions}
+            onChange={(v) => set("sortBy", v)}
           />
         </div>
 

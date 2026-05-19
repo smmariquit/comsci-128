@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronLeft, FileText, Save } from "lucide-react";
+import { ChevronDown, ChevronLeft, FileText, Save, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getDormDetails } from "../../_actions";
 import { applicationData } from "@/data/application-data";
+import { getStudentActiveApplications } from "@/app/lib/data/student-dashboard";
 import { useAutoSave } from "@/app/hooks/useAutoSave";
 import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
 
@@ -14,6 +15,8 @@ export function ApplyFormContent() {
   const searchParams = useSearchParams();
   const dormId = searchParams.get("id") ?? undefined;
   const [dormData, setDormData] = useState<any>(null);
+  const [accountNumber, setAccountNumber] = useState<number | null>(null);
+  const [activeApplications, setActiveApplications] = useState<any[]>([]);
 
   const room_types = ["Women Only", "Men Only", "Co-ed"] as const;
   type PreferredRoomType = (typeof room_types)[number];
@@ -55,8 +58,139 @@ export function ApplyFormContent() {
     fetchData();
   }, [dormId]);
 
+  useEffect(() => {
+    const match = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.startsWith("account_number="));
+    if (!match) return;
+    const value = Number(decodeURIComponent(match.split("=")[1]));
+    if (!Number.isNaN(value)) {
+      setAccountNumber(value);
+    }
+  }, []);
+
+  useEffect(() => {
+    async function fetchActiveApps() {
+      if (!accountNumber) return;
+
+      try {
+        const apps = await getStudentActiveApplications(accountNumber);
+        setActiveApplications(apps);
+      } catch (error) {
+        console.error("Failed to load active applications:", error);
+      }
+    }
+
+    fetchActiveApps();
+  }, [accountNumber]);
+
   const submitApplication = async () => {
     setStatus({ message: "", type: null });
+
+    if (!accountNumber) {
+      setStatus({
+        message: "Please sign in again before submitting your application.",
+        type: "error",
+      });
+      return;
+    }
+    if (!dormData?.housing_name) {
+      setStatus({
+        message: "Housing details are still loading. Please try again.",
+        type: "error",
+      });
+      return;
+    }
+
+    // Helper to get cookies
+    const getCookie = (name: string) => {
+      if (typeof document === "undefined") return null;
+      const match = document.cookie
+        .split("; ")
+        .find((cookie) => cookie.startsWith(name + "="));
+      return match ? decodeURIComponent(match.split("=")[1]) : null;
+    };
+
+    const bypassPeriod = getCookie("bypass_application_period") === "true";
+    const allowMultiple = getCookie("allow_multiple_applications") !== "false"; // Defaults to true
+
+    // 1. Check if they already have an approved assignment/room anywhere
+    const approvedApp = activeApplications.find(
+      (app) =>
+        app.application_status === "Approved" ||
+        app.application_status === "Room Assigned" ||
+        app.application_status === "Assigned"
+    );
+    if (approvedApp) {
+      setStatus({
+        message: `You already have an approved housing assignment at ${approvedApp.housing_name}. You cannot submit new applications.`,
+        type: "error",
+      });
+      return;
+    }
+
+    // 2. Validate application limit based on system settings
+    if (!allowMultiple) {
+      // If multiple applications are disabled, reject if any active application exists
+      const activeApp = activeApplications.find(
+        (app) =>
+          app.application_status !== "Rejected" &&
+          app.application_status !== "Cancelled"
+      );
+      if (activeApp) {
+        const readableStatus = activeApp.application_status || "in review";
+        setStatus({
+          message: `Multiple applications are currently disabled. You already have an active application that is ${readableStatus.toLowerCase()}.`,
+          type: "error",
+        });
+        return;
+      }
+    } else {
+      // If multiple applications are enabled, reject only if there's an active application for this specific dorm
+      const existingForThisDorm = activeApplications.find(
+        (app) =>
+          app.housing_name === dormData.housing_name &&
+          app.application_status !== "Rejected" &&
+          app.application_status !== "Cancelled"
+      );
+      if (existingForThisDorm) {
+        const readableStatus = existingForThisDorm.application_status || "in review";
+        setStatus({
+          message: `You already have an active application for ${dormData.housing_name} that is ${readableStatus.toLowerCase()}. Only rejected applications can be resubmitted.`,
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    // 3. Enforce Application Period (Start and End date) unless bypassed by admin
+    if (!bypassPeriod && (dormData.start_application_date || dormData.end_application_date)) {
+      const now = new Date();
+
+      if (dormData.start_application_date) {
+        const startDate = new Date(dormData.start_application_date);
+        startDate.setHours(0, 0, 0, 0); // Start of start day
+        if (now.getTime() < startDate.getTime()) {
+          setStatus({
+            message: `Applications have not started yet. The application period starts on ${new Date(dormData.start_application_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.`,
+            type: "error",
+          });
+          return;
+        }
+      }
+
+      if (dormData.end_application_date) {
+        const endDate = new Date(dormData.end_application_date);
+        endDate.setHours(23, 59, 59, 999); // End of today (11:59:59 PM)
+        if (now.getTime() > endDate.getTime()) {
+          setStatus({
+            message: `Applications for this housing have closed. The application period ended on ${new Date(dormData.end_application_date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.`,
+            type: "error",
+          });
+          return;
+        }
+      }
+    }
 
     if (formData.moveOutDate <= dateNow) {
       setStatus({
@@ -84,7 +218,7 @@ export function ApplyFormContent() {
         actual_moveout_date: null,
         room_id: null,
         manager_account_number: dormData?.manager_account_number || null,
-        student_account_number: dormData?.student_account_number || null,
+        student_account_number: accountNumber,
         landlord_account_number: dormData?.landlord_account_number || null,
         document_type: "Form 5/Proof of Enrollment",
         document_url: formData.fileName,
@@ -110,8 +244,12 @@ export function ApplyFormContent() {
         });
       }
     } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An error occurred during submission.";
       setStatus({
-        message: "An error occurred during submission.",
+        message,
         type: "error",
       });
     } finally {
@@ -123,15 +261,22 @@ export function ApplyFormContent() {
 
   return (
     <>
-      <main className="w-full max-w-7xl mx-auto mt-4 md:mt-8 flex-1 bg-[#EDE9DE] p-6 md:p-10 rounded-t-[20px] font-[family-name:var(--font-geist-sans)] shadow-inner" aria-labelledby="apply-housing-heading">
+      <main className="w-full max-w-7xl mx-auto mt-3 md:mt-6 flex-1 bg-white p-6 md:p-10 rounded-[24px] border border-[#d0c4b4] font-[family-name:var(--font-geist-sans)] shadow-lg" aria-labelledby="apply-housing-heading">
       {/* Back Button */}
-      <button
-        onClick={() => router.back()}
-        aria-label="Go back"
-        className="mb-6 flex items-center gap-2 rounded-lg border border-[#1C2632]/20 bg-white px-4 py-2 text-sm font-semibold text-[#111820] shadow-sm transition-all hover:bg-[#111820] hover:text-white active:scale-95"
-      >
-        <ChevronLeft width="24" height="24" strokeWidth={3} aria-hidden="true" />
-      </button>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <button
+          onClick={() => router.back()}
+          aria-label="Go back"
+          className="flex items-center gap-2 rounded-lg border border-[#1C2632]/20 bg-white px-4 py-2 text-sm font-semibold text-[#111820] shadow-sm transition-all hover:bg-[#111820] hover:text-white active:scale-95"
+        >
+          <ChevronLeft width="24" height="24" strokeWidth={3} aria-hidden="true" />
+        </button>
+        <AutosaveStatus
+          saveState={saveState}
+          variant="light"
+          className="text-sm"
+        />
+      </div>
 
       {/* Draft restored notice */}
       {showDraftNotice && (
@@ -155,44 +300,48 @@ export function ApplyFormContent() {
         </div>
       )}
 
-      <AutosaveStatus
-        saveState={saveState}
-        variant="light"
-        className="mb-4"
-      />
-
       {status.message && (
         <div
-          className={`mb-6 p-4 rounded-lg text-sm font-medium ${
+          className={`fixed bottom-6 right-6 z-[70] w-[280px] rounded-xl border p-4 text-sm font-medium shadow-xl ${
             status.type === "success"
-              ? "bg-green-100 text-[#111820] border border-green-200"
-              : "bg-red-100 text-[#111820] border border-red-200"
+              ? "bg-green-100 text-[#111820] border-green-200"
+              : "bg-red-100 text-[#111820] border-red-200"
           }`}
-          role="status"
-          aria-live="polite"
+          role="alert"
         >
-          {status.message}
+          <div className="flex items-start justify-between gap-3">
+            <span>{status.message}</span>
+            <button
+              type="button"
+              onClick={() => setStatus({ message: "", type: null })}
+              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-black/10"
+              aria-label="Dismiss message"
+            >
+              <X size={16} aria-hidden="true" />
+            </button>
+          </div>
         </div>
       )}
 
       <form
-        className="space-y-6"
+        className="space-y-8"
         onSubmit={(e) => {
           e.preventDefault();
           submitApplication();
         }}
       >
         {/* Header banner */}
-        <div className="rounded-[10px] bg-[#1C2632] px-6 py-4 text-white">
-          <h1 id="apply-housing-heading" className="text-xl font-medium font-[family-name:var(--font-geist-sans)]">
+        <div className="rounded-[16px] bg-[#1C2632] px-6 py-5 text-white shadow-sm">
+          <h1 id="apply-housing-heading" className="text-2xl font-semibold font-[family-name:var(--font-geist-sans)]">
             Application for {headerName}
           </h1>
+          <p className="text-sm text-white/80 mt-1">Complete the fields below to submit your housing request.</p>
         </div>
 
         {/* MAIN FORM GRID */}
-        <div className="flex flex-col md:flex-row gap-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(280px,360px)_1fr]">
           {/* LEFT COLUMN */}
-          <div className="w-full md:w-[350px] space-y-4 ">
+          <div className="w-full space-y-5 rounded-2xl border border-[#d9d2c4] bg-white/70 p-5">
             <div className="space-y-1.5">
               <label className="block text-sm font-bold text-[#1C2632] ">
                 Preferred room type:
@@ -248,11 +397,11 @@ export function ApplyFormContent() {
           </div>
 
           {/* RIGHT COLUMN - File Upload */}
-          <div className="flex-1 space-y-1.5">
+          <div className="flex-1 space-y-3 rounded-2xl border border-[#d9d2c4] bg-white/70 p-5">
             <label className="block text-sm font-bold text-[#1C2632]">
               Upload Form 5/ Proof of Enrollment
             </label>
-            <div className="flex flex-col items-center justify-center h-[140px] rounded-[10px] border border-[#CCCCCC] bg-[#D7D2C7]/60 p-6 text-center">
+            <div className="flex flex-col items-center justify-center min-h-[190px] rounded-[16px] border border-dashed border-[#cbbfae] bg-[#f3ede4] p-6 text-center">
               {formData.fileName ? (
                 <div className="flex flex-col items-center gap-2">
                   {/* File Icon */}
@@ -274,7 +423,7 @@ export function ApplyFormContent() {
                   </button>
                 </div>
               ) : (
-                <label className="cursor-pointer rounded-full border border-[#111820] bg-[#D7D2C7] px-8 py-2 text-xs font-bold text-[#111820] hover:bg-[#c4beb1] transition-colors">
+                <label className="cursor-pointer rounded-full border border-[#111820] bg-white px-8 py-2 text-xs font-bold text-[#111820] hover:bg-[#efe7dc] transition-colors">
                   Choose file
                   <input
                     type="file"
@@ -295,7 +444,7 @@ export function ApplyFormContent() {
         </div>
 
         {/* Submit button */}
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-2">
           <button
             type="submit"
             disabled={isSubmitting}

@@ -190,91 +190,98 @@ export default function ManagerProfilePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#1C2632] font-[family-name:var(--font-geist-sans)]">
-      <div className="mx-auto w-[90vw] flex-1 bg-[#EDE9DE] p-10 flex gap-12">
-        {/* Left Card Sidebar */}
-        <div className="w-1/3 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-8 flex flex-col items-center shadow-sm">
-          <div
-            className="w-32 h-32 mb-6 relative group cursor-pointer"
-            onClick={() => setShowAvatarModal(true)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setShowAvatarModal(true);
-              }
-            }}
-          >
-            <Avatar
-              firstName={profile?.first_name}
-              lastName={profile?.last_name}
-              profilePicture={(profile as any)?.profile_picture}
-              size={128}
-              className="border-4 border-[#E3AF64] shadow-md group-hover:opacity-80 transition-opacity"
-            />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full">
-              <Camera className="text-white w-8 h-8" />
+      <div className="flex-1 bg-[#EDE9DE] overflow-x-hidden">
+        <div className="mx-auto w-full max-w-7xl px-4 md:px-8 py-8 md:py-12 flex flex-col lg:flex-row gap-8">
+          {/* Left Card Sidebar */}
+          <div className="w-full lg:w-80 flex-shrink-0 bg-white rounded-2xl border border-gray-200 p-8 flex flex-col items-center shadow-sm h-fit sticky top-8">
+            <div
+              className="w-32 h-32 mb-6 relative group cursor-pointer"
+              onClick={() => setShowAvatarModal(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setShowAvatarModal(true);
+                }
+              }}
+            >
+              <Avatar
+                firstName={profile?.first_name}
+                lastName={profile?.last_name}
+                profilePicture={(profile as any)?.profile_picture}
+                size={128}
+                className="border-4 border-[var(--teal)] shadow-md group-hover:opacity-80 transition-opacity"
+                showEditIcon={true}
+              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full">
+                <Camera className="text-white w-8 h-8" />
+              </div>
             </div>
-          </div>
 
-          <h2 className="text-2xl font-bold text-[#1C2632] mb-1 text-center">
-            {profile?.first_name} {profile?.last_name}
-          </h2>
-          <p className="text-[#567375] font-medium mb-10">
-            {profile?.account_email}
-          </p>
+            <h2 className="text-xl md:text-2xl font-bold text-[#1C2632] mb-1 text-center">
+              {profile?.first_name} {profile?.last_name}
+            </h2>
+            <p className="text-[#567375] font-medium mb-8 text-center text-xs md:text-sm break-all">
+              {profile?.account_email}
+            </p>
 
-          {/* Manager Specific Tabs */}
-          <div className="w-full space-y-3 mb-12">
-            {["Personal Information", "Bank Details"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${
-                  activeTab === tab
-                    ? "bg-[#567375] text-white shadow-md"
-                    : "text-[#1C2632] hover:bg-[#E3AF64]/20"
+            {/* Manager Specific Tabs */}
+            <div className="w-full space-y-2 mb-8 border-t border-gray-100 pt-6">
+              {["Personal Information", "Bank Details"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`w-full text-left px-4 py-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 ${
+                    activeTab === tab
+                      ? "bg-[var(--teal)] text-white shadow-md"
+                      : "text-[#1C2632] hover:bg-gray-100"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleSave}
+              className="w-full bg-[var(--dark-orange)] text-white py-3 rounded-lg font-semibold hover:bg-[var(--dark-orange)]/90 transition-all shadow-sm active:scale-[0.98]"
+            >
+              Save changes
+            </button>
+
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="w-full mt-3 flex items-center justify-center gap-2 border-2 border-[var(--dark-orange)] text-[var(--dark-orange)] py-3 rounded-lg font-semibold hover:bg-[var(--dark-orange)] hover:text-white transition-all active:scale-[0.98]"
+            >
+              <LogOut size={18} />
+              <span className="hidden md:inline">Logout</span>
+            </button>
+
+            {saveStatus && (
+              <div
+                role={saveStatus.type === "error" ? "alert" : "status"}
+                className={`mt-4 w-full rounded-lg px-4 py-3 text-xs md:text-sm font-medium ${
+                  saveStatus.type === "error"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-emerald-100 text-emerald-800"
                 }`}
               >
-                {tab}
-              </button>
-            ))}
+                {saveStatus.text}
+              </div>
+            )}
           </div>
 
-          <button
-            onClick={handleSave}
-            className="w-full bg-[#C9642A] text-white py-4 rounded-xl font-bold text-lg hover:brightness-110 transition-all shadow-lg active:scale-[0.98]"
-          >
-            Save changes
-          </button>
-
-          <button
-            onClick={() => setShowLogoutModal(true)}
-            className="w-full flex items-center justify-center gap-3 border-2 border-[#C9642A] text-[#C9642A] py-4 rounded-xl font-bold text-lg hover:bg-[#C9642A] hover:text-white transition-all shadow-sm active:scale-[0.98]"
-          >
-            <LogOut size={20} />
-            Logout
-          </button>
-
-          {saveStatus && (
-            <div
-              role={saveStatus.type === "error" ? "alert" : "status"}
-              className={`mt-3 rounded-lg px-4 py-2 text-sm font-semibold ${
-                saveStatus.type === "error"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-emerald-100 text-emerald-800"
-              }`}
-            >
-              {saveStatus.text}
+          {/* RIGHT FORM AREA */}
+          <div className="flex-1 flex flex-col gap-6 min-w-0">
+            <div>
+              <h3 className="text-[#1C2632] text-xl md:text-2xl font-bold mb-1">
+                {activeTab}
+              </h3>
+              <p className="text-[#567375] text-xs md:text-sm">Update your {activeTab.toLowerCase()}</p>
             </div>
-          )}
-        </div>
 
-        {/* RIGHT FORM AREA */}
-        <div className="flex-1 flex flex-col gap-6 pt-10">
-          <h3 className="text-[#1C2632] text-xl font-bold border-b border-[#E3AF64] pb-2 mb-4">
-            {activeTab}
-          </h3>
+            <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-6 shadow-sm">
 
           {activeTab === "Personal Information" && (
             <>
@@ -329,6 +336,7 @@ export default function ManagerProfilePage() {
               />
             </>
           )}
+          </div>
         </div>
       </div>
 
@@ -362,8 +370,9 @@ export default function ManagerProfilePage() {
           }
         }}
       />
-		</div>
-	);
+    </div>
+  </div>
+);
 }
 
 function ProfileInput({ label, value, onChange, disabled = false }: any) {
@@ -377,7 +386,7 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
         disabled={disabled}
         value={value || ""}
         onChange={(e) => onChange && onChange(e.target.value)}
-        className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] transition-all focus:border-[#C9642A] ${
+        className={`font-[family-name:var(--font-geist-sans)] w-full p-4 border-2 border-[#E3AF64] rounded-2xl bg-white text-[#1C2632] transition-all focus:border-[#C9642A] ${
           disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
         }`}
       />

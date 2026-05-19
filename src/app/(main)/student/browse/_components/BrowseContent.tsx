@@ -304,6 +304,15 @@ export default function BrowseContent({
   // Map bounds filter state
   const [boundsFilter, setBoundsFilter] = useState<BoundsFilter | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 6;
+
+  // Reset pagination on filter or bounds change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [boundsFilter, quizAnswers, cards]);
+
   // Score + filter cards
   const processedCards = useMemo(() => {
     let result = displayCards.map((card) => ({
@@ -332,6 +341,16 @@ export default function BrowseContent({
     return result;
   }, [displayCards, quizAnswers, boundsFilter]);
 
+  // Paginated cards calculation
+  const paginatedCards = useMemo(() => {
+    const start = (currentPage - 1) * cardsPerPage;
+    return processedCards.slice(start, start + cardsPerPage);
+  }, [processedCards, currentPage]);
+
+  const totalPages = Math.ceil(processedCards.length / cardsPerPage) || 1;
+  const rangeStart = processedCards.length === 0 ? 0 : (currentPage - 1) * cardsPerPage + 1;
+  const rangeEnd = Math.min(currentPage * cardsPerPage, processedCards.length);
+
   // Build map markers from real DB coordinates
   const markers: HousingMarker[] = processedCards
     .filter((card) => card.lat !== null && card.lng !== null)
@@ -356,7 +375,7 @@ export default function BrowseContent({
         data = await getDormDetails(id);
         if (data) await saveDormDetailsLocally(data);
       }
-      
+
       if (data) {
         setSelectedDorm({
           id: data.housing_id,
@@ -367,17 +386,19 @@ export default function BrowseContent({
           image: data.housing_image,
           appli_start: data.start_application_date
             ? new Date(data.start_application_date).toLocaleDateString(
-                "en-US",
-                { month: "long", day: "numeric", year: "numeric" }
-              )
+              "en-US",
+              { month: "long", day: "numeric", year: "numeric" }
+            )
             : "TBA",
           appli_end: data.end_application_date
             ? new Date(data.end_application_date).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })
             : "TBA",
+          raw_start: data.start_application_date || null,
+          raw_end: data.end_application_date || null,
           // Amenities
           has_wifi: data.has_wifi ?? false,
           has_aircon: data.has_aircon ?? false,
@@ -490,7 +511,7 @@ export default function BrowseContent({
           </div>
           {/* Scrollable cards area */}
           <div className="browse-cards-scroll relative">
-            
+
             {/* Active Filters (Static layout, no overlap) */}
             {(quizAnswers || boundsFilter) && (
               <div className="flex items-center flex-wrap gap-2 text-xs font-[family-name:var(--font-geist-mono)] tracking-wider px-6 pt-4 pb-2 w-full">
@@ -515,7 +536,7 @@ export default function BrowseContent({
                 )}
               </div>
             )}
-            
+
             {emptyState && processedCards.length === 0 && !quizAnswers && !boundsFilter ? (
               <div className="p-6">{emptyState}</div>
             ) : processedCards.length === 0 ? (
@@ -524,51 +545,138 @@ export default function BrowseContent({
                 <p className="text-sm mt-1">Try adjusting your quiz answers or clearing the area filter.</p>
               </div>
             ) : (
-              <div className="browse-cards-grid">
-                {processedCards.map((card) => (
-                  <button
-                    key={card.id}
-                    onClick={() => handleCardClick(card.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleCardClick(card.id);
-                      }
-                    }}
-                    type="button"
-                    aria-label={`Open details for ${card.name}`}
-                    className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#8b3e15] focus-visible:outline-none focus-visible:ring-offset-2 text-left
-                      ${selectedCardId === card.id ? "ring-2 ring-[#8b3e15] ring-offset-2 scale-[1.01]" : ""}`}
-                  >
-                    <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
-                      <Image
-                        src={
-                          card.image ||
-                          "/assets/placeholders/housing-414x264.svg"
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="browse-cards-grid">
+                  {paginatedCards.map((card) => (
+                    <button
+                      key={card.id}
+                      onClick={() => handleCardClick(card.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleCardClick(card.id);
                         }
-                        alt={card.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 300px"
-                        className="object-cover"
-                      />
+                      }}
+                      type="button"
+                      aria-label={`Open details for ${card.name}`}
+                      className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#8b3e15] focus-visible:outline-none focus-visible:ring-offset-2 text-left
+                        ${selectedCardId === card.id ? "ring-2 ring-[#8b3e15] ring-offset-2 scale-[1.01]" : ""}`}
+                    >
+                      <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
+                        <Image
+                          src={
+                            card.image ||
+                            "/assets/placeholders/housing-414x264.svg"
+                          }
+                          alt={card.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 300px"
+                          className="object-cover"
+                        />
 
-                    </div>
-                    <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1 font-[family-name:var(--font-geist-sans)]">
-                      <div className="text-sm font-bold text-[#f7e3d7] truncate">
-                        {card.name}
                       </div>
-                      <div className="flex justify-between items-center text-xs text-white/90">
-                        <span className="bg-white/15 px-2 py-0.5 rounded-full text-white/90">
-                          {card.type}
-                        </span>
-                        <span className="font-semibold text-white/90">
-                          ₱{card.price}/mo
-                        </span>
+                      <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1 font-[family-name:var(--font-geist-sans)]">
+                        <div className="text-sm font-bold text-[#f7e3d7] truncate">
+                          {card.name}
+                        </div>
+                        <div className="flex justify-between items-center text-xs text-white/90">
+                          <span className="bg-white/15 px-2 py-0.5 rounded-full text-white/90">
+                            {card.type}
+                          </span>
+                          <span className="font-semibold text-white/90">
+                            ₱{card.price}/mo
+                          </span>
+                        </div>
+                        <AmenityBadges card={card} />
                       </div>
-                      <AmenityBadges card={card} />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Pagination Toolbar */}
+                {totalPages > 1 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: 8,
+                      borderTop: "1px solid #e3d8c9",
+                      paddingTop: 16,
+                      flexWrap: "wrap",
+                      gap: 10,
+                      fontFamily: "var(--font-geist-sans), sans-serif",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, color: "#567375" }}>
+                      Showing <strong>{rangeStart}</strong> to <strong>{rangeEnd}</strong> of <strong>{processedCards.length}</strong> housings
+                    </span>
+
+                    <div style={{ display: "flex", gap: 5 }}>
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        disabled={currentPage === 1}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: currentPage === 1 ? "#ccc" : "#1C2632",
+                          background: "#fff",
+                          border: "1px solid #e8e4db",
+                          borderRadius: 8,
+                          padding: "6px 12px",
+                          cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Prev
+                      </button>
+
+                      {getVisiblePages(currentPage, totalPages).map((p, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            if (typeof p === "number") {
+                              setCurrentPage(p);
+                            }
+                          }}
+                          disabled={p === "..."}
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: currentPage === p ? "#fff" : "#1C2632",
+                            background: currentPage === p ? "#8b3e15" : "#fff",
+                            border: `1px solid ${currentPage === p ? "#8b3e15" : "#e8e4db"}`,
+                            borderRadius: 8,
+                            width: 32,
+                            height: 32,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: p === "..." ? "default" : "pointer",
+                          }}
+                        >
+                          {p}
+                        </button>
+                      ))}
+
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: currentPage === totalPages ? "#ccc" : "#1C2632",
+                          background: "#fff",
+                          border: "1px solid #e8e4db",
+                          borderRadius: 8,
+                          padding: "6px 12px",
+                          cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        Next
+                      </button>
                     </div>
-                  </button>
-                ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -585,8 +693,8 @@ export default function BrowseContent({
 
       {/* Dorm Modal */}
       {selectedDorm && (
-        <DormModal 
-          dorm={selectedDorm} 
+        <DormModal
+          dorm={selectedDorm}
           onClose={() => setSelectedDorm(null)}
           onViewMap={() => {
             setIsolatedDorm(selectedDorm);
@@ -597,14 +705,14 @@ export default function BrowseContent({
 
       {/* Isolated 3D Viewer */}
       {isolatedDorm && (
-        <Isolated3DViewer 
+        <Isolated3DViewer
           housing={{
             name: isolatedDorm.name,
             lng: isolatedDorm.longitude || 0,
             lat: isolatedDorm.latitude || 0,
             rooms: (isolatedDorm as any).room || [], // pass the real db rooms
           }}
-          onClose={() => setIsolatedDorm(null)} 
+          onClose={() => setIsolatedDorm(null)}
         />
       )}
 
@@ -826,3 +934,28 @@ export default function BrowseContent({
     </>
   );
 }
+
+// Helper to limit visible pagination buttons
+const getVisiblePages = (currentPage: number, totalPages: number) => {
+  const pages: (number | string)[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    pages.push(1);
+    if (currentPage > 3) {
+      pages.push('...');
+    }
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 2) {
+      pages.push('...');
+    }
+    pages.push(totalPages);
+  }
+  return pages;
+};

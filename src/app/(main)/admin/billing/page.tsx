@@ -11,15 +11,16 @@ import {
 import { C } from "@/lib/palette";
 import BillTable, {
   MOCK_BILLS,
+  BillRow,
 } from "@/app/components/admin/billings/billingtable";
 import BillFilters from "@/app/components/admin/billings/billingfilters";
 import IssueBillModal, {
   ViewBillModal,
 } from "@/app/components/admin/billings/billingmodal";
-import type { BillRow } from "@/app/components/admin/billings/billingtable";
 import type {
   StatusFilter,
   BillTypeFilter,
+  SortFilter,
 } from "@/app/components/admin/billings/billingfilters";
 import type { IssueBillForm } from "@/app/components/admin/billings/billingmodal";
 import { housingData } from "@/app/lib/data/housing-data";
@@ -226,6 +227,7 @@ export default function BillingPage() {
   const [housing, setHousing] = useState("All");
   const [dueDateFrom, setDueDateFrom] = useState("");
   const [dueDateTo, setDueDateTo] = useState("");
+  const [sort, setSort] = useState<SortFilter>("due_date_asc");
 
   // ── Modal state ─────────────────────────────────────────────────────────────
   const [issueOpen, setIssueOpen] = useState(false);
@@ -235,9 +237,10 @@ export default function BillingPage() {
   // ── Filtered bills ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     if (!bills) return [];
-    return bills.filter((b) => {
+    let result = bills.filter((b) => {
       const q = search.toLowerCase();
-      const matchesSearch = !q || b.student_name.toLowerCase().includes(q);
+      const matchesSearch =
+        !q || String(b.student_account_number || "").toLowerCase().includes(q);
       const matchesStatus = status === "All" || b.status === status;
       const matchesType = billType === "All" || b.bill_type === billType;
       const matchesHousing = housing === "All" || b.housing_name === housing;
@@ -255,7 +258,44 @@ export default function BillingPage() {
         matchesTo
       );
     });
-  }, [bills, search, status, billType, housing, dueDateFrom, dueDateTo]);
+
+    result.sort((a, b) => {
+      if (sort === "due_date_asc") {
+        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+      }
+      if (sort === "due_date_desc") {
+        return new Date(b.due_date).getTime() - new Date(a.due_date).getTime();
+      }
+      if (sort === "amount_asc") {
+        return a.amount - b.amount;
+      }
+      if (sort === "amount_desc") {
+        return b.amount - a.amount;
+      }
+      if (sort === "issue_date_asc") {
+        return (
+          new Date(a.issue_date).getTime() - new Date(b.issue_date).getTime()
+        );
+      }
+      if (sort === "issue_date_desc") {
+        return (
+          new Date(b.issue_date).getTime() - new Date(a.issue_date).getTime()
+        );
+      }
+      return 0;
+    });
+
+    return result;
+  }, [
+    bills,
+    search,
+    status,
+    billType,
+    housing,
+    dueDateFrom,
+    dueDateTo,
+    sort,
+  ]);
 
   // ── Summary stats ───────────────────────────────────────────────────────────
   const totalAmount = filtered.reduce((s, b) => s + b.amount, 0);
@@ -472,6 +512,8 @@ export default function BillingPage() {
             onDueDateFrom={setDueDateFrom}
             dueDateTo={dueDateTo}
             onDueDateTo={setDueDateTo}
+            sort={sort}
+            onSort={setSort}
           />
         </div>
       </div>

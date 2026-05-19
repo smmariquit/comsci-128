@@ -47,27 +47,51 @@ function AccommodationCard({
   image: string | null;
   details: { label: string; value: string | number }[];
 }) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <Link href={`/manage/accommodations/${id}`}>
-      <div className="min-w-[600px] flex items-center gap-6 rounded-xl p-3 bg-[#f5ede1] text-[var(--dark-orange)] shadow-xl border-2 border-l-8 border-[var(--teal)] hover:shadow-md transition">
-        <div className="w-80 h-40 bg-gray-300 rounded-lg overflow-hidden flex-shrink-0">
+    <Link href={`/manage/accommodations/${id}`} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--teal)]">
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="flex flex-col sm:flex-row items-stretch gap-5 rounded-2xl p-4 bg-white border border-[#d8d0c2] transition-all duration-300 cursor-pointer"
+        style={{
+          boxShadow: isHovered
+            ? "0 12px 24px rgba(28, 38, 50, 0.08)"
+            : "0 2px 4px rgba(28, 38, 50, 0.04)",
+          transform: isHovered ? "translateY(-2px)" : "translateY(0)",
+        }}
+      >
+        {/* Left Side: Image container */}
+        <div className="w-full sm:w-48 h-36 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 relative">
           <img
             src={image || "/assets/placeholders/housing-card.svg"}
-            alt="Accommodation"
-            className="w-full h-full object-cover"
+            alt={name}
+            className="w-full h-full object-cover transition-transform duration-500"
+            style={{
+              transform: isHovered ? "scale(1.05)" : "scale(1)",
+            }}
           />
         </div>
-        <div className="flex flex-col w-full gap-10 min-w-0">
-          <div className="font-semibold text-2xl text-[var(--dark-blue)] truncate">
-            {name}
+
+        {/* Right Side: Info content */}
+        <div className="flex flex-col justify-between flex-1 min-w-0 py-1">
+          <div>
+            <h3 className="font-bold text-xl text-[var(--dark-blue)] transition-colors duration-300 truncate">
+              {name}
+            </h3>
           </div>
-          <div className="flex w-full">
+
+          <div className="flex gap-8 mt-4 pt-4 border-t border-[#f4f1ea]">
             {details.map((detail, index) => (
-              <DetailItem
-                key={index}
-                label={detail.label}
-                value={detail.value}
-              />
+              <div key={index} className="flex flex-col">
+                <span className="text-xs uppercase tracking-wider text-[#567375] font-semibold">
+                  {detail.label}
+                </span>
+                <span className="text-2xl font-bold text-[#8b3e15] mt-1">
+                  {detail.value}
+                </span>
+              </div>
             ))}
           </div>
         </div>
@@ -102,7 +126,7 @@ function FilterBar({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by name…"
-            className="w-full h-10 pl-9 pr-4 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
+            className="w-full h-10 pl-9 pr-4 rounded-lg border border-[#d8d0c2] bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--teal)] transition"
           />
         </div>
         <div className="relative">
@@ -113,7 +137,7 @@ function FilterBar({
           <select
             value={sort}
             onChange={(e) => onSortChange(e.target.value as SortOption)}
-            className="h-10 pl-9 pr-8 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--teal)] transition cursor-pointer"
+            className="h-10 pl-9 pr-8 rounded-lg border border-[#d8d0c2] bg-white text-sm text-gray-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--teal)] transition cursor-pointer"
           >
             <optgroup label="Sort by Name">
               <option value="name-asc">Name: A → Z</option>
@@ -135,7 +159,7 @@ function FilterBar({
           </span>
         </div>
       </div>
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-[#567375] font-semibold">
         {resultCount === 0
           ? "No accommodations match your search."
           : `Showing ${resultCount} accommodation${resultCount !== 1 ? "s" : ""}`}
@@ -215,75 +239,141 @@ export default function AccommodationsPage({
   }, [housings, search, sort]);
 
   return (
-    <main className="min-h-screen flex flex-col p-6 gap-6 bg-[var(--cream)]">
-      <section className="flex flex-col gap-4 px-5">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl text-[var(--dark-orange)] font-semibold">
-            Accommodations
-          </h1>
-          {markers.length > 0 && (
-            <button
-              onClick={() => setShowMap(!showMap)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1C2632] text-white text-sm font-semibold hover:opacity-90 transition shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--dark-orange)]"
-            >
-              {showMap ? <LayoutGrid size={16} /> : <Map size={16} />}
-              {showMap ? "Hide Map" : "Show Map"}
-            </button>
-          )}
-        </div>
-        <FilterBar
-          search={search}
-          onSearchChange={setSearch}
-          sort={sort}
-          onSortChange={setSort}
-          resultCount={filtered.length}
-        />
-      </section>
-
+    <div className={`accommodations-root ${showMap ? "map-visible" : "map-hidden"} bg-[var(--cream)]`}>
+      {/* Left: Map (Desktop only, visible when showMap=true) */}
       {showMap && markers.length > 0 && (
-        <section className="px-5">
-          <div className="w-full rounded-xl overflow-hidden shadow-lg" style={{ height: "400px" }}>
-            <HousingMap
-              housings={markers}
-              selectedId={selectedId}
-              onMarkerClick={(id) => setSelectedId(id)}
-            />
-          </div>
-        </section>
+        <div className="accommodations-map-panel hidden lg:flex flex-col min-w-0 border-r border-gray-200">
+          <HousingMap
+            housings={markers}
+            selectedId={selectedId}
+            onMarkerClick={(id) => setSelectedId(id)}
+          />
+        </div>
       )}
 
-      <section className="px-5 overflow-x-auto">
-        {filtered.length === 0 ? (
-          <p className="text-gray-500">No accommodations found.</p>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 bg-[var(--cream)] p-6 rounded-xl">
-            {filtered.map((housing) => {
-              const totalOccupants = housing.room.reduce(
-                (sum, r) => sum + (r.occupants_count ?? 0),
-                0,
-              );
-              const freeSlots = housing.room.reduce(
-                (sum, r) =>
-                  sum + ((r.maximum_occupants ?? 0) - (r.occupants_count ?? 0)),
-                0,
-              );
-
-              return (
-                <AccommodationCard
-                  key={housing.housing_id}
-                  id={housing.housing_id}
-                  name={housing.housing_name}
-                  image={housing.housing_image}
-                  details={[
-                    { label: "Total Occupants", value: totalOccupants },
-                    { label: "Free Slots", value: freeSlots },
-                  ]}
-                />
-              );
-            })}
+      {/* Right: Search + Cards */}
+      <div className="accommodations-content-panel flex-1 flex flex-col min-w-0">
+        {/* Header + Toolbar */}
+        <section className="flex flex-col gap-4 px-4 md:px-6 py-6 border-b border-gray-200 flex-shrink-0 bg-white/40">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl md:text-3xl text-[var(--dark-blue)] font-extrabold">
+              Accommodations
+            </h1>
+            {markers.length > 0 && (
+              <button
+                onClick={() => setShowMap(!showMap)}
+                className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-[#1C2632] text-white text-xs md:text-sm font-semibold hover:bg-[#2a3a4e] transition shadow-md"
+              >
+                {showMap ? <LayoutGrid size={16} /> : <Map size={16} />}
+                <span className="hidden sm:inline">{showMap ? "Hide Map" : "Show Map"}</span>
+              </button>
+            )}
           </div>
+          <FilterBar
+            search={search}
+            onSearchChange={setSearch}
+            sort={sort}
+            onSortChange={setSort}
+            resultCount={filtered.length}
+          />
+        </section>
+
+        {/* Mobile Map (Full width below header) */}
+        {showMap && markers.length > 0 && (
+          <section className="lg:hidden flex-shrink-0 border-b border-gray-200">
+            <div className="w-full" style={{ height: "300px" }}>
+              <HousingMap
+                housings={markers}
+                selectedId={selectedId}
+                onMarkerClick={(id) => setSelectedId(id)}
+              />
+            </div>
+          </section>
         )}
-      </section>
-    </main>
+
+        {/* Scrollable Cards Area */}
+        <div className="accommodations-cards-scroll manage-scrollbar flex-1 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="flex items-center justify-center h-full p-8">
+              <p className="text-gray-500 text-center">No accommodations found.</p>
+            </div>
+          ) : (
+            <div className="p-4 md:p-6 space-y-4 max-w-5xl mx-auto w-full">
+              {filtered.map((housing) => {
+                const totalOccupants = housing.room.reduce(
+                  (sum, r) => sum + (r.occupants_count ?? 0),
+                  0,
+                );
+                const freeSlots = housing.room.reduce(
+                  (sum, r) =>
+                    sum + ((r.maximum_occupants ?? 0) - (r.occupants_count ?? 0)),
+                  0,
+                );
+
+                return (
+                  <AccommodationCard
+                    key={housing.housing_id}
+                    id={housing.housing_id}
+                    name={housing.housing_name}
+                    image={housing.housing_image}
+                    details={[
+                      { label: "Total Occupants", value: totalOccupants },
+                      { label: "Free Slots", value: freeSlots },
+                    ]}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        .accommodations-root {
+          position: relative;
+          display: flex;
+          width: 100%;
+        }
+
+        .accommodations-root.map-hidden {
+          flex-direction: column;
+          min-height: calc(100vh - 7.75rem);
+        }
+
+        .accommodations-root.map-hidden .accommodations-content-panel {
+          width: 100%;
+          height: auto;
+        }
+
+        .accommodations-cards-scroll {
+          scrollbar-gutter: stable;
+        }
+
+        @media (min-width: 1024px) {
+          .accommodations-root.map-visible {
+            flex-direction: row;
+            height: calc(100vh - 7.75rem);
+            min-height: 0;
+            overflow: hidden;
+          }
+
+          .accommodations-root.map-visible .accommodations-map-panel {
+            width: 50%;
+            height: 100%;
+            min-width: 0;
+            flex-shrink: 0;
+          }
+
+          .accommodations-root.map-visible .accommodations-content-panel {
+            width: 50%;
+            height: 100%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          }
+        }
+      `}</style>
+    </div>
   );
 }

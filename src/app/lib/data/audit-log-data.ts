@@ -1,4 +1,4 @@
-import { supabase } from "@/app/lib/supabase";
+import { supabaseAdmin as supabase } from "@/app/lib/supabase-admin";
 import {
   AuditLog,
   NewAuditLog,
@@ -69,7 +69,9 @@ async function getRecentByManager(managerAccountNumber: number) {
   const { data, error } = await supabase
     .from("audit_log")
     .select("*")
-    .eq("assigned_manager", managerAccountNumber)
+    .or(
+      `account_number.eq.${managerAccountNumber},assigned_manager.eq.${managerAccountNumber}`
+    )
     .order("timestamp", { ascending: false })
     .limit(5);
   if (error) throw error;

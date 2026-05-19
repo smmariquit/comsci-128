@@ -38,6 +38,19 @@ export default function HousingCards({ cards }: { cards: any[] }) {
                 year: "numeric",
               })
             : "TBA",
+          raw_start: data.start_application_date || null,
+          raw_end: data.end_application_date || null,
+          // Amenities
+          has_wifi: data.has_wifi ?? false,
+          has_aircon: data.has_aircon ?? false,
+          has_laundry: data.has_laundry ?? false,
+          has_parking: data.has_parking ?? false,
+          has_no_curfew: data.has_no_curfew ?? false,
+          allows_visitors: data.allows_visitors ?? false,
+          is_furnished: data.is_furnished ?? false,
+          has_kitchen: data.has_kitchen ?? false,
+          has_security: data.has_security ?? false,
+          has_utilities_included: data.has_utilities_included ?? false,
         });
       }
     } finally {

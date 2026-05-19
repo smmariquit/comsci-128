@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import StudentNavBar from "../../_components/StudentNavBar";
 import Avatar from "@/app/components/Avatar";
 import { StudentProfile } from "@/app/lib/models/student";
-import { LogOut, Camera } from "lucide-react";
+import { Camera, ChevronDown, LogOut, Pencil } from "lucide-react";
 import LogoutModal from "../../../../components/LogoutModal";
 import AvatarUploadModal from "../../../../components/AvatarUploadModal";
 import StateMessage from "@/app/components/ui/state-message";
@@ -272,9 +272,9 @@ export default function StudentProfilePage() {
     <div className="flex flex-col min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
       <StudentNavBar path="Student Profile" userId={Number(accountNumber)} />
 
-      <main className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 shadow-inner" aria-labelledby="student-profile-heading">
+      <main className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] px-4 md:px-8 py-6 md:py-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-inner" aria-labelledby="student-profile-heading">
         {/* Left Card Sidebar */}
-        <aside className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/50 border border-[#E3AF64] rounded-[2rem] p-6 md:p-8 flex flex-col items-center shadow-sm h-fit" aria-label="Profile navigation and actions">
+        <aside className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/70 border border-[#E3AF64] rounded-[2rem] p-6 md:p-7 flex flex-col items-center shadow-sm h-fit gap-4" aria-label="Profile navigation and actions">
           {/* Profile Circle */}
           <div
             className="w-32 h-32 mb-6 relative group cursor-pointer"
@@ -303,15 +303,15 @@ export default function StudentProfilePage() {
             </div>
           </div>
 
-          <h1 id="student-profile-heading" className="text-2xl font-bold text-[#1C2632] mb-1 text-center">
+          <h1 id="student-profile-heading" className="text-2xl font-bold text-[#1C2632] mb-1 text-center leading-tight">
             {student?.first_name} {student?.last_name}
           </h1>
-          <p className="text-[#2f4a4c] font-medium mb-10 text-sm">
+          <p className="text-[#2f4a4c] font-medium text-sm text-center mb-4">
             {student?.account_email}
           </p>
 
           {/* Navigation Tabs */}
-          <div className="w-full space-y-2 md:space-y-3 mb-8 md:mb-12" role="tablist" aria-label="Profile sections">
+          <div className="w-full flex flex-col gap-2 mb-3" role="tablist" aria-label="Profile sections">
             {[
               "Personal Information",
               "Emergency Contact",
@@ -324,7 +324,7 @@ export default function StudentProfilePage() {
                 role="tab"
                 aria-selected={activeTab === tab}
                 aria-controls={`${tab.toLowerCase().replace(/\s+/g, "-")}-panel`}
-                className={`w-full text-left px-5 py-3 rounded-xl transition-all duration-200 ${
+                className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium ${
                   activeTab === tab
                     ? "bg-[#567375] text-white shadow-md"
                     : "text-[#1C2632] hover:bg-[#E3AF64]/20"
@@ -335,25 +335,28 @@ export default function StudentProfilePage() {
             ))}
           </div>
 
-          {/* Action Button */}
-          <button
-            onClick={handleSave}
-            className="w-full bg-[#C9642A] text-white py-4 rounded-xl font-bold text-lg hover:brightness-110 transition-all shadow-lg active:scale-[0.98] mb-4"
-          >
-            Save changes
-          </button>
+          {/* Action Buttons */}
+          <div className="w-full mt-2 space-y-3">
+            <button
+              onClick={handleSave}
+              className="w-full flex items-center justify-center gap-3 rounded-xl bg-[#8b3e15] px-5 py-4 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#7a3513] active:scale-[0.98]"
+            >
+              <Pencil size={18} />
+              Save changes
+            </button>
 
-          <button
-            onClick={() => setShowLogoutModal(true)}
-            className="w-full flex items-center justify-center gap-3 border-2 border-[#C9642A] text-[#C9642A] py-4 rounded-xl font-bold text-lg hover:bg-[#C9642A] hover:text-white transition-all shadow-sm active:scale-[0.98]"
-          >
-            <LogOut size={20} />
-            Logout
-          </button>
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="w-full flex items-center justify-center gap-3 rounded-xl border border-[#8b3e15] bg-white/85 px-5 py-4 text-sm font-semibold text-[#8b3e15] shadow-sm transition-all hover:bg-[#8b3e15] hover:text-white active:scale-[0.98]"
+            >
+              <LogOut size={18} />
+              Logout
+            </button>
+          </div>
 
           {saveStatus.message && (
             <div
-              className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all ${
+              className={`w-full text-center p-3 rounded-xl text-sm font-semibold transition-all mt-1 ${
                 saveStatus.type === "success"
                   ? "bg-green-100 text-[#111820]"
                   : saveStatus.type === "error"
@@ -370,44 +373,48 @@ export default function StudentProfilePage() {
       </aside>
 
         {/* RIGHT FORM AREA */}
-        <section className="flex-1 flex flex-col gap-6 pt-0 md:pt-10" aria-live="polite">
-          <h2 className="text-[#1C2632] text-xl font-bold border-b border-[#E3AF64] pb-2 mb-4">
+        <section className="flex-1 flex flex-col gap-5 pt-0 md:pt-2" aria-live="polite">
+          <h2 className="text-[#1C2632] text-xl font-bold border-b border-[#E3AF64] pb-2 mb-2">
             {activeTab}
           </h2>
 
           {activeTab === "Personal Information" && (
-            <div id="personal-information-panel" role="tabpanel" aria-labelledby="personal-information-tab">
-              <ProfileInput
-                id="first-name"
-                label="First Name"
-                value={student?.first_name}
-                onChange={(val: any) => updatePersonalInfo({ first_name: val })}
-              />
-              <ProfileInput
-                id="middle-name"
-                label="Middle Name"
-                value={student?.middle_name}
-                onChange={(val: any) =>
-                  updatePersonalInfo({ middle_name: val })
-                }
-              />
-              <ProfileInput
-                id="last-name"
-                label="Last Name"
-                value={student?.last_name}
-                onChange={(val: any) => updatePersonalInfo({ last_name: val })}
-              />
-              <ProfileInput
-                id="email"
-                label="Email"
-                value={student?.account_email}
-                disabled
-              />
+            <div id="personal-information-panel" role="tabpanel" aria-labelledby="personal-information-tab" className="grid gap-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <ProfileInput
+                  id="first-name"
+                  label="First Name"
+                  value={student?.first_name}
+                  onChange={(val: any) => updatePersonalInfo({ first_name: val })}
+                />
+                <ProfileInput
+                  id="middle-name"
+                  label="Middle Name"
+                  value={student?.middle_name}
+                  onChange={(val: any) =>
+                    updatePersonalInfo({ middle_name: val })
+                  }
+                />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <ProfileInput
+                  id="last-name"
+                  label="Last Name"
+                  value={student?.last_name}
+                  onChange={(val: any) => updatePersonalInfo({ last_name: val })}
+                />
+                <ProfileInput
+                  id="email"
+                  label="Email"
+                  value={student?.account_email}
+                  disabled
+                />
+              </div>
             </div>
           )}
 
           {activeTab === "Emergency Contact" && (
-            <div id="emergency-contact-panel" role="tabpanel">
+            <div id="emergency-contact-panel" role="tabpanel" className="grid gap-4">
               <ProfileInput
                 id="emergency-contact-name"
                 label="Emergency Contact Name"
@@ -442,7 +449,7 @@ export default function StudentProfilePage() {
           )}
 
           {activeTab === "Academic Information" && (
-            <div id="academic-information-panel" role="tabpanel">
+            <div id="academic-information-panel" role="tabpanel" className="grid gap-4">
               <ProfileInput
                 id="degree-program"
                 label="Degree Program"
@@ -454,25 +461,27 @@ export default function StudentProfilePage() {
                 }
               />
 
-              <ProfileSelect
-                id="standing"
-                label="Standing"
-                value={studentAcademic?.standing}
-                options={["Freshman", "Sophomore", "Junior", "Senior"]}
-                onChange={(val: string) =>
-                  updateStudentAcademic({ standing: val })
-                }
-              />
+              <div className="grid gap-4 md:grid-cols-2">
+                <ProfileSelect
+                  id="standing"
+                  label="Standing"
+                  value={studentAcademic?.standing}
+                  options={["Freshman", "Sophomore", "Junior", "Senior"]}
+                  onChange={(val: string) =>
+                    updateStudentAcademic({ standing: val })
+                  }
+                />
 
-              <ProfileSelect
-                id="status"
-                label="Status"
-                value={studentAcademic?.status}
-                options={["Active", "Graduating", "Delayed"]}
-                onChange={(val: string) =>
-                  updateStudentAcademic({ status: val })
-                }
-              />
+                <ProfileSelect
+                  id="status"
+                  label="Status"
+                  value={studentAcademic?.status}
+                  options={["Active", "Graduating", "Delayed"]}
+                  onChange={(val: string) =>
+                    updateStudentAcademic({ status: val })
+                  }
+                />
+              </div>
             </div>
           )}
         </section>
@@ -525,7 +534,7 @@ function ProfileInput({ id, label, value, onChange, disabled = false }: any) {
         disabled={disabled}
         value={value || ""}
         onChange={(e) => onChange && onChange(e.target.value)}
-        className={`font-[family-name:var(--font-geist-mono)] w-full p-4 border-2 border-[#8b3e15] rounded-2xl bg-white text-[#111820] outline-none transition-focus focus:border-[#8b3e15] ${
+        className={`font-[family-name:var(--font-geist-sans)] w-full p-4 border-2 border-[#8b3e15] rounded-2xl bg-white text-[#111820] outline-none transition-focus focus:border-[#8b3e15] ${
           disabled ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
         }`}
       />
@@ -539,21 +548,28 @@ function ProfileSelect({ id, label, value, options, onChange }: any) {
       <label htmlFor={id} className="text-sm font-bold text-[#2f4a4c] ml-2 uppercase tracking-wide font-[family-name:var(--font-geist-sans)]">
         {label}
       </label>
-      <select
-        id={id}
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full p-4 border-2 border-[#8b3e15] rounded-2xl bg-white text-[#111820] outline-none transition-focus focus:border-[#8b3e15] font-[family-name:var(--font-geist-mono)] appearance-auto cursor-pointer"
-      >
-        <option value="" disabled>
-          Select {label}
-        </option>
-        {options.map((opt: string) => (
-          <option key={opt} value={opt}>
-            {opt}
+      <div className="relative">
+        <select
+          id={id}
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full p-4 pr-12 border-2 border-[#8b3e15] rounded-2xl bg-white text-[#111820] outline-none transition-focus focus:border-[#8b3e15] font-[family-name:var(--font-geist-sans)] appearance-none cursor-pointer"
+        >
+          <option value="" disabled>
+            Select {label}
           </option>
-        ))}
-      </select>
+          {options.map((opt: string) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={18}
+          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#8b3e15]"
+          aria-hidden="true"
+        />
+      </div>
     </div>
   );
 }
