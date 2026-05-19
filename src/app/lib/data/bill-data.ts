@@ -1,4 +1,3 @@
-import type { Bill } from "@/lib/models/bill";
 import { supabase } from "../supabase";
 import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill";
 
