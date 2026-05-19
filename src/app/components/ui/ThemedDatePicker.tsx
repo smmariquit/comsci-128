@@ -31,7 +31,7 @@ export default function ThemedDatePicker({
   const max = maxDate ? parseISO(maxDate) : undefined;
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" style={style}>
       <DatePicker
         id={id}
         selected={selectedDate}
@@ -47,7 +47,6 @@ export default function ThemedDatePicker({
         placeholderText={placeholder}
         autoComplete="off"
         className={`${className} cursor-pointer pr-10`}
-        style={style}
         wrapperClassName="w-full"
       />
       <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#567375] pointer-events-none" />
