@@ -59,8 +59,35 @@ export async function POST(req: NextRequest) {
 // Manager: fetch all feedback
 export async function GET(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
-  // TODO: Add role check for manager
-  const { data, error } = await supabase.from("feedback").select("*").order("created_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ feedback: data });
+  const role = req.cookies.get("user_role")?.value?.toLowerCase() || "";
+  const accountCookie = req.cookies.get("account_number")?.value;
+  const accountNumber = accountCookie ? Number(accountCookie) : null;
+
+  try {
+    if (!accountNumber && role !== "") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (role === "student") {
+      const data = await feedbackService.getOwnFeedbacks(accountNumber || 0, [], []);
+      return NextResponse.json({ feedback: data });
+    }
+
+    if (role === "system admin" || role === "admin") {
+      const data = await feedbackService.fetchAllFeedback();
+      return NextResponse.json({ feedback: data });
+    }
+
+    // manager roles (housing administrator, landlord, etc.)
+    if (role.includes("manager") || role.includes("housing") || role.includes("landlord") || role.includes("house admin")) {
+      const data = await feedbackService.getAllByManagerId(accountNumber || 0, [], []);
+      return NextResponse.json({ feedback: data });
+    }
+
+    // default: return app feedback
+    const data = await feedbackService.getAllAppFeedback([]);
+    return NextResponse.json({ feedback: data });
+  } catch (error: any) {
+    return NextResponse.json({ error: error?.message || "Failed to fetch feedback" }, { status: 500 });
+  }
 }
