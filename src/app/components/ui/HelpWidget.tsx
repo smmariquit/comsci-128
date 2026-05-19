@@ -98,12 +98,15 @@ export default function HelpWidget({ role }: HelpWidgetProps) {
 
   const content = getHelpContent();
 
+  // Dynamically position the trigger button to avoid overlapping sidebar in admin panel
+  const positionClass = role === "admin" ? "left-[280px]" : "left-6";
+
   return (
     <>
       {/* Floating Subtle Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 left-6 z-[60] group flex items-center gap-2 px-3 py-2.5 rounded-full bg-[#1C2632]/90 hover:bg-[#1C2632] text-white border border-white/10 hover:border-[#C9642A]/40 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.4)] transition-all duration-300 transform hover:scale-105 active:scale-95"
+        className={`fixed bottom-6 ${positionClass} z-[60] group flex items-center gap-2 px-3 py-2.5 rounded-full bg-[#1C2632]/90 hover:bg-[#1C2632] text-white border border-white/10 hover:border-[#C9642A]/40 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.4)] transition-all duration-300 transform hover:scale-105 active:scale-95`}
         title="Help & Documentation"
         aria-haspopup="dialog"
         aria-expanded={isOpen}
@@ -164,7 +167,7 @@ export default function HelpWidget({ role }: HelpWidgetProps) {
 
             {/* Footer */}
             <div className="px-6 py-4 bg-[#141b24] border-t border-white/5 flex items-center justify-between text-[11px] text-white/40">
-              <span>Jakob Nielsen Heuristics • Help & Docs</span>
+              <span>Help & Docs</span>
               <button 
                 onClick={() => setIsOpen(false)}
                 className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-all font-semibold"
