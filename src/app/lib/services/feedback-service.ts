@@ -63,7 +63,16 @@ const getAllAppFeedback = async (sortList: any[] = []) => {
         console.error("Service Error (getAllAppFeedback): ", error);
         return [];
     }
-};
+}
+
+const getOwnFeedbacks = async (userId: number, sortList: any[] = [], filterList: any[] = []) => {
+    try {
+        return await feedbackData.getOwnFeedbacks(userId, sortList, filterList);
+    } catch (error) {
+        console.error("Service Error (getOwnFeedbacks): ", error);
+        return [];
+    }
+}
 
 export const feedbackService = {
     createFeedback,
@@ -71,5 +80,6 @@ export const feedbackService = {
     fetchAllFeedback,
     getAllByManagerId,
     getAllByHousingId,
-    getAllAppFeedback
+    getAllAppFeedback,
+    getOwnFeedbacks
 };
