@@ -57,18 +57,35 @@ export default function SearchBar() {
             >
               Non-UP Housing
             </button>
-            <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+            <button 
+              onClick={() => {
+                updateURL("sex", "Men Only");
+                setIsFilterOpen(false);
+              }}
+
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100">
               Men's
             </button>
-            <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+            <button 
+              onClick={() => {
+                updateURL("sex", "Women Only");
+                setIsFilterOpen(false);
+              }}
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100">
               Women's
             </button>
-            <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+            <button 
+              onClick={() => {
+                updateURL("sex", "Co-ed");
+                setIsFilterOpen(false);
+              }}
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100">
               Coed
             </button>
             <button
               onClick={() => {
                 updateURL("type", null);
+                updateURL("sex", null);
                 setIsFilterOpen(false);
               }}
               className="block w-full text-left px-4 py-2 text-red-500"

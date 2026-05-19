@@ -3,7 +3,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Logo from "@/app/components/Logo";
 import Breadcrumbs from "./components/Breadcrumbs";
+import Avatar from "@/app/components/Avatar";
 import { getManagerAccountNumber } from "@/app/lib/auth";
+import { userData } from "@/app/lib/data/user-data";
+import NotificationBell from "./components/NotificationBell";
+import { notificationService, NotificationItem } from "@/app/lib/services/notification-service";
 
 export const metadata: Metadata = {
   title: "Manager Dashboard",
@@ -16,8 +20,17 @@ export default async function ManageLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-  const accountNumber = await getManagerAccountNumber()
+  const accountNumber = await getManagerAccountNumber();
+  let managerUser = null;
+  let notifications: NotificationItem[] = [];
+  try {
+    if (accountNumber) {
+      managerUser = await userData.findById(accountNumber);
+      notifications = await notificationService.getManagerNotifications(accountNumber);
+    }
+  } catch (error) {
+    console.warn("Offline: Could not load manager user for layout.");
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]">
@@ -27,66 +40,61 @@ export default async function ManageLayout({
           <div className="flex items-center gap-4 md:gap-8">
             <Logo size={28} href="/manage" />
 
-            <nav className="hidden md:flex items-center gap-6 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
+            <nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 font-[family-name:var(--font-geist-sans)]">
               <Link
                 href="/manage"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Dashboard
               </Link>
               <Link
                 href="/manage/accommodations"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Accommodations
               </Link>
               <Link
                 href="/manage/applications"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Applications
               </Link>
               <Link
                 href="/manage/complaints"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors py-2 rounded-full px-4"
               >
                 Complaints
-              </Link>
-              <Link
-                href="/manage/logs"
-                className="text-[#EDE9DE] hover:opacity-80 transition-opacity py-3"
-              >
-                Audit Logs
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2 md:gap-4 text-sm">
             {/* Mobile Nav Link */}
             <Link
               href="/manage"
-              className="md:hidden text-[#EDE9DE] text-xs font-medium"
+              className="md:hidden text-[#EDE9DE] text-xs font-medium hover:bg-white/10 focus-visible:bg-white/10 rounded-full px-3 py-1.5"
             >
               Dashboard
             </Link>
 
-            <button
-              type="button"
-              className="text-[#EDE9DE] hover:opacity-80 transition-opacity flex items-center justify-center"
-            >
-              <Bell size={22} strokeWidth={2} />
-            </button>
+            <NotificationBell notifications={notifications} />
 
-            <Link href={`/manage/profile/${accountNumber}`} className="py-2">
-              <div className="h-8 w-8 aspect-square rounded-full bg-[#567375] cursor-pointer hover:ring-2 hover:ring-[#EDE9DE] transition-all items-center justify-center"></div>
-            </Link>
+            <div className="py-2">
+              <Avatar
+                firstName={managerUser?.first_name}
+                lastName={managerUser?.last_name}
+                profilePicture={(managerUser as any)?.profile_picture}
+                size={32}
+                href={`/manage/profile/${accountNumber}`}
+              />
+            </div>
           </div>
         </div>
       </header>
 
       {/* BREAD CRUMBS */}
       <div className="w-full bg-[#567375] font-[family-name:var(--font-geist-sans)]">
-        <div className="flex items-center px-4 md:px-10 min-h-[44px] align-middle">
+        <div className="w-full max-w-7xl mx-auto flex items-center px-4 md:px-10 min-h-[44px] align-middle">
           <Breadcrumbs />
         </div>
       </div>
