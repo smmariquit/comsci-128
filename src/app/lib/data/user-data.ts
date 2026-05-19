@@ -1,6 +1,27 @@
 import type { NewUser, UpdateUser, User } from "@/models/user";
 import { supabase } from "../supabase";
-import { count } from "console";
+
+type FindAllUserOptions = {
+  user_type?: string;
+  sex?: string;
+  sortBy?: "name" | "account_number";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  pageSize?: number;
+};
+
+type HousingAdminUser = {
+  account_number: number;
+  full_name: string;
+  account_email: string;
+  phone_number: string | null;
+  user_type: string;
+  is_deleted: boolean;
+  sex: string;
+  housing_status: string;
+  housing_name: string | undefined;
+  housing_id: number | null;
+};
 
 async function create(userDetails: NewUser): Promise<User> {
   // this is for returning the newly inserted user
@@ -16,13 +37,36 @@ async function create(userDetails: NewUser): Promise<User> {
   return data[0];
 }
 
-async function findAll(): Promise<User[]> {
-  // RETURNS an array of USER rows when found in the DB; otherwise, returns null.
+async function findAll(options: FindAllUserOptions = {}): Promise<User[]> {
+  // RETURNS an array of USER rows when found in the DB; otherwise, returns an empty array.
 
-  const { data, error } = await supabase
-    .from("user")
-    .select()
-    .eq("is_deleted", false);
+  let query = supabase.from("user").select().eq("is_deleted", false);
+
+  if (options.user_type) {
+    query = query.eq("user_type", options.user_type);
+  }
+
+  if (options.sex) {
+    query = query.eq("sex", options.sex);
+  }
+
+  const ascending = options.sortOrder !== "desc";
+
+  if (options.sortBy === "account_number") {
+    query = query.order("account_number", { ascending });
+  } else {
+    query = query
+      .order("first_name", { ascending })
+      .order("last_name", { ascending });
+  }
+
+  if (options.page && options.pageSize) {
+    const from = (options.page - 1) * options.pageSize;
+    const to = from + options.pageSize - 1;
+    query = query.range(from, to);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error(`Get All Users Error: ${error.message}`);
 
@@ -154,11 +198,17 @@ async function getUsersForHousingAdmin(
     .in("housing_id", managedHousingIds);
 
   if (dormManagerError)
-    throw new Error("Property Error: " + dormManagerError.message);
+    throw new Error(`Property Error: ${dormManagerError.message}`);
 
   const userIds = new Set<number>();
-  histories?.forEach((h) => userIds.add(h.account_number));
-  managers?.forEach((m) => userIds.add(m.manager_account_number));
+    
+  histories?.forEach((h) => {
+    userIds.add(h.account_number);
+  });
+    
+  managers?.forEach((m) => {
+    userIds.add(m.manager_account_number);
+  });
 
   // short-circuit for empty housing
   if (userIds.size === 0) return [];
@@ -177,12 +227,12 @@ async function getUsersForHousingAdmin(
         `)
     .in("account_number", Array.from(userIds));
 
-  if (userError) throw new Error("User Error: " + userError.message);
+  if (userError) throw new Error(`User Error: ${userError.message}`);
 
   return users.map((user) => {
     let localHousingStatus = "Not Assigned";
     let currentHousingId = null;
-    let currentHousingName = undefined;
+    let currentHousingName: string | undefined;
     let is_inactive = true;
 
     const managedProperty = managers?.find(
@@ -201,7 +251,7 @@ async function getUsersForHousingAdmin(
 
       if (userHistories.length > 0) {
         const latestHistory = userHistories.sort(
-          (a: any, b: any) =>
+          (a: { movein_date: string }, b: { movein_date: string }) =>
             new Date(b.movein_date).getTime() -
             new Date(a.movein_date).getTime(),
         )[0];
@@ -298,8 +348,11 @@ async function deleteByEmail(
     }
 
     return { deleted: true };
-  } catch (err: any) {
-    return { deleted: false, error: err.message };
+  } catch (err: unknown) {
+    return {
+      deleted: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
 
