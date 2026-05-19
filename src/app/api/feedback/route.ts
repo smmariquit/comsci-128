@@ -36,18 +36,7 @@ export async function POST(req: NextRequest) {
     screenshotUrl = data?.path;
   }
 
-  // const { error } = await supabase.from("feedback").insert([
-  //   {
-  //     user_id: userId,
-  //     subject,
-  //     text,
-  //     screenshot_url: screenshotUrl,
-  //     status: "pending",
-  //     created_at: new Date().toISOString(),
-  //   },
-  // ]);
-
-  const data = await feedbackService.createFeedback({
+  const payload: any = {
     account_number: accountNumber,
     subject,
     text,
@@ -56,10 +45,14 @@ export async function POST(req: NextRequest) {
     status: "Pending",
     created_at: new Date().toISOString(),
     updated_at: null,
-    screenshotUrl: screenshotUrl,
-  });
+    screenshot_url: screenshotUrl,
+  };
 
-  // if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (involved_housing_id) payload.involved_housing_id = Number(involved_housing_id);
+  if (involved_manager_id) payload.involved_manager_id = Number(involved_manager_id);
+
+  await feedbackService.createFeedback(payload);
+
   return NextResponse.json({ ok: true });
 }
 
