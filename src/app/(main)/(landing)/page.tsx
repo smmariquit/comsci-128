@@ -17,6 +17,22 @@ const colors = {
   light_blue: "#567375",
 };
 
+const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    width="24"
+    height="24"
+    stroke="currentColor"
+    strokeWidth="2"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+  </svg>
+);
+
 export default function LandingPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -132,6 +148,28 @@ export default function LandingPage() {
                 </Link>
               </div>
 
+              {/* Project & Beta Testing Links */}
+              <div className="fade-up-delay mt-4 text-xs text-[#567375] flex items-center gap-2 font-mono">
+                <span>Project:</span>
+                <a
+                  href="https://github.com/smmariquit/comsci-128"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[#C9642A] transition-colors"
+                >
+                  GitHub
+                </a>
+                <span>&bull;</span>
+                <a
+                  href="https://github.com/smmariquit/comsci-128/blob/main/betaTesting.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[#C9642A] transition-colors"
+                >
+                  Beta Testing Guide
+                </a>
+              </div>
+
               {/* Scroll to explore */}
               <div className="flex items-center gap-3 mt-5 animate-float">
                 {/* Mouse icon */}
@@ -174,6 +212,42 @@ export default function LandingPage() {
 
       {/* Get Started with orange section */}
       <CTASection />
+
+      {/* ── Footer ── */}
+      <footer className="bg-[#1C2632] text-[#EDE9DE] py-12 px-8 md:px-16 border-t border-[#EDE9DE]/10">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col gap-2 text-center md:text-left">
+            <h3 className="font-bold text-lg tracking-tight">UPLB CASA</h3>
+            <p className="text-xs text-[#EDE9DE]/60 max-w-sm">
+              Centralized Accommodation System Application. Helping UPLB students find secure, comfortable, and affordable housing with ease.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <a
+              href="https://github.com/smmariquit/comsci-128"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-[#EDE9DE]/80 hover:text-[#E3AF64] transition-colors"
+            >
+              <GithubIcon className="w-4 h-4" />
+              <span>GitHub</span>
+            </a>
+            <span className="text-[#EDE9DE]/30">|</span>
+            <a
+              href="https://github.com/smmariquit/comsci-128/blob/main/betaTesting.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-[#EDE9DE]/80 hover:text-[#E3AF64] transition-colors"
+            >
+              <span>Beta Testing Guide</span>
+            </a>
+          </div>
+        </div>
+        <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-[#EDE9DE]/10 text-center text-xs text-[#EDE9DE]/40">
+          &copy; {new Date().getFullYear()} UPLB CASA. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 }
