@@ -159,7 +159,7 @@ export default function LandingPage() {
                 >
                   GitHub
                 </a>
-                <span>&bull;</span>
+                <span className="h-3 w-[1px] bg-[#567375]/30 self-center" />
                 <a
                   href="https://github.com/smmariquit/comsci-128/blob/main/betaTesting.md"
                   target="_blank"
