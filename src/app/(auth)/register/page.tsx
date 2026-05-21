@@ -255,7 +255,7 @@ export default function RegisterPage() {
     const { error: verifyError } = await supabase.auth.verifyOtp({
       email: form.email.trim(),
       token,
-      type: "email",
+      type: "signup",
     });
 
     if (verifyError) {
