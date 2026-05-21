@@ -11,9 +11,10 @@ UPLB CASA is a centralized accommodation management system for the [University o
 
 ## Features
 ### Core System
-- **Auth**: Google/UP Mail (OAuth 2.0) via Supabase. Roles: Student, Manager, Admin, SysAdmin.
-- **Audit Logs**: Immutable transaction logs (User, Timestamp, IP, Action). Logs cannot be edited or deleted.
-- **Reporting**: Exportable summaries (Occupancy, Billing, Applicants) in PDF/CSV/Excel.
+- **Auth**: Secure signups, email OTP verification, and PKCE-based Google/UP Mail OAuth 2.0 flow via Supabase. Roles: Student, Manager, Admin, SysAdmin.
+- **Audit Logs**: Immutable transaction logs (User, Action, Description) mapped directly to specific portal dashboards (System Admin & Landlord Audit logs). Logs cannot be edited or deleted.
+- **Reporting**: Professional, brand-customized report exporter supporting PDF and CSV downloads (Occupancy, Billing, Applicants).
+- **Email Delivery**: Transactional notifications and verification codes powered by Resend via custom SMTP integration.
 ### For Students
 - **Housing Browser**: Filter and view available dorms/rooms.
 - **Applications**: Digital submission with document uploads during open periods.
@@ -125,11 +126,16 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Database Seed
 
-A mock seed script is available for populating the database with test data. Run it via the Supabase SQL editor.
+To populate the database with test data:
 
-```
-scripts/mock-seed.sql
-```
+1. Run the database seed SQL script in your Supabase SQL editor:
+   ```text
+   scripts/mock-seed.sql
+   ```
+2. Create matching test credentials in Supabase Auth so they can log in via `signInWithPassword()`:
+   ```bash
+   npx tsx scripts/seed-auth-users.ts
+   ```
 ## Acknowledgements
 
 This project was developed in partial fulfillment of the requirements for CMSC 128 (Introduction to Software Engineering) at the [University of the Philippines Los Baños][uplb], Second Semester AY 2025–2026.

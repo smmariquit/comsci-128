@@ -23,6 +23,9 @@ pw: housingadmin
 email: landlord@tester.com
 pw: landlord
 
+> [!NOTE]
+> Because these test accounts use mock email addresses (`@tester.com`), any features involving actual email delivery (such as OTP signup verification codes or email notification triggers) will not deliver to an inbox. To test real email deliveries (via Resend), please register a new account using a real email address you control.
+
 --------------------------------
 
 ## Summarized Application Flow 
