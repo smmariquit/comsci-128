@@ -54,7 +54,7 @@ const addUser = async (
   options: AddUserOptions = {},
 ): Promise<User> => {
   try {
-    const { account_email, first_name, last_name, password } = userDetails;
+    const { account_email, first_name, last_name } = userDetails;
 
     // Check if email already exists
     const existing = await userData.findByEmail(account_email);
@@ -64,11 +64,10 @@ const addUser = async (
     if (!account_email) throw new Error("Email is required.");
     if (!first_name) throw new Error("First name is required.");
     if (!last_name) throw new Error("Last name is required.");
-    if (!password && !options.authUserAlreadyCreated) {
-      throw new Error("Password is required");
-    }
 
     if (options.authUserAlreadyCreated) {
+      // The client already called supabase.auth.signUp(), so the auth user
+      // should exist. Verify that before creating the profile row.
       const { data: authUsers, error: listError } =
         await supabaseAdmin.auth.admin.listUsers({
           page: 1,
@@ -86,24 +85,12 @@ const addUser = async (
       if (!authUserExists) {
         throw new Error("Email confirmation must be started before signup.");
       }
-    } else {
-      const { data: authData, error: authError } =
-        await supabaseAdmin.auth.admin.createUser({
-          email: account_email,
-          password: password ?? undefined,
-          email_confirm: true,
-        });
-
-      if (authError || !authData.user) {
-        throw new Error(
-          `Auth creation failed: ${authError?.message || "Unknown error"}`,
-        );
-      }
     }
 
-    // set user type to Student (default)
+    // Passwords are managed exclusively by Supabase Auth (auth.users).
+    // Never store passwords in the public user table.
     userDetails.user_type = "Student";
-    userDetails.password = "";
+    userDetails.password = null;
 
     const createdUser = await userData.create(userDetails);
 
@@ -313,10 +300,6 @@ const finalizeGoogleSignup = async (
     throw new Error("Email already in use.");
   }
 
-  if (!updates.password) {
-    throw new Error("Password is required.");
-  }
-
   if (!updates.first_name) throw new Error("First name is required.");
   if (!updates.last_name) throw new Error("Last name is required.");
 
@@ -335,18 +318,27 @@ const finalizeGoogleSignup = async (
     authUserId = authUser.id;
   }
 
-  const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-    authUserId,
-    {
-      password: updates.password,
-      email_confirm: true,
-    },
-  );
+  // If the user provided a password during Google signup, set it in Auth
+  // so they can also log in with email+password later.
+  if (updates.password) {
+    const { error: updateError } =
+      await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+        password: updates.password,
+        email_confirm: true,
+      });
 
-  if (updateError) {
-    throw new Error(`Auth update failed: ${updateError.message}`);
+    if (updateError) {
+      throw new Error(`Auth update failed: ${updateError.message}`);
+    }
+  } else {
+    // At minimum confirm the email for Google users
+    await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+      email_confirm: true,
+    });
   }
 
+  // Passwords are managed exclusively by Supabase Auth.
+  // Never store passwords in the public user table.
   const userDetails: NewUser = {
     account_email: accountEmail,
     contact_email: updates.contact_email ?? null,
@@ -357,7 +349,7 @@ const finalizeGoogleSignup = async (
     home_address: updates.home_address ?? null,
     phone_number: updates.phone_number ?? null,
     sex: updates.sex ?? "Prefer not to say",
-    password: "",
+    password: null,
     user_type: "Student",
     google_identity: profile.googleIdentity,
     profile_picture: updates.profile_picture ?? null,
