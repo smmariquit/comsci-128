@@ -211,10 +211,20 @@ export default function RoomTable({
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
         <table
-          style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13 }}
+          style={{
+            width: "100%",
+            borderCollapse: "separate",
+            borderSpacing: 0,
+            fontSize: 13,
+          }}
         >
           <thead>
-            <tr style={{ background: "rgba(234,232,225,0.5)", borderBottom: "1px solid rgba(26,35,50,0.06)" }}>
+            <tr
+              style={{
+                background: "rgba(234,232,225,0.5)",
+                borderBottom: "1px solid rgba(26,35,50,0.06)",
+              }}
+            >
               {COLUMNS.map((col) => (
                 <th
                   key={col.key}
@@ -251,7 +261,7 @@ export default function RoomTable({
               </tr>
             ) : (
               data.map((row, i) => {
-              const isOccupied = row.occupancy_status !== "Empty";
+                const isOccupied = row.occupancy_status !== "Empty";
 
                 return (
                   <tr

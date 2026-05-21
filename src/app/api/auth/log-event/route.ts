@@ -41,12 +41,7 @@ export async function POST(request: Request) {
       ? `${dbUser.first_name} ${dbUser.last_name}`.trim()
       : user.user_metadata?.full_name || user.email || "Unknown User";
 
-    await createAuditLog(
-      accountNumber,
-      userName,
-      action,
-      description
-    );
+    await createAuditLog(accountNumber, userName, action, description);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

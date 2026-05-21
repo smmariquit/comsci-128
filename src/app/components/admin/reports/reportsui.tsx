@@ -180,7 +180,12 @@ export function TableShell({
       </div>
       <div style={{ overflowX: "auto" }}>
         <table
-          style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13 }}
+          style={{
+            width: "100%",
+            borderCollapse: "separate",
+            borderSpacing: 0,
+            fontSize: 13,
+          }}
         >
           {children}
         </table>

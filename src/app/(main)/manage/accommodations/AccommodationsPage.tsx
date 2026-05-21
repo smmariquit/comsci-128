@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { Search, SlidersHorizontal, Map, LayoutGrid } from "lucide-react";
-import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
+import HousingMap, {
+  type HousingMarker,
+} from "@/app/components/map/HousingMap";
 
 import type { Database } from "@/app/types/database.types";
 
@@ -50,7 +52,10 @@ function AccommodationCard({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Link href={`/manage/accommodations/${id}`} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--teal)]">
+    <Link
+      href={`/manage/accommodations/${id}`}
+      className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--teal)]"
+    >
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -191,7 +196,7 @@ export default function AccommodationsPage({
           lng: h.longitude!,
           image: h.housing_image,
         })),
-    [housings]
+    [housings],
   );
 
   const filtered = useMemo(() => {
@@ -239,7 +244,9 @@ export default function AccommodationsPage({
   }, [housings, search, sort]);
 
   return (
-    <div className={`accommodations-root ${showMap ? "map-visible" : "map-hidden"} bg-[var(--cream)]`}>
+    <div
+      className={`accommodations-root ${showMap ? "map-visible" : "map-hidden"} bg-[var(--cream)]`}
+    >
       {/* Left: Map (Desktop only, visible when showMap=true) */}
       {showMap && markers.length > 0 && (
         <div className="accommodations-map-panel hidden lg:flex flex-col min-w-0 border-r border-gray-200">
@@ -265,7 +272,9 @@ export default function AccommodationsPage({
                 className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-[#1C2632] text-white text-xs md:text-sm font-semibold hover:bg-[#2a3a4e] transition shadow-md"
               >
                 {showMap ? <LayoutGrid size={16} /> : <Map size={16} />}
-                <span className="hidden sm:inline">{showMap ? "Hide Map" : "Show Map"}</span>
+                <span className="hidden sm:inline">
+                  {showMap ? "Hide Map" : "Show Map"}
+                </span>
               </button>
             )}
           </div>
@@ -295,7 +304,9 @@ export default function AccommodationsPage({
         <div className="accommodations-cards-scroll manage-scrollbar flex-1 overflow-y-auto">
           {filtered.length === 0 ? (
             <div className="flex items-center justify-center h-full p-8">
-              <p className="text-gray-500 text-center">No accommodations found.</p>
+              <p className="text-gray-500 text-center">
+                No accommodations found.
+              </p>
             </div>
           ) : (
             <div className="p-4 md:p-6 space-y-4 max-w-5xl mx-auto w-full">
@@ -306,7 +317,8 @@ export default function AccommodationsPage({
                 );
                 const freeSlots = housing.room.reduce(
                   (sum, r) =>
-                    sum + ((r.maximum_occupants ?? 0) - (r.occupants_count ?? 0)),
+                    sum +
+                    ((r.maximum_occupants ?? 0) - (r.occupants_count ?? 0)),
                   0,
                 );
 

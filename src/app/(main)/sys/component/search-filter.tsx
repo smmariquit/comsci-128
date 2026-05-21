@@ -30,7 +30,13 @@ export interface UserFiltersProps {
 export default function UserFilters({
   values,
   onChange,
-  roleOptions = ["All Roles", "Landlord", "Housing Administrator", "Student", "System Admin"],
+  roleOptions = [
+    "All Roles",
+    "Landlord",
+    "Housing Administrator",
+    "Student",
+    "System Admin",
+  ],
   statusOptions = ["All Status", "Active", "Disabled"],
   dormOptions = ["All Dorm", "Dorm 1", "Dorm 2", "Dorm 3"],
   sexOptions = ["All Sex", "Male", "Female", "Prefer not to say"],

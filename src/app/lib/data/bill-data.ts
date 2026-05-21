@@ -9,7 +9,6 @@ type BillingHistoryFilters = {
   pageSize?: number;
 };
 
-
 const create = async (billData: Bill) => {
   return await supabase.from("bill").insert([billData]).select().single();
 };

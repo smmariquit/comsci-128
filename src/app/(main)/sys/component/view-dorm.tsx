@@ -243,7 +243,10 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
               </p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                 <InfoCell label="Location" value={dorm.dormAddress} />
-                <InfoCell label="Housing Type" value={dorm.housingType ?? "UP Housing"} />
+                <InfoCell
+                  label="Housing Type"
+                  value={dorm.housingType ?? "UP Housing"}
+                />
                 <InfoCell
                   label="Monthly Rate"
                   value={
@@ -318,7 +321,9 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#1a2332] truncate">{dorm.landlordName}</p>
+                    <p className="text-sm font-semibold text-[#1a2332] truncate">
+                      {dorm.landlordName}
+                    </p>
                     {dorm.landlordEmail && (
                       <p className="text-[10px] text-[#1a2332]/40 font-mono mt-0.5 truncate">
                         {dorm.landlordEmail}
@@ -335,7 +340,6 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
                 </div>
               )}
             </div>
-
           </div>
 
           {/* Footer */}
@@ -348,9 +352,9 @@ export function ViewDormModal({ dorm, onClose, onEdit }: ViewDormModalProps) {
             </button>
             {onEdit && (
               <button
-                onClick={() => { 
-                  onEdit(); 
-                  onClose(); 
+                onClick={() => {
+                  onEdit();
+                  onClose();
                 }}
                 className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-[#1a2332] rounded-xl hover:bg-[#2e3f52] transition-colors"
               >

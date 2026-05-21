@@ -293,7 +293,9 @@ export default function RegisterPage() {
     setError("");
 
     if (dpaRequired && !privacyAgreed) {
-      setError("Please check the box to agree with the Data Privacy Act compliance terms.");
+      setError(
+        "Please check the box to agree with the Data Privacy Act compliance terms.",
+      );
       return;
     }
 
@@ -459,7 +461,9 @@ export default function RegisterPage() {
             <div>
               <input
                 className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important] ${
-                  nameErrors.first_name ? "border-red-500" : "border-stone-500/60 focus:border-orange-400"
+                  nameErrors.first_name
+                    ? "border-red-500"
+                    : "border-stone-500/60 focus:border-orange-400"
                 }`}
                 type="text"
                 name="first_name"
@@ -477,7 +481,9 @@ export default function RegisterPage() {
             <div>
               <input
                 className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important] ${
-                  nameErrors.middle_name ? "border-red-500" : "border-stone-500/60 focus:border-orange-400"
+                  nameErrors.middle_name
+                    ? "border-red-500"
+                    : "border-stone-500/60 focus:border-orange-400"
                 }`}
                 type="text"
                 name="middle_name"
@@ -494,7 +500,9 @@ export default function RegisterPage() {
             <div>
               <input
                 className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important] ${
-                  nameErrors.last_name ? "border-red-500" : "border-stone-500/60 focus:border-orange-400"
+                  nameErrors.last_name
+                    ? "border-red-500"
+                    : "border-stone-500/60 focus:border-orange-400"
                 }`}
                 type="text"
                 name="last_name"
@@ -512,7 +520,9 @@ export default function RegisterPage() {
             <div>
               <input
                 className={`w-full bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border transition-colors [&:-webkit-autofill]:[box-shadow:0_0_0_30px_#374151_inset_!important] [&:-webkit-autofill]:[-webkit-text-fill-color:white_!important] ${
-                  emailError ? "border-red-500" : "border-stone-500/60 focus:border-orange-400"
+                  emailError
+                    ? "border-red-500"
+                    : "border-stone-500/60 focus:border-orange-400"
                 }`}
                 type="email"
                 name="email"
@@ -587,9 +597,15 @@ export default function RegisterPage() {
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
-                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  aria-label={
+                    showConfirmPassword ? "Hide password" : "Show password"
+                  }
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             </div>
@@ -599,11 +615,17 @@ export default function RegisterPage() {
         {step === 2 && (
           <>
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider ml-1">Birthday</label>
+              <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider ml-1">
+                Birthday
+              </label>
               <ThemedDatePicker
                 id="birthday"
                 value={form.birthday}
-                onChange={(val) => handleChange({ target: { name: "birthday", value: val } } as any)}
+                onChange={(val) =>
+                  handleChange({
+                    target: { name: "birthday", value: val },
+                  } as any)
+                }
                 maxDate={new Date().toISOString().split("T")[0]}
                 placeholder="Select your birthday"
                 className="bg-gray-700 text-stone-200 rounded-xl px-4 py-3 outline-none border border-stone-500/60 focus:border-orange-400 transition-colors w-full"
@@ -704,8 +726,17 @@ export default function RegisterPage() {
                   className="mt-1 min-w-4 min-h-4 max-w-4 max-h-4 shrink-0 appearance-none rounded border border-zinc-500 bg-zinc-800 checked:bg-orange-500 checked:border-orange-500 focus:ring-orange-500 focus:ring-offset-0 focus:outline-none relative after:content-[''] after:absolute after:hidden checked:after:block after:left-1/2 after:top-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-1.5 after:h-2.5 after:border-r-2 after:border-b-2 after:border-white after:rotate-45 cursor-pointer"
                   required
                 />
-                <label htmlFor="privacy_conforme" className="text-xs text-stone-300 leading-relaxed cursor-pointer select-none">
-                  I hereby authorize <b>UPLB CASA</b> to collect, process, and store my personal details in strict compliance with the <b>Republic of the Philippines Data Privacy Act of 2012 (RA 10173)</b> and its implementing rules.
+                <label
+                  htmlFor="privacy_conforme"
+                  className="text-xs text-stone-300 leading-relaxed cursor-pointer select-none"
+                >
+                  I hereby authorize <b>UPLB CASA</b> to collect, process, and
+                  store my personal details in strict compliance with the{" "}
+                  <b>
+                    Republic of the Philippines Data Privacy Act of 2012 (RA
+                    10173)
+                  </b>{" "}
+                  and its implementing rules.
                 </label>
               </div>
             )}

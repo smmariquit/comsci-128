@@ -145,19 +145,21 @@ export default function AdminProfilePage() {
         <section className="p-12 flex flex-col items-center">
           {/* Horizontal Tabs */}
           <div className="flex gap-4 mb-12 flex-wrap">
-            {["Personal Information", "Bank details", "Account Settings"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-8 py-3 rounded-xl font-semibold transition-all ${
-                  activeTab === tab
-                    ? "bg-[#C4C9C1] text-[#1C2632] shadow-sm"
-                    : "text-[#1C2632]/60 hover:bg-gray-200"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+            {["Personal Information", "Bank details", "Account Settings"].map(
+              (tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-8 py-3 rounded-xl font-semibold transition-all ${
+                    activeTab === tab
+                      ? "bg-[#C4C9C1] text-[#1C2632] shadow-sm"
+                      : "text-[#1C2632]/60 hover:bg-gray-200"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ),
+            )}
           </div>
 
           {/* Centered Inputs */}
@@ -294,4 +296,3 @@ function ProfileInput({ label, value, onChange, disabled = false }: any) {
     </div>
   );
 }
-

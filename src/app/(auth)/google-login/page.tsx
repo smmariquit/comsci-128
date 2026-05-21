@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import PageLoading from "@/app/components/ui/page-loading";
 import { getSupabaseBrowserClient } from "@/app/lib/browser-client";
 import { setCookie } from "@/app/lib/utils";
-import PageLoading from "@/app/components/ui/page-loading";
 
 export default function GoogleLoginPage() {
   const router = useRouter();
@@ -20,6 +20,15 @@ export default function GoogleLoginPage() {
   useEffect(() => {
     async function handleLogin() {
       try {
+        const urlParams =
+          typeof window !== "undefined"
+            ? new URLSearchParams(window.location.search)
+            : new URLSearchParams();
+        const code = urlParams.get("code");
+        if (code) {
+          await supabase.auth.exchangeCodeForSession(code);
+        }
+
         const { data, error: authError } = await supabase.auth.getUser();
 
         if (authError || !data?.user) {
@@ -34,10 +43,6 @@ export default function GoogleLoginPage() {
           return;
         }
 
-        const urlParams =
-          typeof window !== "undefined"
-            ? new URLSearchParams(window.location.search)
-            : new URLSearchParams();
         const intent = urlParams.get("intent") || "login";
 
         const response = await fetch("/api/auth/google-login", {

@@ -201,11 +201,11 @@ async function getUsersForHousingAdmin(
     throw new Error(`Property Error: ${dormManagerError.message}`);
 
   const userIds = new Set<number>();
-    
+
   histories?.forEach((h) => {
     userIds.add(h.account_number);
   });
-    
+
   managers?.forEach((m) => {
     userIds.add(m.manager_account_number);
   });

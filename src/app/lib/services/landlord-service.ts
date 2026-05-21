@@ -5,14 +5,14 @@ import { createAuditLog } from "./audit-log-service";
 import { userService } from "./user-service";
 
 function formatUserName(user: {
-	first_name?: string | null;
-	last_name?: string | null;
-	account_email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  account_email?: string | null;
 }): string {
-	const first = user.first_name?.trim() ?? "";
-	const last = user.last_name?.trim() ?? "";
-	const full = `${first} ${last}`.trim();
-	return full || user.account_email?.trim() || "";
+  const first = user.first_name?.trim() ?? "";
+  const last = user.last_name?.trim() ?? "";
+  const full = `${first} ${last}`.trim();
+  return full || user.account_email?.trim() || "";
 }
 
 const addLandlord = async (
@@ -21,13 +21,13 @@ const addLandlord = async (
 ): Promise<NewManager | null> => {
   try {
     const landlord = await landlordData.create(accountNumber, managerDetails);
-    
+
     if (!landlord) return null;
-      const userDetails = await userService.getUser(accountNumber);
+    const userDetails = await userService.getUser(accountNumber);
 
-      const userName = `${userDetails!.first_name} ${userDetails!.last_name}`;
+    const userName = `${userDetails!.first_name} ${userDetails!.last_name}`;
 
-      if (landlord && userDetails) {
+    if (landlord && userDetails) {
       const userName = `${userDetails.first_name} ${userDetails.last_name}`;
 
       await createAuditLog(
@@ -35,14 +35,14 @@ const addLandlord = async (
         userName,
         "Update User Role",
         `${userName} updated role from student to landlord`,
-         null
+        null,
       );
     }
     return landlord;
   } catch (error: any) {
-    console.error("Error adding landlord:", error); 
-    console.error("Error message:", error.message); 
-    throw new Error(`Failed to add landlord: ${error.message}`); 
+    console.error("Error adding landlord:", error);
+    console.error("Error message:", error.message);
+    throw new Error(`Failed to add landlord: ${error.message}`);
   }
 };
 

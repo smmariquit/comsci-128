@@ -50,7 +50,7 @@ export default function ApplicationsClient({
     const q = search.trim();
     if (q) {
       result = result.filter((app) =>
-        String(app.student_account_number || "").includes(q)
+        String(app.student_account_number || "").includes(q),
       );
     }
 
@@ -62,13 +62,15 @@ export default function ApplicationsClient({
     // Filter by approved unassigned
     if (assignmentFilter === "Approved Unassigned") {
       result = result.filter(
-        (app) => app.application_status === "Approved" && !app.room_id
+        (app) => app.application_status === "Approved" && !app.room_id,
       );
     }
 
     // Filter by preferred_room_type
     if (roomTypeFilter !== "All") {
-      result = result.filter((app) => app.preferred_room_type === roomTypeFilter);
+      result = result.filter(
+        (app) => app.preferred_room_type === roomTypeFilter,
+      );
     }
 
     // Sort by created_at or expected_moveout_date
@@ -118,7 +120,7 @@ export default function ApplicationsClient({
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginatedResults = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   return (
@@ -229,7 +231,9 @@ export default function ApplicationsClient({
           >
             <option value="created_at_desc">Newest Created</option>
             <option value="created_at_asc">Oldest Created</option>
-            <option value="expected_moveout_date_asc">Moveout (Earliest)</option>
+            <option value="expected_moveout_date_asc">
+              Moveout (Earliest)
+            </option>
             <option value="expected_moveout_date_desc">Moveout (Latest)</option>
           </select>
           <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">
@@ -273,7 +277,7 @@ export default function ApplicationsClient({
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center md:items-start">
                   {/* Status Indicator */}
                   <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-gradient-to-r from-[var(--teal)] to-[var(--dark-orange)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  
+
                   <div className="md:col-span-1">
                     <div className="text-xs font-semibold text-[var(--teal)] uppercase tracking-wide mb-1">
                       Name
@@ -291,13 +295,17 @@ export default function ApplicationsClient({
                     <div className="text-xs font-semibold text-[var(--teal)] uppercase tracking-wide mb-1">
                       Housing
                     </div>
-                    <div className="text-gray-700">{app.housing_name ?? "N/A"}</div>
+                    <div className="text-gray-700">
+                      {app.housing_name ?? "N/A"}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs font-semibold text-[var(--teal)] uppercase tracking-wide mb-1">
                       Moveout
                     </div>
-                    <div className="text-gray-700">{app.expected_moveout_date ?? "N/A"}</div>
+                    <div className="text-gray-700">
+                      {app.expected_moveout_date ?? "N/A"}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs font-semibold text-[var(--teal)] uppercase tracking-wide mb-1">
@@ -315,7 +323,10 @@ export default function ApplicationsClient({
                       className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--teal)] text-white rounded-lg hover:bg-[var(--teal)]/90 transition-all text-sm font-semibold shadow-sm hover:shadow-md active:scale-95"
                     >
                       <span>Review</span>
-                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight
+                        size={14}
+                        className="group-hover:translate-x-1 transition-transform"
+                      />
                     </Link>
                   </div>
                 </div>
@@ -335,7 +346,7 @@ export default function ApplicationsClient({
           >
             Previous
           </button>
-          
+
           <div className="flex items-center gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
@@ -353,7 +364,9 @@ export default function ApplicationsClient({
           </div>
 
           <button
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            onClick={() =>
+              setCurrentPage(Math.min(totalPages, currentPage + 1))
+            }
             disabled={currentPage === totalPages}
             className="px-3 py-2 rounded-md border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >

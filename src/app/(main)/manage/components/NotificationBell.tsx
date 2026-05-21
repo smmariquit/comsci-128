@@ -13,7 +13,6 @@ export default function NotificationBell({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
- 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (

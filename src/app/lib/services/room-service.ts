@@ -188,11 +188,11 @@ export const assignRoom = async (roomId: number, studentId: string) => {
       housing.manager_account_number,
     );
 
-		return { success: true };
-	} catch (error: any) {
-		console.error("Service Error (assignStudent): ", error.message);
-		throw error;
-	}
+    return { success: true };
+  } catch (error: any) {
+    console.error("Service Error (assignStudent): ", error.message);
+    throw error;
+  }
 };
 
 export const unassignRoom = async (
@@ -242,11 +242,11 @@ export const unassignRoom = async (
       housing.manager_account_number,
     );
 
-		return { success: true }
-	} catch (error: any) {
-		console.error("Service Error (unassignStudent): ", error.message);
-		throw error;
-	}
+    return { success: true };
+  } catch (error: any) {
+    console.error("Service Error (unassignStudent): ", error.message);
+    throw error;
+  }
 };
 
 export const getEligibleStudents = async (

@@ -44,7 +44,7 @@ async function getDB() {
   if (!dbInstance) {
     dbInstance = new PGlite("idb://housing-offline-db");
     await dbInstance.waitReady;
-    
+
     // Initialize schema
     await dbInstance.exec(`
       CREATE TABLE IF NOT EXISTS housing (
@@ -94,7 +94,7 @@ async function getDB() {
       "is_furnished BOOLEAN",
       "has_kitchen BOOLEAN",
       "has_security BOOLEAN",
-      "has_utilities_included BOOLEAN"
+      "has_utilities_included BOOLEAN",
     ];
     for (const col of columns) {
       try {
@@ -107,7 +107,9 @@ async function getDB() {
   return dbInstance;
 }
 
-const generateLowResBase64 = async (url: string | null): Promise<string | null> => {
+const generateLowResBase64 = async (
+  url: string | null,
+): Promise<string | null> => {
   if (!url) return null;
   try {
     const res = await fetch(url);
@@ -136,7 +138,7 @@ export function usePGliteHousing() {
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
-    
+
     setIsOffline(!navigator.onLine);
 
     window.addEventListener("online", handleOnline);
@@ -156,17 +158,17 @@ export function usePGliteHousing() {
       setIsSyncing(false);
       return;
     }
-    
+
     const lastSync = localStorage.getItem("housing_last_sync");
     const now = Date.now();
-    
+
     // If synced within the last 12 hours (43200000 ms), skip heavy sync
-    if (lastSync && (now - parseInt(lastSync, 10) < 43200000)) {
+    if (lastSync && now - parseInt(lastSync, 10) < 43200000) {
       setIsSyncing(false);
       setSyncComplete(true);
       return;
     }
-    
+
     setIsSyncing(true);
     try {
       // In a real robust implementation, we'd fetch everything from Supabase.
@@ -183,9 +185,9 @@ export function usePGliteHousing() {
         throw new Error("Housing sync returned unexpected payload");
       }
       const data = payload.data as OfflineHousing[];
-      
+
       const db = await getDB();
-      
+
       // Sync Housing (simplified for offline viewer)
       if (data.length > 0) {
         let count = 0;
@@ -214,7 +216,28 @@ export function usePGliteHousing() {
              has_kitchen = EXCLUDED.has_kitchen,
              has_security = EXCLUDED.has_security,
              has_utilities_included = EXCLUDED.has_utilities_included`,
-            [h.housing_id, h.housing_name, h.housing_address, h.housing_type, h.rent_price, h.latitude, h.longitude, base64, h.start_application_date, h.end_application_date, h.has_wifi, h.has_aircon, h.has_laundry, h.has_parking, h.has_no_curfew, h.allows_visitors, h.is_furnished, h.has_kitchen, h.has_security, h.has_utilities_included]
+            [
+              h.housing_id,
+              h.housing_name,
+              h.housing_address,
+              h.housing_type,
+              h.rent_price,
+              h.latitude,
+              h.longitude,
+              base64,
+              h.start_application_date,
+              h.end_application_date,
+              h.has_wifi,
+              h.has_aircon,
+              h.has_laundry,
+              h.has_parking,
+              h.has_no_curfew,
+              h.allows_visitors,
+              h.is_furnished,
+              h.has_kitchen,
+              h.has_security,
+              h.has_utilities_included,
+            ],
           );
           count++;
           setSyncProgress(Math.round((count / data.length) * 100));
@@ -231,14 +254,14 @@ export function usePGliteHousing() {
           .join(", ");
         await db.query(
           `DELETE FROM room WHERE housing_id NOT IN (${placeholders})`,
-          housingIds
+          housingIds,
         );
         await db.query(
           `DELETE FROM housing WHERE housing_id NOT IN (${placeholders})`,
-          housingIds
+          housingIds,
         );
       }
-      
+
       setSyncComplete(true);
       localStorage.setItem("housing_last_sync", Date.now().toString());
     } catch (e) {
@@ -252,11 +275,17 @@ export function usePGliteHousing() {
   // Provide a drop-in replacement for getDormDetails when offline
   const getOfflineDormDetails = async (id: number) => {
     const db = await getDB();
-    const housingRes = await db.query<OfflineHousing>(`SELECT * FROM housing WHERE housing_id = $1`, [id]);
-    const roomsRes = await db.query<OfflineRoom>(`SELECT * FROM room WHERE housing_id = $1`, [id]);
-    
+    const housingRes = await db.query<OfflineHousing>(
+      `SELECT * FROM housing WHERE housing_id = $1`,
+      [id],
+    );
+    const roomsRes = await db.query<OfflineRoom>(
+      `SELECT * FROM room WHERE housing_id = $1`,
+      [id],
+    );
+
     if (housingRes.rows.length === 0) return null;
-    
+
     const h = housingRes.rows[0];
     return {
       housing_id: h.housing_id,
@@ -279,7 +308,7 @@ export function usePGliteHousing() {
       has_kitchen: h.has_kitchen,
       has_security: h.has_security,
       has_utilities_included: h.has_utilities_included,
-      room: roomsRes.rows // matches the Supabase relation format
+      room: roomsRes.rows, // matches the Supabase relation format
     };
   };
 
@@ -290,16 +319,16 @@ export function usePGliteHousing() {
         image_base64 as housing_image, start_application_date, end_application_date,
         has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew,
         allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included
-      FROM housing`
+      FROM housing`,
     );
     return housingRes.rows;
   };
-  
+
   // Method to manually save a dorm's full details (including rooms) when we fetch it online
   const saveDormDetailsLocally = async (dorm: any) => {
     if (!dorm) return;
     const db = await getDB();
-    
+
     const base64 = await generateLowResBase64(dorm.housing_image);
     await db.query(
       `INSERT INTO housing (housing_id, housing_name, housing_address, housing_type, rent_price, latitude, longitude, image_base64, start_application_date, end_application_date, has_wifi, has_aircon, has_laundry, has_parking, has_no_curfew, allows_visitors, is_furnished, has_kitchen, has_security, has_utilities_included)
@@ -324,9 +353,30 @@ export function usePGliteHousing() {
        has_kitchen = EXCLUDED.has_kitchen,
        has_security = EXCLUDED.has_security,
        has_utilities_included = EXCLUDED.has_utilities_included`,
-      [dorm.housing_id, dorm.housing_name, dorm.housing_address, dorm.housing_type, dorm.rent_price, dorm.latitude, dorm.longitude, base64, dorm.start_application_date, dorm.end_application_date, dorm.has_wifi, dorm.has_aircon, dorm.has_laundry, dorm.has_parking, dorm.has_no_curfew, dorm.allows_visitors, dorm.is_furnished, dorm.has_kitchen, dorm.has_security, dorm.has_utilities_included]
+      [
+        dorm.housing_id,
+        dorm.housing_name,
+        dorm.housing_address,
+        dorm.housing_type,
+        dorm.rent_price,
+        dorm.latitude,
+        dorm.longitude,
+        base64,
+        dorm.start_application_date,
+        dorm.end_application_date,
+        dorm.has_wifi,
+        dorm.has_aircon,
+        dorm.has_laundry,
+        dorm.has_parking,
+        dorm.has_no_curfew,
+        dorm.allows_visitors,
+        dorm.is_furnished,
+        dorm.has_kitchen,
+        dorm.has_security,
+        dorm.has_utilities_included,
+      ],
     );
-    
+
     if (dorm.room && dorm.room.length > 0) {
       for (const r of dorm.room) {
         await db.query(
@@ -334,11 +384,26 @@ export function usePGliteHousing() {
            VALUES ($1, $2, $3, $4, $5, $6)
            ON CONFLICT (room_id) DO UPDATE SET
            latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude`,
-          [r.room_id, r.housing_id, r.room_code, r.room_type, r.latitude, r.longitude]
+          [
+            r.room_id,
+            r.housing_id,
+            r.room_code,
+            r.room_type,
+            r.latitude,
+            r.longitude,
+          ],
         );
       }
     }
   };
 
-  return { isOffline, isSyncing, syncProgress, syncComplete, getOfflineDormDetails, saveDormDetailsLocally, getAllOfflineDorms };
+  return {
+    isOffline,
+    isSyncing,
+    syncProgress,
+    syncComplete,
+    getOfflineDormDetails,
+    saveDormDetailsLocally,
+    getAllOfflineDorms,
+  };
 }

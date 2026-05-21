@@ -18,7 +18,7 @@ interface User {
 export interface Dorm {
   id: string;
   name: string;
-  status: 'Accepting' | 'Disabled' | string;
+  status: "Accepting" | "Disabled" | string;
   dormitory: string;
   dormAddress?: string;
   managerEmail?: string;
@@ -31,18 +31,34 @@ interface EditUserModalProps {
   user: User;
   dormitories?: Dorm[];
   onClose: () => void;
-  onSave: (userId: User["id"], newuserType: userType, newDormitory?: Dorm) => void;
+  onSave: (
+    userId: User["id"],
+    newuserType: userType,
+    newDormitory?: Dorm,
+  ) => void;
 }
 
 const userTypeS: { value: userType; label: string; description: string }[] = [
-  { value: "Landlord",              label: "Landlord",              description: "Owner-level access"         },
-  { value: "Housing Administrator", label: "Housing Administrator", description: "Manage dorm and tenants"    },
+  { value: "Landlord", label: "Landlord", description: "Owner-level access" },
+  {
+    value: "Housing Administrator",
+    label: "Housing Administrator",
+    description: "Manage dorm and tenants",
+  },
 ];
 
-const DORM_REQUIRED_userTypeS: userType[] = ["Landlord", "Housing Administrator"];
+const DORM_REQUIRED_userTypeS: userType[] = [
+  "Landlord",
+  "Housing Administrator",
+];
 
 function getInitials(name: string) {
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 }
 
 export function EditUserModal({
@@ -52,8 +68,8 @@ export function EditUserModal({
   onSave,
 }: EditUserModalProps) {
   const [selecteduserType, setSelecteduserType] = useState<userType>(
-  user.userType === "Student" ? "Landlord" : user.userType
-);
+    user.userType === "Student" ? "Landlord" : user.userType,
+  );
   const [selectedDorm, setSelectedDorm] = useState<Dorm | undefined>(undefined);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -63,7 +79,10 @@ export function EditUserModal({
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
         setQuery("");
       }
@@ -84,11 +103,11 @@ export function EditUserModal({
     if (!dormitories) return [];
     if (!query) return dormitories;
     return dormitories.filter((d) =>
-      d.name.toLowerCase().includes(query.toLowerCase())
+      d.name.toLowerCase().includes(query.toLowerCase()),
     );
   }, [query, dormitories]);
 
-  const displayValue = query !== "" ? query : selectedDorm?.name ?? "";
+  const displayValue = query !== "" ? query : (selectedDorm?.name ?? "");
 
   function handleSave() {
     onSave(user.id, selecteduserType, selectedDorm || undefined);
@@ -106,7 +125,6 @@ export function EditUserModal({
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl max-w-500px h-[90vh] shadow-2xl flex flex-col">
-
           {/* Header */}
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4">
@@ -128,7 +146,6 @@ export function EditUserModal({
 
           {/* Scrollable body */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-
             {/* User card */}
             <div className="flex items-center gap-3.5 p-4 bg-[#f3f4f5] rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-full bg-[#2e4a50] flex items-center justify-center shrink-0">
@@ -137,8 +154,12 @@ export function EditUserModal({
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[#1a2332] text-sm leading-tight">{user.name}</p>
-                <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">{user.email}</p>
+                <p className="font-bold text-[#1a2332] text-sm leading-tight">
+                  {user.name}
+                </p>
+                <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">
+                  {user.email}
+                </p>
               </div>
               <span className="shrink-0 px-3.5 py-1.5 text-xs font-semibold rounded-full bg-[#2e4a50] text-white">
                 {user.userType}
@@ -165,25 +186,33 @@ export function EditUserModal({
               </div>
             </div>
 
-
             {/* Non-student message */}
             {user.userType !== "Student" && (
               <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#f3f4f5] border border-gray-200">
-                <AlertTriangle size={15} className="text-[#1a2332]/40 shrink-0 mt-0.5" />
+                <AlertTriangle
+                  size={15}
+                  className="text-[#1a2332]/40 shrink-0 mt-0.5"
+                />
                 <p className="text-xs text-[#1a2332]/50 font-mono">
-                This user is already assigned as <span className="font-bold text-[#1a2332]/70">{user.userType}</span>.
+                  This user is already assigned as{" "}
+                  <span className="font-bold text-[#1a2332]/70">
+                    {user.userType}
+                  </span>
+                  .
                 </p>
               </div>
             )}
 
-          {/* Assign userType — only for Students */}
+            {/* Assign userType — only for Students */}
             {user.userType === "Student" && (
               <>
                 <div className="border-t border-gray-100" />
 
                 {/* Assign userType */}
                 <div>
-                  <p className="text-sm font-bold text-[#1a2332] mb-3">Assign New userType</p>
+                  <p className="text-sm font-bold text-[#1a2332] mb-3">
+                    Assign New userType
+                  </p>
                   <div className="grid grid-cols-2 gap-3">
                     {userTypeS.map((userType) => {
                       const isSelected = selecteduserType === userType.value;
@@ -193,25 +222,36 @@ export function EditUserModal({
                           type="button"
                           onClick={() => {
                             setSelecteduserType(userType.value);
-                            if (!DORM_REQUIRED_userTypeS.includes(userType.value)) {
+                            if (
+                              !DORM_REQUIRED_userTypeS.includes(userType.value)
+                            ) {
                               setSelectedDorm(undefined);
                             }
                           }}
                           className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all
-                            ${isSelected
-                              ? "border-[#b85c28] bg-[#fdf0e8]"
-                              : "border-[#e8e6e1] bg-[#faf9f7] hover:border-[#c8c4bc]"
+                            ${
+                              isSelected
+                                ? "border-[#b85c28] bg-[#fdf0e8]"
+                                : "border-[#e8e6e1] bg-[#faf9f7] hover:border-[#c8c4bc]"
                             }`}
                         >
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-                            ${isSelected ? "border-[#b85c28]" : "border-[#c8c4bc]"}`}>
-                            {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#b85c28]" />}
+                          <div
+                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
+                            ${isSelected ? "border-[#b85c28]" : "border-[#c8c4bc]"}`}
+                          >
+                            {isSelected && (
+                              <div className="w-2.5 h-2.5 rounded-full bg-[#b85c28]" />
+                            )}
                           </div>
                           <div>
-                            <p className={`text-sm font-bold ${isSelected ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
+                            <p
+                              className={`text-sm font-bold ${isSelected ? "text-[#b85c28]" : "text-[#1a2332]"}`}
+                            >
                               {userType.label}
                             </p>
-                            <p className="text-xs text-[#1a2332]/45 font-mono">{userType.description}</p>
+                            <p className="text-xs text-[#1a2332]/45 font-mono">
+                              {userType.description}
+                            </p>
                           </div>
                         </button>
                       );
@@ -221,7 +261,9 @@ export function EditUserModal({
 
                 {/* Dorm select — searchable input */}
                 <div ref={containerRef} className="relative">
-                  <p className={`text-sm font-bold mb-2 ${dormRequired ? "text-[#b85c28]" : "text-[#1a2332]/40"}`}>
+                  <p
+                    className={`text-sm font-bold mb-2 ${dormRequired ? "text-[#b85c28]" : "text-[#1a2332]/40"}`}
+                  >
                     Assign to Dormitory
                   </p>
                   <input
@@ -240,9 +282,10 @@ export function EditUserModal({
                     disabled={!dormRequired}
                     placeholder="Select a Dormitory ..."
                     className={`w-full px-4 py-3 rounded-xl border text-sm text-black
-                      ${dormRequired
-                        ? "border-gray-200 bg-[#f3f4f5]"
-                        : "border-gray-100 bg-[#f3f4f5]/50 cursor-not-allowed text-gray-400"
+                      ${
+                        dormRequired
+                          ? "border-gray-200 bg-[#f3f4f5]"
+                          : "border-gray-100 bg-[#f3f4f5]/50 cursor-not-allowed text-gray-400"
                       }`}
                   />
                   {open && dormRequired && (
@@ -276,14 +319,20 @@ export function EditUserModal({
                 <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
                   <AlertTriangle size={15} className="text-[#b85c28]" />
                   <p className="text-xs text-[#b85c28] font-mono">
-                    Changing a userType will immediately update the user&apos;s access permissions.
+                    Changing a userType will immediately update the user&apos;s
+                    access permissions.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-red-50 border border-red-200">
-                  <AlertTriangle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                  <AlertTriangle
+                    size={15}
+                    className="text-red-500 shrink-0 mt-0.5"
+                  />
                   <p className="text-xs text-red-500 font-mono">
-                    Changing a user&apos;s role is <span className="font-bold">permanent</span> and cannot be undone.
+                    Changing a user&apos;s role is{" "}
+                    <span className="font-bold">permanent</span> and cannot be
+                    undone.
                   </p>
                 </div>
               </>
@@ -298,18 +347,17 @@ export function EditUserModal({
             >
               Cancel
             </button>
-             {/* Only show Save for Students */}
-          {user.userType === "Student" && (
-            <button
-              onClick={handleSave}
-              disabled={dormRequired && !selectedDorm}
-              className="px-6 py-2.5 text-sm font-semibold text-white bg-[#b85c28] rounded-xl disabled:opacity-40 hover:bg-[#9e4f22] transition-colors"
-            >
-              Assign Role
-            </button>
-          )}
+            {/* Only show Save for Students */}
+            {user.userType === "Student" && (
+              <button
+                onClick={handleSave}
+                disabled={dormRequired && !selectedDorm}
+                className="px-6 py-2.5 text-sm font-semibold text-white bg-[#b85c28] rounded-xl disabled:opacity-40 hover:bg-[#9e4f22] transition-colors"
+              >
+                Assign Role
+              </button>
+            )}
           </div>
-
         </div>
       </div>
     </>

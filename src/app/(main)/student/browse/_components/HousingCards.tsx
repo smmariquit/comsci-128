@@ -61,12 +61,16 @@ export default function HousingCards({ cards }: { cards: any[] }) {
   return (
     <>
       {isFetching && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20" aria-live="polite" aria-label="Loading housing details">
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20"
+          aria-live="polite"
+          aria-label="Loading housing details"
+        >
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8b3e15]"></div>
         </div>
       )}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
-        {cards.map((card) => ( 
+        {cards.map((card) => (
           <button
             key={card.id}
             onClick={() => handleCardClick(card.id)}
@@ -81,9 +85,7 @@ export default function HousingCards({ cards }: { cards: any[] }) {
             className="flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-[#8b3e15] focus-visible:outline-none focus-visible:ring-offset-2 text-left"
           >
             <Image
-              src={
-                card.image || "/assets/placeholders/housing-414x264.svg"
-              }
+              src={card.image || "/assets/placeholders/housing-414x264.svg"}
               alt={card.name}
               width={414}
               height={264}

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ReceiptText, FileText, Upload, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  ReceiptText,
+  FileText,
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { C } from "@/lib/palette";
 import StateMessage from "@/app/components/ui/state-message";
 
@@ -24,7 +30,9 @@ interface Props {
 export default function StudentBillingHistory({ billing = [] }: Props) {
   // ── States ──────────────────────────────────────────────────────────────────
   const [filter, setFilter] = useState<"All" | "Unpaid" | "Overdue">("All");
-  const [sort, setSort] = useState<"due_date_desc" | "due_date_asc" | "amount_desc" | "amount_asc">("due_date_desc");
+  const [sort, setSort] = useState<
+    "due_date_desc" | "due_date_asc" | "amount_desc" | "amount_asc"
+  >("due_date_desc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -80,7 +88,8 @@ export default function StudentBillingHistory({ billing = [] }: Props) {
     return processedBills.slice(start, start + itemsPerPage);
   }, [processedBills, currentPage]);
 
-  const rangeStart = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const rangeStart =
+    totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const rangeEnd = Math.min(currentPage * itemsPerPage, totalItems);
 
   // ── Styles ──────────────────────────────────────────────────────────────────
@@ -134,7 +143,10 @@ export default function StudentBillingHistory({ billing = [] }: Props) {
             style={{
               ...selectBase,
               minWidth: 140,
-              boxShadow: hoveredSelect === "filter" ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+              boxShadow:
+                hoveredSelect === "filter"
+                  ? "0 8px 18px rgba(28,38,50,0.08)"
+                  : "none",
               outlineColor: hoveredSelect === "filter" ? C.amber : C.cream,
             }}
           >
@@ -153,7 +165,10 @@ export default function StudentBillingHistory({ billing = [] }: Props) {
             style={{
               ...selectBase,
               minWidth: 180,
-              boxShadow: hoveredSelect === "sort" ? "0 8px 18px rgba(28,38,50,0.08)" : "none",
+              boxShadow:
+                hoveredSelect === "sort"
+                  ? "0 8px 18px rgba(28,38,50,0.08)"
+                  : "none",
               outlineColor: hoveredSelect === "sort" ? C.amber : C.cream,
             }}
           >
@@ -174,7 +189,11 @@ export default function StudentBillingHistory({ billing = [] }: Props) {
       {totalItems === 0 ? (
         <StateMessage
           title="No bills found"
-          description={filter === "All" ? "You have no bills issued to your account." : "No bills match the selected filter."}
+          description={
+            filter === "All"
+              ? "You have no bills issued to your account."
+              : "No bills match the selected filter."
+          }
         />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -211,25 +230,41 @@ export default function StudentBillingHistory({ billing = [] }: Props) {
                 }}
               >
                 {/* Left side: details */}
-                <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div
+                  style={{ display: "flex", gap: 14, alignItems: "flex-start" }}
+                >
                   <div
                     style={{
                       width: 40,
                       height: 40,
                       borderRadius: 10,
-                      background: isPaid ? "rgba(46, 125, 50, 0.08)" : isOverdue ? "rgba(198, 40, 40, 0.08)" : "rgba(245, 127, 23, 0.08)",
+                      background: isPaid
+                        ? "rgba(46, 125, 50, 0.08)"
+                        : isOverdue
+                          ? "rgba(198, 40, 40, 0.08)"
+                          : "rgba(245, 127, 23, 0.08)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: isPaid ? "#2e7d32" : isOverdue ? "#c62828" : "#f57f17",
+                      color: isPaid
+                        ? "#2e7d32"
+                        : isOverdue
+                          ? "#c62828"
+                          : "#f57f17",
                       flexShrink: 0,
                     }}
                   >
                     <ReceiptText size={20} strokeWidth={2} />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 15, fontWeight: 700, color: C.navy }}>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 3 }}
+                  >
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <span
+                        style={{ fontSize: 15, fontWeight: 700, color: C.navy }}
+                      >
                         {bill.bill_type} Bill
                       </span>
                       <span
@@ -248,14 +283,33 @@ export default function StudentBillingHistory({ billing = [] }: Props) {
                       </span>
                     </div>
                     <span style={{ fontSize: 12, color: "#567375" }}>
-                      Transaction #{bill.transaction_id} • Issued: {new Date(bill.issue_date).toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" })}
+                      Transaction #{bill.transaction_id} • Issued:{" "}
+                      {new Date(bill.issue_date).toLocaleDateString("en-PH", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </span>
                   </div>
                 </div>
 
                 {/* Right side: amount + actions */}
-                <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 20,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-end",
+                      textAlign: "right",
+                    }}
+                  >
                     <span
                       style={{
                         fontSize: 18,
@@ -266,8 +320,19 @@ export default function StudentBillingHistory({ billing = [] }: Props) {
                     >
                       ₱{bill.amount.toLocaleString("en-PH")}
                     </span>
-                    <span style={{ fontSize: 11, color: isOverdue ? "#c62828" : "#567375", fontWeight: isOverdue ? 600 : 400 }}>
-                      Due: {new Date(bill.due_date).toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" })}
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: isOverdue ? "#c62828" : "#567375",
+                        fontWeight: isOverdue ? 600 : 400,
+                      }}
+                    >
+                      Due:{" "}
+                      {new Date(bill.due_date).toLocaleDateString("en-PH", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </span>
                   </div>
 
@@ -340,7 +405,8 @@ export default function StudentBillingHistory({ billing = [] }: Props) {
           }}
         >
           <span style={{ fontSize: 13, color: "#567375" }}>
-            Showing <strong>{rangeStart}</strong> to <strong>{rangeEnd}</strong> of <strong>{totalItems}</strong> bills
+            Showing <strong>{rangeStart}</strong> to <strong>{rangeEnd}</strong>{" "}
+            of <strong>{totalItems}</strong> bills
           </span>
 
           <div style={{ display: "flex", gap: 5 }}>

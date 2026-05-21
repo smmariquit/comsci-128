@@ -1,23 +1,20 @@
 "use client";
 
-import React from 'react';
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { floatingAnimations } from "./animations";
-import ServicesSection from "./ServicesSection";
-import ShowcaseSection from "./ShowcaseSection";
-import TestimonialsSection from "./TestimonialsSection";
 import CTASection from "./GSSection";
 import HowItWorks from "./HowItWorksSection";
-
+import ServicesSection from "./ServicesSection";
+import TestimonialsSection from "./TestimonialsSection";
 
 // Mapping colors
 const colors = {
-  cream: '#EDE9DE',
-  navy: '#1C2632',
-  orange: '#C9642A',
-  gold: '#E3AF64',
-  light_blue: '#567375',
+  cream: "#EDE9DE",
+  navy: "#1C2632",
+  orange: "#C9642A",
+  gold: "#E3AF64",
+  light_blue: "#567375",
 };
 
 export default function LandingPage() {
@@ -29,7 +26,9 @@ export default function LandingPage() {
       const isAuth = document.cookie.includes("is_logged_in=true");
       setIsLoggedIn(isAuth);
 
-      const match = document.cookie.split("; ").find(c => c.startsWith("user_role="));
+      const match = document.cookie
+        .split("; ")
+        .find((c) => c.startsWith("user_role="));
       if (match) {
         setUserRole(match.split("=")[1]);
       }
@@ -40,14 +39,14 @@ export default function LandingPage() {
   const getDashboardRoute = () => {
     if (userRole === "student") return "/student";
     if (userRole === "system admin" || userRole === "admin") return "/sys";
-    if (userRole === "housing administrator" || userRole === "house admin") return "/admin";
+    if (userRole === "housing administrator" || userRole === "house admin")
+      return "/admin";
     if (userRole === "manager") return "/manage";
     return "/student";
   };
 
   return (
     <div className="min-h-screen font-family-name:var(--font-geist-sans) bg-[#EDE9DE] text-[#1C2632]">
-
       {/*animation for circles*/}
       <style>{floatingAnimations}</style>
 
@@ -56,15 +55,24 @@ export default function LandingPage() {
         <div className="font-bold text-xl tracking-tight">UPLB CASA</div>
         <div className="flex items-center gap-5">
           {isLoggedIn ? (
-            <Link href={getDashboardRoute()} className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
+            <Link
+              href={getDashboardRoute()}
+              className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+            >
               Go to dashboard
             </Link>
           ) : (
             <>
-              <Link href="/login" className="font-semibold text-[#C9642A] hover:bg-[#C9642A]/10 px-4 py-2.5 rounded-xl transition-colors">
+              <Link
+                href="/login"
+                className="font-semibold text-[#C9642A] hover:bg-[#C9642A]/10 px-4 py-2.5 rounded-xl transition-colors"
+              >
                 Log in
               </Link>
-              <Link href="/register" className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30">
+              <Link
+                href="/register"
+                className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+              >
                 Sign up
               </Link>
             </>
@@ -74,7 +82,6 @@ export default function LandingPage() {
 
       {/* ── Hero ── */}
       <section className="relative min-h-[75vh] flex items-start pt-16 px-12 md:px-24 pb-8 overflow-hidden">
-
         {/* Subtle grid bg */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.035]"
@@ -86,7 +93,6 @@ export default function LandingPage() {
         />
 
         <div className="w-full flex flex-col md:flex-row justify-between items-start gap-16 relative z-10 -mt-5">
-
           {/* Text */}
           <div className="max-w-xl text-left">
             <p className="fade-up text-xs font-semibold tracking-[0.18em] uppercase text-[#567375] mb-4">
@@ -110,13 +116,18 @@ export default function LandingPage() {
 
             {/* CTA + Scroll Section */}
             <div className="flex flex-col items-start mt-8">
-
               {/* CTA buttons */}
               <div className="fade-up-delay flex items-start gap-3">
-                <Link href="/login" className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md">
+                <Link
+                  href="/login"
+                  className="bg-[#1C2632] text-[#EDE9DE] px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#243040] transition-colors shadow-md"
+                >
                   Find a Dorm
                 </Link>
-                <Link href="#services" className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors">
+                <Link
+                  href="#services"
+                  className="border border-[#1C2632]/20 text-[#1C2632] px-6 py-3 rounded-xl font-semibold text-sm hover:border-[#C9642A] hover:text-[#C9642A] transition-colors"
+                >
                   Learn More
                 </Link>
               </div>
@@ -137,7 +148,6 @@ export default function LandingPage() {
 
           {/* Decorative Circles Container */}
           <div className="hidden md:block relative w-md h-112 self-center">
-
             {/* Front Circle */}
             <div
               className="float-slow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 right-auto w-92 h-92 border rounded-full"
@@ -155,18 +165,15 @@ export default function LandingPage() {
 
       {/* Services */}
       <ServicesSection />
-      
 
       {/* How it works section */}
       <HowItWorks />
-      
+
       {/* Testimonials */}
       <TestimonialsSection />
-      
+
       {/* Get Started with orange section */}
       <CTASection />
-
-
     </div>
   );
 }

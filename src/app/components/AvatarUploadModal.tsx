@@ -27,7 +27,7 @@ export default function AvatarUploadModal({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -73,7 +73,7 @@ export default function AvatarUploadModal({
 
       const data = await res.json();
       onUploadSuccess(data.url);
-      
+
       // Reset state and close
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -119,7 +119,10 @@ export default function AvatarUploadModal({
         <div className="flex flex-col items-center gap-6 mt-4">
           <h2 className="text-2xl font-bold text-[#1C2632]">Update Avatar</h2>
 
-          <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+          <div
+            className="relative group cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <Avatar
               firstName={firstName}
               lastName={lastName}

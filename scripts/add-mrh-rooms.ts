@@ -10,17 +10,19 @@ let NEXT_PUBLIC_SUPABASE_ANON_KEY = "";
 
 if (fs.existsSync(envPath)) {
   const envFile = fs.readFileSync(envPath, "utf-8");
-  envFile.split("\n").forEach(line => {
+  envFile.split("\n").forEach((line) => {
     const [key, ...values] = line.split("=");
     const value = values.join("=").trim();
     if (key === "NEXT_PUBLIC_SUPABASE_URL") NEXT_PUBLIC_SUPABASE_URL = value;
     if (key === "SUPABASE_SERVICE_ROLE_KEY") SUPABASE_SERVICE_ROLE_KEY = value;
-    if (key === "NEXT_PUBLIC_SUPABASE_ANON_KEY") NEXT_PUBLIC_SUPABASE_ANON_KEY = value;
+    if (key === "NEXT_PUBLIC_SUPABASE_ANON_KEY")
+      NEXT_PUBLIC_SUPABASE_ANON_KEY = value;
   });
 }
 
 const supabaseUrl = NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = SUPABASE_SERVICE_ROLE_KEY || NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseServiceKey =
+  SUPABASE_SERVICE_ROLE_KEY || NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error("Missing Supabase credentials in .env.local");
@@ -93,7 +95,7 @@ async function seedMRHRooms() {
   console.log("Upserting rooms...");
 
   let successCount = 0;
-  
+
   for (const r of UNIT_3_ROOMS) {
     // Check if room exists
     const { data: existingRooms } = await supabase
@@ -120,18 +122,16 @@ async function seedMRHRooms() {
       }
     } else {
       // Insert new
-      const { error: insertError } = await supabase
-        .from("room")
-        .insert({
-          housing_id: housingId,
-          room_type: "Men Only",
-          room_code: parseInt(r.room),
-          maximum_occupants: 4, // Default
-          occupants_count: 0,
-          is_deleted: false,
-          latitude: r.latitude,
-          longitude: r.longitude,
-        });
+      const { error: insertError } = await supabase.from("room").insert({
+        housing_id: housingId,
+        room_type: "Men Only",
+        room_code: parseInt(r.room),
+        maximum_occupants: 4, // Default
+        occupants_count: 0,
+        is_deleted: false,
+        latitude: r.latitude,
+        longitude: r.longitude,
+      });
 
       if (insertError) {
         console.error(`Error inserting room ${r.room}:`, insertError.message);
@@ -141,7 +141,9 @@ async function seedMRHRooms() {
     }
   }
 
-  console.log(`Successfully upserted ${successCount}/${UNIT_3_ROOMS.length} rooms!`);
+  console.log(
+    `Successfully upserted ${successCount}/${UNIT_3_ROOMS.length} rooms!`,
+  );
 }
 
 seedMRHRooms().catch(console.error);

@@ -41,7 +41,10 @@ export default function SearchBar() {
         </button>
 
         {isFilterOpen && (
-          <div id="student-browse-filters" className="absolute left-0 mt-4 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-2 text-black">
+          <div
+            id="student-browse-filters"
+            className="absolute left-0 mt-4 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50 py-2 text-black"
+          >
             <button
               onClick={() => {
                 updateURL("type", "UP Housing");
@@ -60,29 +63,31 @@ export default function SearchBar() {
             >
               Non-UP Housing
             </button>
-            <button 
+            <button
               onClick={() => {
                 updateURL("sex", "Men Only");
                 setIsFilterOpen(false);
               }}
-
-              className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+            >
               Men's
             </button>
-            <button 
+            <button
               onClick={() => {
                 updateURL("sex", "Women Only");
                 setIsFilterOpen(false);
               }}
-              className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+            >
               Women's
             </button>
-            <button 
+            <button
               onClick={() => {
                 updateURL("sex", "Co-ed");
                 setIsFilterOpen(false);
               }}
-              className="block w-full text-left px-4 py-2 hover:bg-gray-100">
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+            >
               Coed
             </button>
             <button
@@ -103,7 +108,10 @@ export default function SearchBar() {
       <div className="relative flex-1 group">
         {/* Search Icon (Left) */}
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-[#2f4a4c] group-focus-within:text-[#8b3e15] transition-colors" aria-hidden="true" />
+          <Search
+            className="h-4 w-4 text-[#2f4a4c] group-focus-within:text-[#8b3e15] transition-colors"
+            aria-hidden="true"
+          />
         </div>
 
         <input
@@ -150,7 +158,10 @@ export default function SearchBar() {
               onClick={() => setIsSortOpen(false)}
             ></div>
 
-            <div id="student-browse-sort" className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 text-[#111820] overflow-hidden">
+            <div
+              id="student-browse-sort"
+              className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-2 text-[#111820] overflow-hidden"
+            >
               <div className="px-4 py-2 text-xs font-bold text-[#2f4a4c] uppercase tracking-widest">
                 Price Ranking
               </div>

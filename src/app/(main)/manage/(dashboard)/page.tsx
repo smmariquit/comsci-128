@@ -14,7 +14,7 @@ import DormsSection from "./DormsSection";
 export const metadata: Metadata = {
   title: "Manager Dashboard",
   description:
-  "Overview of properties, applications, and tenant activity for managed properties",
+    "Overview of properties, applications, and tenant activity for managed properties",
 };
 
 function GrossRevenueCard({ value }: { value: number }) {
@@ -120,7 +120,11 @@ export default async function MgrDashboardPage() {
               value={roomStats.totalOccupants}
               icon={UserCheck}
             />
-            <StatCard label="New Applicants" value={stats.pending} icon={Home} />
+            <StatCard
+              label="New Applicants"
+              value={stats.pending}
+              icon={Home}
+            />
             <StatCard
               label="Approved Applications"
               value={stats.approved}
@@ -131,7 +135,11 @@ export default async function MgrDashboardPage() {
               value={stats.rejected}
               icon={FileX}
             />
-            <StatCard label="Total Rooms" value={roomStats.totalRooms} icon={Bed} />
+            <StatCard
+              label="Total Rooms"
+              value={roomStats.totalRooms}
+              icon={Bed}
+            />
             <StatCard
               label="Rooms with vacancy"
               value={roomStats.totalFreeRooms}

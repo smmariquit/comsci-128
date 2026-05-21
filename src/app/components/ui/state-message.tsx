@@ -24,9 +24,12 @@ export default function StateMessage({
     >
       {/* illustration */}
       <div className="flex justify-center mb-4 text-[#C9642A]">
-        {isError ? <ErrorHouse /> : <Search className="w-12 h-12 stroke-[1.5]" />}
+        {isError ? (
+          <ErrorHouse />
+        ) : (
+          <Search className="w-12 h-12 stroke-[1.5]" />
+        )}
       </div>
-
 
       <div className="text-lg font-semibold">{title}</div>
       {description && (

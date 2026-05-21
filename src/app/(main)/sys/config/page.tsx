@@ -1,9 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Sidebar from '@/app/(main)/sys/component/sidebar';
-import NotificationBell from '@/app/(main)/sys/component/notification';
-import { Settings, ShieldCheck, CalendarRange, Layers, Save, Check } from 'lucide-react';
+import { useState, useEffect } from "react";
+import Sidebar from "@/app/(main)/sys/component/sidebar";
+import NotificationBell from "@/app/(main)/sys/component/notification";
+import {
+  Settings,
+  ShieldCheck,
+  CalendarRange,
+  Layers,
+  Save,
+  Check,
+} from "lucide-react";
 
 export default function SystemConfigPage() {
   const [bypassPeriod, setBypassPeriod] = useState(false);
@@ -11,16 +18,16 @@ export default function SystemConfigPage() {
   const [dpaRequired, setDpaRequired] = useState(true);
 
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [sysAccountNumber, setSysAccountNumber] = useState<number>(0);
 
   // Helper to read cookie values
   const getCookie = (name: string) => {
-    if (typeof document === 'undefined') return null;
+    if (typeof document === "undefined") return null;
     const match = document.cookie
-      .split('; ')
-      .find((cookie) => cookie.startsWith(name + '='));
-    return match ? decodeURIComponent(match.split('=')[1]) : null;
+      .split("; ")
+      .find((cookie) => cookie.startsWith(name + "="));
+    return match ? decodeURIComponent(match.split("=")[1]) : null;
   };
 
   // Helper to set cookie values
@@ -33,29 +40,29 @@ export default function SystemConfigPage() {
 
   // Load current settings from cookies on mount
   useEffect(() => {
-    const bypassCookie = getCookie('bypass_application_period');
-    const allowMultipleCookie = getCookie('allow_multiple_applications');
-    const dpaCookie = getCookie('dpa_required');
+    const bypassCookie = getCookie("bypass_application_period");
+    const allowMultipleCookie = getCookie("allow_multiple_applications");
+    const dpaCookie = getCookie("dpa_required");
 
     if (bypassCookie !== null) {
-      setBypassPeriod(bypassCookie === 'true');
+      setBypassPeriod(bypassCookie === "true");
     }
     if (allowMultipleCookie !== null) {
-      setAllowMultiple(allowMultipleCookie === 'true');
+      setAllowMultiple(allowMultipleCookie === "true");
     }
     if (dpaCookie !== null) {
-      setDpaRequired(dpaCookie === 'true');
+      setDpaRequired(dpaCookie === "true");
     }
     const match = document.cookie.match(/(?:^|;\s*)account_number=([^;]*)/);
     setSysAccountNumber(match ? Number(decodeURIComponent(match[1])) : 0);
   }, []);
 
   const handleSave = () => {
-    setCookie('bypass_application_period', bypassPeriod.toString());
-    setCookie('allow_multiple_applications', allowMultiple.toString());
-    setCookie('dpa_required', dpaRequired.toString());
+    setCookie("bypass_application_period", bypassPeriod.toString());
+    setCookie("allow_multiple_applications", allowMultiple.toString());
+    setCookie("dpa_required", dpaRequired.toString());
 
-    setToastMessage('System settings saved successfully!');
+    setToastMessage("System settings saved successfully!");
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
@@ -67,21 +74,28 @@ export default function SystemConfigPage() {
 
       {/* Main dashboard content */}
       <div className="flex-1 flex flex-col min-w-0">
-
         {/* Header */}
         <header className="flex items-center justify-between px-8 py-5 border-b border-[#1a2332]/6 bg-[#edeae1] shrink-0">
           <div>
-            <h1 className="text-xl font-bold tracking-tight">System Configuration</h1>
-            <p className="text-xs text-[#1a2332]/50 mt-1">Configure global application overrides, behaviors, and compliance settings.</p>
+            <h1 className="text-xl font-bold tracking-tight">
+              System Configuration
+            </h1>
+            <p className="text-xs text-[#1a2332]/50 mt-1">
+              Configure global application overrides, behaviors, and compliance
+              settings.
+            </p>
           </div>
           <div className="flex items-center gap-4">
-            <NotificationBell accountNumber={sysAccountNumber} role="System Admin" logsHref="/sys/logs" />
+            <NotificationBell
+              accountNumber={sysAccountNumber}
+              role="System Admin"
+              logsHref="/sys/logs"
+            />
           </div>
         </header>
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-8 max-w-4xl">
-
           {/* Toast Message */}
           {showToast && (
             <div className="fixed bottom-6 right-6 z-50 bg-[#1a2332] text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-white/10 animate-[slideIn_0.2s_ease-out]">
@@ -93,7 +107,6 @@ export default function SystemConfigPage() {
           )}
 
           <div className="space-y-6">
-
             {/* Setting Item 1: Bypass Application Period */}
             <div className="bg-white rounded-2xl p-6 border border-[#1a2332]/5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between gap-4">
@@ -102,9 +115,13 @@ export default function SystemConfigPage() {
                     <CalendarRange size={24} />
                   </div>
                   <div>
-                    <h3 className="text-[16px] font-bold text-[#1a2332]">Bypass Application Period</h3>
+                    <h3 className="text-[16px] font-bold text-[#1a2332]">
+                      Bypass Application Period
+                    </h3>
                     <p className="text-xs text-[#1a2332]/50 mt-1 leading-relaxed">
-                      Force override to allow students to submit dormitory applications even if the current date is outside the designated opening and closing application dates.
+                      Force override to allow students to submit dormitory
+                      applications even if the current date is outside the
+                      designated opening and closing application dates.
                     </p>
                   </div>
                 </div>
@@ -130,9 +147,13 @@ export default function SystemConfigPage() {
                     <Layers size={24} />
                   </div>
                   <div>
-                    <h3 className="text-[16px] font-bold text-[#1a2332]">Allow Multiple Applications</h3>
+                    <h3 className="text-[16px] font-bold text-[#1a2332]">
+                      Allow Multiple Applications
+                    </h3>
                     <p className="text-xs text-[#1a2332]/50 mt-1 leading-relaxed">
-                      Allow students to apply to multiple dormitories concurrently. If disabled, students are strictly limited to one active application at a time.
+                      Allow students to apply to multiple dormitories
+                      concurrently. If disabled, students are strictly limited
+                      to one active application at a time.
                     </p>
                   </div>
                 </div>
@@ -158,9 +179,13 @@ export default function SystemConfigPage() {
                     <ShieldCheck size={24} />
                   </div>
                   <div>
-                    <h3 className="text-[16px] font-bold text-[#1a2332]">Enforce Data Privacy Conforme</h3>
+                    <h3 className="text-[16px] font-bold text-[#1a2332]">
+                      Enforce Data Privacy Conforme
+                    </h3>
                     <p className="text-xs text-[#1a2332]/50 mt-1 leading-relaxed">
-                      Strictly require students to check the conforme (Data Privacy Act of 2012 compliance) checkbox during their account registration step 3.
+                      Strictly require students to check the conforme (Data
+                      Privacy Act of 2012 compliance) checkbox during their
+                      account registration step 3.
                     </p>
                   </div>
                 </div>
@@ -189,11 +214,8 @@ export default function SystemConfigPage() {
                 Save Configurations
               </button>
             </div>
-
           </div>
-
         </div>
-
       </div>
 
       <style jsx global>{`

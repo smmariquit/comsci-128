@@ -59,12 +59,11 @@ const CAMPUS_BUILDING_IDS = [
   "osm-w96323123", // unit 3
   "osm-w96323116", // unit 4
 ];
-const CAMPUS_BUILDING_MATCHES: ExpressionSpecification[] = CAMPUS_BUILDING_IDS.flatMap(
-  (id) => [
+const CAMPUS_BUILDING_MATCHES: ExpressionSpecification[] =
+  CAMPUS_BUILDING_IDS.flatMap((id) => [
     ["==", ["id"], id],
     ["==", ["get", "id"], id],
-  ],
-);
+  ]);
 
 /* ────────────────────── Component ────────────────────── */
 
@@ -91,25 +90,28 @@ export default function HousingMap({
   const isDrawingRef = useRef(false);
 
   /* ── Build GeoJSON from housing data (memoized to avoid infinite loops) ── */
-  const geojson = useMemo<GeoJSON.FeatureCollection>(() => ({
-    type: "FeatureCollection",
-    features: housings
-      .filter((h) => h.lat && h.lng)
-      .map((h) => ({
-        type: "Feature" as const,
-        geometry: {
-          type: "Point" as const,
-          coordinates: [h.lng, h.lat],
-        },
-        properties: {
-          id: h.id,
-          name: h.name,
-          type: h.type,
-          price: h.price,
-          selected: h.id === selectedId ? 1 : 0,
-        },
-      })),
-  }), [housings, selectedId]);
+  const geojson = useMemo<GeoJSON.FeatureCollection>(
+    () => ({
+      type: "FeatureCollection",
+      features: housings
+        .filter((h) => h.lat && h.lng)
+        .map((h) => ({
+          type: "Feature" as const,
+          geometry: {
+            type: "Point" as const,
+            coordinates: [h.lng, h.lat],
+          },
+          properties: {
+            id: h.id,
+            name: h.name,
+            type: h.type,
+            price: h.price,
+            selected: h.id === selectedId ? 1 : 0,
+          },
+        })),
+    }),
+    [housings, selectedId],
+  );
 
   /* ── Initialize map ── */
   useEffect(() => {
@@ -124,14 +126,14 @@ export default function HousingMap({
       bearing: DEFAULT_BEARING,
       minZoom: 13,
       maxBounds: [
-        [121.20, 14.13],
+        [121.2, 14.13],
         [121.29, 14.19],
       ],
     });
 
     map.addControl(
       new maplibregl.NavigationControl({ visualizePitch: true }),
-      "bottom-right"
+      "bottom-right",
     );
 
     map.on("load", () => {
@@ -171,7 +173,7 @@ export default function HousingMap({
               "fill-extrusion-opacity": 0.85,
             },
           },
-          labelLayerId
+          labelLayerId,
         );
       }
 
@@ -311,7 +313,7 @@ export default function HousingMap({
       map.on("click", BUILDING_LAYER_ID, (e) => {
         const feature = e.features?.[0];
         if (!feature) return;
-        
+
         const mrhIds = [
           "osm-w96323120",
           "osm-w96323127",
@@ -320,14 +322,14 @@ export default function HousingMap({
           "osm-w96323123",
           "osm-w96323116",
         ];
-        
+
         // check both feature.id and feature.properties.id
         const featureId = feature.id?.toString() || feature.properties?.id;
-        
+
         if (mrhIds.includes(featureId)) {
           // Orbit around the clicked building
           const coordinates = e.lngLat;
-          
+
           if (rotationFrameRef.current !== null) {
             cancelAnimationFrame(rotationFrameRef.current);
             rotationFrameRef.current = null;
@@ -340,7 +342,6 @@ export default function HousingMap({
             duration: 1500,
             essential: true,
           });
-
         }
       });
 
@@ -348,7 +349,7 @@ export default function HousingMap({
       map.on("mouseenter", BUILDING_LAYER_ID, (e) => {
         const feature = e.features?.[0];
         if (!feature) return;
-        
+
         const mrhIds = [
           "osm-w96323120",
           "osm-w96323127",
@@ -357,9 +358,9 @@ export default function HousingMap({
           "osm-w96323123",
           "osm-w96323116",
         ];
-        
+
         const featureId = feature.id?.toString() || feature.properties?.id;
-        
+
         if (mrhIds.includes(featureId)) {
           map.getCanvas().style.cursor = "pointer";
         }
@@ -490,7 +491,10 @@ export default function HousingMap({
       drawPointsRef.current = [];
 
       // Calculate bounding box of the drawn shape
-      let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+      let minLat = 90,
+        maxLat = -90,
+        minLng = 180,
+        maxLng = -180;
       for (const [lng, lat] of pts) {
         if (lat < minLat) minLat = lat;
         if (lat > maxLat) maxLat = lat;
@@ -500,7 +504,9 @@ export default function HousingMap({
 
       // Only trigger if they actually drew an area (more than just a click)
       if (pts.length < 3) {
-        const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
+        const source = map.getSource(
+          DRAW_SOURCE_ID,
+        ) as maplibregl.GeoJSONSource;
         if (source) source.setData({ type: "FeatureCollection", features: [] });
         return;
       }
@@ -508,7 +514,9 @@ export default function HousingMap({
       const dlng = Math.abs(maxLng - minLng);
       const dlat = Math.abs(maxLat - minLat);
       if (dlng < 0.0002 && dlat < 0.0002) {
-        const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
+        const source = map.getSource(
+          DRAW_SOURCE_ID,
+        ) as maplibregl.GeoJSONSource;
         if (source) source.setData({ type: "FeatureCollection", features: [] });
         return;
       }
@@ -562,7 +570,9 @@ export default function HousingMap({
       rotationFrameRef.current = null;
     }
 
-    const isMRH = housing.name === "Men's Residence Hall" || housing.name === "Makiling Residence Hall";
+    const isMRH =
+      housing.name === "Men's Residence Hall" ||
+      housing.name === "Makiling Residence Hall";
 
     // Show popup immediately
     if (selectedPopupRef.current) selectedPopupRef.current.remove();
@@ -583,8 +593,6 @@ export default function HousingMap({
       duration: 1500,
       essential: true,
     });
-
-
   }, [selectedId, mapLoaded, housings, viewTrigger]);
 
   /* ── Toggle 3D ── */
@@ -648,7 +656,9 @@ export default function HousingMap({
       // Clear any existing bounds first
       const map = mapRef.current;
       if (map) {
-        const source = map.getSource(DRAW_SOURCE_ID) as maplibregl.GeoJSONSource;
+        const source = map.getSource(
+          DRAW_SOURCE_ID,
+        ) as maplibregl.GeoJSONSource;
         if (source) source.setData({ type: "FeatureCollection", features: [] });
       }
       setHasDrawnBounds(false);
@@ -660,9 +670,7 @@ export default function HousingMap({
   return (
     <div className="housing-map-wrapper">
       {/* Loading */}
-      {!mapLoaded && (
-        <PageLoading variant="container" label="Loading map..." />
-      )}
+      {!mapLoaded && <PageLoading variant="container" label="Loading map..." />}
 
       {/* Map canvas */}
       <div ref={mapContainerRef} className="map-container" />

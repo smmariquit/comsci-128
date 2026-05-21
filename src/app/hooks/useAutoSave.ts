@@ -37,13 +37,13 @@ type InitialState<T> = {
 
 export function useAutoSave<T extends Record<string, unknown>>(
   key: string,
-  initialValues: T
+  initialValues: T,
 ): [
   T,
   (updater: T | ((prev: T) => T)) => void,
   () => void,
   boolean,
-  SaveState
+  SaveState,
 ] {
   const getInitialState = (): InitialState<T> => {
     let initialRaw: string | null = null;
@@ -95,14 +95,14 @@ export function useAutoSave<T extends Record<string, unknown>>(
   // Initialize state — restore from localStorage if available
   const [values, setValuesInternal] = useState<T>(initialState.current.values);
   const [hasSavedData, setHasSavedData] = useState(
-    initialState.current.hasSavedData
+    initialState.current.hasSavedData,
   );
   const [saveState, setSaveState] = useState<SaveState>(
-    initialState.current.hasSavedData ? "saved" : "idle"
+    initialState.current.hasSavedData ? "saved" : "idle",
   );
   const lastSavedRef = useRef<string | null>(initialState.current.savedRaw);
   const initialSerializedRef = useRef<string | null>(
-    initialState.current.initialRaw
+    initialState.current.initialRaw,
   );
 
   // Debounced save to localStorage
@@ -161,12 +161,9 @@ export function useAutoSave<T extends Record<string, unknown>>(
   }, [values, key, hasSavedData]);
 
   // Setter that accepts value or updater function
-  const setValues = useCallback(
-    (updater: T | ((prev: T) => T)) => {
-      setValuesInternal(updater);
-    },
-    []
-  );
+  const setValues = useCallback((updater: T | ((prev: T) => T)) => {
+    setValuesInternal(updater);
+  }, []);
 
   // Clear saved data (call after successful submit)
   const clearSaved = useCallback(() => {

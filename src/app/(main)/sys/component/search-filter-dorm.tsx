@@ -37,7 +37,13 @@ export default function UserFilters({
 
   // Clear all filters - resets to initial values
   const clearAll = () =>
-    onChange({ search: "", status: "All Status", occupancy: "All", housingType: "All Types", sortBy: "None" });
+    onChange({
+      search: "",
+      status: "All Status",
+      occupancy: "All",
+      housingType: "All Types",
+      sortBy: "None",
+    });
 
   // Active filter tags - only show if the filter value is not the default
   const activeTags = [

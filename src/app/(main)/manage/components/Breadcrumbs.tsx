@@ -52,7 +52,10 @@ export default function Breadcrumbs() {
 
   return (
     <div className="flex items-center gap-1 text-[#EDE9DE] text-[13px] font-sans font-regular">
-      <Link href="/manage" className="hover:bg-white/10 px-2 py-1 -ml-2 rounded-md transition-colors min-h-0 h-fit inline-flex items-center">
+      <Link
+        href="/manage"
+        className="hover:bg-white/10 px-2 py-1 -ml-2 rounded-md transition-colors min-h-0 h-fit inline-flex items-center"
+      >
         Dashboard
       </Link>
       {breadcrumbs.map((crumb) => (
@@ -61,7 +64,10 @@ export default function Breadcrumbs() {
           {crumb.isLast ? (
             <span className="px-2 py-1">{crumb.name}</span>
           ) : crumb.clickable ? (
-            <Link href={crumb.href} className="hover:bg-white/10 px-2 py-1 rounded-md transition-colors min-h-0 h-fit inline-flex items-center">
+            <Link
+              href={crumb.href}
+              className="hover:bg-white/10 px-2 py-1 rounded-md transition-colors min-h-0 h-fit inline-flex items-center"
+            >
               {crumb.name}
             </Link>
           ) : (

@@ -9,14 +9,14 @@ import { createAuditLog } from "./audit-log-service";
 
 // helper function for name format
 function formatUserName(user: {
-	first_name?: string | null;
-	last_name?: string | null;
-	account_email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  account_email?: string | null;
 }): string {
-	const first = user.first_name?.trim() ?? "";
-	const last = user.last_name?.trim() ?? "";
-	const full = `${first} ${last}`.trim();
-	return full || user.account_email?.trim() || "";
+  const first = user.first_name?.trim() ?? "";
+  const last = user.last_name?.trim() ?? "";
+  const full = `${first} ${last}`.trim();
+  return full || user.account_email?.trim() || "";
 }
 
 async function getStudentProfile(
@@ -89,20 +89,20 @@ async function updateStudentProfile(
       }
     }
 
-		const userName = formatUserName(updatedUser);
-		const label = userName || updatedUser.account_email || "Unknown user";
-		await createAuditLog(
-			account_number!,
-			userName,
-			"Update User Details",
-			`Student profile updated for ${label}`,
-		);
+    const userName = formatUserName(updatedUser);
+    const label = userName || updatedUser.account_email || "Unknown user";
+    await createAuditLog(
+      account_number!,
+      userName,
+      "Update User Details",
+      `Student profile updated for ${label}`,
+    );
 
-		return await getStudentProfile(userId);
-	} catch (error: any) {
-		console.error("Error updating profile:", error.message);
-		throw new Error("Failed to update profile");
-	}
+    return await getStudentProfile(userId);
+  } catch (error: any) {
+    console.error("Error updating profile:", error.message);
+    throw new Error("Failed to update profile");
+  }
 }
 
 async function updateManagerProfile(
@@ -146,20 +146,20 @@ async function updateManagerProfile(
       }
     }
 
-		const userName = formatUserName(updatedUser);
-		const label = userName || updatedUser.account_email || "Unknown user";
-		await createAuditLog(
-			account_number!,
-			userName,
-			"Update User Details",
-			`Manager profile updated for ${label}`,
-		);
+    const userName = formatUserName(updatedUser);
+    const label = userName || updatedUser.account_email || "Unknown user";
+    await createAuditLog(
+      account_number!,
+      userName,
+      "Update User Details",
+      `Manager profile updated for ${label}`,
+    );
 
-		return await managerData.findManagerProfileById(userId);
-	} catch (error: any) {
-		console.error("Error updating manager profile:", error.message);
-		throw new Error("Failed to update profile");
-	}
+    return await managerData.findManagerProfileById(userId);
+  } catch (error: any) {
+    console.error("Error updating manager profile:", error.message);
+    throw new Error("Failed to update profile");
+  }
 }
 
 export const profileAction = {

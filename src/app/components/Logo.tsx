@@ -63,7 +63,10 @@ export default function Logo({
   if (href === null) return content;
 
   return (
-    <Link href={href} className={`inline-flex items-center rounded-md px-1 py-0.5 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2 ${className}`}>
+    <Link
+      href={href}
+      className={`inline-flex items-center rounded-md px-1 py-0.5 focus-visible:ring-2 focus-visible:ring-[#C9642A] focus-visible:outline-none focus-visible:ring-offset-2 ${className}`}
+    >
       {content}
     </Link>
   );

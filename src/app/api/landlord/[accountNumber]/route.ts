@@ -4,10 +4,10 @@ import { NewManager } from "@/app/lib/models/manager";
 // POST /api/landlord/[accountNumber]
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ accountNumber: string }> }
+  { params }: { params: Promise<{ accountNumber: string }> },
 ) {
   try {
-    const resolvedParams = await params; 
+    const resolvedParams = await params;
     const { accountNumber } = resolvedParams;
 
     console.log("params:", resolvedParams);
@@ -19,23 +19,20 @@ export async function POST(
     if (!Number.isInteger(parsedAccountNumber) || parsedAccountNumber <= 0) {
       return NextResponse.json(
         { error: "Invalid landlord account number." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const newLandlord =  await landlordService.addLandlord(
+    const newLandlord = await landlordService.addLandlord(
       parsedAccountNumber,
-      accountDetails
+      accountDetails,
     );
 
-    return NextResponse.json(
-      { data: newLandlord },
-      { status: 201 }
-    );
+    return NextResponse.json({ data: newLandlord }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -6,7 +6,7 @@ import { X, AlertTriangle, Building2 } from "lucide-react";
 // Types
 
 type DormStatus = "Accepting" | "Full" | "Closed";
-type DormType   = "UP Housing" | "Non-UP Housing";
+type DormType = "UP Housing" | "Non-UP Housing";
 
 export interface DormManager {
   id: string | number;
@@ -42,7 +42,7 @@ export interface EditDormModalProps {
 
 // Constants
 
-const DORM_TYPES: DormType[]   = ["UP Housing", "Non-UP Housing"];
+const DORM_TYPES: DormType[] = ["UP Housing", "Non-UP Housing"];
 const DORM_STATUSES: DormStatus[] = ["Accepting", "Full", "Closed"];
 
 // Helpers
@@ -65,24 +65,29 @@ export function EditDormModal({
   onClose,
   onSave,
 }: EditDormModalProps) {
-
   // Editable field states
-  const [name,        setName]        = useState(dorm.name ?? "");
-  const [address,     setAddress]     = useState(dorm.dormAddress ?? "");
-  const [housingType, setHousingType] = useState<DormType>((dorm.housingType as DormType) ?? "UP Housing");
-  const [rate,        setRate]        = useState<string>(String(dorm.monthlyRate ?? ""));
+  const [name, setName] = useState(dorm.name ?? "");
+  const [address, setAddress] = useState(dorm.dormAddress ?? "");
+  const [housingType, setHousingType] = useState<DormType>(
+    (dorm.housingType as DormType) ?? "UP Housing",
+  );
+  const [rate, setRate] = useState<string>(String(dorm.monthlyRate ?? ""));
 
-  // Manager searchable dropdown 
+  // Manager searchable dropdown
   const [selectedManager, setSelectedManager] = useState<DormManager | null>(
-    () => (managers ?? []).find((m) => m.name === dorm.dormitory) ?? null
+    () => (managers ?? []).find((m) => m.name === dorm.dormitory) ?? null,
   );
   const [selectedLandlord, setSelectedLandlord] = useState<DormLandlord | null>(
-  () => {
-    // Try to find landlord by name or ID from dorm data
-    if (!landlords) return null;
-    return (landlords as any).find((l: any) => l.name === (dorm as any).landlordName) ?? null;
-      }
-    );
+    () => {
+      // Try to find landlord by name or ID from dorm data
+      if (!landlords) return null;
+      return (
+        (landlords as any).find(
+          (l: any) => l.name === (dorm as any).landlordName,
+        ) ?? null
+      );
+    },
+  );
   const [managerQuery, setManagerQuery] = useState("");
   const [managerOpen, setManagerOpen] = useState(false);
 
@@ -127,8 +132,7 @@ export function EditDormModal({
 
     return list.filter(
       (m) =>
-        m.name.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q)
+        m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q),
     );
   }, [managerQuery, managers]);
 
@@ -140,38 +144,39 @@ export function EditDormModal({
 
     return list.filter(
       (l) =>
-        l.name.toLowerCase().includes(q) ||
-        l.email.toLowerCase().includes(q)
+        l.name.toLowerCase().includes(q) || l.email.toLowerCase().includes(q),
     );
   }, [landlordQuery, landlords]);
 
   // What's shown in the manager input field
-  const managerDisplayValue = managerQuery !== "" ? managerQuery : (selectedManager?.name ?? "");
-  const landlordDisplayValue = landlordQuery !== "" ? landlordQuery : (selectedLandlord?.name ?? "");
+  const managerDisplayValue =
+    managerQuery !== "" ? managerQuery : (selectedManager?.name ?? "");
+  const landlordDisplayValue =
+    landlordQuery !== "" ? landlordQuery : (selectedLandlord?.name ?? "");
 
   async function handleSave() {
     const newErrors: typeof errors = {};
 
     // Validate name
     if (!name.trim()) {
-      newErrors.dormName = 'Dorm name is required';
+      newErrors.dormName = "Dorm name is required";
     }
 
     // Validate address
     if (!address.trim()) {
-      newErrors.address = 'Address is required';
+      newErrors.address = "Address is required";
     }
 
     // Validate monthly rate
-    if (!rate || rate.trim() === '') {
-      newErrors.monthlyRate = 'Monthly rate is required';
+    if (!rate || rate.trim() === "") {
+      newErrors.monthlyRate = "Monthly rate is required";
     } else if (Number(rate) < 0) {
-      newErrors.monthlyRate = 'Monthly rate cannot be negative';
+      newErrors.monthlyRate = "Monthly rate cannot be negative";
     }
 
     // Validate landlord
     if (!selectedLandlord) {
-      newErrors.landlord = 'Landlord is required';
+      newErrors.landlord = "Landlord is required";
     }
 
     setErrors(newErrors);
@@ -215,7 +220,6 @@ export function EditDormModal({
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl max-w-500px h-[90vh] shadow-2xl flex flex-col">
-
           {/* Header */}
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4">
@@ -225,7 +229,9 @@ export function EditDormModal({
                   <Building2 size={18} className="text-[#b85c28]" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-[#1a2332]">Edit Dormitory</h2>
+                  <h2 className="text-xl font-bold text-[#1a2332]">
+                    Edit Dormitory
+                  </h2>
                   <p className="text-sm text-[#1a2332]/50 font-mono mt-0.5">
                     Update details and settings for this dorm
                   </p>
@@ -243,26 +249,32 @@ export function EditDormModal({
 
           {/* ── Scrollable body ── */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-
             {/* Dorm hero strip */}
             <div className="flex items-center gap-3.5 p-4 bg-[#f3f4f5] rounded-xl border border-gray-100">
               <div className="w-12 h-12 rounded-xl bg-[#1a2332] flex items-center justify-center shrink-0">
                 <Building2 size={20} className="text-white/80" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-[#1a2332] text-sm leading-tight truncate">{dorm.name}</p>
+                <p className="font-bold text-[#1a2332] text-sm leading-tight truncate">
+                  {dorm.name}
+                </p>
                 {dorm.dormAddress && (
-                  <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">{dorm.dormAddress}</p>
+                  <p className="text-xs text-[#1a2332]/50 font-mono mt-0.5 truncate">
+                    {dorm.dormAddress}
+                  </p>
                 )}
               </div>
               {/* Status badge on hero */}
-              <span className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border
-                ${dorm.housingType === "UP Housing"
-                  ? "bg-pink-50 text-green-700 border-brown-200"
-                  : dorm.housingType === "Non-UP Housing"
-                  ? "bg-blue-50 text-green-700 border-brown-200"
-                  : "bg-purple-50 text-purple-700 border-purple-200"
-                }`}>
+              <span
+                className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full border
+                ${
+                  dorm.housingType === "UP Housing"
+                    ? "bg-pink-50 text-green-700 border-brown-200"
+                    : dorm.housingType === "Non-UP Housing"
+                      ? "bg-blue-50 text-green-700 border-brown-200"
+                      : "bg-purple-50 text-purple-700 border-purple-200"
+                }`}
+              >
                 {dorm.housingType ?? "UP Housing"}
               </span>
             </div>
@@ -271,65 +283,75 @@ export function EditDormModal({
 
             {/* Basic Information*/}
             <div className="space-y-4">
-              <p className="text-sm font-bold text-[#1a2332]">Basic Information</p>
+              <p className="text-sm font-bold text-[#1a2332]">
+                Basic Information
+              </p>
 
               {/* Dorm Name */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#1a2332]/60">
-                    Dormitory Name
-                  </label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter dormitory name"
-                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
-                      submitted && errors.dormName ? 'border-red-300 bg-red-50' : ''
-                    }`}
-                  />
-                  {submitted && errors.dormName && (
-                    <p className="text-xs text-red-500 mt-1">{errors.dormName}</p>
-                  )}
-                </div>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#1a2332]/60">
+                  Dormitory Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter dormitory name"
+                  className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                    submitted && errors.dormName
+                      ? "border-red-300 bg-red-50"
+                      : ""
+                  }`}
+                />
+                {submitted && errors.dormName && (
+                  <p className="text-xs text-red-500 mt-1">{errors.dormName}</p>
+                )}
+              </div>
 
-                {/* Location / Address */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#1a2332]/60">
-                    Location / Address
-                  </label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="e.g. 123 Roxas St, QC"
-                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
-                      submitted && errors.address ? 'border-red-300 bg-red-50' : ''
-                    }`}
-                  />
-                  {submitted && errors.address && (
-                    <p className="text-xs text-red-500 mt-1">{errors.address}</p>
-                  )}
-                </div>
+              {/* Location / Address */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#1a2332]/60">
+                  Location / Address
+                </label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="e.g. 123 Roxas St, QC"
+                  className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                    submitted && errors.address
+                      ? "border-red-300 bg-red-50"
+                      : ""
+                  }`}
+                />
+                {submitted && errors.address && (
+                  <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+                )}
+              </div>
 
-                {/* Monthly Rate */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#1a2332]/60">
-                    Monthly Rate (₱)
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={rate}
-                    onChange={(e) => setRate(e.target.value)}
-                    placeholder="e.g. 3500"
-                    className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
-                      submitted && errors.monthlyRate ? 'border-red-300 bg-red-50' : ''
-                    }`}
-                  />
-                  {submitted && errors.monthlyRate && (
-                    <p className="text-xs text-red-500 mt-1">{errors.monthlyRate}</p>
-                  )}
-                </div>
+              {/* Monthly Rate */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#1a2332]/60">
+                  Monthly Rate (₱)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={rate}
+                  onChange={(e) => setRate(e.target.value)}
+                  placeholder="e.g. 3500"
+                  className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-[#b85c28]/40 transition-colors ${
+                    submitted && errors.monthlyRate
+                      ? "border-red-300 bg-red-50"
+                      : ""
+                  }`}
+                />
+                {submitted && errors.monthlyRate && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.monthlyRate}
+                  </p>
+                )}
+              </div>
 
               {/* Housing Type */}
               <div className="space-y-1.5">
@@ -339,22 +361,22 @@ export function EditDormModal({
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() => setHousingType('UP Housing')}
+                    onClick={() => setHousingType("UP Housing")}
                     className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
-                      housingType === 'UP Housing'
-                        ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
-                        : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                      housingType === "UP Housing"
+                        ? "border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]"
+                        : "border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50"
                     }`}
                   >
                     UP Housing
                   </button>
                   <button
                     type="button"
-                    onClick={() => setHousingType('Non-UP Housing')}
+                    onClick={() => setHousingType("Non-UP Housing")}
                     className={`flex-1 py-2.5 text-sm font-semibold rounded-xl border-2 transition-colors ${
-                      housingType === 'Non-UP Housing'
-                        ? 'border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]'
-                        : 'border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50'
+                      housingType === "Non-UP Housing"
+                        ? "border-[#b85c28] bg-[#fdf0e8] text-[#b85c28]"
+                        : "border-[#e8e6e1] bg-[#faf9f7] text-[#1a2332]/50"
                     }`}
                   >
                     Non-UP Housing
@@ -367,7 +389,9 @@ export function EditDormModal({
 
             {/* Manager & Landlord */}
             <div className="space-y-4">
-              <p className="text-sm font-bold text-[#1a2332]">Manager &amp; Landlord</p>
+              <p className="text-sm font-bold text-[#1a2332]">
+                Manager &amp; Landlord
+              </p>
 
               {/* Assign Manager — searchable, mirrors "Assign to Dormitory" in EditUserModal */}
               <div ref={managerRef} className="relative space-y-1.5">
@@ -384,7 +408,9 @@ export function EditDormModal({
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-[#b85c28] truncate">{selectedManager.name}</p>
+                      <p className="text-xs font-bold text-[#b85c28] truncate">
+                        {selectedManager.name}
+                      </p>
                     </div>
                     {/* Clear selection */}
                     <button
@@ -431,10 +457,14 @@ export function EditDormModal({
                             ${m.id === selectedManager?.id ? "bg-[#fdf0e8]" : ""}`}
                         >
                           <div className="w-7 h-7 rounded-full bg-[#2e4a50] flex items-center justify-center shrink-0">
-                            <span className="text-[10px] font-bold text-white">{getInitials(m.name)}</span>
+                            <span className="text-[10px] font-bold text-white">
+                              {getInitials(m.name)}
+                            </span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}>
+                            <p
+                              className={`text-sm font-semibold truncate ${m.id === selectedManager?.id ? "text-[#b85c28]" : "text-[#1a2332]"}`}
+                            >
                               {m.name}
                             </p>
                             <p className="text-[10px] text-[#1a2332]/40 font-mono truncate">
@@ -512,7 +542,9 @@ export function EditDormModal({
                   }}
                   placeholder="Search landlord by name or email…"
                   className={`w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#f3f4f5] text-sm text-[#1a2332] focus:outline-none focus:border-blue-400 transition-colors ${
-                    submitted && errors.landlord ? 'border-red-300 bg-red-50' : ''
+                    submitted && errors.landlord
+                      ? "border-red-300 bg-red-50"
+                      : ""
                   }`}
                 />
                 {submitted && errors.landlord && (
@@ -578,12 +610,14 @@ export function EditDormModal({
 
             {/* Warning */}
             <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#fdf0e8] border border-[#f0c8a8]">
-              <AlertTriangle size={15} className="text-[#b85c28] shrink-0 mt-0.5" />
+              <AlertTriangle
+                size={15}
+                className="text-[#b85c28] shrink-0 mt-0.5"
+              />
               <p className="text-xs text-[#b85c28] font-mono">
                 Changes will be reflected immediately across the system.
               </p>
             </div>
-
           </div>
 
           {/* ── Footer ── */}
@@ -601,7 +635,6 @@ export function EditDormModal({
               Save Changes
             </button>
           </div>
-
         </div>
       </div>
     </>

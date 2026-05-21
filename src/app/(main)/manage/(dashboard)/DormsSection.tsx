@@ -22,7 +22,10 @@ function DormCard({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Link href={`/manage/accommodations/${id}`} className="rounded-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-[var(--teal)]">
+    <Link
+      href={`/manage/accommodations/${id}`}
+      className="rounded-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-[var(--teal)]"
+    >
       <div
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -64,9 +67,7 @@ function DormCard({
                 opacity: isHovered ? 1 : 0.7,
               }}
             >
-              <span className="text-xs font-semibold text-white">
-                Managed
-              </span>
+              <span className="text-xs font-semibold text-white">Managed</span>
             </div>
           </div>
 
@@ -186,7 +187,9 @@ export default function DormsSection({ dorms }: { dorms: Housing[] }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filtered.length === 0 ? (
-          <p className="text-gray-500 col-span-full text-center py-6">No dorms found.</p>
+          <p className="text-gray-500 col-span-full text-center py-6">
+            No dorms found.
+          </p>
         ) : (
           filtered.map((dorm) => (
             <DormCard

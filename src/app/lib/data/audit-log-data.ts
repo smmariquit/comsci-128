@@ -17,8 +17,13 @@ async function create(audit_log: NewAuditLog) {
 }
 
 async function getAll(role: Role, account_number: number) {
-  console.log("getAll called with role:", role, "account_number:", account_number);
-  
+  console.log(
+    "getAll called with role:",
+    role,
+    "account_number:",
+    account_number,
+  );
+
   let query = supabase.from("audit_log").select("*");
 
   if (role === "Student") {
@@ -27,20 +32,20 @@ async function getAll(role: Role, account_number: number) {
   } else if (role === "Manager") {
     console.log("Filtering as Manager for account:", account_number);
     query = query.or(
-      `account_number.eq.${account_number},assigned_manager.eq.${account_number}`
+      `account_number.eq.${account_number},assigned_manager.eq.${account_number}`,
     );
   } else {
     console.log("System admin - no filter");
   }
 
   const { data, error } = await query;
-  
+
   console.log("Query error:", error);
   console.log("Query returned:", data?.length, "records");
   if (data && data.length > 0) {
     console.log("First record:", data[0]);
   }
-  
+
   if (error) throw error;
   return data;
 }
@@ -70,7 +75,7 @@ async function getRecentByManager(managerAccountNumber: number) {
     .from("audit_log")
     .select("*")
     .or(
-      `account_number.eq.${managerAccountNumber},assigned_manager.eq.${managerAccountNumber}`
+      `account_number.eq.${managerAccountNumber},assigned_manager.eq.${managerAccountNumber}`,
     )
     .order("timestamp", { ascending: false })
     .limit(5);
