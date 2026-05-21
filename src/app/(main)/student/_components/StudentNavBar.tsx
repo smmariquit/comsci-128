@@ -7,8 +7,6 @@ import Avatar from "@/app/components/Avatar";
 import { useEffect, useState } from "react";
 import HelpWidget from "@/app/components/ui/HelpWidget";
 
-
-
 interface StudentNavbarProps {
   path: string;
   userId?: number;
@@ -38,9 +36,11 @@ export default function StudentNavBar({
       let href: string | null = null;
 
       if (label === "Dashboard") href = "/student";
-      if (label === "Browse" || label === "Housing Browser") href = "/student/browse";
+      if (label === "Browse" || label === "Housing Browser")
+        href = "/student/browse";
       if (label === "Complaints") href = "/student/complaints";
-      if (label === "Student Profile") href = uid ? `/student/profile/${uid}` : "/student";
+      if (label === "Student Profile")
+        href = uid ? `/student/profile/${uid}` : "/student";
 
       return { label, href, isLast };
     });
@@ -59,7 +59,7 @@ export default function StudentNavBar({
     const acc = getCookie("account_number");
     if (acc) {
       if (!userId) setUid(Number(acc));
-      
+
       // Fetch profile data to get avatar
       fetch(`/api/student/profile/${acc}`)
         .then((res) => res.json())
@@ -72,47 +72,56 @@ export default function StudentNavBar({
     }
   }, [firstName, lastName, profilePicture, userId]);
 
-	return (
-		<>
-			{/* NAV BAR */}
-			<header className="w-full bg-[#1C2632] text-m">
-				<div className="max-w-7xl mx-auto flex h-16 md:h-20 items-center justify-between px-4 md:px-10">
-					<div className="flex items-center gap-4 md:gap-8">
-						<Logo size={28} href="/" />
+  return (
+    <>
+      {/* NAV BAR */}
+      <header className="w-full bg-[#1C2632] text-m">
+        <div className="max-w-7xl mx-auto flex h-16 md:h-20 items-center justify-between px-4 md:px-10">
+          <div className="flex items-center gap-4 md:gap-8">
+            <Logo size={28} href="/" />
 
-						<nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 h-7 font-[family-name:var(--font-geist-sans)]">
-							<Link href="/student" className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center h-full text-m leading-none rounded-full px-4 py-2">
-								Dashboard
-							</Link>
-							<Link href="/student/browse" className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center h-full text-m leading-none rounded-full px-4 py-2">
-								Browse
-							</Link>
-						</nav>
-						
-					</div>
-
-				<div className="flex items-center gap-2 md:gap-4">
-					<button 
-						suppressHydrationWarning
-						className="flex items-center justify-center text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors rounded-full p-2"
-						aria-label="Notifications"
-						>
-							<Bell className="h-6 w-6" strokeWidth={2} />
-					</button>
-
-          <div className="py-2">
-            <Avatar
-              firstName={fName}
-              lastName={lName}
-              profilePicture={avatarUrl}
-              size={32}
-              href={uid ? `/student/profile/${uid}` : "#"}
-              ariaLabel={profileLabel ? `Open profile for ${profileLabel}` : "Open profile"}
-            />
+            <nav className="hidden md:flex items-center gap-4 border-l border-gray-700 pl-8 h-7 font-[family-name:var(--font-geist-sans)]">
+              <Link
+                href="/student"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center h-full text-m leading-none rounded-full px-4 py-2"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/student/browse"
+                className="text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors flex items-center h-full text-m leading-none rounded-full px-4 py-2"
+              >
+                Browse
+              </Link>
+            </nav>
           </div>
-                </div>
-				</div>
-			</header>
+
+          <div className="flex items-center gap-2 md:gap-4">
+            <button
+              suppressHydrationWarning
+              className="flex items-center justify-center text-[#EDE9DE] hover:bg-white/10 focus-visible:bg-white/10 transition-colors rounded-full p-2"
+              aria-label="Notifications"
+            >
+              <Bell className="h-6 w-6" strokeWidth={2} />
+            </button>
+
+            <div className="py-2">
+              <Avatar
+                firstName={fName}
+                lastName={lName}
+                profilePicture={avatarUrl}
+                size={32}
+                href={uid ? `/student/profile/${uid}` : "#"}
+                ariaLabel={
+                  profileLabel
+                    ? `Open profile for ${profileLabel}`
+                    : "Open profile"
+                }
+              />
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* BREAD CRUMBS */}
       <nav
@@ -122,7 +131,10 @@ export default function StudentNavBar({
         <div className="w-full max-w-7xl mx-auto flex items-center px-4 md:px-10 min-h-[44px] text-sm font-medium">
           <ol className="flex flex-wrap items-center gap-2 text-[#EDE9DE] text-sm font-sans leading-none">
             {breadcrumbs.map((crumb) => (
-              <li key={crumb.label} className="inline-flex items-center gap-2 h-7">
+              <li
+                key={crumb.label}
+                className="inline-flex items-center gap-2 h-7"
+              >
                 {crumb.href && !crumb.isLast ? (
                   <Link
                     href={crumb.href}
@@ -139,7 +151,10 @@ export default function StudentNavBar({
                   </span>
                 )}
                 {!crumb.isLast && (
-                  <span aria-hidden="true" className="inline-flex h-7 items-center text-white/70">
+                  <span
+                    aria-hidden="true"
+                    className="inline-flex h-7 items-center text-white/70"
+                  >
                     /
                   </span>
                 )}
@@ -149,7 +164,6 @@ export default function StudentNavBar({
         </div>
       </nav>
       <HelpWidget role="student" />
-		</>
-	);
+    </>
+  );
 }
-

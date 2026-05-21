@@ -2,11 +2,11 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const BRAND = {
-  navy: [28, 38, 50] as const,
-  teal: [86, 115, 117] as const,
-  orange: [201, 100, 42] as const,
-  cream: [234, 232, 225] as const,
-  softText: [110, 144, 146] as const,
+  navy: [28, 38, 50] as [number, number, number],
+  teal: [86, 115, 117] as [number, number, number],
+  orange: [201, 100, 42] as [number, number, number],
+  cream: [234, 232, 225] as [number, number, number],
+  softText: [110, 144, 146] as [number, number, number],
 };
 
 type ExportCell = string | number | boolean | Date | null | undefined;
@@ -18,7 +18,7 @@ function addDesignSystemHeader(doc: jsPDF, title: string, subtitle?: string) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   doc.setTextColor(255, 255, 255);
-  doc.text("UPLB CASA", 14, 12);
+  doc.text("University Student Accommodation Tracker", 14, 12);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
@@ -90,7 +90,7 @@ export function exportToPDF(
   title: string,
   filename: string,
   headers: string[],
-  rows: ExportCell[][],
+  rows: any[][],
 ) {
   const doc = new jsPDF();
 
@@ -99,13 +99,12 @@ export function exportToPDF(
   autoTable(doc, {
     startY: 38,
     head: [headers],
-    // Ensure cells are valid strings (jspdf-autotable CellInput cannot be undefined)
-    body: rows.map((r) => r.map((c) => (c === null || c === undefined ? "" : String(c)))),
+    body: rows,
     theme: "striped",
-    headStyles: { fillColor: [...BRAND.teal] as [number, number, number], textColor: [255, 255, 255] },
+    headStyles: { fillColor: BRAND.teal, textColor: [255, 255, 255] },
     alternateRowStyles: { fillColor: [250, 249, 245] },
-    styles: { fontSize: 8, cellPadding: 3, textColor: [...BRAND.navy] as [number, number, number] },
-    tableLineColor: [...BRAND.cream] as [number, number, number],
+    styles: { fontSize: 8, cellPadding: 3, textColor: BRAND.navy },
+    tableLineColor: BRAND.cream,
     tableLineWidth: 0.2,
   });
 

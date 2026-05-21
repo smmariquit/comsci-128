@@ -2,7 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { Map, LayoutGrid } from "lucide-react";
-import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
+import HousingMap, {
+  type HousingMarker,
+} from "@/app/components/map/HousingMap";
 import DormCard from "@/app/components/admin/dorm_card";
 
 type DormCardData = {
@@ -43,7 +45,7 @@ export default function AdminAccommodationsContent({
           lng: d.longitude!,
           image: d.image,
         })),
-    [dormCards]
+    [dormCards],
   );
 
   return (
@@ -62,7 +64,10 @@ export default function AdminAccommodationsContent({
 
       {showMap && markers.length > 0 && (
         <div className="w-full max-w-6xl mx-auto mb-6">
-          <div className="w-full rounded-xl overflow-hidden shadow-lg" style={{ height: "400px" }}>
+          <div
+            className="w-full rounded-xl overflow-hidden shadow-lg"
+            style={{ height: "400px" }}
+          >
             <HousingMap
               housings={markers}
               selectedId={selectedId}
@@ -80,7 +85,8 @@ export default function AdminAccommodationsContent({
             </div>
             <div className="text-lg font-semibold">No properties found</div>
             <div className="mt-2 text-sm text-[#8AABAC]">
-              Property cards will appear here once housing records are available.
+              Property cards will appear here once housing records are
+              available.
             </div>
           </div>
         ) : (

@@ -5,7 +5,14 @@ import { useEffect, useState, Suspense } from "react";
 import { supabase } from "@/app/lib/supabase";
 import { useAutoSave } from "@/app/hooks/useAutoSave";
 import AutosaveStatus from "@/app/components/ui/AutosaveStatus";
-import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 
 function ForgotPasswordForm() {
   const [step, setStep] = useState(1);
@@ -135,7 +142,7 @@ function ForgotPasswordForm() {
         )}
 
         <AutosaveStatus saveState={saveState} className="mx-auto" />
-        
+
         {step === 1 && (
           <div className="flex flex-col gap-4">
             <div className="relative">
@@ -166,11 +173,10 @@ function ForgotPasswordForm() {
         {step === 2 && (
           <div className="flex flex-col items-center justify-center p-6 bg-gray-700/30 rounded-2xl border border-gray-600 border-dashed text-center mt-2">
             <Mail size={40} className="text-stone-400 mb-4 opacity-50" />
-            <p className="text-stone-300 font-medium">
-              Check your inbox!
-            </p>
+            <p className="text-stone-300 font-medium">Check your inbox!</p>
             <p className="text-stone-400 text-sm mt-2">
-              If an account exists for that email, we have sent a secure password reset link.
+              If an account exists for that email, we have sent a secure
+              password reset link.
             </p>
           </div>
         )}
@@ -212,7 +218,9 @@ function ForgotPasswordForm() {
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 transition-colors"
-                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
               >
                 {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>

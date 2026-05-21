@@ -30,15 +30,12 @@ export async function GET() {
   try {
     const manager = await housingAdminService.fetchAllHousingAdmins();
 
-    return NextResponse.json(
-      { data: manager },
-      { status: 200 } 
-    );
+    return NextResponse.json({ data: manager }, { status: 200 });
   } catch (error: any) {
-    console.error("GET housing-admin error:", error); 
+    console.error("GET housing-admin error:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

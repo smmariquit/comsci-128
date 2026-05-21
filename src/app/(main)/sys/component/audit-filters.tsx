@@ -157,7 +157,6 @@ export default function AuditFilters({
             Export CSV
           </button>
         )}
-
       </div>
 
       {/* Active filter tags */}

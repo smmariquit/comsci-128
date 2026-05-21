@@ -23,11 +23,15 @@ export default function AssignedDashboard(
   const status = application?.application_status || "No active applications";
   const latestBill = billing[0];
 
-
   const completedSteps = steps.filter((step: any) => step.isDone).length;
   const stepLabels = steps.length
     ? steps.map((step: any) => step.label)
-    : ["Dorm Chosen", "Application Submitted", "Manager Review", "Room Assigned"];
+    : [
+        "Dorm Chosen",
+        "Application Submitted",
+        "Manager Review",
+        "Room Assigned",
+      ];
 
   const card =
     "w-full rounded-2xl border border-[#d9d2c4] bg-white/90 shadow-sm";
@@ -39,7 +43,8 @@ export default function AssignedDashboard(
 
   const stepTone = (index: number, done: boolean) => {
     if (done) return "bg-[#8b3e15] text-white border-[#8b3e15]";
-    if (index === completedSteps) return "bg-[#f1e4d7] text-[#8b3e15] border-[#d7c4b4] ring-2 ring-[#8b3e15]/20";
+    if (index === completedSteps)
+      return "bg-[#f1e4d7] text-[#8b3e15] border-[#d7c4b4] ring-2 ring-[#8b3e15]/20";
     return "bg-[#fcfcfb] text-[#a0abac] border-dashed border-[#d9d2c4]";
   };
 
@@ -53,19 +58,30 @@ export default function AssignedDashboard(
           </div>
           <div className="p-4 space-y-4">
             <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="font-semibold text-[#1C2632]">Welcome back, {userName}</span>
+              <span className="font-semibold text-[#1C2632]">
+                Welcome back, {userName}
+              </span>
               <span className="text-xs text-[#567375]">
-                {unpaidBills.length} pending bill{unpaidBills.length === 1 ? "" : "s"}
+                {unpaidBills.length} pending bill
+                {unpaidBills.length === 1 ? "" : "s"}
               </span>
             </div>
             <div className="relative">
-              <div className="absolute left-6 right-6 top-5 h-px bg-[#d9d2c4]" aria-hidden="true" />
+              <div
+                className="absolute left-6 right-6 top-5 h-px bg-[#d9d2c4]"
+                aria-hidden="true"
+              />
               <div className="grid grid-cols-4 gap-2">
                 {stepLabels.map((labelText: string, index: number) => {
-                  const done = index < completedSteps || (status === "Assigned" && index === stepLabels.length - 1);
+                  const done =
+                    index < completedSteps ||
+                    (status === "Assigned" && index === stepLabels.length - 1);
                   const isActive = index === completedSteps && !done;
                   return (
-                    <div key={labelText} className="relative flex flex-col items-center gap-2 text-center">
+                    <div
+                      key={labelText}
+                      className="relative flex flex-col items-center gap-2 text-center"
+                    >
                       <div
                         className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border shadow-sm ${stepTone(
                           index,
@@ -75,12 +91,16 @@ export default function AssignedDashboard(
                         {done ? (
                           <Check className="h-4.5 w-4.5 stroke-[3]" />
                         ) : (
-                          <span className={`text-[11px] font-bold ${isActive ? "text-[#8b3e15]" : "text-[#a0abac]"}`}>
+                          <span
+                            className={`text-[11px] font-bold ${isActive ? "text-[#8b3e15]" : "text-[#a0abac]"}`}
+                          >
                             {index + 1}
                           </span>
                         )}
                       </div>
-                      <div className={`text-[11px] font-semibold leading-tight ${done ? "text-[#1C2632]" : isActive ? "text-[#8b3e15] font-bold" : "text-[#a0abac]"}`}>
+                      <div
+                        className={`text-[11px] font-semibold leading-tight ${done ? "text-[#1C2632]" : isActive ? "text-[#8b3e15] font-bold" : "text-[#a0abac]"}`}
+                      >
                         {labelText}
                       </div>
                     </div>
@@ -116,7 +136,11 @@ export default function AssignedDashboard(
               <div>
                 <div className={label}>Pending Balance</div>
                 <div className={value}>
-                  ₱{unpaidBills.reduce((sum: number, bill: any) => sum + (bill.amount || 0), 0)}
+                  ₱
+                  {unpaidBills.reduce(
+                    (sum: number, bill: any) => sum + (bill.amount || 0),
+                    0,
+                  )}
                 </div>
                 <div className="text-xs text-[#567375] mt-1">
                   {unpaidBills.length
@@ -127,7 +151,9 @@ export default function AssignedDashboard(
             </div>
 
             <div className="border-t border-[#e3d8c9] pt-4">
-              <h3 className="text-xs uppercase tracking-wide text-[#567375] font-semibold mb-3">Billing History</h3>
+              <h3 className="text-xs uppercase tracking-wide text-[#567375] font-semibold mb-3">
+                Billing History
+              </h3>
               <StudentBillingHistory billing={billing} />
             </div>
           </div>
@@ -171,7 +197,8 @@ export default function AssignedDashboard(
           <div className={cardHeader}>
             <h2 className={cardTitle}>Updates</h2>
             <span className="text-xs text-[#567375]">
-              {notifications.length} update{notifications.length === 1 ? "" : "s"}
+              {notifications.length} update
+              {notifications.length === 1 ? "" : "s"}
             </span>
           </div>
           <div className="p-4 space-y-2">

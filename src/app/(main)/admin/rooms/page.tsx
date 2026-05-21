@@ -32,7 +32,9 @@ export default function Page() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   // ── Raw Data ──────────────────────────────────────────
   const [rooms, setRooms] = useState<RoomRow[]>([]);
-  const [managedHousings, setManagedHousings] = useState<{ housing_id: number; housing_name: string }[]>([]);
+  const [managedHousings, setManagedHousings] = useState<
+    { housing_id: number; housing_name: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [adminId, setAdminId] = useState<number>(0);
 
@@ -93,7 +95,7 @@ export default function Page() {
 
   const paginatedRooms = sortedRooms.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const totalPages = Math.ceil(sortedRooms.length / itemsPerPage) || 1;
@@ -272,7 +274,7 @@ export default function Page() {
       const housings = await housingData.findbyLandlord(idForFetch);
       setManagedHousings(housings);
 
-      const managedIds = housings.map((h: { housing_id: any; }) => h.housing_id);
+      const managedIds = housings.map((h: { housing_id: any }) => h.housing_id);
       const liveRooms = await roomData.findAllRoomDetailed(managedIds);
       setRooms(liveRooms);
     } catch (err) {
@@ -347,7 +349,17 @@ export default function Page() {
           }}
         >
           <span style={{ fontSize: 13, color: "#567375" }}>
-            Showing <strong>{sortedRooms.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</strong> to <strong>{Math.min(currentPage * itemsPerPage, sortedRooms.length)}</strong> of <strong>{sortedRooms.length}</strong> rooms
+            Showing{" "}
+            <strong>
+              {sortedRooms.length === 0
+                ? 0
+                : (currentPage - 1) * itemsPerPage + 1}
+            </strong>{" "}
+            to{" "}
+            <strong>
+              {Math.min(currentPage * itemsPerPage, sortedRooms.length)}
+            </strong>{" "}
+            of <strong>{sortedRooms.length}</strong> rooms
           </span>
 
           <div style={{ display: "flex", gap: 5 }}>

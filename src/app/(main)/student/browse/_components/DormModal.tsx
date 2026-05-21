@@ -32,7 +32,11 @@ interface DormModalProps {
   onViewMap?: () => void;
 }
 
-export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) {
+export default function DormModal({
+  dorm,
+  onClose,
+  onViewMap,
+}: DormModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Close on Escape key
@@ -63,7 +67,6 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
     >
       {/* Main Card Container */}
       <div className="relative w-full max-w-[850px] flex flex-col md:flex-row overflow-hidden rounded-[20px] bg-white shadow-2xl">
-        
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -76,9 +79,7 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
         {/* LEFT SECTION: Image and Overlay */}
         <div className="relative h-[260px] md:h-auto md:w-[45%] shrink-0 w-full">
           <Image
-            src={
-              dorm.image || "/assets/placeholders/housing-414x264.svg"
-            }
+            src={dorm.image || "/assets/placeholders/housing-414x264.svg"}
             alt={dorm.name}
             fill
             className="object-cover"
@@ -95,8 +96,10 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
         </div>
 
         {/* RIGHT SECTION: Details */}
-        <div id="dorm-modal-details" className="p-8 md:p-10 font-[family-name:var(--font-geist-mono)] text-sm text-[#111820] flex-1 flex flex-col justify-center">
-          
+        <div
+          id="dorm-modal-details"
+          className="p-8 md:p-10 font-[family-name:var(--font-geist-mono)] text-sm text-[#111820] flex-1 flex flex-col justify-center"
+        >
           <div className="space-y-3 mb-6">
             <div className="flex gap-2">
               <span className="font-bold min-w-[120px]">Address:</span>
@@ -108,7 +111,9 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
             </div>
             <div className="flex gap-2">
               <span className="font-bold min-w-[120px]">Price:</span>
-              <span className="text-[#8b3e15] font-semibold">₱{dorm.price}/month</span>
+              <span className="text-[#8b3e15] font-semibold">
+                ₱{dorm.price}/month
+              </span>
             </div>
             <div className="flex gap-2">
               <span className="font-bold min-w-[120px]">Applications:</span>
@@ -120,22 +125,75 @@ export default function DormModal({ dorm, onClose, onViewMap }: DormModalProps) 
 
           {/* Amenities Section */}
           <div className="pt-5 border-t border-gray-100">
-            <span className="block font-bold mb-3 text-[#111820]">Amenities provided:</span>
+            <span className="block font-bold mb-3 text-[#111820]">
+              Amenities provided:
+            </span>
             <div className="flex flex-wrap gap-2">
-              {dorm.has_wifi && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">WiFi</span>}
-              {dorm.has_aircon && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Aircon</span>}
-              {dorm.is_furnished && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Furnished</span>}
-              {dorm.has_kitchen && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Kitchen</span>}
-              {dorm.has_laundry && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Laundry</span>}
-              {dorm.has_parking && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Parking</span>}
-              {dorm.has_security && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Security</span>}
-              {dorm.has_utilities_included && <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">Utilities Incl.</span>}
-              {dorm.has_no_curfew && <span className="px-2.5 py-1 rounded-md bg-[#f2e3d7] text-[#8b3e15] font-semibold text-xs">No Curfew</span>}
-              {dorm.allows_visitors && <span className="px-2.5 py-1 rounded-md bg-[#f2e3d7] text-[#8b3e15] font-semibold text-xs">Visitors Allowed</span>}
-              
-              {!dorm.has_wifi && !dorm.has_aircon && !dorm.is_furnished && !dorm.has_kitchen && !dorm.has_laundry && !dorm.has_parking && !dorm.has_security && !dorm.has_utilities_included && !dorm.has_no_curfew && !dorm.allows_visitors && (
-                <span className="text-[#2f4a4c] text-sm italic">No amenities listed.</span>
+              {dorm.has_wifi && (
+                <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">
+                  WiFi
+                </span>
               )}
+              {dorm.has_aircon && (
+                <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">
+                  Aircon
+                </span>
+              )}
+              {dorm.is_furnished && (
+                <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">
+                  Furnished
+                </span>
+              )}
+              {dorm.has_kitchen && (
+                <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">
+                  Kitchen
+                </span>
+              )}
+              {dorm.has_laundry && (
+                <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">
+                  Laundry
+                </span>
+              )}
+              {dorm.has_parking && (
+                <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">
+                  Parking
+                </span>
+              )}
+              {dorm.has_security && (
+                <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">
+                  Security
+                </span>
+              )}
+              {dorm.has_utilities_included && (
+                <span className="px-2.5 py-1 rounded-md bg-[#c4beb1] text-[#111820] font-semibold text-xs">
+                  Utilities Incl.
+                </span>
+              )}
+              {dorm.has_no_curfew && (
+                <span className="px-2.5 py-1 rounded-md bg-[#f2e3d7] text-[#8b3e15] font-semibold text-xs">
+                  No Curfew
+                </span>
+              )}
+              {dorm.allows_visitors && (
+                <span className="px-2.5 py-1 rounded-md bg-[#f2e3d7] text-[#8b3e15] font-semibold text-xs">
+                  Visitors Allowed
+                </span>
+              )}
+
+              {!dorm.has_wifi &&
+                !dorm.has_aircon &&
+                !dorm.is_furnished &&
+                !dorm.has_kitchen &&
+                !dorm.has_laundry &&
+                !dorm.has_parking &&
+                !dorm.has_security &&
+                !dorm.has_utilities_included &&
+                !dorm.has_no_curfew &&
+                !dorm.allows_visitors && (
+                  <span className="text-[#2f4a4c] text-sm italic">
+                    No amenities listed.
+                  </span>
+                )}
             </div>
           </div>
 

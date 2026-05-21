@@ -28,17 +28,13 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    const landlord = await landlordService.fetchAllHousingAdmins();
 
-    const landlord =  await landlordService.fetchAllHousingAdmins();
-
-    return NextResponse.json(
-      { data: landlord },
-      { status: 201 }
-    );
+    return NextResponse.json({ data: landlord }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

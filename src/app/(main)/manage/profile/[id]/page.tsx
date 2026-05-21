@@ -229,19 +229,21 @@ export default function ManagerProfilePage() {
 
             {/* Manager Specific Tabs */}
             <div className="w-full space-y-2 mb-8 border-t border-gray-100 pt-6">
-              {["Personal Information", "Bank Details", "Account Settings"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`w-full text-left px-4 py-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 ${
-                    activeTab === tab
-                      ? "bg-[var(--teal)] text-white shadow-md"
-                      : "text-[#1C2632] hover:bg-gray-100"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+              {["Personal Information", "Bank Details", "Account Settings"].map(
+                (tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`w-full text-left px-4 py-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 ${
+                      activeTab === tab
+                        ? "bg-[var(--teal)] text-white shadow-md"
+                        : "text-[#1C2632] hover:bg-gray-100"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ),
+              )}
             </div>
 
             <button
@@ -279,102 +281,108 @@ export default function ManagerProfilePage() {
               <h3 className="text-[#1C2632] text-xl md:text-2xl font-bold mb-1">
                 {activeTab}
               </h3>
-              <p className="text-[#567375] text-xs md:text-sm">Update your {activeTab.toLowerCase()}</p>
+              <p className="text-[#567375] text-xs md:text-sm">
+                Update your {activeTab.toLowerCase()}
+              </p>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8 space-y-6 shadow-sm">
+              {activeTab === "Personal Information" && (
+                <>
+                  <ProfileInput
+                    label="First Name"
+                    value={profile?.first_name}
+                    onChange={(val: any) =>
+                      setProfile(
+                        profile ? { ...profile, first_name: val } : profile,
+                      )
+                    }
+                  />
+                  <ProfileInput
+                    label="Middle Name"
+                    value={profile?.middle_name}
+                    onChange={(val: any) =>
+                      setProfile(
+                        profile ? { ...profile, middle_name: val } : profile,
+                      )
+                    }
+                  />
+                  <ProfileInput
+                    label="Last Name"
+                    value={profile?.last_name}
+                    onChange={(val: any) =>
+                      setProfile(
+                        profile ? { ...profile, last_name: val } : profile,
+                      )
+                    }
+                  />
+                  <ProfileInput
+                    label="Account Email"
+                    value={profile?.account_email}
+                    disabled
+                  />
+                </>
+              )}
 
-          {activeTab === "Personal Information" && (
-            <>
-              <ProfileInput
-                label="First Name"
-                value={profile?.first_name}
-                onChange={(val: any) =>
-                  setProfile(
-                    profile ? { ...profile, first_name: val } : profile,
-                  )
-                }
-              />
-              <ProfileInput
-                label="Middle Name"
-                value={profile?.middle_name}
-                onChange={(val: any) =>
-                  setProfile(
-                    profile ? { ...profile, middle_name: val } : profile,
-                  )
-                }
-              />
-              <ProfileInput
-                label="Last Name"
-                value={profile?.last_name}
-                onChange={(val: any) =>
-                  setProfile(profile ? { ...profile, last_name: val } : profile)
-                }
-              />
-              <ProfileInput
-                label="Account Email"
-                value={profile?.account_email}
-                disabled
-              />
-            </>
-          )}
-
-          {activeTab === "Bank Details" && (
-            <>
-              <ProfileInput
-                label="Bank Type"
-                value={
-                  profile?.manager?.manager_payment_details?.[0]?.bank_type
-                }
-                disabled
-              />
-              <ProfileInput
-                label="Bank Number"
-                value={
-                  profile?.manager?.manager_payment_details?.[0]?.bank_number
-                }
-                disabled
-              />
-            </>
-          )}
-          {activeTab === "Account Settings" && <AccountSettings />}
+              {activeTab === "Bank Details" && (
+                <>
+                  <ProfileInput
+                    label="Bank Type"
+                    value={
+                      profile?.manager?.manager_payment_details?.[0]?.bank_type
+                    }
+                    disabled
+                  />
+                  <ProfileInput
+                    label="Bank Number"
+                    value={
+                      profile?.manager?.manager_payment_details?.[0]
+                        ?.bank_number
+                    }
+                    disabled
+                  />
+                </>
+              )}
+              {activeTab === "Account Settings" && <AccountSettings />}
+            </div>
           </div>
         </div>
+
+        <LogoutModal
+          isOpen={showLogoutModal}
+          onClose={() => setShowLogoutModal(false)}
+          onConfirm={() => {
+            setShowLogoutModal(false);
+            document.cookie.split(";").forEach((cookie) => {
+              const eqPos = cookie.indexOf("=");
+              const name = (
+                eqPos > -1 ? cookie.slice(0, eqPos) : cookie
+              ).trim();
+              deleteCookie(name);
+            });
+            window.location.href = "/";
+          }}
+        />
+
+        <AvatarUploadModal
+          isOpen={showAvatarModal}
+          onClose={() => setShowAvatarModal(false)}
+          userId={Number(id)}
+          currentAvatarUrl={(profile as any)?.profile_picture}
+          firstName={profile?.first_name}
+          lastName={profile?.last_name}
+          onUploadSuccess={(url) => {
+            if (profile) {
+              setProfile({
+                ...profile,
+                profile_picture: url,
+              } as any);
+            }
+          }}
+        />
       </div>
-
-			<LogoutModal
-				isOpen={showLogoutModal}
-				onClose={() => setShowLogoutModal(false)}
-				onConfirm={() => {
-					setShowLogoutModal(false);
-                    document.cookie.split(";").forEach((cookie) => {
-                        const eqPos = cookie.indexOf("=");
-                        const name = (eqPos > -1 ? cookie.slice(0, eqPos) : cookie).trim();
-                        deleteCookie(name);
-                    });
-					window.location.href = "/";
-				}}
-			/>
-
-      <AvatarUploadModal
-        isOpen={showAvatarModal}
-        onClose={() => setShowAvatarModal(false)}
-        userId={Number(id)}
-        currentAvatarUrl={(profile as any)?.profile_picture}
-        firstName={profile?.first_name}
-        lastName={profile?.last_name}
-        onUploadSuccess={(url) => {
-          if (profile) {
-            setProfile({
-              ...profile,
-              profile_picture: url,
-            } as any);
-          }
-        }}
-      />
     </div>
-  </div>
-);
+  );
 }
 
 function ProfileInput({ label, value, onChange, disabled = false }: any) {

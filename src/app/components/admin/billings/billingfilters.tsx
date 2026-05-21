@@ -243,9 +243,7 @@ export default function BillFilters({
           onChange={(e) => onSort(e.target.value as SortFilter)}
           onMouseEnter={() => setHoveredSelect("sort")}
           onMouseLeave={() =>
-            setHoveredSelect((current) =>
-              current === "sort" ? null : current,
-            )
+            setHoveredSelect((current) => (current === "sort" ? null : current))
           }
           style={{
             ...selectBase,

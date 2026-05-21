@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       dbUser.account_number,
       userName,
       "Auth Login",
-      "User logged in via Google OAuth"
+      "User logged in via Google OAuth",
     ).catch((err) => console.error("Failed to log Google login event:", err));
 
     return NextResponse.json({

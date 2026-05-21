@@ -4,35 +4,30 @@ import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { managerData } from "@/app/lib/data/manager-data";
 
 // promote User from Student to Housing Admin (Manager rather)
-async function create(
-  account_number:number, 
-  managerDetails: NewManager) {
+async function create(account_number: number, managerDetails: NewManager) {
   // managerDetails.manager_type must already be set to "Housing Admin"
 
-  await managerData.create( account_number, managerDetails,);
+  await managerData.create(account_number, managerDetails);
 
-	// Insert into housing_admin
-	const { data, error: adminError } = await supabase
-		.from("housing_admin")
-		.insert([{account_number}])
-		.select();
+  // Insert into housing_admin
+  const { data, error: adminError } = await supabase
+    .from("housing_admin")
+    .insert([{ account_number }])
+    .select();
 
-	if (adminError) {
-		console.error(
-			"Error inserting into housing_admin:",
-			adminError.message,
-		);
-		return { data: null, error: adminError };
-	}
+  if (adminError) {
+    console.error("Error inserting into housing_admin:", adminError.message);
+    return { data: null, error: adminError };
+  }
 
-	return data[0];
+  return data[0];
 }
 
 // Read all housing admins with user details
 async function getAll() {
   const { data, error } = await supabase
-      .from("housing_admin")
-      .select(`
+    .from("housing_admin")
+    .select(`
         account_number,
         manager(
           manager_type,
@@ -51,7 +46,7 @@ async function getAll() {
           )
         )
       `)
-      .eq("is_deleted", false);
+    .eq("is_deleted", false);
 
   if (error) {
     console.error("Error fetching housing admins:", error.message);

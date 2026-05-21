@@ -6,13 +6,20 @@ import { ChevronRight } from "lucide-react";
 
 // ── Action Badge ──────────────────────────────────────────────────────────────
 
-const ACTION_STYLES: Record<ActionType, { bg: string; text: string; accent: string }> = {
+const ACTION_STYLES: Record<
+  ActionType,
+  { bg: string; text: string; accent: string }
+> = {
   "Application Status": {
     bg: "bg-blue-50",
     text: "text-blue-700",
     accent: "#3b82f6",
   },
-  "Bill Status": { bg: "bg-amber-50", text: "text-amber-700", accent: "#f59e0b" },
+  "Bill Status": {
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    accent: "#f59e0b",
+  },
   "Auth Register": {
     bg: "bg-emerald-50",
     text: "text-emerald-700",
@@ -164,7 +171,9 @@ export default function AuditLogTable({ data, onView }: Props) {
       {data.map((row) => (
         <div
           key={row.audit_id}
-          onClick={() => setExpandedId(expandedId === row.audit_id ? null : row.audit_id)}
+          onClick={() =>
+            setExpandedId(expandedId === row.audit_id ? null : row.audit_id)
+          }
           style={{
             background: "#fff",
             border: `1px solid ${C.cream}`,
@@ -173,9 +182,10 @@ export default function AuditLogTable({ data, onView }: Props) {
             cursor: "pointer",
             transition: "all 0.25s ease",
             transform: expandedId === row.audit_id ? "scale(1.01)" : "scale(1)",
-            boxShadow: expandedId === row.audit_id
-              ? "0 8px 16px rgba(28, 38, 50, 0.1)"
-              : "0 2px 4px rgba(28, 38, 50, 0.06)",
+            boxShadow:
+              expandedId === row.audit_id
+                ? "0 8px 16px rgba(28, 38, 50, 0.1)"
+                : "0 2px 4px rgba(28, 38, 50, 0.06)",
           }}
           onMouseEnter={(e) => {
             if (!e.currentTarget.style.boxShadow.includes("0 8px")) {
@@ -291,7 +301,10 @@ export default function AuditLogTable({ data, onView }: Props) {
               style={{
                 color: C.teal,
                 transition: "transform 0.25s ease",
-                transform: expandedId === row.audit_id ? "rotate(90deg)" : "rotate(0deg)",
+                transform:
+                  expandedId === row.audit_id
+                    ? "rotate(90deg)"
+                    : "rotate(0deg)",
               }}
             >
               <ChevronRight size={20} />
@@ -311,7 +324,9 @@ export default function AuditLogTable({ data, onView }: Props) {
               }}
             >
               <div>
-                <div style={{ color: C.teal, fontWeight: 600, marginBottom: 4 }}>
+                <div
+                  style={{ color: C.teal, fontWeight: 600, marginBottom: 4 }}
+                >
                   IP Address
                 </div>
                 <div style={{ color: C.navy, fontFamily: "monospace" }}>
@@ -319,7 +334,9 @@ export default function AuditLogTable({ data, onView }: Props) {
                 </div>
               </div>
               <div>
-                <div style={{ color: C.teal, fontWeight: 600, marginBottom: 4 }}>
+                <div
+                  style={{ color: C.teal, fontWeight: 600, marginBottom: 4 }}
+                >
                   Log ID
                 </div>
                 <div style={{ color: C.navy, fontFamily: "monospace" }}>

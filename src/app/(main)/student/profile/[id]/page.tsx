@@ -273,9 +273,15 @@ export default function StudentProfilePage() {
     <div className="flex flex-col min-h-screen bg-[#EDE9DE] font-[family-name:var(--font-geist-sans)]">
       <StudentNavBar path="Student Profile" userId={Number(accountNumber)} />
 
-      <main className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] px-4 md:px-8 py-6 md:py-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-inner" aria-labelledby="student-profile-heading">
+      <main
+        className="w-full max-w-7xl mx-auto flex-1 bg-[#EDE9DE] px-4 md:px-8 py-6 md:py-8 flex flex-col md:flex-row gap-6 md:gap-8 shadow-inner"
+        aria-labelledby="student-profile-heading"
+      >
         {/* Left Card Sidebar */}
-        <aside className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/70 border border-[#E3AF64] rounded-[2rem] p-6 md:p-7 flex flex-col items-center shadow-sm h-fit gap-4" aria-label="Profile navigation and actions">
+        <aside
+          className="w-full md:w-80 lg:w-1/4 shrink-0 bg-white/70 border border-[#E3AF64] rounded-[2rem] p-6 md:p-7 flex flex-col items-center shadow-sm h-fit gap-4"
+          aria-label="Profile navigation and actions"
+        >
           {/* Profile Circle */}
           <div
             className="w-32 h-32 mb-6 relative group cursor-pointer"
@@ -299,12 +305,18 @@ export default function StudentProfilePage() {
               ariaLabel="Profile picture"
               showEditIcon={true}
             />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full" aria-hidden="true">
+            <div
+              className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full"
+              aria-hidden="true"
+            >
               <Camera className="text-white w-8 h-8" />
             </div>
           </div>
 
-          <h1 id="student-profile-heading" className="text-2xl font-bold text-[#1C2632] mb-1 text-center leading-tight">
+          <h1
+            id="student-profile-heading"
+            className="text-2xl font-bold text-[#1C2632] mb-1 text-center leading-tight"
+          >
             {student?.first_name} {student?.last_name}
           </h1>
           <p className="text-[#2f4a4c] font-medium text-sm text-center mb-4">
@@ -312,7 +324,11 @@ export default function StudentProfilePage() {
           </p>
 
           {/* Navigation Tabs */}
-          <div className="w-full flex flex-col gap-2 mb-3" role="tablist" aria-label="Profile sections">
+          <div
+            className="w-full flex flex-col gap-2 mb-3"
+            role="tablist"
+            aria-label="Profile sections"
+          >
             {[
               "Personal Information",
               "Emergency Contact",
@@ -371,23 +387,32 @@ export default function StudentProfilePage() {
               {saveStatus.message}
             </div>
           )}
-
-      </aside>
+        </aside>
 
         {/* RIGHT FORM AREA */}
-        <section className="flex-1 flex flex-col gap-5 pt-0 md:pt-2" aria-live="polite">
+        <section
+          className="flex-1 flex flex-col gap-5 pt-0 md:pt-2"
+          aria-live="polite"
+        >
           <h2 className="text-[#1C2632] text-xl font-bold border-b border-[#E3AF64] pb-2 mb-2">
             {activeTab}
           </h2>
 
           {activeTab === "Personal Information" && (
-            <div id="personal-information-panel" role="tabpanel" aria-labelledby="personal-information-tab" className="grid gap-4">
+            <div
+              id="personal-information-panel"
+              role="tabpanel"
+              aria-labelledby="personal-information-tab"
+              className="grid gap-4"
+            >
               <div className="grid gap-4 md:grid-cols-2">
                 <ProfileInput
                   id="first-name"
                   label="First Name"
                   value={student?.first_name}
-                  onChange={(val: any) => updatePersonalInfo({ first_name: val })}
+                  onChange={(val: any) =>
+                    updatePersonalInfo({ first_name: val })
+                  }
                 />
                 <ProfileInput
                   id="middle-name"
@@ -403,7 +428,9 @@ export default function StudentProfilePage() {
                   id="last-name"
                   label="Last Name"
                   value={student?.last_name}
-                  onChange={(val: any) => updatePersonalInfo({ last_name: val })}
+                  onChange={(val: any) =>
+                    updatePersonalInfo({ last_name: val })
+                  }
                 />
                 <ProfileInput
                   id="email"
@@ -416,7 +443,11 @@ export default function StudentProfilePage() {
           )}
 
           {activeTab === "Emergency Contact" && (
-            <div id="emergency-contact-panel" role="tabpanel" className="grid gap-4">
+            <div
+              id="emergency-contact-panel"
+              role="tabpanel"
+              className="grid gap-4"
+            >
               <ProfileInput
                 id="emergency-contact-name"
                 label="Emergency Contact Name"
@@ -451,7 +482,11 @@ export default function StudentProfilePage() {
           )}
 
           {activeTab === "Academic Information" && (
-            <div id="academic-information-panel" role="tabpanel" className="grid gap-4">
+            <div
+              id="academic-information-panel"
+              role="tabpanel"
+              className="grid gap-4"
+            >
               <ProfileInput
                 id="degree-program"
                 label="Degree Program"
@@ -520,15 +555,17 @@ export default function StudentProfilePage() {
           }
         }}
       />
-
     </div>
-	);
+  );
 }
 
 function ProfileInput({ id, label, value, onChange, disabled = false }: any) {
   return (
     <div className="flex flex-col gap-1 w-full max-w-2xl">
-      <label htmlFor={id} className="text-sm font-bold text-[#2f4a4c] ml-2 uppercase tracking-wide">
+      <label
+        htmlFor={id}
+        className="text-sm font-bold text-[#2f4a4c] ml-2 uppercase tracking-wide"
+      >
         {label}
       </label>
       <input
@@ -548,7 +585,10 @@ function ProfileInput({ id, label, value, onChange, disabled = false }: any) {
 function ProfileSelect({ id, label, value, options, onChange }: any) {
   return (
     <div className="flex flex-col gap-1 w-full max-w-2xl">
-      <label htmlFor={id} className="text-sm font-bold text-[#2f4a4c] ml-2 uppercase tracking-wide font-[family-name:var(--font-geist-sans)]">
+      <label
+        htmlFor={id}
+        className="text-sm font-bold text-[#2f4a4c] ml-2 uppercase tracking-wide font-[family-name:var(--font-geist-sans)]"
+      >
         {label}
       </label>
       <div className="relative">

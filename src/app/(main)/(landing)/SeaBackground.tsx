@@ -10,7 +10,6 @@ export default function SeaBackground() {
 
   return (
     <div className="absolute inset-0 overflow-hidden z-0">
-
       {/* Blue Circles */}
       {[...Array(14)].map((_, i) => {
         const size = Math.random() * 80 + 40;
@@ -54,7 +53,6 @@ export default function SeaBackground() {
           />
         );
       })}
-
     </div>
   );
 }

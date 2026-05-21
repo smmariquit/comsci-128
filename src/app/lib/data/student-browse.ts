@@ -15,8 +15,8 @@ export async function getAllAvailableDorms(filters?: FilterOptions) {
       .eq("is_deleted", false)
       .not("occupancy_status", "eq", "Fully Occupied");
 
-    if (filters?.sex){
-        roomQuery = roomQuery.eq("room_type", filters.sex);
+    if (filters?.sex) {
+      roomQuery = roomQuery.eq("room_type", filters.sex);
     }
 
     const { data: rooms, error: roomError } = await roomQuery;
@@ -44,7 +44,9 @@ export async function getAllAvailableDorms(filters?: FilterOptions) {
     }
 
     if (filters?.sort_by_price) {
-      query = query.order("rent_price", { ascending: filters.sort_by_price === "asc" });
+      query = query.order("rent_price", {
+        ascending: filters.sort_by_price === "asc",
+      });
     }
 
     const { data: dorms, error: dormError } = await query;

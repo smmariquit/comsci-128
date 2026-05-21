@@ -10,7 +10,6 @@ function SeaBackground() {
 
   return (
     <div className="absolute inset-0 overflow-hidden z-0">
-
       {/* Blue Circles */}
       {[...Array(14)].map((_, i) => {
         const size = Math.random() * 80 + 40;
@@ -54,7 +53,6 @@ function SeaBackground() {
           />
         );
       })}
-
     </div>
   );
 }
@@ -89,10 +87,8 @@ function ShowcaseCards() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
       {/* Big Card*/}
       <div className="lg:col-span-2 bg-white rounded-3xl overflow-hidden shadow-xl transition hover:scale-[1.02] flex flex-col h-[420px]">
-
         {/* Taller image */}
         <div className="h-72 bg-gray-300" />
 
@@ -105,16 +101,17 @@ function ShowcaseCards() {
           <h3 style={{ color: "#EDE9DE" }} className="text-xl font-bold mb-2">
             {current.title}
           </h3>
-          <p style={{ color: "#EDE9DE" }} className="opacity-80 text-sm clamp-4">
+          <p
+            style={{ color: "#EDE9DE" }}
+            className="opacity-80 text-sm clamp-4"
+          >
             {current.desc}
           </p>
         </div>
-
       </div>
 
       {/* Smaller Cards */}
       <div className="flex flex-col gap-6 justify-around">
-
         {data.map((item, i) => (
           <div
             key={i}
@@ -122,31 +119,28 @@ function ShowcaseCards() {
               i === index ? "bg-white" : "bg-white/60"
             }`}
           >
-
             {/* Image */}
             <div className="w-1/3 bg-gray-300 h-full min-h-[100px]" />
 
             {/* Text */}
             <div
-                className="w-2/3 p-4 flex flex-col justify-center"
-                style={{ backgroundColor: "#567375" }}
+              className="w-2/3 p-4 flex flex-col justify-center"
+              style={{ backgroundColor: "#567375" }}
             >
-                <h4 style={{ color: "#EDE9DE" }} className="font-semibold mb-1">
+              <h4 style={{ color: "#EDE9DE" }} className="font-semibold mb-1">
                 {item.title}
-                </h4>
+              </h4>
 
-                <p
+              <p
                 style={{ color: "#EDE9DE" }}
                 className="text-xs opacity-80 line-clamp-3"
-                >
+              >
                 {item.desc}
-                </p>
+              </p>
             </div>
-
           </div>
         ))}
-
-      </div> 
+      </div>
     </div>
   );
 }
@@ -154,13 +148,11 @@ function ShowcaseCards() {
 export default function ShowcaseSection() {
   return (
     <section className="relative py-20 px-8 md:px-16 overflow-hidden">
-
       <SeaBackground />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         <ShowcaseCards />
       </div>
-
     </section>
   );
 }

@@ -4,7 +4,6 @@ import Sidebar from "@/app/components/admin/sidebar";
 import { createSupabaseServerClient } from "@/app/lib/server-client";
 import HelpWidget from "@/app/components/ui/HelpWidget";
 
-
 export const metadata: Metadata = {
   title: "Housing Administrator",
   description: "Housing Administrator Panel",
@@ -41,7 +40,9 @@ export default async function AdminLayout({
   if (authUser?.email) {
     const { data: userRow } = await supabase
       .from("user")
-      .select("account_number, first_name, last_name, user_type, profile_picture")
+      .select(
+        "account_number, first_name, last_name, user_type, profile_picture",
+      )
       .eq("account_email", authUser.email)
       .maybeSingle();
 

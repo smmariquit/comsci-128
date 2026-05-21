@@ -262,7 +262,10 @@ export default function BillingPage() {
     let result = bills.filter((b) => {
       const q = search.toLowerCase();
       const matchesSearch =
-        !q || String(b.student_account_number || "").toLowerCase().includes(q);
+        !q ||
+        String(b.student_account_number || "")
+          .toLowerCase()
+          .includes(q);
       const matchesStatus = status === "All" || b.status === status;
       const matchesType = billType === "All" || b.bill_type === billType;
       const matchesHousing = housing === "All" || b.housing_name === housing;
@@ -308,16 +311,7 @@ export default function BillingPage() {
     });
 
     return result;
-  }, [
-    bills,
-    search,
-    status,
-    billType,
-    housing,
-    dueDateFrom,
-    dueDateTo,
-    sort,
-  ]);
+  }, [bills, search, status, billType, housing, dueDateFrom, dueDateTo, sort]);
 
   // ── Summary stats ───────────────────────────────────────────────────────────
   const totalAmount = filtered.reduce((s, b) => s + b.amount, 0);

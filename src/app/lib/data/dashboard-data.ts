@@ -41,46 +41,55 @@ export async function getHousingAdmingDashboardData(landlordId: number) {
     };
   });
 
-  const totalPendingApplication = filteredApps.filter(a => 
-        a.application_status === "Pending Manager Approval" || 
-        a.application_status === "Pending Admin Approval"
-    ).length;
+  const totalPendingApplication = filteredApps.filter(
+    (a) =>
+      a.application_status === "Pending Manager Approval" ||
+      a.application_status === "Pending Admin Approval",
+  ).length;
 
-    const totalAcceptedApplication = filteredApps.filter(a =>
-        a.application_status === "Approved"
-    ).length;
-    
-    const totalCapacity = filteredRooms.reduce((sum, r) => sum + (r.maximum_occupants || 0), 0);
-    const totalOccupied = filteredRooms.reduce((sum, r) => sum + (r.current_occupants || 0), 0);
+  const totalAcceptedApplication = filteredApps.filter(
+    (a) => a.application_status === "Approved",
+  ).length;
 
-    const occupancyRate = totalCapacity > 0
-        ? Math.round((totalOccupied / totalCapacity) * 100)
-        : 0;
+  const totalCapacity = filteredRooms.reduce(
+    (sum, r) => sum + (r.maximum_occupants || 0),
+    0,
+  );
+  const totalOccupied = filteredRooms.reduce(
+    (sum, r) => sum + (r.current_occupants || 0),
+    0,
+  );
 
-    const occupancyData = ["Co-ed", "Women Only", "Men Only"].map(type => {
-        const roomsType = filteredRooms.filter(r => r.room_type === type);
+  const occupancyRate =
+    totalCapacity > 0 ? Math.round((totalOccupied / totalCapacity) * 100) : 0;
 
-        return {
-            room_type: type,
-            occupied: roomsType.filter(r => r.occupancy_status !== "Empty").length,
-            empty: roomsType.filter(r => r.occupancy_status === "Empty").length,
-        }
-    });
+  const occupancyData = ["Co-ed", "Women Only", "Men Only"].map((type) => {
+    const roomsType = filteredRooms.filter((r) => r.room_type === type);
 
-    const totalLiveStudents = filteredRooms.reduce((sum, room) => sum + room.current_occupants, 0);
-    const totalAssigned = totalLiveStudents;
-    const totalUnassigned = totalAcceptedApplication;
+    return {
+      room_type: type,
+      occupied: roomsType.filter((r) => r.occupancy_status !== "Empty").length,
+      empty: roomsType.filter((r) => r.occupancy_status === "Empty").length,
+    };
+  });
+
+  const totalLiveStudents = filteredRooms.reduce(
+    (sum, room) => sum + room.current_occupants,
+    0,
+  );
+  const totalAssigned = totalLiveStudents;
+  const totalUnassigned = totalAcceptedApplication;
 
   return {
-        totalStudents: totalLiveStudents,
-        housingStatusCounts: {
-            assigned: totalAssigned,
-            unassigned: totalUnassigned,
-        },
-        occupancyRate: `${occupancyRate}`,
-        totalPendingApplication,
-        occupancyData: occupancyData,
-        recentApplications: formattedApps.slice(0,5 ),
-        activeAccommodations: totalLiveStudents
-    }
+    totalStudents: totalLiveStudents,
+    housingStatusCounts: {
+      assigned: totalAssigned,
+      unassigned: totalUnassigned,
+    },
+    occupancyRate: `${occupancyRate}`,
+    totalPendingApplication,
+    occupancyData: occupancyData,
+    recentApplications: formattedApps.slice(0, 5),
+    activeAccommodations: totalLiveStudents,
+  };
 }

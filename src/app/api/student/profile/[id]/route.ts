@@ -59,7 +59,6 @@ export async function PATCH(
   }
 }
 
-
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -70,12 +69,12 @@ export async function DELETE(
 
     return NextResponse.json(
       { message: "Student deactivated successfully.", data: student },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: any) {
     return NextResponse.json(
       { message: "Failed to deactivate student.", error: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

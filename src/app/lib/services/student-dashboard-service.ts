@@ -83,19 +83,25 @@ export async function getCompleteDashboardData(studentAccountNumber: number) {
 /**
  * Service to finalize a payment after a file has been uploaded
  */
-export async function completePaymentProcess(transactionId: string, publicUrl: string) {
-    const updated = await DataLayer.updateBillPaymentProof(transactionId, publicUrl);
+export async function completePaymentProcess(
+  transactionId: string,
+  publicUrl: string,
+) {
+  const updated = await DataLayer.updateBillPaymentProof(
+    transactionId,
+    publicUrl,
+  );
 
-    const bill = Array.isArray(updated) ? updated[0] : null;
-    const accountNumber = bill?.student_account_number ?? null;
-    if (accountNumber) {
-        await createAuditLog(
-            accountNumber,
-            "",
-            "Update Bill Status",
-            `Payment proof uploaded for bill ${bill.transaction_id ?? transactionId}`,
-        );
-    }
+  const bill = Array.isArray(updated) ? updated[0] : null;
+  const accountNumber = bill?.student_account_number ?? null;
+  if (accountNumber) {
+    await createAuditLog(
+      accountNumber,
+      "",
+      "Update Bill Status",
+      `Payment proof uploaded for bill ${bill.transaction_id ?? transactionId}`,
+    );
+  }
 
-    return updated;
+  return updated;
 }

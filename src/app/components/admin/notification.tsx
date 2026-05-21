@@ -25,7 +25,7 @@ export default function AdminNotificationBell() {
         if (!response.ok) throw new Error("Failed to fetch audit logs");
 
         const data = await response.json();
-        const rawLogs = (Array.isArray(data) ? data : data.data ?? [])
+        const rawLogs = (Array.isArray(data) ? data : (data.data ?? []))
           .sort(
             (a: any, b: any) =>
               new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
@@ -160,7 +160,10 @@ export default function AdminNotificationBell() {
       </div>
 
       {notifOpen && (
-        <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setNotifOpen(false)}
+        />
       )}
     </>
   );

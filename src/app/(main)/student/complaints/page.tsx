@@ -58,7 +58,10 @@ export default function StudentComplaintsPage() {
         />
 
         {showDraftNotice && (
-          <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-[#111820] text-sm font-medium" role="status">
+          <div
+            className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-[#111820] text-sm font-medium"
+            role="status"
+          >
             <Save size={16} aria-hidden="true" />
             Draft restored from your last session.
             <button
@@ -137,7 +140,13 @@ export default function StudentComplaintsPage() {
             Submit Complaint
           </button>
           {status && (
-            <div className="mt-2 text-center text-[#111820]" role="status" aria-live="polite">{status}</div>
+            <div
+              className="mt-2 text-center text-[#111820]"
+              role="status"
+              aria-live="polite"
+            >
+              {status}
+            </div>
           )}
         </form>
       </main>

@@ -459,7 +459,9 @@ export default function IssueBillModal({
             </SelectField>
 
             <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
-              <label htmlFor="bill-due" style={labelStyle}>Due Date</label>
+              <label htmlFor="bill-due" style={labelStyle}>
+                Due Date
+              </label>
               <ThemedDatePicker
                 id="bill-due"
                 value={dueDate}

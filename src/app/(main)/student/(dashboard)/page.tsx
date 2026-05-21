@@ -41,7 +41,9 @@ export default async function DashboardPage() {
   const renderErrorState = (content: React.ReactNode, isCentered = true) => (
     <div className="w-full min-h-screen bg-[#EDE9DE] flex flex-col">
       <StudentNavBar path={"Dashboard"} userId={account_number} />
-      <div className={`w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col items-center gap-4 overflow-hidden ${isCentered ? 'justify-center' : 'justify-start'}`}>
+      <div
+        className={`w-full max-w-7xl mx-auto flex-1 px-4 md:px-9 py-4 flex flex-col items-center gap-4 overflow-hidden ${isCentered ? "justify-center" : "justify-start"}`}
+      >
         {content}
       </div>
     </div>
@@ -54,7 +56,7 @@ export default async function DashboardPage() {
         <StateMessage
           title="No student record found"
           description="We could not find your profile data yet."
-        />
+        />,
       );
     }
 
@@ -68,7 +70,7 @@ export default async function DashboardPage() {
         variant="error"
         title="Unable to load dashboard"
         description="You appear to be offline or our servers are temporarily unreachable."
-      />
+      />,
     );
   }
 
@@ -77,7 +79,7 @@ export default async function DashboardPage() {
       <StateMessage
         title="No dashboard data yet"
         description="Once your housing data is available, it will show here."
-      />
+      />,
     );
   }
 

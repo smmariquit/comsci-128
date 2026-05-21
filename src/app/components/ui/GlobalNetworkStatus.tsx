@@ -6,8 +6,8 @@ import { Loader2, CheckCircle2, Wifi, X } from "lucide-react";
 import { usePGliteHousing } from "@/app/hooks/usePGliteHousing";
 
 const PopupCloseButton = ({ onClick }: { onClick: () => void }) => (
-  <button 
-    onClick={onClick} 
+  <button
+    onClick={onClick}
     className="flex items-center justify-center h-6 w-6 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors -mr-1 -mt-1.5"
     aria-label="Close notification"
   >
@@ -17,8 +17,9 @@ const PopupCloseButton = ({ onClick }: { onClick: () => void }) => (
 
 export default function GlobalNetworkStatus() {
   const router = useRouter();
-  const { isOffline, isSyncing, syncProgress, syncComplete } = usePGliteHousing();
-  
+  const { isOffline, isSyncing, syncProgress, syncComplete } =
+    usePGliteHousing();
+
   const [dismissSync, setDismissSync] = useState(false);
   const [dismissOffline, setDismissOffline] = useState(false);
   const [showOnlineToast, setShowOnlineToast] = useState(false);
@@ -36,7 +37,6 @@ export default function GlobalNetworkStatus() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 w-[340px] pointer-events-none">
-      
       {/* Sync Indicator */}
       {!isOffline && !dismissSync && (isSyncing || syncComplete) && (
         <div className="bg-[#1C2632]/95 backdrop-blur-md border border-white/10 text-white p-4 rounded-xl shadow-2xl pointer-events-auto flex items-center w-full transition-all duration-500">
@@ -57,15 +57,24 @@ export default function GlobalNetworkStatus() {
             {isSyncing ? (
               <div className="w-full mt-1.5">
                 <div className="flex justify-between mb-1.5">
-                  <span className="text-[10px] text-white/50">Downloading assets...</span>
-                  <span className="text-[10px] font-bold text-white/70">{syncProgress}%</span>
+                  <span className="text-[10px] text-white/50">
+                    Downloading assets...
+                  </span>
+                  <span className="text-[10px] font-bold text-white/70">
+                    {syncProgress}%
+                  </span>
                 </div>
                 <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
-                  <div className="bg-[#C9642A] h-1.5 rounded-full transition-all duration-300" style={{ width: `${syncProgress}%` }}></div>
+                  <div
+                    className="bg-[#C9642A] h-1.5 rounded-full transition-all duration-300"
+                    style={{ width: `${syncProgress}%` }}
+                  ></div>
                 </div>
               </div>
             ) : (
-              <p className="text-[11px] text-white/70 mt-0.5">Housing catalog saved to device.</p>
+              <p className="text-[11px] text-white/70 mt-0.5">
+                Housing catalog saved to device.
+              </p>
             )}
           </div>
         </div>
@@ -83,7 +92,8 @@ export default function GlobalNetworkStatus() {
               <PopupCloseButton onClick={() => setDismissOffline(true)} />
             </div>
             <p className="text-[11px] text-white/70 mt-0.5">
-              The application is running from local device memory. Live data is not syncing.
+              The application is running from local device memory. Live data is
+              not syncing.
             </p>
           </div>
         </div>

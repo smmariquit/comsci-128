@@ -2,7 +2,6 @@
 
 import { WifiOff } from "lucide-react";
 
-
 export default function OfflinePage() {
   return (
     <div className="min-h-screen bg-[#EDE9DE] flex items-center justify-center p-6">

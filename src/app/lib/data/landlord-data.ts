@@ -3,12 +3,8 @@ import { User, NewUser, UpdateUser } from "@/models/user";
 import { Manager, NewManager, UpdateManager } from "@/models/manager";
 import { managerData } from "@/app/lib/data/manager-data";
 
-async function create(
-  account_number: number, 
-  managerDetails: NewManager
-) {
-  
-  await managerData.create(account_number,managerDetails,);
+async function create(account_number: number, managerDetails: NewManager) {
+  await managerData.create(account_number, managerDetails);
 
   const { data, error: adminError } = await supabase
     .from("landlord")
@@ -25,7 +21,9 @@ async function create(
 
 // Read all landlords with user details
 async function getAll() {
-  const { data, error } = await supabase.from("landlord").select(`
+  const { data, error } = await supabase
+    .from("landlord")
+    .select(`
       account_number,
       manager:landlord_account_number_fkey (
         manager_type,
@@ -45,8 +43,8 @@ async function getAll() {
         )
       )
     `)
-    .eq("is_deleted", false);  
- 
+    .eq("is_deleted", false);
+
   if (error) {
     console.error("Error fetching landlords:", error.message);
     return { data: null, error };

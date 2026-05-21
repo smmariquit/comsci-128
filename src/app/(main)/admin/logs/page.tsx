@@ -82,7 +82,7 @@ export default function Page() {
     const q = search.trim();
     if (q) {
       result = result.filter((log) =>
-        String(log.account_number || "").includes(q)
+        String(log.account_number || "").includes(q),
       );
     }
 
@@ -103,7 +103,7 @@ export default function Page() {
       total: auditLogs.length,
       login: auditLogs.filter((l) => l.action_type === "Auth Login").length,
       approval: auditLogs.filter(
-        (l) => l.action_type === "Update Application Status"
+        (l) => l.action_type === "Update Application Status",
       ).length,
       assignment: auditLogs.filter((l) => l.action_type === "Assign Room")
         .length,

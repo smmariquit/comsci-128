@@ -1,10 +1,29 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
+import {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  type ReactNode,
+} from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Sparkles, X, Map, LayoutGrid, Wifi, Armchair, Clock, Zap, Loader2, CheckCircle2 } from "lucide-react";
-import HousingMap, { type HousingMarker } from "@/app/components/map/HousingMap";
+import {
+  Sparkles,
+  X,
+  Map,
+  LayoutGrid,
+  Wifi,
+  Armchair,
+  Clock,
+  Zap,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
+import HousingMap, {
+  type HousingMarker,
+} from "@/app/components/map/HousingMap";
 import Isolated3DViewer from "@/app/components/map/Isolated3DViewer";
 import DormModal from "./DormModal";
 import PageLoading from "@/app/components/ui/page-loading";
@@ -41,10 +60,10 @@ interface BrowseContentProps {
 }
 
 interface QuizAnswers {
-  budget: string | null;        // "<3000" | "3000-5000" | "5000-8000" | "8000+"
-  mustHave: string | null;      // "wifi" | "furnished" | "kitchen" | "aircon"
-  curfew: string | null;        // "no_curfew" | "curfew_ok"
-  visitors: string | null;      // "visitors_yes" | "visitors_no"
+  budget: string | null; // "<3000" | "3000-5000" | "5000-8000" | "8000+"
+  mustHave: string | null; // "wifi" | "furnished" | "kitchen" | "aircon"
+  curfew: string | null; // "no_curfew" | "curfew_ok"
+  visitors: string | null; // "visitors_yes" | "visitors_no"
 }
 
 interface BoundsFilter {
@@ -63,12 +82,25 @@ function scoreHousing(card: HousingCard, answers: QuizAnswers): number {
   // Budget match
   if (answers.budget) {
     total += 40; // Budget is heavily weighted
-    const price = typeof card.price === "string" ? parseFloat(card.price) : card.price;
+    const price =
+      typeof card.price === "string" ? parseFloat(card.price) : card.price;
     switch (answers.budget) {
-      case "<3000": if (price <= 3000) score += 40; else if (price <= 4000) score += 20; break;
-      case "3000-5000": if (price >= 3000 && price <= 5000) score += 40; else if (price <= 6000) score += 20; break;
-      case "5000-8000": if (price >= 5000 && price <= 8000) score += 40; else if (price <= 9000) score += 20; break;
-      case "8000+": if (price >= 8000) score += 40; else if (price >= 6000) score += 20; break;
+      case "<3000":
+        if (price <= 3000) score += 40;
+        else if (price <= 4000) score += 20;
+        break;
+      case "3000-5000":
+        if (price >= 3000 && price <= 5000) score += 40;
+        else if (price <= 6000) score += 20;
+        break;
+      case "5000-8000":
+        if (price >= 5000 && price <= 8000) score += 40;
+        else if (price <= 9000) score += 20;
+        break;
+      case "8000+":
+        if (price >= 8000) score += 40;
+        else if (price >= 6000) score += 20;
+        break;
     }
   }
 
@@ -76,10 +108,18 @@ function scoreHousing(card: HousingCard, answers: QuizAnswers): number {
   if (answers.mustHave) {
     total += 25;
     switch (answers.mustHave) {
-      case "wifi": if (card.has_wifi) score += 25; break;
-      case "furnished": if (card.is_furnished) score += 25; break;
-      case "kitchen": if (card.has_kitchen) score += 25; break;
-      case "aircon": if (card.has_aircon) score += 25; break;
+      case "wifi":
+        if (card.has_wifi) score += 25;
+        break;
+      case "furnished":
+        if (card.is_furnished) score += 25;
+        break;
+      case "kitchen":
+        if (card.has_kitchen) score += 25;
+        break;
+      case "aircon":
+        if (card.has_aircon) score += 25;
+        break;
     }
   }
 
@@ -93,8 +133,10 @@ function scoreHousing(card: HousingCard, answers: QuizAnswers): number {
   // Visitors preference
   if (answers.visitors) {
     total += 15;
-    if (answers.visitors === "visitors_yes" && card.allows_visitors) score += 15;
-    else if (answers.visitors === "visitors_no" && !card.allows_visitors) score += 15;
+    if (answers.visitors === "visitors_yes" && card.allows_visitors)
+      score += 15;
+    else if (answers.visitors === "visitors_no" && !card.allows_visitors)
+      score += 15;
     else score += 5; // Partial
   }
 
@@ -106,9 +148,12 @@ function scoreHousing(card: HousingCard, answers: QuizAnswers): number {
 function AmenityBadges({ card }: { card: HousingCard }) {
   const badges: { icon: ReactNode; label: string }[] = [];
   if (card.has_wifi) badges.push({ icon: <Wifi size={10} />, label: "WiFi" });
-  if (card.is_furnished) badges.push({ icon: <Armchair size={10} />, label: "Furnished" });
-  if (card.has_no_curfew) badges.push({ icon: <Clock size={10} />, label: "No Curfew" });
-  if (card.has_utilities_included) badges.push({ icon: <Zap size={10} />, label: "Bills Incl." });
+  if (card.is_furnished)
+    badges.push({ icon: <Armchair size={10} />, label: "Furnished" });
+  if (card.has_no_curfew)
+    badges.push({ icon: <Clock size={10} />, label: "No Curfew" });
+  if (card.has_utilities_included)
+    badges.push({ icon: <Zap size={10} />, label: "Bills Incl." });
 
   if (badges.length === 0) return null;
 
@@ -197,15 +242,29 @@ function QuizModal({
   const q = questions[step];
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="quiz-modal-title" aria-describedby="quiz-modal-step">
+    <div
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quiz-modal-title"
+      aria-describedby="quiz-modal-step"
+    >
       <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-md overflow-hidden animate-[fadeInUp_0.3s_ease]">
         {/* Header */}
         <div className="bg-[#1C2632] px-5 py-4 flex justify-between items-center">
           <div>
-            <h3 id="quiz-modal-title" className="text-white font-bold text-lg">Find My Housing</h3>
-            <p id="quiz-modal-step" className="text-white/90 text-sm">Step {step + 1} of {questions.length}</p>
+            <h3 id="quiz-modal-title" className="text-white font-bold text-lg">
+              Find My Housing
+            </h3>
+            <p id="quiz-modal-step" className="text-white/90 text-sm">
+              Step {step + 1} of {questions.length}
+            </p>
           </div>
-          <button onClick={onClose} className="text-white hover:text-white transition" aria-label="Close housing quiz">
+          <button
+            onClick={onClose}
+            className="text-white hover:text-white transition"
+            aria-label="Close housing quiz"
+          >
             <X size={20} aria-hidden="true" />
           </button>
         </div>
@@ -220,16 +279,20 @@ function QuizModal({
 
         {/* Question */}
         <div className="p-5">
-          <h4 className="text-lg font-semibold text-[#111820] mb-4">{q.title}</h4>
+          <h4 className="text-lg font-semibold text-[#111820] mb-4">
+            {q.title}
+          </h4>
           <div className="flex flex-col gap-2">
             {q.options.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleSelect(q.key, opt.value)}
                 className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-[#111820]
-                  ${answers[q.key] === opt.value
-                    ? "border-[#8b3e15] bg-[#f2e3d7] font-semibold"
-                    : "border-gray-200 hover:border-[#8b3e15]/50 hover:bg-gray-50"}`}
+                  ${
+                    answers[q.key] === opt.value
+                      ? "border-[#8b3e15] bg-[#f2e3d7] font-semibold"
+                      : "border-gray-200 hover:border-[#8b3e15]/50 hover:bg-gray-50"
+                  }`}
               >
                 {opt.label}
               </button>
@@ -264,13 +327,17 @@ export default function BrowseContent({
 
   const router = useRouter();
 
-  const { isOffline, getOfflineDormDetails, saveDormDetailsLocally, getAllOfflineDorms } = usePGliteHousing();
+  const {
+    isOffline,
+    getOfflineDormDetails,
+    saveDormDetailsLocally,
+    getAllOfflineDorms,
+  } = usePGliteHousing();
   const [offlineCards, setOfflineCards] = useState<HousingCard[]>([]);
-
 
   useEffect(() => {
     if (isOffline && cards.length === 0) {
-      getAllOfflineDorms().then(rows => {
+      getAllOfflineDorms().then((rows) => {
         const formatted = rows.map((item: any) => ({
           id: item.housing_id,
           name: item.housing_name,
@@ -329,7 +396,7 @@ export default function BrowseContent({
           c.lat >= boundsFilter.minLat &&
           c.lat <= boundsFilter.maxLat &&
           c.lng >= boundsFilter.minLng &&
-          c.lng <= boundsFilter.maxLng
+          c.lng <= boundsFilter.maxLng,
       );
     }
 
@@ -348,7 +415,8 @@ export default function BrowseContent({
   }, [processedCards, currentPage]);
 
   const totalPages = Math.ceil(processedCards.length / cardsPerPage) || 1;
-  const rangeStart = processedCards.length === 0 ? 0 : (currentPage - 1) * cardsPerPage + 1;
+  const rangeStart =
+    processedCards.length === 0 ? 0 : (currentPage - 1) * cardsPerPage + 1;
   const rangeEnd = Math.min(currentPage * cardsPerPage, processedCards.length);
 
   // Build map markers from real DB coordinates
@@ -364,67 +432,73 @@ export default function BrowseContent({
       image: card.image,
     }));
 
-  const handleCardClick = useCallback(async (id: number) => {
-    setSelectedCardId(id);
-    setIsFetching(true);
-    try {
-      let data = null;
-      if (isOffline) {
-        data = await getOfflineDormDetails(id);
-      } else {
-        data = await getDormDetails(id);
-        if (data) await saveDormDetailsLocally(data);
-      }
+  const handleCardClick = useCallback(
+    async (id: number) => {
+      setSelectedCardId(id);
+      setIsFetching(true);
+      try {
+        let data = null;
+        if (isOffline) {
+          data = await getOfflineDormDetails(id);
+        } else {
+          data = await getDormDetails(id);
+          if (data) await saveDormDetailsLocally(data);
+        }
 
-      if (data) {
-        setSelectedDorm({
-          id: data.housing_id,
-          name: data.housing_name,
-          address: data.housing_address,
-          housing_type: data.housing_type,
-          price: data.rent_price,
-          image: data.housing_image,
-          appli_start: data.start_application_date
-            ? new Date(data.start_application_date).toLocaleDateString(
-              "en-US",
-              { month: "long", day: "numeric", year: "numeric" }
-            )
-            : "TBA",
-          appli_end: data.end_application_date
-            ? new Date(data.end_application_date).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })
-            : "TBA",
-          raw_start: data.start_application_date || null,
-          raw_end: data.end_application_date || null,
-          // Amenities
-          has_wifi: data.has_wifi ?? false,
-          has_aircon: data.has_aircon ?? false,
-          has_laundry: data.has_laundry ?? false,
-          has_parking: data.has_parking ?? false,
-          has_no_curfew: data.has_no_curfew ?? false,
-          allows_visitors: data.allows_visitors ?? false,
-          is_furnished: data.is_furnished ?? false,
-          has_kitchen: data.has_kitchen ?? false,
-          has_security: data.has_security ?? false,
-          has_utilities_included: data.has_utilities_included ?? false,
-          latitude: data.latitude,
-          longitude: data.longitude,
-        });
+        if (data) {
+          setSelectedDorm({
+            id: data.housing_id,
+            name: data.housing_name,
+            address: data.housing_address,
+            housing_type: data.housing_type,
+            price: data.rent_price,
+            image: data.housing_image,
+            appli_start: data.start_application_date
+              ? new Date(data.start_application_date).toLocaleDateString(
+                  "en-US",
+                  { month: "long", day: "numeric", year: "numeric" },
+                )
+              : "TBA",
+            appli_end: data.end_application_date
+              ? new Date(data.end_application_date).toLocaleDateString(
+                  "en-US",
+                  {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  },
+                )
+              : "TBA",
+            raw_start: data.start_application_date || null,
+            raw_end: data.end_application_date || null,
+            // Amenities
+            has_wifi: data.has_wifi ?? false,
+            has_aircon: data.has_aircon ?? false,
+            has_laundry: data.has_laundry ?? false,
+            has_parking: data.has_parking ?? false,
+            has_no_curfew: data.has_no_curfew ?? false,
+            allows_visitors: data.allows_visitors ?? false,
+            is_furnished: data.is_furnished ?? false,
+            has_kitchen: data.has_kitchen ?? false,
+            has_security: data.has_security ?? false,
+            has_utilities_included: data.has_utilities_included ?? false,
+            latitude: data.latitude,
+            longitude: data.longitude,
+          });
+        }
+      } finally {
+        setIsFetching(false);
       }
-    } finally {
-      setIsFetching(false);
-    }
-  }, [isOffline, getOfflineDormDetails, saveDormDetailsLocally]);
+    },
+    [isOffline, getOfflineDormDetails, saveDormDetailsLocally],
+  );
 
   const handleMarkerClick = useCallback(
     (id: number) => {
       setSelectedCardId(id);
       handleCardClick(id);
     },
-    [handleCardClick]
+    [handleCardClick],
   );
 
   const handleBoundsChange = useCallback((bounds: BoundsFilter | null) => {
@@ -443,9 +517,14 @@ export default function BrowseContent({
   return (
     <>
       {/* Fetching overlay */}
-      {isFetching && <PageLoading overlay label="Fetching Housing Details..." />}
+      {isFetching && (
+        <PageLoading overlay label="Fetching Housing Details..." />
+      )}
 
-      <main className={`browse-root ${showMap ? "map-visible" : "map-hidden"}`} aria-labelledby="browse-housing-heading">
+      <main
+        className={`browse-root ${showMap ? "map-visible" : "map-hidden"}`}
+        aria-labelledby="browse-housing-heading"
+      >
         {/* ── Left: Map ── */}
         {showMap && (
           <div className="browse-map-panel">
@@ -462,8 +541,13 @@ export default function BrowseContent({
         {/* ── Right: Search + Cards ── */}
         <div className="browse-content-panel">
           {/* Search bar + toggle */}
-          <div className="browse-toolbar" aria-label="Housing filters and view options">
-            <h1 id="browse-housing-heading" className="sr-only">Browse Housing</h1>
+          <div
+            className="browse-toolbar"
+            aria-label="Housing filters and view options"
+          >
+            <h1 id="browse-housing-heading" className="sr-only">
+              Browse Housing
+            </h1>
             <div className="browse-search-area">{searchBar}</div>
             <div className="flex gap-2 flex-shrink-0">
               {/* Quiz button */}
@@ -511,7 +595,6 @@ export default function BrowseContent({
           </div>
           {/* Scrollable cards area */}
           <div className="browse-cards-scroll relative">
-
             {/* Active Filters (Static layout, no overlap) */}
             {(quizAnswers || boundsFilter) && (
               <div className="flex items-center flex-wrap gap-2 text-xs font-[family-name:var(--font-geist-mono)] tracking-wider px-6 pt-4 pb-2 w-full">
@@ -537,15 +620,22 @@ export default function BrowseContent({
               </div>
             )}
 
-            {emptyState && processedCards.length === 0 && !quizAnswers && !boundsFilter ? (
+            {emptyState &&
+            processedCards.length === 0 &&
+            !quizAnswers &&
+            !boundsFilter ? (
               <div className="p-6">{emptyState}</div>
             ) : processedCards.length === 0 ? (
               <div className="p-6 text-center text-gray-500">
                 <p className="text-lg font-semibold">No housing matches</p>
-                <p className="text-sm mt-1">Try adjusting your quiz answers or clearing the area filter.</p>
+                <p className="text-sm mt-1">
+                  Try adjusting your quiz answers or clearing the area filter.
+                </p>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 16 }}
+              >
                 <div className="browse-cards-grid">
                   {paginatedCards.map((card) => (
                     <button
@@ -562,7 +652,10 @@ export default function BrowseContent({
                       className={`flex flex-col cursor-pointer overflow-hidden rounded-xl bg-white shadow-sm transition-all hover:scale-[1.02] hover:shadow-md focus-visible:ring-2 focus-visible:ring-[#8b3e15] focus-visible:outline-none focus-visible:ring-offset-2 text-left
                         ${selectedCardId === card.id ? "ring-2 ring-[#8b3e15] ring-offset-2 scale-[1.01]" : ""}`}
                     >
-                      <div className="relative w-full" style={{ aspectRatio: '16/10' }}>
+                      <div
+                        className="relative w-full"
+                        style={{ aspectRatio: "16/10" }}
+                      >
                         <Image
                           src={
                             card.image ||
@@ -573,7 +666,6 @@ export default function BrowseContent({
                           sizes="(max-width: 768px) 100vw, 300px"
                           className="object-cover"
                         />
-
                       </div>
                       <div className="flex-1 bg-[#1C2632] px-3.5 py-3 flex flex-col gap-1 font-[family-name:var(--font-geist-sans)]">
                         <div className="text-sm font-bold text-[#f7e3d7] truncate">
@@ -609,12 +701,16 @@ export default function BrowseContent({
                     }}
                   >
                     <span style={{ fontSize: 13, color: "#567375" }}>
-                      Showing <strong>{rangeStart}</strong> to <strong>{rangeEnd}</strong> of <strong>{processedCards.length}</strong> housings
+                      Showing <strong>{rangeStart}</strong> to{" "}
+                      <strong>{rangeEnd}</strong> of{" "}
+                      <strong>{processedCards.length}</strong> housings
                     </span>
 
                     <div style={{ display: "flex", gap: 5 }}>
                       <button
-                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        onClick={() =>
+                          setCurrentPage((p) => Math.max(p - 1, 1))
+                        }
                         disabled={currentPage === 1}
                         style={{
                           fontSize: 12,
@@ -630,46 +726,55 @@ export default function BrowseContent({
                         Prev
                       </button>
 
-                      {getVisiblePages(currentPage, totalPages).map((p, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            if (typeof p === "number") {
-                              setCurrentPage(p);
-                            }
-                          }}
-                          disabled={p === "..."}
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: currentPage === p ? "#fff" : "#1C2632",
-                            background: currentPage === p ? "#8b3e15" : "#fff",
-                            border: `1px solid ${currentPage === p ? "#8b3e15" : "#e8e4db"}`,
-                            borderRadius: 8,
-                            width: 32,
-                            height: 32,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: p === "..." ? "default" : "pointer",
-                          }}
-                        >
-                          {p}
-                        </button>
-                      ))}
+                      {getVisiblePages(currentPage, totalPages).map(
+                        (p, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              if (typeof p === "number") {
+                                setCurrentPage(p);
+                              }
+                            }}
+                            disabled={p === "..."}
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: currentPage === p ? "#fff" : "#1C2632",
+                              background:
+                                currentPage === p ? "#8b3e15" : "#fff",
+                              border: `1px solid ${currentPage === p ? "#8b3e15" : "#e8e4db"}`,
+                              borderRadius: 8,
+                              width: 32,
+                              height: 32,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: p === "..." ? "default" : "pointer",
+                            }}
+                          >
+                            {p}
+                          </button>
+                        ),
+                      )}
 
                       <button
-                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                        onClick={() =>
+                          setCurrentPage((p) => Math.min(p + 1, totalPages))
+                        }
                         disabled={currentPage === totalPages}
                         style={{
                           fontSize: 12,
                           fontWeight: 600,
-                          color: currentPage === totalPages ? "#ccc" : "#1C2632",
+                          color:
+                            currentPage === totalPages ? "#ccc" : "#1C2632",
                           background: "#fff",
                           border: "1px solid #e8e4db",
                           borderRadius: 8,
                           padding: "6px 12px",
-                          cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                          cursor:
+                            currentPage === totalPages
+                              ? "not-allowed"
+                              : "pointer",
                         }}
                       >
                         Next
@@ -945,7 +1050,7 @@ const getVisiblePages = (currentPage: number, totalPages: number) => {
   } else {
     pages.push(1);
     if (currentPage > 3) {
-      pages.push('...');
+      pages.push("...");
     }
     const start = Math.max(2, currentPage - 1);
     const end = Math.min(totalPages - 1, currentPage + 1);
@@ -953,7 +1058,7 @@ const getVisiblePages = (currentPage: number, totalPages: number) => {
       pages.push(i);
     }
     if (currentPage < totalPages - 2) {
-      pages.push('...');
+      pages.push("...");
     }
     pages.push(totalPages);
   }

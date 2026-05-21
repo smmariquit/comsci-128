@@ -5,7 +5,7 @@ export type NotificationItem = {
   type: "application" | "complaint";
   title: string;
   description: string;
-  timestamp: string; 
+  timestamp: string;
   link: string;
   isRead: boolean;
 };
@@ -17,7 +17,6 @@ export async function getManagerNotifications(
     const supabase = await createSupabaseServerClient();
     const notifications: NotificationItem[] = [];
 
- 
     const { data: apps, error: appsError } = await supabase
       .from("application")
       .select(`
@@ -31,31 +30,42 @@ export async function getManagerNotifications(
           )
         )
       `)
-      .or(`landlord_account_number.eq.${managerAccountNumber},manager_account_number.eq.${managerAccountNumber}`)
-      .in("application_status", ["Pending Manager Approval", "Pending Admin Approval"])
+      .or(
+        `landlord_account_number.eq.${managerAccountNumber},manager_account_number.eq.${managerAccountNumber}`,
+      )
+      .in("application_status", [
+        "Pending Manager Approval",
+        "Pending Admin Approval",
+      ])
       .eq("is_deleted", false);
 
     if (appsError) {
-      console.error("Error fetching pending applications for notifications:", appsError);
+      console.error(
+        "Error fetching pending applications for notifications:",
+        appsError,
+      );
     } else if (apps) {
       for (const app of apps) {
         const student = app.student as any;
-        const user = Array.isArray(student?.user) ? student.user[0] : student?.user;
-        const name = user ? `${user.first_name} ${user.last_name}` : "A student";
-        
+        const user = Array.isArray(student?.user)
+          ? student.user[0]
+          : student?.user;
+        const name = user
+          ? `${user.first_name} ${user.last_name}`
+          : "A student";
+
         notifications.push({
           id: `app-${app.application_id}`,
           type: "application",
           title: "Pending Application",
           description: `${name} applied for ${app.housing_name || "accommodation"}.`,
-          timestamp: (app as any).created_at || new Date().toISOString(), 
+          timestamp: (app as any).created_at || new Date().toISOString(),
           link: "/manage/applications",
           isRead: false,
         });
       }
     }
 
- 
     const { data: complaints, error: complaintsError } = await supabase
       .from("feedback")
       .select(`
@@ -71,11 +81,18 @@ export async function getManagerNotifications(
       .eq("status", "Pending");
 
     if (complaintsError) {
-      console.error("Error fetching pending complaints for notifications:", complaintsError);
+      console.error(
+        "Error fetching pending complaints for notifications:",
+        complaintsError,
+      );
     } else if (complaints) {
       for (const complaint of complaints) {
         const housing = complaint.housing as any;
-        const housingName = housing ? (Array.isArray(housing) ? housing[0]?.housing_name : housing?.housing_name) : "your property";
+        const housingName = housing
+          ? Array.isArray(housing)
+            ? housing[0]?.housing_name
+            : housing?.housing_name
+          : "your property";
 
         notifications.push({
           id: `complaint-${complaint.id}`,
@@ -89,9 +106,9 @@ export async function getManagerNotifications(
       }
     }
 
-    
     return notifications.sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
   } catch (error) {
     console.error("Failed to fetch manager notifications:", error);
