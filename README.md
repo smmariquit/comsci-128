@@ -27,9 +27,6 @@ UPLB CASA is a centralized accommodation management system for the [University o
 
 UPLB CASA features a fully interactive 3D spatial viewer built using **MapLibre GL**. The viewer constructs real-time 3D building models on-the-fly directly from OpenStreetMap building footprints via fill-extrusion layers.
 
-![UPLB MRH 3D Map View](/mrh_3d_map_popup.png)
-*Figure 1: Makiling Residence Hall (MRH) 3D layout showing individual mapped room units and coordinate pins.*
-
 ---
 
 ## Core System Architecture
