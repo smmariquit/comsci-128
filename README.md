@@ -117,29 +117,52 @@ graph TD
 ## Screenshots & Portal Walkthrough
 
 ### Landing & Login
+- **Landing Page**: Entry point displaying marketing overview and primary CTA.
+- **Login Page**: Secured credentials validation portal.
+
 | Landing Page | Login Page |
 | :---: | :---: |
 | ![Landing Page](public/screenshots/landing.png) | ![Login Page](public/mrh_3d_map_popup.png) |
 
 ### Student Portal (`/student`)
-| Student Dashboard | Housing Browser |
-| :---: | :---: |
-| ![Student Dashboard](public/screenshots/student_dashboard.png) | ![Housing Browser](public/screenshots/student_accommodations.png) |
+Student portal features dynamic offline DB synchronization status, housing catalogs, and local form complaints submission.
+
+| Student Dashboard | Housing Browser | Complaints Panel |
+| :---: | :---: | :---: |
+| ![Student Dashboard](public/screenshots/student_dashboard.png) | ![Housing Browser](public/screenshots/student_accommodations.png) | ![Complaints Panel](public/screenshots/student_complaints.png) |
 
 ### Manager Portal (`/manage`)
-| Manager Dashboard | Application Reviews |
+Managers review active listings, screen initial tenant applications, handle local complaint requests, and track staff/manager actions.
+
+| Manager Dashboard | Accommodations Overview | Application Reviews |
+| :---: | :---: | :---: |
+| ![Manager Dashboard](public/screenshots/manager_dashboard.png) | ![Accommodations](public/screenshots/manager_accommodations.png) | ![Application Reviews](public/screenshots/manager_applications.png) |
+
+| Complaints Logs | Manager Activity Logs |
 | :---: | :---: |
-| ![Manager Dashboard](public/screenshots/manager_dashboard.png) | ![Application Reviews](public/screenshots/manager_applications.png) |
+| ![Complaints Logs](public/screenshots/manager_complaints.png) | ![Activity Logs](public/screenshots/manager_logs.png) |
 
 ### Admin / Landlord Portal (`/admin`)
-| Admin Dashboard | Reports & Analytics |
-| :---: | :---: |
-| ![Admin Dashboard](public/screenshots/admin_dashboard.png) | ![Reports & Analytics](public/screenshots/admin_reports.png) |
+Housing Administrators handle final tenant sign-off, room assignments, payments billing collections, database entries, and generate analytical reports.
+
+| Admin Dashboard | Accommodations CRUD | Billings Management |
+| :---: | :---: | :---: |
+| ![Admin Dashboard](public/screenshots/admin_dashboard.png) | ![Accommodations CRUD](public/screenshots/admin_accommodations.png) | ![Billings](public/screenshots/admin_billing.png) |
+
+| Admin Audit Logs | PDF/CSV Analytics Reports | Room Layouts | Users Directory |
+| :---: | :---: | :---: | :---: |
+| ![Audit Logs](public/screenshots/admin_logs.png) | ![Reports](public/screenshots/admin_reports.png) | ![Rooms](public/screenshots/admin_rooms.png) | ![Users](public/screenshots/admin_users.png) |
 
 ### System Admin Portal (`/sys`)
-| SysAdmin Dashboard | System Audit Logs |
+Sysadmins manage user roles, overwrite system-wide variables, create property records, and evaluate immutable audit logs.
+
+| SysAdmin Dashboard | System Config | Properties & Dorms |
+| :---: | :---: | :---: |
+| ![SysAdmin Dashboard](public/screenshots/sysadmin_dashboard.png) | ![System Config](public/screenshots/sysadmin_config.png) | ![Dorms Management](public/screenshots/sysadmin_dorms.png) |
+
+| Immutable Audit Logs | User Management |
 | :---: | :---: |
-| ![SysAdmin Dashboard](public/screenshots/sysadmin_dashboard.png) | ![System Audit Logs](public/screenshots/sysadmin_logs.png) |
+| ![System Audit Logs](public/screenshots/sysadmin_logs.png) | ![User Directory](public/screenshots/sysadmin_users.png) |
 
 ---
 
