@@ -71,10 +71,11 @@ Accommodations are managed through a two-tiered screening process to ensure full
 ```mermaid
 graph TD
     %% Define Styles
-    classDef init fill:#f5f3ef,stroke:#c9642a,stroke-width:2px;
-    classDef state fill:#fff,stroke:#666,stroke-width:1px,stroke-dasharray: 5 5;
-    classDef success fill:#efe,stroke:#3a3,stroke-width:2px;
-    classDef danger fill:#fee,stroke:#a33,stroke-width:2px;
+    classDef init fill:#f5f3ef,stroke:#c9642a,stroke-width:2px,color:#2c1b0c;
+    classDef state fill:#ffffff,stroke:#666666,stroke-width:1px,stroke-dasharray: 5 5,color:#111111;
+    classDef success fill:#e6f4ea,stroke:#137333,stroke-width:2px,color:#137333;
+    classDef danger fill:#fce8e6,stroke:#c5221f,stroke-width:2px,color:#c5221f;
+    classDef process fill:#f1f3f4,stroke:#5f6368,stroke-width:1px,color:#202124;
 
     Start([Student submits application]) --> P1[Pending Manager Approval]
     
@@ -91,7 +92,9 @@ graph TD
     class P1,P2 state;
     class Appr,Occupy success;
     class R1,R2 danger;
+    class Assign process;
 ```
+
 
 ---
 
