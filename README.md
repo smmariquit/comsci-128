@@ -58,6 +58,16 @@ UPLB CASA is a centralized accommodation management system for the [University o
 ---
 # Getting Started
 
+## System Architecture
+
+```mermaid
+graph TD
+    Browser[Client Browser] -->|HTTPS| Next[Next.js App Router]
+    Next -->|Server Actions| SupabaseDB[(Supabase PostgreSQL)]
+    Next -->|Auth State| SupabaseAuth[Supabase Auth]
+    Browser -->|File Uploads| SupabaseStorage[(Supabase Storage)]
+```
+
 ## Project Structure
 
 ```text
