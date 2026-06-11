@@ -1,3 +1,5 @@
+// src/app/(main)/student/(dashboard)/page.tsx
+
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";

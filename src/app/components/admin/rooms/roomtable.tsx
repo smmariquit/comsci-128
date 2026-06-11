@@ -1,3 +1,5 @@
+// src/app/components/admin/rooms/roomtable.tsx
+
 import { C } from "@/lib/palette";
 import { useState } from "react";
 

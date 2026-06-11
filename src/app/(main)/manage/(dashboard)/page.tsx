@@ -1,3 +1,5 @@
+// src/app/(main)/manage/(dashboard)/page.tsx
+
 import type { Metadata } from "next";
 import { applicationService } from "@/app/lib/services/application-service";
 import { housingService } from "@/app/lib/services/housing-service";

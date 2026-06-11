@@ -1,3 +1,5 @@
+// src/app/lib/data/application-data.ts
+
 import { ApplicationReportRow } from "@/app/components/admin/user/approval_table_wrapper";
 import { supabase } from "@/app/lib/supabase";
 import {

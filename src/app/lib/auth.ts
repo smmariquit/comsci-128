@@ -1,3 +1,5 @@
+// src/app/lib/auth.ts
+
 /**
  * check authorization header
  * verifies token with supabase

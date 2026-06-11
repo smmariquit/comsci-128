@@ -1,3 +1,5 @@
+// src/app/lib/data/housing-data.ts
+
 import { supabase } from "@/lib/supabase";
 import type {
   Housing,

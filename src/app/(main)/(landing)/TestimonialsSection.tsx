@@ -1,3 +1,5 @@
+// src/app/(main)/(landing)/TestimonialsSection.tsx
+
 "use client";
 
 import { useRef, useEffect } from "react";

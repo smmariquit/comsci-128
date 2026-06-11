@@ -1,3 +1,5 @@
+// src/app/(main)/admin/loading.tsx
+
 export default function Loading() {
   return (
     <div

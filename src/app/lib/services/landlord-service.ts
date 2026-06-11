@@ -1,3 +1,5 @@
+// src/app/lib/services/landlord-service.ts
+
 import { NewUser } from "@/models/user";
 import { landlordData } from "@/app/lib/data/landlord-data";
 import { NewManager } from "@/models/manager";

@@ -1,3 +1,5 @@
+// src/app/(main)/manage/accommodations/[id]/_components/AccommodationsClient.tsx
+
 "use client";
 
 import { useState, useMemo } from "react";

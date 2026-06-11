@@ -1,3 +1,5 @@
+// src/app/components/admin/audits/auditlogtable.tsx
+
 import { C } from "@/lib/palette";
 import type { ActionType, AuditLogRow } from "./audit";
 

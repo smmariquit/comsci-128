@@ -1,3 +1,5 @@
+// src/app/components/admin/reports/reportsmock.ts
+
 // ── Shared Types ──────────────────────────────────────────────────────────────
 
 export type OccupancyStatus  = "Empty" | "Partially Occupied" | "Fully Occupied";

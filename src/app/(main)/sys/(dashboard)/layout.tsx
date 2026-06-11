@@ -1,3 +1,5 @@
+// src/app/(main)/sys/(dashboard)/layout.tsx
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

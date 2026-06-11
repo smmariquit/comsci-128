@@ -1,3 +1,5 @@
+// src/app/lib/services/profile-service.ts
+
 import { studentData } from "@/data/student-data";
 import { NewStudentProfile, StudentProfile } from "@/models/student";
 import { ManagerProfile, NewManagerProfile } from "../models/manager";

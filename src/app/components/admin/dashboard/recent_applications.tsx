@@ -1,3 +1,5 @@
+// src/app/components/admin/dashboard/recent_applications.tsx
+
 import { C } from "@/lib/palette";
 
 import { Badge } from "@/app/components/ui/Badge";

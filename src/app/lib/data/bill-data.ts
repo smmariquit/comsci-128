@@ -1,3 +1,5 @@
+// src/app/lib/data/bill-data.ts
+
 import { supabase } from "../supabase";
 import type { Bill, NewBill, UpdateBill } from "@/lib/models/bill"
 

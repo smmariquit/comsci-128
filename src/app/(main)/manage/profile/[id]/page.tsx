@@ -1,3 +1,5 @@
+// src/app/(main)/manage/profile/[id]/page.tsx
+
 "use client";
 
 import type { ManagerProfile } from "@/models/manager";

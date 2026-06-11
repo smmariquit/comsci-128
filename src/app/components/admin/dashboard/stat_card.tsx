@@ -1,3 +1,5 @@
+// src/app/components/admin/dashboard/stat_card.tsx
+
 "use client";
 
 import { C } from "@/lib/palette";

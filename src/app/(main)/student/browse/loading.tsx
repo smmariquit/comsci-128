@@ -1,3 +1,5 @@
+// src/app/(main)/student/browse/loading.tsx
+
 import PageLoading from "@/app/components/ui/page-loading";
 
 export default function Loading() {

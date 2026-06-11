@@ -1,3 +1,5 @@
+// src/app/(main)/manage/accommodations/[id]/assignment/_components/AssignmentWrapper.tsx
+
 
 "use client"
 

@@ -1,3 +1,5 @@
+// src/app/lib/data/accommodation-history-data.ts
+
 import { supabase } from "@/lib/supabase";
 
 

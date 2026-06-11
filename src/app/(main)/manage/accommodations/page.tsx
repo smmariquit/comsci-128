@@ -1,3 +1,5 @@
+// src/app/(main)/manage/accommodations/page.tsx
+
 import type { Metadata } from "next";
 import { housingService } from "@/app/lib/services/housing-service";
 import StateMessage from "@/app/components/ui/state-message";

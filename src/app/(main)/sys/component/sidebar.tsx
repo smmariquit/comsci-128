@@ -1,3 +1,5 @@
+// src/app/(main)/sys/component/sidebar.tsx
+
 'use client';
 
 import { useState } from 'react';

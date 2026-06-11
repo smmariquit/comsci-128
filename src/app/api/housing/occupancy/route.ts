@@ -1,3 +1,5 @@
+// src/app/api/housing/occupancy/route.ts
+
 import { NextResponse } from "next/server";
 import { housingService } from "@/app/lib/services/housing-service";
 

@@ -1,3 +1,5 @@
+// src/app/(main)/student/browse/_components/DormModal.tsx
+
 "use client";
 
 import Image from "next/image";

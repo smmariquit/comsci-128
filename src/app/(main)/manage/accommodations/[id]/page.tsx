@@ -1,3 +1,5 @@
+// src/app/(main)/manage/accommodations/[id]/page.tsx
+
 import type { Metadata } from "next";
 import { housingService } from "@/app/lib/services/housing-service";
 import { accommodationHistoryService } from "@/app/lib/services/accommodation-history-service";

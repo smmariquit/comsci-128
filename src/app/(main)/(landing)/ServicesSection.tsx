@@ -1,3 +1,5 @@
+// src/app/(main)/(landing)/ServicesSection.tsx
+
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";

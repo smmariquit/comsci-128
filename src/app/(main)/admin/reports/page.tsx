@@ -1,3 +1,5 @@
+// src/app/(main)/admin/reports/page.tsx
+
 import type { Metadata } from "next";
 import ReportsWrapper from "@/app/components/admin/reports/reports_wrapper";
 import { reportData } from "@/app/lib/data/report-data";

@@ -1,3 +1,5 @@
+// src/app/api-docs/_components/api-docs-content.tsx
+
 "use client";
 
 import { useSearchParams } from "next/navigation";

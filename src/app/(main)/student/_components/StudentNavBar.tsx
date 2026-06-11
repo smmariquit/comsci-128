@@ -1,3 +1,5 @@
+// src/app/(main)/student/_components/StudentNavBar.tsx
+
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import Logo from "@/app/components/Logo";

@@ -1,3 +1,5 @@
+// src/app/lib/services/accommodation-history-service.ts
+
 
 
 import { accommodationHistoryData } from "@/app/lib/data/accommodation-history-data";

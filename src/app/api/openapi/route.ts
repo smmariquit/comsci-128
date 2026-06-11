@@ -1,3 +1,5 @@
+// src/app/api/openapi/route.ts
+
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { NextResponse } from "next/server";

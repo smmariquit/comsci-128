@@ -1,3 +1,5 @@
+// src/app/lib/data/room-data.ts
+
 import { supabase } from "@/lib/supabase";
 import type {
   Room,

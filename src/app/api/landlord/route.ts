@@ -1,3 +1,5 @@
+// src/app/api/landlord/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { landlordService } from "@/app/lib/services/landlord-service";
 

@@ -1,3 +1,5 @@
+// src/app/lib/models/room.ts
+
 import type {
   Enums,
   Tables,

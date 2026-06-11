@@ -1,3 +1,5 @@
+// src/app/(auth)/api/route.ts
+
 import { type NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/server-client";
 import { createStudentProfile } from "@/services/student-service";

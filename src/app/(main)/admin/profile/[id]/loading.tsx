@@ -1,3 +1,5 @@
+// src/app/(main)/admin/profile/[id]/loading.tsx
+
 function SkeletonBlock({ style }: { style: React.CSSProperties }) {
   return <div style={style} />;
 }

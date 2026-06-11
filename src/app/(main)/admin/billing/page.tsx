@@ -1,3 +1,5 @@
+// src/app/(main)/admin/billing/page.tsx
+
 "use client";
 
 import { AlertTriangle, Check, Clock, DollarSign, Receipt } from "lucide-react";

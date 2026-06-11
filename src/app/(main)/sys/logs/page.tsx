@@ -1,3 +1,5 @@
+// src/app/(main)/sys/logs/page.tsx
+
 'use client';
 import Link from "next/link";
 

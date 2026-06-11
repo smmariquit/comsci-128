@@ -1,3 +1,5 @@
+// src/app/(main)/manage/applications/[id]/page.tsx
+
 
 import type { Metadata } from "next";
 import { applicationService } from "@/app/lib/services/application-service";

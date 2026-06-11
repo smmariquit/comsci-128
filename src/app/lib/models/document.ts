@@ -1,3 +1,5 @@
+// src/app/lib/models/document.ts
+
 import type {
   Tables,
   TablesInsert,

@@ -1,3 +1,5 @@
+// src/app/lib/services/housing-service.ts
+
 import { housingData } from "@/app/lib/data/housing-data";
 import { Housing, HousingWithRooms } from "@/models/housing";
 import { validateAction, validateOwnership } from "./authorization-service";

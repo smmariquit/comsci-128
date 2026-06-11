@@ -1,3 +1,5 @@
+// src/app/lib/services/manager-service.ts
+
 import { User, NewUser } from "@/models/user";
 import { landlordData } from "../data/landlord-data";
 import { housingAdminData } from "../data/housing-admin-data";

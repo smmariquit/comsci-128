@@ -1,3 +1,5 @@
+// src/app/(main)/manage/applications/_components/ApplicationsClient.tsx
+
 "use client";
 
 import { Search, SlidersHorizontal } from "lucide-react";

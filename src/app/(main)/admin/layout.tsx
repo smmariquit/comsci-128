@@ -1,3 +1,5 @@
+// src/app/(main)/admin/layout.tsx
+
 import type { Metadata } from "next";
 import AdminShell from "./components/AdminShell";
 

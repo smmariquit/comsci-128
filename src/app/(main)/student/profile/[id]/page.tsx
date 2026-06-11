@@ -1,3 +1,5 @@
+// src/app/(main)/student/profile/[id]/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";

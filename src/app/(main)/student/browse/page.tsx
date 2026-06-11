@@ -1,3 +1,5 @@
+// src/app/(main)/student/browse/page.tsx
+
 import Image from "next/image";
 import SearchBar from "./_components/SearchBar";
 import StudentNavBar from "@/app/(main)/student/_components/StudentNavBar";

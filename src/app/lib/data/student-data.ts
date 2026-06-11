@@ -1,3 +1,5 @@
+// src/app/lib/data/student-data.ts
+
 import { userData } from "@/data/user-data";
 import type {
 	NewStudent,

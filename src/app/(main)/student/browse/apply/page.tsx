@@ -1,3 +1,5 @@
+// src/app/(main)/student/browse/apply/page.tsx
+
 import { Suspense } from "react";
 import StudentNavBar from "../../_components/StudentNavBar";
 import { ApplyFormContent } from "./_components/ApplyFormContent";

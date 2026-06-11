@@ -1,3 +1,5 @@
+// src/app/components/admin/dashboard/student_housing_status.tsx
+
 "use client";
 
 import { useState } from "react";

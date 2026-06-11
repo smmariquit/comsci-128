@@ -1,3 +1,5 @@
+// src/app/api/users/[id]/upload/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/app/lib/supabase";
 

@@ -1,3 +1,5 @@
+// src/app/lib/models/manager.ts
+
 import type {
 	Tables,
 	TablesInsert,

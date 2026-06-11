@@ -1,3 +1,5 @@
+// src/app/components/admin/manage_dorm_modal.tsx
+
 
 "use client";
 

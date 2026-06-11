@@ -1,3 +1,5 @@
+// src/app/components/admin/rooms/roomstatcards.tsx
+
 "use client";
 
 import { useState } from "react";

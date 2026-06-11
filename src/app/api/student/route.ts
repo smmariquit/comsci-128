@@ -1,3 +1,5 @@
+// src/app/api/student/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { addStudent } from "@/services/student-service";
 

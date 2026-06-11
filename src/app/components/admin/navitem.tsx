@@ -1,3 +1,5 @@
+// src/app/components/admin/navitem.tsx
+
 "use client";
  
 import Link from "next/link";

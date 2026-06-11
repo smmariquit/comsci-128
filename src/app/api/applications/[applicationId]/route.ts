@@ -1,3 +1,5 @@
+// src/app/api/applications/[applicationId]/route.ts
+
 
 
 import { NextRequest, NextResponse } from "next/server";

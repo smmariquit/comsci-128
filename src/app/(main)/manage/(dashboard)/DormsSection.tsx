@@ -1,3 +1,5 @@
+// src/app/(main)/manage/(dashboard)/DormsSection.tsx
+
 
 
 "use client";

@@ -1,3 +1,5 @@
+// src/app/api/users/[id]/student-browse/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { getAllAvailableDorms } from "@/app/lib/data/student-browse";
 

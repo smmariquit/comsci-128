@@ -1,3 +1,5 @@
+// src/app/api/manager/route.ts
+
 import { managerService } from "@/app/lib/services/manager-service";
 import { NextRequest, NextResponse } from "next/server";
 

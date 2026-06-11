@@ -1,3 +1,5 @@
+// src/app/components/admin/gridicon.tsx
+
 import { LayoutGrid } from "lucide-react";
 
 export function GridIcon({ active }: { active?: boolean }) {

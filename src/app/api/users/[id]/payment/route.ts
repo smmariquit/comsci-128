@@ -1,3 +1,5 @@
+// src/app/api/users/[id]/payment/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { completePaymentProcess } from "@/services/student-dashboard.service";
 

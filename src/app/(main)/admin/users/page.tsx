@@ -1,3 +1,5 @@
+// src/app/(main)/admin/users/page.tsx
+
 import type { Metadata } from "next";
 import ApplicationTabs from "@/app/components/admin/user/approval_table_wrapper";
 import PageTabs from "@/app/components/admin/user/user_tabs";

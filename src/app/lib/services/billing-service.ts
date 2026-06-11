@@ -1,3 +1,5 @@
+// src/app/lib/services/billing-service.ts
+
 import { billData } from "../data/bill-data";
 import { BillRow } from "@/app/components/admin/billings/billingtable";
 import { validateAction } from "./authorization-service";

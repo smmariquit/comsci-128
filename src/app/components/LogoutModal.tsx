@@ -1,3 +1,5 @@
+// src/app/components/LogoutModal.tsx
+
 "use client";
 
 type LogoutModalProps = {

@@ -1,3 +1,5 @@
+// src/app/(main)/sys/component/edit-dorm.tsx
+
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";

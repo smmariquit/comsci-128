@@ -1,3 +1,5 @@
+// src/app/lib/services/student-dashboard.service.ts
+
 import * as DataLayer from "@/lib/data/student-dashboard";
 
 export function getApplicationSteps(application: any) {

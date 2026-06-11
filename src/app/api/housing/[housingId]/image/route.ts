@@ -1,3 +1,5 @@
+// src/app/api/housing/[housingId]/image/route.ts
+
 import { type NextRequest, NextResponse } from "next/server";
 import { housingService } from "@/app/lib/services/housing-service";
 

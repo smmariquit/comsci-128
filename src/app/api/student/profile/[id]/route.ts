@@ -1,3 +1,5 @@
+// src/app/api/student/profile/[id]/route.ts
+
 import { profileAction } from "@/app/lib/services/profile-service";
 import { NextRequest, NextResponse } from "next/server";
 

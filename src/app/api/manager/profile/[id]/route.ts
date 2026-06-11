@@ -1,3 +1,5 @@
+// src/app/api/manager/profile/[id]/route.ts
+
 import { profileAction } from "@/services/profile-service";
 import { NextRequest, NextResponse } from "next/server";
 

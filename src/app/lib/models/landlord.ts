@@ -1,3 +1,5 @@
+// src/app/lib/models/landlord.ts
+
 import type {
   Tables,
   TablesInsert,

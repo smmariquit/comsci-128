@@ -1,3 +1,5 @@
+// src/app/(main)/manage/accommodations/[id]/[unit]/_components/UnitClient.tsx
+
 "use client"
 
 import { useState } from "react"

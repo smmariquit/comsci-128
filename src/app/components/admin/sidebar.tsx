@@ -1,3 +1,5 @@
+// src/app/components/admin/sidebar.tsx
+
 "use client";
 
 import { ChevronRight, LayoutGrid } from "lucide-react";

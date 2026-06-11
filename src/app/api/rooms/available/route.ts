@@ -1,3 +1,5 @@
+// src/app/api/rooms/available/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { getAvailableRoomsForAssignment } from "@/lib/services/room-service"; 
 

@@ -1,3 +1,5 @@
+// src/app/(main)/sys/component/notification.tsx
+
 'use client';
 
 import { useState } from 'react';

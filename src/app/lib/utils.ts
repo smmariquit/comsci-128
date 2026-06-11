@@ -1,3 +1,5 @@
+// src/app/lib/utils.ts
+
 export function setCookie(name: string, value: string, days: number): void {
   let expires = "";
   if (days) {

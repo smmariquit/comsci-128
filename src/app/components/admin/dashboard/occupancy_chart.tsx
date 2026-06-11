@@ -1,3 +1,5 @@
+// src/app/components/admin/dashboard/occupancy_chart.tsx
+
 "use client";
 
 import { C } from "@/lib/palette";

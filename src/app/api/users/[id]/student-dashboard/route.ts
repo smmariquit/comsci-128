@@ -1,3 +1,5 @@
+// src/app/api/users/[id]/student-dashboard/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 // Import from the new Service Layer location
 import { getCompleteDashboardData } from "@/services/student-dashboard.service";

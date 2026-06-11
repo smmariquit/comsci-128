@@ -1,3 +1,5 @@
+// src/app/(main)/sys/component/view-dorm.tsx
+
 "use client";
 
 import { X, Building2, Pencil } from "lucide-react";

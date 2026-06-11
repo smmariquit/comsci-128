@@ -1,3 +1,5 @@
+// src/app/api/landlord/[accountNumber]/revenue/route.ts
+
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { landlordService } from "@/app/lib/services/landlord-service";

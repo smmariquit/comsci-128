@@ -1,3 +1,5 @@
+// src/app/api/auth/forgot-password/route.ts
+
 import { type NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/app/lib/server-client";
 

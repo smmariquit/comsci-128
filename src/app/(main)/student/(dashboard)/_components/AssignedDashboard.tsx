@@ -1,3 +1,5 @@
+// src/app/(main)/student/(dashboard)/_components/AssignedDashboard.tsx
+
 export default function AssignedDashboard(userName: String, dashboardData: Object) {
     const userHousingDetails = dashboardData as any;
 

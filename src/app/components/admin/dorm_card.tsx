@@ -1,3 +1,5 @@
+// src/app/components/admin/dorm_card.tsx
+
 "use client";
 import { ArrowRight, Camera, Check, LoaderCircle, MapPin, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";

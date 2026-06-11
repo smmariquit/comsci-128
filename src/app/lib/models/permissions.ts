@@ -1,3 +1,5 @@
+// src/app/lib/models/permissions.ts
+
 import type { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
 
 export type Permission = Tables<"permissions">;

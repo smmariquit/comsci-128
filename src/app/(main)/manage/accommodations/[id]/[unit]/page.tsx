@@ -1,3 +1,5 @@
+// src/app/(main)/manage/accommodations/[id]/[unit]/page.tsx
+
 
 
 import type { Metadata } from "next";

@@ -1,3 +1,5 @@
+// src/app/api/auth/google-login/route.ts
+
 import { NextResponse, type NextRequest } from "next/server";
 import type { UserRole } from "@/models/permissions";
 import { createSupabaseServerClient } from "@/lib/server-client";

@@ -1,3 +1,5 @@
+// src/app/lib/models/student.ts
+
 import type {
 	Tables,
 	TablesInsert,

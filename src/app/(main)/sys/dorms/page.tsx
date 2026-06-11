@@ -1,3 +1,5 @@
+// src/app/(main)/sys/dorms/page.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';

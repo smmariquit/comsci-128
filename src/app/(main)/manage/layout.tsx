@@ -1,3 +1,5 @@
+// src/app/(main)/manage/layout.tsx
+
 import type { Metadata } from "next";
 import Breadcrumbs from "./components/Breadcrumbs";
 import ManageTopNav from "./components/ManageTopNav";

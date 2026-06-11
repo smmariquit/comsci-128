@@ -1,3 +1,5 @@
+// src/app/api/users/count/route.ts
+
 import { NextResponse } from "next/server";
 import { userService } from "@/services/user-service";
 

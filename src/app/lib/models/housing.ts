@@ -1,3 +1,5 @@
+// src/app/lib/models/housing.ts
+
 import type {
   Tables,
   TablesInsert,

@@ -1,3 +1,5 @@
+// src/app/(main)/sys/component/disable-account-modal.tsx
+
 "use client";
 
 import { X, AlertTriangle, MinusCircle } from "lucide-react";

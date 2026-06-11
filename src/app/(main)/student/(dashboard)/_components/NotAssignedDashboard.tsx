@@ -1,3 +1,5 @@
+// src/app/(main)/student/(dashboard)/_components/NotAssignedDashboard.tsx
+
 import { CircleAlert, CircleCheckBig } from "lucide-react";
 
 export default function NotAssignedDashboard(userName: String, dashboardData: Object) {

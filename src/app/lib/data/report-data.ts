@@ -1,3 +1,5 @@
+// src/app/lib/data/report-data.ts
+
 import { supabase } from "@/lib/supabase"; 
 import type { OccupancyReportRow, ApplicationReportRow, AccommodationHistoryRow, RevenueReportRow } from "@/app/components/admin/reports/reportsmock";
 

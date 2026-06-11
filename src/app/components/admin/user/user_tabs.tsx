@@ -1,3 +1,5 @@
+// src/app/components/admin/user/user_tabs.tsx
+
 "use client";
 
 import { useState } from "react";

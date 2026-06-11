@@ -1,3 +1,5 @@
+// src/app/(main)/admin/logs/page.tsx
+
 "use client";
 
 import { useMemo, useState } from "react";

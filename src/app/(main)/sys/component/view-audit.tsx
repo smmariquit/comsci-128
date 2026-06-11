@@ -1,3 +1,5 @@
+// src/app/(main)/sys/component/view-audit.tsx
+
 "use client";
 
 import { X, ShieldCheck, Clock, Monitor, Globe, User, Tag, Activity } from "lucide-react";

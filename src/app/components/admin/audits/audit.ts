@@ -1,3 +1,5 @@
+// src/app/components/admin/audits/audit.ts
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type ActionType =

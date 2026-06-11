@@ -1,3 +1,5 @@
+// src/app/(main)/student/complaints/page.tsx
+
 
 "use client";
 

@@ -1,3 +1,5 @@
+// src/app/components/admin/rooms/roommodal.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";

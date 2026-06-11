@@ -1,3 +1,5 @@
+// src/app/lib/models/bill.ts
+
 import type {
   Tables,
   TablesInsert,

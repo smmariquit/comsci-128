@@ -1,3 +1,5 @@
+// src/app/403/page.tsx
+
 "use client";
 
 import { Lock } from 'lucide-react';

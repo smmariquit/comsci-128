@@ -1,3 +1,5 @@
+// src/app/(main)/sys/config/page.tsx
+
 import type { Metadata } from "next";
 import Sidebar from '@/app/(main)/sys/component/sidebar';
 import Link from 'next/link';

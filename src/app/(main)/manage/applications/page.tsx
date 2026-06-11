@@ -1,3 +1,5 @@
+// src/app/(main)/manage/applications/page.tsx
+
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { ComponentProps } from "react";

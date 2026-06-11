@@ -1,3 +1,5 @@
+// src/app/components/admin/user/approval_table_wrapper.tsx
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";

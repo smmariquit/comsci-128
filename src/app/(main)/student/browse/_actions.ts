@@ -1,3 +1,5 @@
+// src/app/(main)/student/browse/_actions.ts
+
 import { housingData } from "@/app/lib/data/housing-data";
 
 export async function getDormDetails(id: number) {

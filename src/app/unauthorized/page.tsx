@@ -1,3 +1,5 @@
+// src/app/unauthorized/page.tsx
+
 "use client"
 
 import { Circle, MapPin } from 'lucide-react';

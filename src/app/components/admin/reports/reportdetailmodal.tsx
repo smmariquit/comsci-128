@@ -1,3 +1,5 @@
+// src/app/components/admin/reports/reportdetailmodal.tsx
+
 "use client";
 
 import { C } from "@/lib/palette";

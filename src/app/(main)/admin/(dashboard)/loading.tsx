@@ -1,3 +1,5 @@
+// src/app/(main)/admin/(dashboard)/loading.tsx
+
 export default function Loading() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

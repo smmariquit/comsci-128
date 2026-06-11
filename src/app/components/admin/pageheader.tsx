@@ -1,3 +1,5 @@
+// src/app/components/admin/pageheader.tsx
+
 "use client";
 
 import { Menu } from "lucide-react";

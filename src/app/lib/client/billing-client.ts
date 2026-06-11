@@ -1,3 +1,5 @@
+// src/app/lib/client/billing-client.ts
+
 "use client";
 
 import type { BillRow } from "@/app/components/admin/billings/billingtable";

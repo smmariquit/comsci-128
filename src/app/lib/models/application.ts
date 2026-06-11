@@ -1,3 +1,5 @@
+// src/app/lib/models/application.ts
+
 import { Tables, TablesInsert, TablesUpdate } from "@/app/types/database.types";
 
 export type Application = Tables<"application">;

@@ -1,3 +1,5 @@
+// src/app/(main)/(landing)/ShowcaseSection.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";

@@ -1,3 +1,5 @@
+// src/app/(main)/(landing)/animations.ts
+
 export const floatingAnimations = `
   /* ── SERVICES SCROLL ANIMATIONS ──────────────── */
   @keyframes floatUpDown {

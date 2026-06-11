@@ -1,3 +1,5 @@
+// src/app/components/admin/reports/reportsui.tsx
+
 import React from "react";
 import { C } from "@/lib/palette";
 import type {

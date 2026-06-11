@@ -1,3 +1,5 @@
+// src/app/(main)/admin/(dashboard)/page.tsx
+
 import type { Metadata } from "next";
 import ActiveUsers from "@/app/components/admin/dashboard/activeusers";
 

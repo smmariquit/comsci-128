@@ -1,3 +1,5 @@
+// src/app/components/admin/reports/report_table.tsx
+
 import { C } from "@/lib/palette";
 import { useState } from "react";
 import {

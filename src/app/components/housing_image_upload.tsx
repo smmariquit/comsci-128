@@ -1,3 +1,5 @@
+// src/app/components/housing_image_upload.tsx
+
 // Temporary component for testing housing image upload
 
 "use client";

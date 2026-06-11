@@ -1,3 +1,5 @@
+// src/app/components/ui/state-message.tsx
+
 type StateVariant = "empty" | "error";
 
 export default function StateMessage({

@@ -1,3 +1,5 @@
+// src/app/(main)/manage/applications/[id]/_components/ReviewWrapper.tsx
+
 "use client"
 
 import { useState } from "react"

@@ -1,3 +1,5 @@
+// src/app/components/admin/rooms/addroommodal.tsx
+
 /*
 // 1. Update the State Interface
 const [form, setForm] = useState<RoomForm>({

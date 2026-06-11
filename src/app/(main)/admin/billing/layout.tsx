@@ -1,3 +1,5 @@
+// src/app/(main)/admin/billing/layout.tsx
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

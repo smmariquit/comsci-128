@@ -1,3 +1,5 @@
+// src/app/components/ui/page-loading.tsx
+
 export default function PageLoading({ label = "Loading" }: { label?: string }) {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#EDE9DE]">

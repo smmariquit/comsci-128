@@ -1,3 +1,5 @@
+// src/app/lib/models/audit_log.ts
+
 import { Tables, TablesInsert, Enums } from "@/app/types/database.types";
 
 export type AuditLog = Tables<"audit_log">;

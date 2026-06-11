@@ -1,3 +1,5 @@
+// src/app/(main)/student/browse/_components/HousingCards.tsx
+
 "use client";
 
 import { useState } from "react";

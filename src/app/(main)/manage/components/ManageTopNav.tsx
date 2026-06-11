@@ -1,3 +1,5 @@
+// src/app/(main)/manage/components/ManageTopNav.tsx
+
 "use client";
 
 import { Bell, Menu, X } from "lucide-react";

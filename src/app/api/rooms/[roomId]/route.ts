@@ -1,3 +1,5 @@
+// src/app/api/rooms/[roomId]/route.ts
+
 import { type NextRequest, NextResponse } from "next/server";
 import * as roomService from "@/app/lib/services/room-service";
 

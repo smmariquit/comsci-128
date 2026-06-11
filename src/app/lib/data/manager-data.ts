@@ -1,3 +1,5 @@
+// src/app/lib/data/manager-data.ts
+
 import { supabase } from "../supabase";
 import type { Manager, ManagerProfile, NewManager } from "@/models/manager";
 import type { NewUser } from "@/models/user";

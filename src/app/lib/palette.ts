@@ -1,3 +1,5 @@
+// src/app/lib/palette.ts
+
 // ── Brand palette — single source of truth ───────────────────────────────────
 export const C = {
   cream: "#EDE9DE", // backgrounds, avatar, soft fills

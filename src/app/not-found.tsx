@@ -1,3 +1,5 @@
+// src/app/not-found.tsx
+
 "use client"
 
 import { Circle, MapPin } from 'lucide-react';

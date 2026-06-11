@@ -1,3 +1,5 @@
+// src/app/components/admin/billings/billingtable.tsx
+
 import { C } from "@/lib/palette";
 import { useState } from "react";
 

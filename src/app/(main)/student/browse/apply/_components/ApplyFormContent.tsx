@@ -1,3 +1,5 @@
+// src/app/(main)/student/browse/apply/_components/ApplyFormContent.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
