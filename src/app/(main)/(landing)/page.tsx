@@ -84,7 +84,7 @@ export default function LandingPage() {
           {isLoggedIn ? (
             <Link
               href={dashboardUrl}
-              className="bg-[#C9642A] text-[#1a2332] px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+              className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
             >
               Continue to Dashboard
             </Link>
@@ -98,7 +98,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/register"
-                className="bg-[#C9642A] text-[#1a2332] px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+                className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
               >
                 Sign up
               </Link>

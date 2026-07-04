@@ -49,7 +49,7 @@ export default function CTASection() {
             Ready to find your <br />
             home away from home?
           </h2>
-          <p className="text-sm text-[#f5f0e8] font-['Chivo_Mono'] tracking-wider">
+          <p className="text-sm text-white font-['Chivo_Mono'] tracking-wider">
             Join over 1,200 students who found their dorm through CASA.
           </p>
         </div>
