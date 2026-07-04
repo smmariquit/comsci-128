@@ -32,7 +32,7 @@
     "@biomejs/biome": "2.4.15",
     "@tailwindcss/postcss": "^4",
     "@types/bcrypt": "^6.0.0",
-    "@types/node": "^20.19.37",
+    "@types/node": "^26.1.0",
     "@types/react": "^19",
     "@types/react-datepicker": "^6.2.0",
     "@types/react-dom": "^19",
