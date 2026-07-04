@@ -129,7 +129,7 @@ export default function TestimonialsSection() {
               <div
                 className={`w-9 h-9 rounded-full ${t.avatar} flex items-center justify-center shrink-0`}
               >
-                <span className="text-xs font-bold text-white">
+                <span className="text-xs font-bold text-[#f5f2ec]">
                   {t.initials}
                 </span>
               </div>

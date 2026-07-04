@@ -244,7 +244,7 @@ export default function LandingPage() {
             </a>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-[#EDE9DE]/10 text-center text-xs text-[#EDE9DE]/40">
+        <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-[#EDE9DE]/10 text-center text-xs text-[#EDE9DE]/65">
           &copy; {new Date().getFullYear()} UPLB CASA. All rights reserved.
         </div>
       </footer>

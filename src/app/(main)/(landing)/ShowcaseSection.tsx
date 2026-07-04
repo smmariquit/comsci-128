@@ -127,7 +127,7 @@ function ShowcaseCards() {
               className="w-2/3 p-4 flex flex-col justify-center"
               style={{ backgroundColor: "#567375" }}
             >
-              <h4 style={{ color: "#EDE9DE" }} className="font-semibold mb-1">
+              <h3 style={{ color: "#EDE9DE" }} className="font-semibold mb-1">
                 {item.title}
               </h4>
 
