@@ -75,7 +75,7 @@ export default function LandingPage() {
           {isLoggedIn ? (
             <Link
               href={getDashboardRoute()}
-              className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+              className="bg-[#C9642A] text-[#1a2332] px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
             >
               Go to dashboard
             </Link>
@@ -89,7 +89,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/register"
-                className="bg-[#C9642A] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+                className="bg-[#C9642A] text-[#1a2332] px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
               >
                 Sign up
               </Link>
@@ -248,7 +248,7 @@ export default function LandingPage() {
             </a>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-[#EDE9DE]/10 text-center text-xs text-[#EDE9DE]/65">
+        <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-[#EDE9DE]/10 text-center text-xs text-[#EDE9DE]/80">
           &copy; {new Date().getFullYear()} UPLB CASA. All rights reserved.
         </div>
       </footer>
