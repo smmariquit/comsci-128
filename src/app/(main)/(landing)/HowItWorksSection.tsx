@@ -120,9 +120,9 @@ export default function HowItWorks() {
 
                   {/* Body */}
                   <div>
-                    <h4 className="mb-1 leading-snug text-[1.45rem] text-[#f5f2ec] font-['Playfair_Display',serif]">
+                    <h3 className="mb-1 leading-snug text-[1.45rem] text-[#f5f2ec] font-['Playfair_Display',serif]">
                       {step.title}
-                    </h4>
+                    </h3>
                     <p className="leading-relaxed text-[0.8125rem] md:text-[.85rem] text-[rgba(245,242,236,.94)] font-['IBM_Plex_Mono',monospace]">
                       {step.desc}
                     </p>
