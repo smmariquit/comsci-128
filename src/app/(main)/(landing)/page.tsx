@@ -23,6 +23,24 @@ const colors = {
   light_blue: "#567375",
 };
 
+const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    width="24"
+    height="24"
+    stroke="currentColor"
+    strokeWidth="2"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    focusable="false"
+    {...props}
+  >
+    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+  </svg>
+);
+
 export default function LandingPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dashboardUrl, setDashboardUrl] = useState("/login");
@@ -66,7 +84,7 @@ export default function LandingPage() {
           {isLoggedIn ? (
             <Link
               href={dashboardUrl}
-              className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+              className="bg-[#C9642A] text-[#1a2332] px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
             >
               Continue to Dashboard
             </Link>
@@ -80,7 +98,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/register"
-                className="bg-[#C9642A] text-white px-5 py-2 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
+                className="bg-[#C9642A] text-[#1a2332] px-5 py-2.5 rounded-xl font-semibold hover:bg-[#b5561f] transition-colors shadow-sm shadow-[#C9642A]/30"
               >
                 Sign up
               </Link>
@@ -187,22 +205,56 @@ export default function LandingPage() {
       {/* Get Started with orange section */}
       <CTASection />
 
-      {/* Footer */}
-      <footer
-        className="py-10 px-8 text-center text-xs font-(family-name:--font-geist-mono) leading-relaxed space-y-1"
-        style={{ backgroundColor: colors.light_blue, color: colors.cream }}
-      >
-        <p>© 2026 UPLB CASA</p>
-        <p>University of the Philippines Los Baños AY 2025-2026</p>
-        <p>
-          In partial fulfillment of the requirements for CMSC 128: Software
-          Engineering
-        </p>
-        <p className="flex items-center justify-center gap-3 pt-2">
-          <LegalMicroLink href="/privacy">Privacy</LegalMicroLink>
-          <span aria-hidden="true">·</span>
-          <LegalMicroLink href="/terms">Terms</LegalMicroLink>
-        </p>
+      {/* ── Footer ── */}
+      <footer className="bg-[#1C2632] text-[#EDE9DE] py-12 px-8 md:px-16 border-t border-[#EDE9DE]/10">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col gap-2 text-center md:text-left">
+            <h3 className="font-bold text-lg tracking-tight">UPLB CASA</h3>
+            <p className="text-xs text-[#EDE9DE]/80 max-w-sm">
+              Centralized Accommodation System Application. Helping UPLB
+              students find secure, comfortable, and affordable housing with
+              ease.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+            <a
+              href="https://github.com/smmariquit/comsci-128"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-[#EDE9DE]/80 hover:text-[#E3AF64] transition-colors"
+            >
+              <GithubIcon className="w-4 h-4" />
+              <span>GitHub</span>
+            </a>
+            <span className="text-[#EDE9DE]/40" aria-hidden="true">
+              |
+            </span>
+            <a
+              href="https://github.com/smmariquit/comsci-128/blob/main/betaTesting.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[#EDE9DE]/80 hover:text-[#E3AF64] transition-colors"
+            >
+              Beta Testing Guide
+            </a>
+            <span className="text-[#EDE9DE]/40" aria-hidden="true">
+              |
+            </span>
+            <LegalMicroLink href="/privacy" subtle>
+              Privacy
+            </LegalMicroLink>
+            <span className="text-[#EDE9DE]/40" aria-hidden="true">
+              ·
+            </span>
+            <LegalMicroLink href="/terms" subtle>
+              Terms
+            </LegalMicroLink>
+          </div>
+        </div>
+        <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-[#EDE9DE]/10 text-center text-xs text-[#EDE9DE]/80">
+          &copy; {new Date().getFullYear()} UPLB CASA. All rights reserved.
+        </div>
       </footer>
     </div>
   );

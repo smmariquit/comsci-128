@@ -96,11 +96,15 @@ body {
 [class*="text-white/40"],
 [class*="text-white/50"],
 [class*="text-white/60"],
-[class*="text-white/70"],
 [class*="text-gray-400"],
 [class*="text-gray-500"],
 [class*="text-stone-400"] {
   color: #374151 !important;
+}
+
+[class*="bg-[#C9642A]"] [class*="text-white/70"],
+[class*="bg-[#D66B38]"] [class*="text-white/70"] {
+  color: #fff8f0 !important;
 }
 
 [class*="text-[rgba(194,211,208"],

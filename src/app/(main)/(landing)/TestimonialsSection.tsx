@@ -17,7 +17,7 @@ const testimonials = [
     name: "Justine Ivanne Antonio",
     course: "BS Computer Science, 3rd Year",
     initials: "JA",
-    avatar: "bg-[#C9642A]",
+    avatar: "bg-[#8b3e15]",
   },
   {
     quote:
@@ -25,7 +25,7 @@ const testimonials = [
     name: "Paul Hadley Fababeir",
     course: "BS Computer Science, 3rd Year",
     initials: "PF",
-    avatar: "bg-[#567375]",
+    avatar: "bg-[#3a4f52]",
   },
 ];
 
@@ -129,7 +129,7 @@ export default function TestimonialsSection() {
               <div
                 className={`w-9 h-9 rounded-full ${t.avatar} flex items-center justify-center shrink-0`}
               >
-                <span className="text-xs font-bold text-white">
+                <span className="text-xs font-bold text-[#f5f2ec]">
                   {t.initials}
                 </span>
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function CTASection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -49,13 +49,13 @@ export default function CTASection() {
             Ready to find your <br />
             home away from home?
           </h2>
-          <p className="text-sm text-white/70 font-['Chivo_Mono'] tracking-wider">
+          <p className="text-sm text-[#f5f0e8] font-['Chivo_Mono'] tracking-wider">
             Join over 1,200 students who found their dorm through CASA.
           </p>
         </div>
 
         {/* Button */}
-        <button className="shrink-0 bg-white text-[#C9642A] text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[#EDE9DE] transition-colors duration-200 whitespace-nowrap">
+        <button type="button" className="shrink-0 bg-white text-[#C9642A] text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[#EDE9DE] transition-colors duration-200 whitespace-nowrap">
           Get Started Free
         </button>
       </div>

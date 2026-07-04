@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import SeaBackground from "./SeaBackground";
 
 const MONO = "'IBM Plex Mono', monospace";
@@ -251,12 +251,12 @@ export default function DormDigest() {
             >
               {n.side[0].tag}
             </p>
-            <h4
+            <h3
               style={{ fontFamily: SERIF, fontSize: "1.5rem", lineHeight: 1.3 }}
               className="mb-[.3rem] text-[#0d1b2a] font-bold tracking-wide"
             >
               {n.side[0].title}
-            </h4>
+            </h3>
             {n.side[0].desc && (
               <p
                 style={{
