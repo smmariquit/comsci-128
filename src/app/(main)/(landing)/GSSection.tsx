@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function CTASection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -55,7 +55,7 @@ export default function CTASection() {
         </div>
 
         {/* Button */}
-        <button className="shrink-0 bg-white text-[#C9642A] text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[#EDE9DE] transition-colors duration-200 whitespace-nowrap">
+        <button type="button" className="shrink-0 bg-white text-[#C9642A] text-sm font-semibold px-6 py-3 rounded-xl hover:bg-[#EDE9DE] transition-colors duration-200 whitespace-nowrap">
           Get Started Free
         </button>
       </div>

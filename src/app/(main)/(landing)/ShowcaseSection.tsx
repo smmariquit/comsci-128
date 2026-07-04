@@ -129,7 +129,7 @@ function ShowcaseCards() {
             >
               <h3 style={{ color: "#EDE9DE" }} className="font-semibold mb-1">
                 {item.title}
-              </h4>
+              </h3>
 
               <p
                 style={{ color: "#EDE9DE" }}
