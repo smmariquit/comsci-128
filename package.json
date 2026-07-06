@@ -20,7 +20,7 @@
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^1.11.0",
     "maplibre-gl": "^5.24.0",
-    "next": "^16.2.6",
+    "next": "^16.2.10",
     "react": "19.2.6",
     "react-datepicker": "^9.1.0",
     "react-dom": "19.2.5",
