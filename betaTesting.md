@@ -1,6 +1,6 @@
-# UPLB CASA — Beta Testing Guide
+# UPLB CASA: Beta Testing Guide
 
-**URL:** [uplb.casa](https://uplb.casa)  
+**URL:** [uplb.casa](https://uplb.casa) 
 **Alternative URLs**: [128.stimmie.dev](https://128.stimmie.dev) or [comsci-128.vercel.app](https://comsci-128.vercel.app)
 **Repository:** [github.com/smmariquit/comsci-128](https://github.com/smmariquit/comsci-128)
 
@@ -59,13 +59,13 @@ Rejection at any stage sets the application status to `Rejected` and closes the 
 2. Navigate to **Accommodations** and verify listings load with room types, capacity, and availability
 3. Click into a housing then verify details display correctly
 4. Submit an application:
-   - Select a housing and preferred room type
-   - Fill in all required fields
-   - Upload all four documents: **Form 5, Payment Receipt, Contract, Waiver**
+ - Select a housing and preferred room type
+ - Fill in all required fields
+ - Upload all four documents: **Form 5, Payment Receipt, Contract, Waiver**
 5. Verify the application appears with status `Pending Manager Approval`
 6. After a Manager approves, verify status updates to `Pending Admin Approval`
 7. After Admin approves, verify status updates to `Approved`
-<!-- TODO: Verify final path for billing -->
+<!, TODO: Verify final path for billing, >
 8. Navigate to **Billing** to verify outstanding balance and billing history display
 
 #### Edge Cases 
@@ -78,7 +78,6 @@ Rejection at any stage sets the application status to `Rejected` and closes the 
 | Submit a second application while one is active | Blocked; one active application per student | §5.5.2 |
 | Submit outside the application period | Blocked with an error message | REQ-5 §4.4 |
 | Manually navigate to `/manage`, `/admin`, `/sys` | Redirected or shown unauthorized | REQ-5 §4.1 |
-
 
 ---
 
@@ -93,15 +92,15 @@ Rejection at any stage sets the application status to `Rejected` and closes the 
 5. Navigate to **Applications** and verify the applicant table loads
 6. Filter by status to verify filtering works
 7. Click **Review** on a `Pending Manager Approval` application:
-   - Verify applicant name and housing info display correctly
-   - Verify all four document buttons appear wherein missing documents should appear disabled
-   - Click each document button, then the file renders in the viewer
-   - Click **Approve** to verify status changes to `Pending Admin Approval`
-   - On a separate application, click **Reject** to verify status changes to `Rejected`
+ - Verify applicant name and housing info display correctly
+ - Verify all four document buttons appear wherein missing documents should appear disabled
+ - Click each document button, then the file renders in the viewer
+ - Click **Approve** to verify status changes to `Pending Admin Approval`
+ - On a separate application, click **Reject** to verify status changes to `Rejected`
 8. Navigate to **Accommodations → [Dorm] → Assign Rooms**:
-   - Verify only approved, unassigned applicants for this housing appear on the left table
-   - Select applicants and confirm, verify they appear in the room's tenant list
-   - Verify assigned students disappear from the unassigned list
+ - Verify only approved, unassigned applicants for this housing appear on the left table
+ - Select applicants and confirm, verify they appear in the room's tenant list
+ - Verify assigned students disappear from the unassigned list
 
 #### Edge Cases
 
@@ -112,7 +111,6 @@ Rejection at any stage sets the application status to `Rejected` and closes the 
 | View applications for a dorm not assigned to you | Not visible; scoped to assigned dorms only | REQ-4 §4.3 |
 | Navigate to `/admin` or `/sys` | Redirected or shown unauthorized | REQ-5 §4.1 |
 
-
 ---
 
 ### Admin / Landlord - `/admin`
@@ -122,15 +120,15 @@ Rejection at any stage sets the application status to `Rejected` and closes the 
 1. Log in with an Admin account to verify dashboard loads with system-wide stats
 2. Navigate to **Properties and Dorms** and verify housing management and CRUD operations work
 3. Navigate to **Rooms** to verify room listings, assignment, creation, editing, and deletion work
-4. Navigate to **Applications**  and verify `Pending Admin Approval` applications appear
+4. Navigate to **Applications** and verify `Pending Admin Approval` applications appear
 5. Open an application and give **final approval** to verify status changes to `Approved`
 6. Reject a different application and verify status changes to `Rejected`
 7. Navigate to **Users** to verify user list loads; test deactivating an account
 8. Navigate to **Billing**:
-   - Verify billing records display
-   - Verify billing CRUD
-   - Test setting billing periods and accommodation rates
-   - Verify final payment approval works
+ - Verify billing records display
+ - Verify billing CRUD
+ - Test setting billing periods and accommodation rates
+ - Verify final payment approval works
 9. Navigate to **Reports**: verify generation and filtering of occupancy, financial, and applicant reports
 
 #### Edge Cases 
@@ -146,11 +144,11 @@ Rejection at any stage sets the application status to `Rejected` and closes the 
 
 ---
 
-### System Admin — `/sys`
+### System Admin: `/sys`
 
 #### Happy Path
 
-1. Log in — verify dashboard shows system-wide data (total users, total dorms, recent activity, occupancy, etc.)
+1. Log in: verify dashboard shows system-wide data (total users, total dorms, recent activity, occupancy, etc.)
 2. Navigate to **User Management** and verify all user accounts across all roles are visible
 3. Assign a test user the Manager role and verify they can access `/manage`
 4. Navigate to **Dorm Management** to verify full housing management access

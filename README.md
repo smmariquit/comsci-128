@@ -3,19 +3,19 @@
 UPLB CASA is a centralized accommodation management system for the [University of the Philippines Los Baños][uplb]. Designed to replace manual forms, fragmented email exchanges, and spreadsheets, UPLB CASA provides a unified digital platform that manages the entire lifecycle of student housing, assignments, occupancy, and billing.
 
 <p align="center">
-  <a href="https://uplb.casa">
-    <img src="https://img.shields.io/badge/Live-uplb.casa-maroon?style=for-the-badge&logo=vercel&logoColor=white" alt="CASA Live" />
-  </a>
-  <a href="https://github.com/smmariquit/comsci-128/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
-  </a>
-  <img src="https://img.shields.io/github/stars/smmariquit/comsci-128?style=for-the-badge&color=gold" alt="Stars" />
-  <img src="https://img.shields.io/github/last-commit/smmariquit/comsci-128?style=for-the-badge" alt="Last Commit" />
+ <a href="https://uplb.casa">
+ <img src="https://img.shields.io/badge/Live-uplb.casa-maroon?style=for-the-badge&logo=vercel&logoColor=white" alt="CASA Live" />
+ </a>
+ <a href="https://github.com/smmariquit/comsci-128/blob/main/LICENSE">
+ <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
+ </a>
+ <img src="https://img.shields.io/github/stars/smmariquit/comsci-128?style=for-the-badge&color=gold" alt="Stars" />
+ <img src="https://img.shields.io/github/last-commit/smmariquit/comsci-128?style=for-the-badge" alt="Last Commit" />
 </p>
 <p align="center">
-  <img src="https://img.shields.io/badge/PWA-Ready-orange?style=for-the-badge&logo=progressive-web-apps&logoColor=white" alt="PWA Ready" />
-  <img src="https://img.shields.io/badge/Offline%20DB-PGlite-blue?style=for-the-badge&logo=postgresql&logoColor=white" alt="Offline DB" />
-  <img src="https://img.shields.io/badge/3D%20Maps-MapLibre-red?style=for-the-badge&logo=maplibre&logoColor=white" alt="3D Maps" />
+ <img src="https://img.shields.io/badge/PWA-Ready-orange?style=for-the-badge&logo=progressive-web-apps&logoColor=white" alt="PWA Ready" />
+ <img src="https://img.shields.io/badge/Offline%20DB-PGlite-blue?style=for-the-badge&logo=postgresql&logoColor=white" alt="Offline DB" />
+ <img src="https://img.shields.io/badge/3D%20Maps-MapLibre-red?style=for-the-badge&logo=maplibre&logoColor=white" alt="3D Maps" />
 </p>
 
 #### Tech Stack
@@ -92,14 +92,13 @@ graph TD
     class Assign process;
 ```
 
-
 ---
 
 ## Features
 
 ### Core Infrastructure
 - **Authentication**: Role-based access control, secure signups, email OTP verification, and PKCE-based Google/UP Mail OAuth 2.0 flow via Supabase.
-- **Immutable Audit Logs**: Comprehensive ledger tracking user activities (logins, application actions, approvals). Logs cannot be edited or deleted by any level of administration.
+- **Immutable Audit Logs**: full ledger tracking user activities (logins, application actions, approvals). Logs cannot be edited or deleted by any level of administration.
 - **Reporting**: Analytical tools to generate system-wide occupancy, financial, and applicant metrics exported directly to custom brand-styled PDF and CSV formats.
 - **Notifications**: Transactional emails powered by Resend via custom SMTP integration.
 
@@ -228,11 +227,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ### Database Seeding
 
 1. Run the sql script in the Supabase SQL editor:
-   ```text
+ ```text
    scripts/mock-seed.sql
    ```
 2. Build the matching mock authentication credentials:
-   ```bash
+ ```bash
    npx tsx scripts/seed-auth-users.ts
    ```
 
