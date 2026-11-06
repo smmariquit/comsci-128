@@ -52,7 +52,7 @@
 
 [3.1.2 Interface Components	6](#3.1.2-interface-components)
 
-[3.1.3  Interface Standards	8](#3.1.3-interface-standards)
+[3.1.3 Interface Standards	8](#3.1.3-interface-standards)
 
 [3.2 Hardware Interfaces	9](#heading=)
 
@@ -98,13 +98,13 @@
 
 1. # **Introduction** {#introduction}
 
-   1. ## **Purpose**  {#purpose}
+ 1. ## **Purpose** {#purpose}
 
 This Software Requirements Specification (SRS) document outlines the requirements for UPLB CASA version 1.0. The scope of this product includes a centralized web-based platform designed to manage the entire lifecycle of student housing at the University of the Philippines Los Baños. This includes the digital application process, room allocation, occupancy monitoring, and administrative reporting. This system is intended to replace current fragmented manual forms and spreadsheets with a unified digital workflow.
 
 2. ## **Document Conventions**
 
-The title page of this document is written in Arial font, sizes 32 and 20 for the title, and 14 for the  
+The title page of this document is written in Arial font, sizes 32 and 20 for the title, and 14 for the 
 subtitles. Headers are written in bold Times New Roman, with section headers at size 18 and subheaders at size 14\. The rest of the text in this document is in Arial, size 11\.
 
 3. ## **Intended Audience and Reading Suggestions**
@@ -113,7 +113,7 @@ This document is intended for the stakeholders (developers, product owner, and c
 
 4. ## **Product Scope**
 
-UPLB CASA is a management system developed for CMSC 128 (*Introduction to Software Engineering*) to streamline student housing operations. This software serves as a bridge between students seeking housing and the administrators managing on-campus dormitories, off-campus university housing, and partner private accommodations.
+UPLB CASA is a management system developed for CMSC 128 (*Introduction to Software Engineering*) to simplify student housing operations. This software serves as a bridge between students seeking housing and the administrators managing on-campus dormitories, off-campus university housing, and partner private accommodations.
 
 The primary objectives and benefits of the system include, but are not limited to, the following: 1\) centralization by replacing manual forms, email exchanges, and fragmented spreadsheets with a single platform for all housing transactions; 2\) efficiency by automating the application and approval workflow, including initial screening by dorm managers and final approval by housing admins; 3\) transparency by providing students updates on their application status and room assignments; 4\) resource management by ensuring proper tracking of occupancy and preventing overbooking; and, 5\) accountability by implementing role-based access control and audit trails for all approvals and assignments, ensuring data integrity.
 
@@ -123,34 +123,34 @@ This document is based on a template downloaded from IEEE, distributed by Dr. Sh
 
 2. # **Overall Description**
 
-   1. ## **Product Perspective** {#product-perspective}
+ 1. ## **Product Perspective** {#product-perspective}
 
-UPLB CASA is a responsive web-based application designed to streamline the fragmented accommodation processes of the university. It provides a centralized platform for managing applications, room assignments, occupancy records, billing, and related administrative tasks.
+UPLB CASA is a responsive web-based application designed to simplify the fragmented accommodation processes of the university. It provides a centralized platform for managing applications, room assignments, occupancy records, billing, and related administrative tasks.
 
 The system supports secure authentication and notifications through UP Mail. The system also supports role-based access, ensuring that students, dormitory managers, and housing administrators have access only to functions relevant to their responsibilities.
 
-**Figure 1**  
-*System Context Diagram:*  
+**Figure 1** 
+*System Context Diagram:* 
 ![][image1]
 
 2. ## **Product Functions**
 
 The system provides the following functionalities:
 
-* User login with Google / UP Mail authentication  
-* Role-based access control to support different levels of user permissions  
-* Display and management of accommodation information including availability and occupancy rates  
-* Submission and processing of accommodation applications  
-* Real-time monitoring and display of application and accommodation assignment status.  
-* Submission and management of room availability issues  
-* Recording and monitoring of user activity logs  
-* Administrative management of user records and dormitory data  
-* Billing and payment verification for dormitories/apartments/bedspace fees  
-* Generate report of unpaid or overdue dormitories/apartments/bedspace fees  
-* Billing periods during which bills are generated and payments are collected  
+* User login with Google / UP Mail authentication 
+* Role-based access control to support different levels of user permissions 
+* Display and management of accommodation information including availability and occupancy rates 
+* Submission and processing of accommodation applications 
+* Real-time monitoring and display of application and accommodation assignment status. 
+* Submission and management of room availability issues 
+* Recording and monitoring of user activity logs 
+* Administrative management of user records and dormitory data 
+* Billing and payment verification for dormitories/apartments/bedspace fees 
+* Generate report of unpaid or overdue dormitories/apartments/bedspace fees 
+* Billing periods during which bills are generated and payments are collected 
 * Revenue summary per dormitories/apartments/bedspace 
 
-  3. ## **User Classes and Characteristics**
+ 3. ## **User Classes and Characteristics**
 
 Students are the primary users of the system. They interact with the system to apply for dormitory accommodations, submit necessary documents, and track their application and assignment status. The system centralizes all relevant files and records, replacing the previous fragmented processes.
 
@@ -168,13 +168,13 @@ The System Administrator holds the highest level of access within the system. Th
 
 4. ## **Operating Environment**
 
-**Server & Deployment Environment**  
+**Server & Deployment Environment** 
 The system backend and frontend are implemented using the NextJS framework built on React and runs on the NodeJS environment. The software is deployed on Vercel, a serverless cloud platform. Supabase handles the database management and authentication using its PostgreSQL database and Google user authentication services.
 
-**Client Environment**  
+**Client Environment** 
 End-users can access the application through any standard, modern web browser (e.g., Chrome, Firefox, Edge, Safari) on any device, provided they have a stable internet connection and JavaScript enabled.
 
-**Development Environment**  
+**Development Environment** 
 For local development, the system can be executed on any operating system that has [Node](http://Node.js)JS installed.
 
 5. ## **Design and Implementation Constraints**
@@ -185,29 +185,29 @@ The system is implemented as a web application written in TypeScript using the N
 
 6. ## **User Documentation**
 
-The system shall include a README file in Markdown format which contains a detailed description of the software’s purpose and functionalities, installation instructions, system requirements, and instructions for end users on how to access and navigate the system’s features. The document shall be accessible through the project repository.
+The system shall include a README file in Markdown format which contains a detailed description of the software’s purpose and functionalities, installation instructions, system requirements, and instructions for end users on how to access and work through the system’s features. The document shall be accessible through the project repository.
 
 7. ## **Assumptions and Dependencies**
 
-1. The users of UPLB CASA must have basic computer literacy skills to be able to access, navigate, and interact with the system.  
-2. The device which the user intends to use must be able to run a modern and up-to-date web browser supporting JavaScript to be able to access the system.  
-3. In line with AD-2, the device must also be able to sustain a stable internet connection for as long as is necessary in the facilitation of secure and authorized transactions between the client and the server.  
-4. All data transmission between the client and the server is done via HTTPS, which is required to ensure data confidentiality and integrity in transit.  
-5. The system utilizes Google’s OAuth service for UP mail authentication. The system cannot authenticate users if the Google identity service is unavailable.  
-6. The application is hosted on Vercel. Scheduled maintenance or service outages on the Vercel platform may render the application unreachable.  
+1. The users of UPLB CASA must have basic computer literacy skills to be able to access, navigate, and interact with the system. 
+2. The device which the user intends to use must be able to run a modern and up-to-date web browser supporting JavaScript to be able to access the system. 
+3. In line with AD-2, the device must also be able to sustain a stable internet connection for as long as is necessary in the facilitation of secure and authorized transactions between the client and the server. 
+4. All data transmission between the client and the server is done via HTTPS, which is required to ensure data confidentiality and integrity in transit. 
+5. The system uses Google’s OAuth service for UP mail authentication. The system cannot authenticate users if the Google identity service is unavailable. 
+6. The application is hosted on Vercel. Scheduled maintenance or service outages on the Vercel platform may render the application unreachable. 
 7. The application relies on external DNS resolution (e.g., Cloudflare) to route traffic. Disruptions at the DNS layer or within the wider internet routing infrastructure will prevent users from accessing the system.
 
 3. # **External Interface Requirements**
 
-   1. ## **User Interface** {#user-interface}
+ 1. ## **User Interface** {#user-interface}
 
 This section contains the expected user interface requirements of the system, including an overview of the role-based portals, the interface components for each user class, and the accessibility standards the system shall comply with.
 
-## **3.1.1	Interface Overview**  {#3.1.1-interface-overview}
+## **3.1.1	Interface Overview** {#3.1.1-interface-overview}
 
 The system is a responsive web application accessible via modern browsers. It consists of four role-based portals:
 
-**Table 1**  
+**Table 1** 
 *Role-based Portals and their Functionalities*
 
 | Portal | Users | Primary Functions |
@@ -229,47 +229,44 @@ The Student/Guest interface shall include the following components:
 
 * **Login Page**
 
-  The system shall allow students/guests to authenticate using their UP Mail or Google Account
-
+ The system shall allow students/guests to authenticate using their UP Mail or Google Account
 
 * **Dashboard**
 
-  The dashboard shall display the user’s:
+ The dashboard shall display the user’s:
 
-* Application Status (pending, approved, rejected, waitlisted)  
-* Assigned room information  
-* Pending notifications  
+* Application Status (pending, approved, rejected, waitlisted) 
+* Assigned room information 
+* Pending notifications 
 * Billing summary
 
 * **Housing Browser**
 
-  The system shall allow students to:
+ The system shall allow students to:
 
-* View available dormitories/apartments  
-* View room types, capacity, and availability status  
+* View available dormitories/apartments 
+* View room types, capacity, and availability status 
 * Filter housing options by type and location
 
 * **Application Form**
 
-  The system shall provide a multi-step form that allows student to:
+ The system shall provide a multi-step form that allows student to:
 
-* Select preferred dormitory/apartment and room type  
-* Submit application within allowed application period  
+* Select preferred dormitory/apartment and room type 
+* Submit application within allowed application period 
 * Validate required fields before submission
-
 
 * **Document Upload Page**
 
-  The system shall allow users to upload required supporting documents (e.g., proof of enrollment) in supported file formats.
-
+ The system shall allow users to upload required supporting documents (e.g., proof of enrollment) in supported file formats.
 
 * **Billing Status Page**
 
-  The system shall display:
+ The system shall display:
 
-* Outstanding Balance  
-* Billing History  
-* Due dates  
+* Outstanding Balance 
+* Billing History 
+* Due dates 
 * Payment-related information
 
 ### 3.1.2.2 Manager Interface
@@ -278,15 +275,14 @@ The Manager portal shall include the following components:
 
 * **Login Page**
 
-  The system shall allow managers to authenticate using their UP Mail or Google Account.
-
+ The system shall allow managers to authenticate using their UP Mail or Google Account.
 
 * **Dashboard**
 
-  The dashboard shall display the user’s:
+ The dashboard shall display the user’s:
 
-* Pending housing applications for dormitories/apartments  
-* Occupancy Statistics and Visual representation   
+* Pending housing applications for dormitories/apartments 
+* Occupancy Statistics and Visual representation 
 * Alerts related to the assigned dormitory
 
 * **Application Review Page**
@@ -295,12 +291,11 @@ The Manager portal shall include the following components:
 
 * **Room Assignment Interface**
 
-  The system shall allow managers to update occupancy of students or guests and assign them to designated rooms
-
+ The system shall allow managers to update occupancy of students or guests and assign them to designated rooms
 
 * **Occupancy Tracker**
 
-  The system shall record and manage student move-in and move-out dates for assigned room or dormitory/apartment
+ The system shall record and manage student move-in and move-out dates for assigned room or dormitory/apartment
 
 ### 3.1.2.3 Housing Admin / Landlord Interface
 
@@ -308,133 +303,122 @@ The Housing Admin/ Landlord portal shall include the following components:
 
 * **Login Page**
 
-  The system shall allow administrators to authenticate using their UP Mail or Google Account
-
+ The system shall allow administrators to authenticate using their UP Mail or Google Account
 
 * **Dashboard**
 
-  The dashboard shall display the user’s:
+ The dashboard shall display the user’s:
 
-* List of applications  
-* Occupancy statistics  
+* List of applications 
+* Occupancy statistics 
 * Active users
 
 * **Dormitory and Room Management Module**
 
-  Allows administrators to create, update, and delete dormitories, rooms, and bed spaces.
-
+ Allows administrators to create, update, and delete dormitories, rooms, and bed spaces.
 
 * **User Management Module**
 
-  Allows administrators to manage student, manager, and guest accounts.
+ Allows administrators to manage student, manager, and guest accounts.
 
-
-  
+ 
 
 * **Billing Management Module**
 
-  Allows generation of billing statements, recording of payments, and monitoring of overdue accounts.
-
+ Allows generation of billing statements, recording of payments, and monitoring of overdue accounts.
 
 * **Reports Generation Module**
 
-  Allows generation of occupancy, application, revenue, and accommodation history reports.
-
+ Allows generation of occupancy, application, revenue, and accommodation history reports.
 
 * **Audit Log Viewer**
 
-  Display user activity logs which includes login activity, approvals, assignments and billing updates.
+ Display user activity logs which includes login activity, approvals, assignments and billing updates.
 
 ### 3.1.2.4 System Administrator Interface
 
 The System Administrator Portal shall include the following components:
 
-* **Login Page**  
+* **Login Page** 
 
-  Allows the System Administrator to authenticate using their UP Mail or Google account via OAuth 2.0
-
+ Allows the System Administrator to authenticate using their UP Mail or Google account via OAuth 2.0
 
 * **Dashboard** 
 
-  Displays a system-wide overview of total active users, total dormitories, recent activity, and other necessary information for managing the system.
-
+ Displays a system-wide overview of total active users, total dormitories, recent activity, and other necessary information for managing the system.
 
 * **User Management Module** 
 
-  Allows the System Administrator to manage user accounts across. 
-
+ Allows the System Administrator to manage user accounts across. 
 
 * **Role Assignment Module** 
 
-  Allows the System Administrator to assign or reassign landlords and housing administrators to specific dormitories or accommodations.
-
+ Allows the System Administrator to assign or reassign landlords and housing administrators to specific dormitories or accommodations.
 
 * **Audit Log Viewer** 
 
-  Provides full unrestricted access to all system-wide activity logs
-
+ Provides full unrestricted access to all system-wide activity logs
 
 * **System Configuration Module** 
 
-  Allows management of system-wide settings such as bypassing application periods and other configurable parameters
+ Allows management of system-wide settings such as bypassing application periods and other configurable parameters
 
-## **3.1.3  Interface Standards** {#3.1.3-interface-standards}
+## **3.1.3 Interface Standards** {#3.1.3-interface-standards}
 
 The system shall comply with recognized web accessibility and usability standards. The user interface shall adhere to Level AA compliance of the Web Content Accessibility Guidelines (WCAG) 2.1 published by the World Wide Web Consortium (W3C), to the extent permitted by the project timeline and available resources.
 
-### 3.1.3.1  Accessibility Standards
+### 3.1.3.1 Accessibility Standards
 
 The system shall implement the following accessibility requirements:
 
-* **Alternative Text** \- All non-text content shall include descriptive text  
-* **Contrast Ratio**  \- Normal text shall meet a minimum contrast ratio of 4.5:1 and large text at 3:1.  
-* **Zoom and Responsiveness** \- Users should be able to zoom in up to 200% without compromising functionality.  
-* **Keyboard accessibility**  \- interactive elements (button, links, forms) must be usable via Tab key.  
-* **Skip Navigation** \- A “Skip to content” must be implemented to allow users bypass repetitive navigation.  
+* **Alternative Text** \- All non-text content shall include descriptive text 
+* **Contrast Ratio** \- Normal text shall meet a minimum contrast ratio of 4.5:1 and large text at 3:1. 
+* **Zoom and Responsiveness** \- Users should be able to zoom in up to 200% without compromising functionality. 
+* **Keyboard accessibility** \- interactive elements (button, links, forms) must be usable via Tab key. 
+* **Skip Navigation** \- A “Skip to content” must be implemented to allow users bypass repetitive navigation. 
 * **Semantic Structure** \- The system shall use proper HTML semantic elements; text shall not be embedded within images when HTML/CSS alternatives are available.
 
-  	
+ 	
 
-  2. ## **Hardware Interfaces**
+ 2. ## **Hardware Interfaces**
 
 The system does not require any specialized hardware components. It operates as a web-based application accessible through devices capable of running modern web browsers.
 
-Minimum device requirements include:  
-**Display** \- a screen capable of displaying and rendering a modern web browser with a       minimum resolution of 360 x 640 pixels.  
-**I/O Devices** \- a keyboard and pointing device (mouse or touchscreen) for interacting with the web interface.  
+Minimum device requirements include: 
+**Display** \- a screen capable of displaying and rendering a modern web browser with a minimum resolution of 360 x 640 pixels. 
+**I/O Devices** \- a keyboard and pointing device (mouse or touchscreen) for interacting with the web interface. 
 **Network Adapter** \- A functional network adapter capable of maintaining stable internet connection for client-server communication.
 
 Aside from this, the system does not require any external peripherals or devices.
 
 3. ## **Software Interfaces**
 
-The system shall interface with the following external software components to support and perform its core features. Each specific component description identifies data items or messages exchanged, the purpose of the interface, and its data sharing mechanism.  
-	  
-**Google OAuth 2.0 / Google Identity Platform:** The system shall redirect authentication requests to Google’s Identity Platform through Supabase Auth. OAuth 2.0 allows access to user data without exposing their login credentials by having access to a user’s data via tokens rather than passwords.  
-	  
-**Next.js 16 (React Framework):** The system shall use Next.js 16, which runs on a Node.js environment, for the frontend rendering and backend API route handling. Data exchanged between the client and the server consists of  HTTP requests/responses in JSON format.
+The system shall interface with the following external software components to support and perform its core features. Each specific component description identifies data items or messages exchanged, the purpose of the interface, and its data sharing mechanism. 
+	 
+**Google OAuth 2.0 / Google Identity Platform:** The system shall redirect authentication requests to Google’s Identity Platform through Supabase Auth. OAuth 2.0 allows access to user data without exposing their login credentials by having access to a user’s data via tokens rather than passwords. 
+	 
+**Next.js 16 (React Framework):** The system shall use Next.js 16, which runs on a Node.js environment, for the frontend rendering and backend API route handling. Data exchanged between the client and the server consists of HTTP requests/responses in JSON format.
 
 **SMTP Email Service:** The system shall use a SMTP-compatible provider for sending email notifications for billing, application status, and updates. Outgoing email data includes HTML/CSS-formatted message body, recipient address, and subject.
 
-**Supabase:** The system shall use Supabase as its backend service provider. The system will utilize the following core interfaces of Supabase:
+**Supabase:** The system shall use Supabase as its backend service provider. The system will use the following core interfaces of Supabase:
 
-* **PostgreSQL Database:** The system shall use Supabase, which uses PostgreSQL as its database engine, as the primary database to store all system data. Data in the Supabase is managed through the Supabase JavaScript client library.  
-* **Supabase Auth:** The system shall delegate authentication to Supabase Auth that internally communicates with Google’s OAuth 2.0 Identity Provider to facilitate verification of UP mail credentials. Successful logins will receive a JSON Web Token (JWT) given by Supabase. The system uses JWT to validate user sessions.  
-* **Supabase Storage:** The system shall use Supabase Storage for all uploaded files. The system shall accept only PDF, image (.jpg, .png, .jpeg), CSV, and Excel files.  
-    
-  **Vercel:** The system shall be deployed on Vercel’s serverless cloud platform to simplify the deployment and hosting of the frontend application. It is suited for Next.js, React, and others for the development process. Vercel also uses a Global Content Delivery Network (CDN) for quick loading of applications.
+* **PostgreSQL Database:** The system shall use Supabase, which uses PostgreSQL as its database engine, as the primary database to store all system data. Data in the Supabase is managed through the Supabase JavaScript client library. 
+* **Supabase Auth:** The system shall delegate authentication to Supabase Auth that internally communicates with Google’s OAuth 2.0 Identity Provider to facilitate verification of UP mail credentials. Successful logins will receive a JSON Web Token (JWT) given by Supabase. The system uses JWT to validate user sessions. 
+* **Supabase Storage:** The system shall use Supabase Storage for all uploaded files. The system shall accept only PDF, image (.jpg,.png,.jpeg), CSV, and Excel files. 
+ 
+ **Vercel:** The system shall be deployed on Vercel’s serverless cloud platform to simplify the deployment and hosting of the frontend application. It is suited for Next.js, React, and others for the development process. Vercel also uses a Global Content Delivery Network (CDN) for quick loading of applications.
 
-
-### 3.3.1  Shared Data Across Software Components
+### 3.3.1 Shared Data Across Software Components
 
 Data items shared and remain consistent across software components include:
 
-* **Application and Occupancy Records** \- shared between Next.js frontend and Supabase PostgreSQL. These data records stored in Supabase PostgreSQL are fetched by the frontend for display.  
-* **Activity Logs** \- shared between Supabase PostgreSQL and Next.js Admin Interface. System logs are stored in PostgreSQL and can be accessed or retrieved by the Admin interface. These logs are immutable and cannot be modified through any application interface.  
-* **Billing and Payment Records** \- shared between Supabase PostgreSQL, Next.js frontend, and SMTP Email Service. These data records stored in PostgreSQL are displayed in the frontend and email notifications.  
+* **Application and Occupancy Records** \- shared between Next.js frontend and Supabase PostgreSQL. These data records stored in Supabase PostgreSQL are fetched by the frontend for display. 
+* **Activity Logs** \- shared between Supabase PostgreSQL and Next.js Admin Interface. System logs are stored in PostgreSQL and can be accessed or retrieved by the Admin interface. These logs are immutable and cannot be modified through any application interface. 
+* **Billing and Payment Records** \- shared between Supabase PostgreSQL, Next.js frontend, and SMTP Email Service. These data records stored in PostgreSQL are displayed in the frontend and email notifications. 
 * **User Identity (JWT)** \- shared between Next.js, Supabase auth, and API Routes. JWT is used to verify user identity and role.
 
-  4. ## **Communications Interfaces**
+ 4. ## **Communications Interfaces**
 
 The system is primarily a web app and is dependent on the availability of a client’s HTTPS connection to the server and on the availability of a DNS service from the client to the user. The HTTPS connection also ensures that all data sent is encrypted using TLS 1.2 or higher in transit.
 
@@ -448,7 +432,7 @@ All API requests shall have a 30-second timeout. If a connection fails, the syst
 
 4. # **System Features**
 
-   1. ## **Authentication and Access Control**
+ 1. ## **Authentication and Access Control**
 
 4.1.1	Description and Priority
 
@@ -458,40 +442,40 @@ This feature allows users to access the accommodation system using a valid Googl
 
 4.1.2	Stimulus/Response Sequences
 
-1. The user is initially directed to the “Login” page.  
-2. The system displays a “Login with Google / UP Mail” button.  
-3. The user selects the “Login with Google / UP Mail” button.  
-4. The system connects to the authentication page.  
-5. The user enters their Google or UP Mail credentials.  
-6. The system validates their university credentials.  
-   1. Upon successful validation:  
-      1. The system identifies the user’s role.  
-      2. The system initially provisions the lowest role (Student) by default unless manually assigned by the System Administrator as Dormitory Manager or Housing Administrator.  
-      3. The system redirects the user to their respective dashboard based on role.  
-      4. The system logs the session activity.  
-   2. Upon failed validation:  
-      1. The system displays an error message for invalid credentials.  
-      2. The system prevents system access.  
-7. The user forgets their password:	  
-   1. The user clicks the “Forgot Password” button in the sign-in page.  
-   2. The authentication provider (Google) handles the password reset.  
-8. The user performs role-specific tasks.  
-   1. Student: View accommodations, submit applications, upload documents  
-   2. Dormitory Manager: Review applications, check accommodation availability, room assignment  
-   3. Housing Administrator: Manage dormitories, students, managers  
-   4. System Administrator: System management, role assignment, vetting of landlords, validating student access  
-9. The user clicks the “Logout” button.  
+1. The user is initially directed to the “Login” page. 
+2. The system displays a “Login with Google / UP Mail” button. 
+3. The user selects the “Login with Google / UP Mail” button. 
+4. The system connects to the authentication page. 
+5. The user enters their Google or UP Mail credentials. 
+6. The system validates their university credentials. 
+ 1. Upon successful validation: 
+ 1. The system identifies the user’s role. 
+ 2. The system initially provisions the lowest role (Student) by default unless manually assigned by the System Administrator as Dormitory Manager or Housing Administrator. 
+ 3. The system redirects the user to their respective dashboard based on role. 
+ 4. The system logs the session activity. 
+ 2. Upon failed validation: 
+ 1. The system displays an error message for invalid credentials. 
+ 2. The system prevents system access. 
+7. The user forgets their password:	 
+ 1. The user clicks the “Forgot Password” button in the sign-in page. 
+ 2. The authentication provider (Google) handles the password reset. 
+8. The user performs role-specific tasks. 
+ 1. Student: View accommodations, submit applications, upload documents 
+ 2. Dormitory Manager: Review applications, check accommodation availability, room assignment 
+ 3. Housing Administrator: Manage dormitories, students, managers 
+ 4. System Administrator: System management, role assignment, vetting of landlords, validating student access 
+9. The user clicks the “Logout” button. 
 10. The system terminates the session and returns to the initial “Login” page.
 
 4.1.3	Functional Requirements
 
-REQ-1:	The system shall validate user credentials through Google or UP Mail authentication.  
-REQ-2:	The system shall provide a secure session upon successful authentication, and shall automatically timeout after a period of inactivity.  
-REQ-3:	The system shall implement the Role-Based Access Control to restrict features based on the assigned user class.  
-REQ-4:	The system shall authorize system privilege access based on the assigned user class.  
-REQ-5:	The system shall allow or deny access to the system and return an error code and message for instances that the user with lower permissions attempts to manually navigate restricted portions of the system.   
-REQ-6:	The system shall have a respective user dashboard based on the assigned user class.  
-REQ-7: 	The system shall automatically record activity for any actions performed by the user during the session using an Audit Trail. The log will include user ID, timestamp, IP address, actions performed by the user, and affected entities.  
+REQ-1:	The system shall validate user credentials through Google or UP Mail authentication. 
+REQ-2:	The system shall provide a secure session upon successful authentication, and shall automatically timeout after a period of inactivity. 
+REQ-3:	The system shall implement the Role-Based Access Control to restrict features based on the assigned user class. 
+REQ-4:	The system shall authorize system privilege access based on the assigned user class. 
+REQ-5:	The system shall allow or deny access to the system and return an error code and message for instances that the user with lower permissions attempts to manually navigate restricted portions of the system. 
+REQ-6:	The system shall have a respective user dashboard based on the assigned user class. 
+REQ-7: 	The system shall automatically record activity for any actions performed by the user during the session using an Audit Trail. The log will include user ID, timestamp, IP address, actions performed by the user, and affected entities. 
 REQ-8: 	The system shall clear and invalidate the session upon user logout.
 
 2. ## **User Management**
@@ -510,22 +494,22 @@ This feature sets and maintains the digital identities of all individuals intera
 
 4.2.2	Stimulus/Response Sequences
 
-1. The unregistered student logs into the system for the first time via UP Mail.  
-a. The system automatically generates a new "Student" profile.  
-b. The system prompts the student to complete missing profile details (e.g., contact number, emergency contact).  
-3\. The student navigates to "My Profile" and updates their contact information.  
-a. The system validates the new input format.  
-b. The system saves the updated personal information to the database.  
-4\. The Housing Administrator navigates to "Manage Users" to onboard a new staff member.  
-a. If there are no users, the system displays a user-friendly error message.  
-b. The Housing Administrator enters the staff member's UP Mail and assigns the "Dormitory Manager" role.  
-c. The system creates the new profile and grants the associated manager privileges.  
-5\. The Dormitory Manager navigates to "View Residents".  
-a. The system retrieves and displays the user profiles exclusively assigned to the dormitories managed by that specific manager.  
-b. The system hides the profiles of students from unassigned dormitories.  
-6\. The Housing Administrator selects a user profile and clicks "Deactivate Account".  
-a. The system prompts for a confirmation and reason for deactivation.  
-b. Upon confirmation, the system updates the account status to "Inactive."  
+1. The unregistered student logs into the system for the first time via UP Mail. 
+a. The system automatically generates a new "Student" profile. 
+b. The system prompts the student to complete missing profile details (e.g., contact number, emergency contact). 
+3\. The student navigates to "My Profile" and updates their contact information. 
+a. The system validates the new input format. 
+b. The system saves the updated personal information to the database. 
+4\. The Housing Administrator navigates to "Manage Users" to onboard a new staff member. 
+a. If there are no users, the system displays a user-friendly error message. 
+b. The Housing Administrator enters the staff member's UP Mail and assigns the "Dormitory Manager" role. 
+c. The system creates the new profile and grants the associated manager privileges. 
+5\. The Dormitory Manager navigates to "View Residents". 
+a. The system retrieves and displays the user profiles exclusively assigned to the dormitories managed by that specific manager. 
+b. The system hides the profiles of students from unassigned dormitories. 
+6\. The Housing Administrator selects a user profile and clicks "Deactivate Account". 
+a. The system prompts for a confirmation and reason for deactivation. 
+b. Upon confirmation, the system updates the account status to "Inactive." 
 c. The system restricts future access for that user while retaining their past application, accommodation, and billing history.
 
 4.2.3	Functional Requirements
@@ -564,60 +548,59 @@ This feature allows management of all dormitories and housing facilities, as wel
 
 4.3.2	Stimulus/Response Sequences
 
-1. The dormitory manager navigates to “Manage Rooms” for their assigned dormitory.  
-   1. The system displays all rooms and bed spaces in the dormitory, including room number, room type (single, double, shared), capacity, current occupancy, and availability status. Otherwise, display a “No room available” message.  
-2. The housing administrator or landlord navigates to “Manage Dormitories”.  
-   1. The system displays all dormitories and rooms added by the house administrator or landlord, including assigned dormitory managers, capacities, current occupancy, and availability. Otherwise, display a “No dormitory available” message.  
-3. The housing administrator or landlord creates, updates, or deletes dormitories and rooms.  
-   1. Upon successful operation:  
-      1. The system saves the changes.  
-      2. The system logs the action with timestamp, user, and entity affected.  
-   2. Upon failed operation:  
-      1. The system displays an error message.  
-4. The housing administrator or landlord views full administrative logs of all owned dormitory and room management actions.  
-   1. The system displays a complete audit trail, including action type, user, timestamp, and affected entity.
+1. The dormitory manager navigates to “Manage Rooms” for their assigned dormitory. 
+ 1. The system displays all rooms and bed spaces in the dormitory, including room number, room type (single, double, shared), capacity, current occupancy, and availability status. Otherwise, display a “No room available” message. 
+2. The housing administrator or landlord navigates to “Manage Dormitories”. 
+ 1. The system displays all dormitories and rooms added by the house administrator or landlord, including assigned dormitory managers, capacities, current occupancy, and availability. Otherwise, display a “No dormitory available” message. 
+3. The housing administrator or landlord creates, updates, or deletes dormitories and rooms. 
+ 1. Upon successful operation: 
+ 1. The system saves the changes. 
+ 2. The system logs the action with timestamp, user, and entity affected. 
+ 2. Upon failed operation: 
+ 1. The system displays an error message. 
+4. The housing administrator or landlord views full administrative logs of all owned dormitory and room management actions. 
+ 1. The system displays a complete audit trail, including action type, user, timestamp, and affected entity.
 
 4.3.3	Functional Requirements
 
 REQ-1:	The system shall allow the housing administrator and landlord to do CRUD operations on dormitories on and off the campus, requiring the following fields: Name, Location, Type (on-campus, off-campus university-managed, or partner private accommodation), and Capacity
 
-* Create: Add new dormitories or housing facilities.  
-* Read: View details of all dormitories or housing facilities.  
-* Update: Modify details of existing dormitories or housing facilities.  
+* Create: Add new dormitories or housing facilities. 
+* Read: View details of all dormitories or housing facilities. 
+* Update: Modify details of existing dormitories or housing facilities. 
 * Delete: Remove existing dormitories or housing facilities.
 
-  REQ-2:	The system shall allow the housing administrator and landlord to do CRUD operations on rooms and bed spaces for all dormitories, requiring the selection of a Room Type (Single, Double, or Shared).
+ REQ-2:	The system shall allow the housing administrator and landlord to do CRUD operations on rooms and bed spaces for all dormitories, requiring the selection of a Room Type (Single, Double, or Shared).
 
-* Create: Add new rooms and bed spaces.  
-* Read: View details of all rooms and bed spaces.  
-* Update: Modify details of existing rooms and bed spaces.  
+* Create: Add new rooms and bed spaces. 
+* Read: View details of all rooms and bed spaces. 
+* Update: Modify details of existing rooms and bed spaces. 
 * Delete: Remove existing rooms or bed spaces from the system.
 
-  REQ-3:	The system shall restrict access to dormitory and room management functions exclusively to dormitory manager, housing administrator, and landlord.
+ REQ-3:	The system shall restrict access to dormitory and room management functions exclusively to dormitory manager, housing administrator, and landlord.
 
-  REQ-4: 	The system shall restrict dormitory managers to viewing and managing only the dormitories assigned to them.
+ REQ-4: 	The system shall restrict dormitory managers to viewing and managing only the dormitories assigned to them.
 
-  REQ-5: 	The system shall enforce that each dormitory is assigned to at most one dormitory manager at a time.
+ REQ-5: 	The system shall enforce that each dormitory is assigned to at most one dormitory manager at a time.
 
-  REQ-6: 	The system shall allow dormitory managers to be assigned to multiple dormitories.
+ REQ-6: 	The system shall allow dormitory managers to be assigned to multiple dormitories.
 
-  REQ-7: 	The system shall allow only the housing administrator to create, update, or delete on-campus dormitories.
+ REQ-7: 	The system shall allow only the housing administrator to create, update, or delete on-campus dormitories.
 
-  REQ-8:	 The system shall allow only the landlord to create, update, or delete off-campus dormitories owned by the landlord.
+ REQ-8:	 The system shall allow only the landlord to create, update, or delete off-campus dormitories owned by the landlord.
 
-  REQ-9:	The system shall give the responsibility of a dormitory manager to a house administrator or landlord if there is no dormitory manager assigned to a housing facility.
+ REQ-9:	The system shall give the responsibility of a dormitory manager to a house administrator or landlord if there is no dormitory manager assigned to a housing facility.
 
-  REQ-10:	The system shall allow the housing administrator or landlord to assign dormitory managers to specific dormitories.
+ REQ-10:	The system shall allow the housing administrator or landlord to assign dormitory managers to specific dormitories.
 
-  REQ-11:	The system shall log all administrative actions performed on dormitories, apartments, and rooms, including: 
+ REQ-11:	The system shall log all administrative actions performed on dormitories, apartments, and rooms, including: 
 
-* User performing the action  
-* Timestamp  
-* Action type  
+* User performing the action 
+* Timestamp 
+* Action type 
 * Affected entity
 
-
-  4. ## **Accommodation Application Processing** {#accommodation-application-processing}
+ 4. ## **Accommodation Application Processing** {#accommodation-application-processing}
 
 4.4.1	Description and Priority
 
@@ -631,62 +614,62 @@ REQ-1:	The system shall allow the housing administrator and landlord to do CRUD 
 
 4.4.2	Stimulus/Response Sequences
 
-1. The student navigates to "Dormitories."  
-   1. The system displays all available dormitories and room types.  
-2. The student selects the preferred dormitory or apartment, as well as the room type or bed space,  and uploads required documents.  
-   1. The system validates the following criteria:  
-      1. The application is submitted during the allowed period specified by the housing administrator or landlord.  
-      2. The required fields (e.g. Room type) are completed.  
-      3. The required documents (e.g. Proof of enrollment) are uploaded.  
-      4. Upon successful validation:  
-         1. The system accepts the application.  
-         2. The system sets the status to "Pending."  
-         3. The system displays confirmation of the application.  
-      5. Upon failed validation:  
-         1. The system displays a corresponding error message.  
-         2. The system prevents the application from being submitted.  
-3. The student navigates to "My Application."  
-   1. The system displays the submitted information, including the preferred dormitory or apartment, as well as the room type or bed space, and the application’s current status.  
-4. The dormitory manager navigates to “Housing Application”.  
-   1. The system displays all applications to the designated dormitories, apartments, or bed spaces.  
-5. The dormitory manager approves or rejects the application.  
-   1. The system shall perform one of the following actions:  
-      1. Upon approval:  
-         1. The system passes control to the house administrator for the final screening of the application.  
-      2. Upon rejection:  
-         1. The system sets the status to “Rejected”.  
-6. The house administrator approves or rejects the application.  
-   1. Upon approval:  
-      1. The system sets the status to “Approved.”  
-   2. Upon rejection:  
-      1. The system sets the status to “Rejected”.
+1. The student navigates to "Dormitories." 
+ 1. The system displays all available dormitories and room types. 
+2. The student selects the preferred dormitory or apartment, as well as the room type or bed space, and uploads required documents. 
+ 1. The system validates the following criteria: 
+ 1. The application is submitted during the allowed period specified by the housing administrator or landlord. 
+ 2. The required fields (e.g. Room type) are completed. 
+ 3. The required documents (e.g. Proof of enrollment) are uploaded. 
+ 4. Upon successful validation: 
+ 1. The system accepts the application. 
+ 2. The system sets the status to "Pending." 
+ 3. The system displays confirmation of the application. 
+ 5. Upon failed validation: 
+ 1. The system displays a corresponding error message. 
+ 2. The system prevents the application from being submitted. 
+3. The student navigates to "My Application." 
+ 1. The system displays the submitted information, including the preferred dormitory or apartment, as well as the room type or bed space, and the application’s current status. 
+4. The dormitory manager navigates to “Housing Application”. 
+ 1. The system displays all applications to the designated dormitories, apartments, or bed spaces. 
+5. The dormitory manager approves or rejects the application. 
+ 1. The system shall perform one of the following actions: 
+ 1. Upon approval: 
+ 1. The system passes control to the house administrator for the final screening of the application. 
+ 2. Upon rejection: 
+ 1. The system sets the status to “Rejected”. 
+6. The house administrator approves or rejects the application. 
+ 1. Upon approval: 
+ 1. The system sets the status to “Approved.” 
+ 2. Upon rejection: 
+ 1. The system sets the status to “Rejected”.
 
 4.4.3	Functional Requirements
 
-REQ-1:	The system shall allow the student to view a list of available dormitories and room types.  
-REQ-2:	The system shall require the student to select one preferred dormitory or apartment, as well as the room type or bed space per application.  
-REQ-3:	The system shall require the student to upload the required documents with a maximum upload size of 10MB.  
-REQ-4:	The system shall prevent the student from submitting their application if there are any missing field requirements.  
-REQ-5:	The system shall prevent the student from submitting their application outside the allowed application period specified by the housing administrator or landlord.  
-REQ-6:	The system shall display an error message if the uploaded documents exceed the maximum size of 10MB.  
-REQ-7:	The system shall provide an option for cancelling an application once it has been submitted.  
-REQ-8:	The system shall enforce a private transaction between the applicant and the authority (i.e. the transaction for application is between the student and the housing authority such as dormitory manager, house administrator, and landlord)  
-REQ-9:	The system shall allow the student to view the details of the application, including the application status and details.  
-REQ-10:	The system shall assign a default “Pending” status to valid applications.  
-REQ-11:	The system shall grant exclusive control of initial screening for approval to dormitory managers.  
-REQ-12:	The system shall grant exclusive control of final screening for approval to the house administrator or landlord.  
-REQ-13:	In the absence of a dormitory manager, the system shall immediately provide control to the house administrator or landlord for final screening of the application.	  
-REQ-14:	The system shall require the dormitory manager and house administrators to select either an approval or a rejection of an application with remarks.  
-REQ-15:	The system shall prevent the dormitory manager and house administrators from sending an approval or a rejection of an application without remarks.  
-REQ-16:	The system shall reassign an “Approved” or “Rejected” status after the final screening.  
-REQ-17: The system shall pass the application data to the house administrator upon approval of the dormitory manager.  
+REQ-1:	The system shall allow the student to view a list of available dormitories and room types. 
+REQ-2:	The system shall require the student to select one preferred dormitory or apartment, as well as the room type or bed space per application. 
+REQ-3:	The system shall require the student to upload the required documents with a maximum upload size of 10MB. 
+REQ-4:	The system shall prevent the student from submitting their application if there are any missing field requirements. 
+REQ-5:	The system shall prevent the student from submitting their application outside the allowed application period specified by the housing administrator or landlord. 
+REQ-6:	The system shall display an error message if the uploaded documents exceed the maximum size of 10MB. 
+REQ-7:	The system shall provide an option for cancelling an application once it has been submitted. 
+REQ-8:	The system shall enforce a private transaction between the applicant and the authority (i.e. the transaction for application is between the student and the housing authority such as dormitory manager, house administrator, and landlord) 
+REQ-9:	The system shall allow the student to view the details of the application, including the application status and details. 
+REQ-10:	The system shall assign a default “Pending” status to valid applications. 
+REQ-11:	The system shall grant exclusive control of initial screening for approval to dormitory managers. 
+REQ-12:	The system shall grant exclusive control of final screening for approval to the house administrator or landlord. 
+REQ-13:	In the absence of a dormitory manager, the system shall immediately provide control to the house administrator or landlord for final screening of the application.	 
+REQ-14:	The system shall require the dormitory manager and house administrators to select either an approval or a rejection of an application with remarks. 
+REQ-15:	The system shall prevent the dormitory manager and house administrators from sending an approval or a rejection of an application without remarks. 
+REQ-16:	The system shall reassign an “Approved” or “Rejected” status after the final screening. 
+REQ-17: The system shall pass the application data to the house administrator upon approval of the dormitory manager. 
 REQ-18:	The system shall save a draft of the application if it is partially completed.
 
 5. ## **Room Assignment and Occupancy Tracking** {#room-assignment-and-occupancy-tracking}
 
 4.5.1	Description and Priority
 
-This feature enables room occupancy management to prevent overbooking while maintaining a detailed accommodation history and occupancy record for each student. The system prevents overbooking by verifying the room capacity limits. Moreover, it monitors move-in and move-out dates. This information is used to track a student's accommodation history and enables the system to report room availability difficulties.
+This feature enables room occupancy management to prevent overbooking while maintaining a detailed accommodation history and occupancy record for each student. The system prevents overbooking by verifying the room capacity limits. Also, it monitors move-in and move-out dates. This information is used to track a student's accommodation history and enables the system to report room availability difficulties.
 
 **For Dormitory Manager:** This feature enables them to assign rooms or bed spaces within the dormitories they oversee, manage occupancy records, including move-in and move-out dates, and report room availability issues to the housing administrator or landlord.
 
@@ -696,56 +679,55 @@ This feature enables room occupancy management to prevent overbooking while main
 
 4.5.2	Stimulus/Response Sequences
 
-1. The dormitory manager navigates to “Manage Rooms.”  
-2. The dormitory manager selects an available room or bed space and assigns the student.  
-   1. Upon successful assignment:  
-      1. The system updates the occupancy record.  
-      2. The student’s assignment status is set to “Assigned.”  
-      3. The system logs the move-in date.  
-      4. The system records the assignment in the activity log.  
-   2. Upon failed assignment:  
-      1. The system prevents overbooking.  
-      2. The system displays an appropriate error message.  
-3. The dormitory manager updates the student’s move-out date or marks the student as moved out.  
-   1. The system updates the occupancy records.  
-   2. The system logs the move-out action in the activity log.  
-   3. The student’s assignment status is updated accordingly (e.g., “Vacated”).  
-4. The dormitory manager reports room availability or occupancy issues.  
-   1. The system records the issue in the administrative log.  
-   2. The system notifies the housing administrator if action is required.  
-5. The housing administrator navigates to “Manage Dormitories.”  
-6. The housing administrator selects a student and overrides the room assignment when necessary.  
-   1. The system updates occupancy records.  
-   2. The system logs the override action in the activity log.
+1. The dormitory manager navigates to “Manage Rooms.” 
+2. The dormitory manager selects an available room or bed space and assigns the student. 
+ 1. Upon successful assignment: 
+ 1. The system updates the occupancy record. 
+ 2. The student’s assignment status is set to “Assigned.” 
+ 3. The system logs the move-in date. 
+ 4. The system records the assignment in the activity log. 
+ 2. Upon failed assignment: 
+ 1. The system prevents overbooking. 
+ 2. The system displays an appropriate error message. 
+3. The dormitory manager updates the student’s move-out date or marks the student as moved out. 
+ 1. The system updates the occupancy records. 
+ 2. The system logs the move-out action in the activity log. 
+ 3. The student’s assignment status is updated accordingly (e.g., “Vacated”). 
+4. The dormitory manager reports room availability or occupancy issues. 
+ 1. The system records the issue in the administrative log. 
+ 2. The system notifies the housing administrator if action is required. 
+5. The housing administrator navigates to “Manage Dormitories.” 
+6. The housing administrator selects a student and overrides the room assignment when necessary. 
+ 1. The system updates occupancy records. 
+ 2. The system logs the override action in the activity log.
 
 4.5.3	Functional Requirements
 
-REQ-1:	The system shall allow the dormitory manager to assign approved students to available rooms or bed spaces within the facilities they oversee.  
-REQ-2:	The system shall automatically update the student’s assignment status (e.g., “Assigned,” “Vacated”) based on occupancy actions.  
-REQ-3:	The system shall allow the housing administrator and landlord to assign students to rooms or bed spaces within their authorized dormitories.  
-REQ-4:	The system shall allow the dormitory manager to manage occupancy records, including move-in and move-out dates for students in their assigned dormitories.  
-REQ-5:	The system shall allow the dormitory manager to report room availability issues via in-app and email to the housing administrator or landlord.  
-REQ-6:	The system shall allow the housing administrator or landlord to override room assignments when necessary and will notify the affected students.  
-REQ-7:	The system shall notify the affected students via in-app notification when the housing administrator or landlord overrides the room assignments  
-REQ-8:	The system shall prevent overbooking by validating room capacity against current occupancy before confirming assignments.  
-REQ-9:	The system shall enforce concurrency control mechanisms to prevent simultaneous assignments from exceeding room capacity.  
+REQ-1:	The system shall allow the dormitory manager to assign approved students to available rooms or bed spaces within the facilities they oversee. 
+REQ-2:	The system shall automatically update the student’s assignment status (e.g., “Assigned,” “Vacated”) based on occupancy actions. 
+REQ-3:	The system shall allow the housing administrator and landlord to assign students to rooms or bed spaces within their authorized dormitories. 
+REQ-4:	The system shall allow the dormitory manager to manage occupancy records, including move-in and move-out dates for students in their assigned dormitories. 
+REQ-5:	The system shall allow the dormitory manager to report room availability issues via in-app and email to the housing administrator or landlord. 
+REQ-6:	The system shall allow the housing administrator or landlord to override room assignments when necessary and will notify the affected students. 
+REQ-7:	The system shall notify the affected students via in-app notification when the housing administrator or landlord overrides the room assignments 
+REQ-8:	The system shall prevent overbooking by validating room capacity against current occupancy before confirming assignments. 
+REQ-9:	The system shall enforce concurrency control mechanisms to prevent simultaneous assignments from exceeding room capacity. 
 REQ-10:	The system shall maintain a complete accommodation history for each student, including:
 
-*  All past rooms assigned  
-* Current room assignment  
-* Corresponding move-in date  
-* Corresponding expected move-out date  
+* All past rooms assigned 
+* Current room assignment 
+* Corresponding move-in date 
+* Corresponding expected move-out date 
 * Corresponding actual move-out date
 
-  REQ-11:	The system shall log all room assignments, occupancy updates, override actions, and issue reports, including:
+ REQ-11:	The system shall log all room assignments, occupancy updates, override actions, and issue reports, including:
 
-* User performing the action  
-* Timestamp  
-* Action type  
+* User performing the action 
+* Timestamp 
+* Action type 
 * Affected dormitory, room, or student
 
-
-  6. ## **Billing and Payment Management** {#billing-and-payment-management}
+ 6. ## **Billing and Payment Management** {#billing-and-payment-management}
 
 4.6.1	Description and Priority
 
@@ -761,53 +743,53 @@ This feature enables the centralized management and tracking of all financial tr
 
 4.6.2	Stimulus/Response Sequences
 
-1. The Housing Administrator navigates to “Manage Dormitories”.  
-2. The system shall display a list of the housing administrator’s managed housing facilities; If no facilities are assigned, the system shall display a “No Facilities Managed” message.  
-3. The Housing Administrator selects the "Billing Period Settings" and defines the date ranges for the current semester (e.g., February 1–28, March 1–31) or a custom application period for a private dorm.  
-4. The system shall save these periods as the only valid options for SOA requests and reporting.  
-5. The Housing Administrator selects one or multiple dormitories and clicks “Update Rates/Fees”  
-6. The system shall provide an interface to modify the room rates and update or create new fees.  
-7. The Housing Administrator modifies the room rates and/or creates new fees using the provided interface.  
-8. The system shall validate the inputs and prompt for a “Confirm and Apply” action to finalize the updates.  
-9. The Student navigates to Billing and Payments  
-10. The system shall display the student’s total balance, due dates, and payment history.  
-11. The Student selects the “Request SOA” option and specifies the billing period (e.g. Month of February).  
-12. The system shall prompt the Student to declare payable items (e.g. Appliances) they currently have in their accommodation.  
-13. The Student submits the declaration and SOA request.  
-14. The system shall notify the Dormitory Manager of the pending request for their assigned facility; if no manager is assigned, the notification shall be sent directly to the Housing Administrator.  
-15. The Dormitory Manager reviews the request and may add miscellaneous fees (e.g. penalties) or deductions (e.g. discounts or use of deposit) and clicks “Issue SOA”.  
-16. The system shall generate the SOA by calculating the base room rate plus the additional fees or minus the deductions and can be downloaded as a PDF file.  
-17. The Student uploads a digital copy of their proof of payment (bank transfer receipt or deposit slip) to the system.  
-18. The system shall update the payment status to "For Verification" and notify the Dormitory Manager.  
-19. The Dormitory Manager reviews the uploaded documents and finds it invalid (e.g, wrong amount, blurry image)  
-20. The system shall set the payment status to “Rejected/Requires Re-upload” and notifies the Student.  
-21. The Student reviews the rejection and uploads a new proof of payment.  
-22. The system shall set the payment status to “For Verification” again.  
-23. The Dormitory Manager reviews the uploaded document and approves the document.  
-24. The system shall forward the verified record to the Housing Administrator for final approval.  
-25. The Housing Administrator grants final approval to the payment record.  
+1. The Housing Administrator navigates to “Manage Dormitories”. 
+2. The system shall display a list of the housing administrator’s managed housing facilities; If no facilities are assigned, the system shall display a “No Facilities Managed” message. 
+3. The Housing Administrator selects the "Billing Period Settings" and defines the date ranges for the current semester (e.g., February 1–28, March 1–31) or a custom application period for a private dorm. 
+4. The system shall save these periods as the only valid options for SOA requests and reporting. 
+5. The Housing Administrator selects one or multiple dormitories and clicks “Update Rates/Fees” 
+6. The system shall provide an interface to modify the room rates and update or create new fees. 
+7. The Housing Administrator modifies the room rates and/or creates new fees using the provided interface. 
+8. The system shall validate the inputs and prompt for a “Confirm and Apply” action to finalize the updates. 
+9. The Student navigates to Billing and Payments 
+10. The system shall display the student’s total balance, due dates, and payment history. 
+11. The Student selects the “Request SOA” option and specifies the billing period (e.g. Month of February). 
+12. The system shall prompt the Student to declare payable items (e.g. Appliances) they currently have in their accommodation. 
+13. The Student submits the declaration and SOA request. 
+14. The system shall notify the Dormitory Manager of the pending request for their assigned facility; if no manager is assigned, the notification shall be sent directly to the Housing Administrator. 
+15. The Dormitory Manager reviews the request and may add miscellaneous fees (e.g. penalties) or deductions (e.g. discounts or use of deposit) and clicks “Issue SOA”. 
+16. The system shall generate the SOA by calculating the base room rate plus the additional fees or minus the deductions and can be downloaded as a PDF file. 
+17. The Student uploads a digital copy of their proof of payment (bank transfer receipt or deposit slip) to the system. 
+18. The system shall update the payment status to "For Verification" and notify the Dormitory Manager. 
+19. The Dormitory Manager reviews the uploaded documents and finds it invalid (e.g, wrong amount, blurry image) 
+20. The system shall set the payment status to “Rejected/Requires Re-upload” and notifies the Student. 
+21. The Student reviews the rejection and uploads a new proof of payment. 
+22. The system shall set the payment status to “For Verification” again. 
+23. The Dormitory Manager reviews the uploaded document and approves the document. 
+24. The system shall forward the verified record to the Housing Administrator for final approval. 
+25. The Housing Administrator grants final approval to the payment record. 
 26. The system shall update the student's status to "Paid" and record the transaction in the audit trail.
 
 4.6.3	Functional Requirements
 
-REQ-1:	The system shall allow Housing Administrators to define and manage a list of valid billing periods (e.g., monthly cycles) for their managed housing facilities.  
-REQ-2:	The system shall provide an interface for Housing Administrators to set and update their base monthly rates for specific or multiple selected facilities they are managing/assigned to.  
-REQ-3:	The system shall automatically calculate “Overdue” status if a billing record remains “Unpaid” 24 hours after the defined due date.  
-REQ-4:	The system shall allow the addition of “Deductions” to a SOA to account for security deposits, prorated stays (calculated by dividing the monthly rate by 30 days and multiplying by the days of occupancy), scholarship rates, and other deductibles.  
-REQ-5:	The system shall allow Housing Administrators to generate university-wide financial reports, including revenue summaries and lists of overdue fees.  
-REQ-6:	The system shall provide a form for students to declare assets/consumables for a specific billing period.  
-REQ-7:	The system shall calculate the total amount due by summing the facility-specific base fee and the miscellaneous charges for the selected period.  
-REQ-8:	The system shall allow Dormitory Managers (and Housing Admins or Landlords) to view individual billing records and issue SOAs only for students within their assigned dormitory.  
-REQ-9:	The system shall allow Students to upload proof of payment files (image/PDF).  
-REQ-10:	The system shall restrict the final marking of a bill as "Paid" to the Housing Administrator / Landlord.  
-REQ-11:	The system shall maintain an audit trail of all financial actions, including period definitions, rate changes, and payment approvals.  
+REQ-1:	The system shall allow Housing Administrators to define and manage a list of valid billing periods (e.g., monthly cycles) for their managed housing facilities. 
+REQ-2:	The system shall provide an interface for Housing Administrators to set and update their base monthly rates for specific or multiple selected facilities they are managing/assigned to. 
+REQ-3:	The system shall automatically calculate “Overdue” status if a billing record remains “Unpaid” 24 hours after the defined due date. 
+REQ-4:	The system shall allow the addition of “Deductions” to a SOA to account for security deposits, prorated stays (calculated by dividing the monthly rate by 30 days and multiplying by the days of occupancy), scholarship rates, and other deductibles. 
+REQ-5:	The system shall allow Housing Administrators to generate university-wide financial reports, including revenue summaries and lists of overdue fees. 
+REQ-6:	The system shall provide a form for students to declare assets/consumables for a specific billing period. 
+REQ-7:	The system shall calculate the total amount due by summing the facility-specific base fee and the miscellaneous charges for the selected period. 
+REQ-8:	The system shall allow Dormitory Managers (and Housing Admins or Landlords) to view individual billing records and issue SOAs only for students within their assigned dormitory. 
+REQ-9:	The system shall allow Students to upload proof of payment files (image/PDF). 
+REQ-10:	The system shall restrict the final marking of a bill as "Paid" to the Housing Administrator / Landlord. 
+REQ-11:	The system shall maintain an audit trail of all financial actions, including period definitions, rate changes, and payment approvals. 
 REQ-12:	The system shall restrict the viewing of individual financial records to the specific Student, their assigned Dormitory Manager, and the relevant Housing Administrator.
 
 7. ## **Reporting and Document Generation** {#reporting-and-document-generation}
 
 4.7.1	Description and Priority
 
-This feature enables the generation of real-time reports and official documents related to accommodation operations. It provides housing administrators and dormitory managers with actionable insights through occupancy summaries, financial reports, and applicant status summaries. Additionally, the system supports the generation of official documents such as admission letters, billing statements, and clearance forms for students.
+This feature enables the generation of real-time reports and official documents related to accommodation operations. It provides housing administrators and dormitory managers with actionable insights through occupancy summaries, financial reports, and applicant status summaries. the system supports the generation of official documents such as admission letters, billing statements, and clearance forms for students.
 
 **For Students:** this feature allows generation of personalized documents such as proof of accommodation, billing history, and application status letters.
 
@@ -819,72 +801,72 @@ This feature enables the generation of real-time reports and official documents 
 
 4.7.2	Stimulus/Response Sequences
 
-1. The housing administrator navigates to the "Reports" dashboard.  
-   1. The system displays the available report types: Occupancy Summary, Financial Summary, Applicant Status Summary, and Activity Logs.  
-   2. The system provides filter options including date range, dormitory, and applicant status.  
-2. The housing administrator selects a report type and applies specific filters.  
-   1. If the filter returns no matches, the system displays a user-friendly error message.  
-   2. The system generates the report in real-time based on the selected filters.  
-   3. The system displays the generated report in a tabular or graphical format within the interface, depending on the user’s preference.  
-3. The housing administrator requests an export of the displayed report.  
-   1. The system prompts the user to select an export format (PDF, CSV, or Excel).  
-   2. Upon selection, the system generates the file and initiates a download.  
-   3. The system records the export action in the audit trail, including the user, timestamp, and report type.  
-4. The dormitory manager navigates to the "Reports" section from their dashboard.  
-   1. The system displays report options limited to their assigned dormitory: Occupancy Report, Issues Report, and Move-in/Move-out Logs.  
-5. The dormitory manager requests to generate an Occupancy Report.  
-   1. The system displays the current occupancy data, including total capacity, available rooms, and a list of current residents with their move-in dates.  
-6. The student navigates to the "My Documents" page.  
-   1. The system displays a list of available documents that the student can generate: Billing Statement, Proof of Accommodation, and Clearance Form.  
-7. The student requests to generate a specific document.  
-   1. The system retrieves the student's current and relevant data from the database.  
-   2. The system generates the document in PDF format, complete with the university logo and official headers and a watermark for tamper-prevention.  
-   3. The system initiates a download of the generated document.  
-   4. The system logs the document request action in the activity logs.
+1. The housing administrator navigates to the "Reports" dashboard. 
+ 1. The system displays the available report types: Occupancy Summary, Financial Summary, Applicant Status Summary, and Activity Logs. 
+ 2. The system provides filter options including date range, dormitory, and applicant status. 
+2. The housing administrator selects a report type and applies specific filters. 
+ 1. If the filter returns no matches, the system displays a user-friendly error message. 
+ 2. The system generates the report in real-time based on the selected filters. 
+ 3. The system displays the generated report in a tabular or graphical format within the interface, depending on the user’s preference. 
+3. The housing administrator requests an export of the displayed report. 
+ 1. The system prompts the user to select an export format (PDF, CSV, or Excel). 
+ 2. Upon selection, the system generates the file and initiates a download. 
+ 3. The system records the export action in the audit trail, including the user, timestamp, and report type. 
+4. The dormitory manager navigates to the "Reports" section from their dashboard. 
+ 1. The system displays report options limited to their assigned dormitory: Occupancy Report, Issues Report, and Move-in/Move-out Logs. 
+5. The dormitory manager requests to generate an Occupancy Report. 
+ 1. The system displays the current occupancy data, including total capacity, available rooms, and a list of current residents with their move-in dates. 
+6. The student navigates to the "My Documents" page. 
+ 1. The system displays a list of available documents that the student can generate: Billing Statement, Proof of Accommodation, and Clearance Form. 
+7. The student requests to generate a specific document. 
+ 1. The system retrieves the student's current and relevant data from the database. 
+ 2. The system generates the document in PDF format, complete with the university logo and official headers and a watermark for tamper-prevention. 
+ 3. The system initiates a download of the generated document. 
+ 4. The system logs the document request action in the activity logs.
 
 4.7.3	Functional Requirements
 
 REQ-1:	The system shall allow housing administrators to generate the following reports:
 
-* Occupancy Summary (includes per dormitory or university-wide)  
-* Financial Summary (revenue per dormitory, overdue fees)  
-* Applicant Status Summary   
+* Occupancy Summary (includes per dormitory or university-wide) 
+* Financial Summary (revenue per dormitory, overdue fees) 
+* Applicant Status Summary 
 * Activity Logs 
 
-  REQ-2:	The system shall allow dormitory managers to generate reports limited to their assigned dormitories, including:
+ REQ-2:	The system shall allow dormitory managers to generate reports limited to their assigned dormitories, including:
 
-* Current Occupancy Report  
-* Room Availability Issues Report  
+* Current Occupancy Report 
+* Room Availability Issues Report 
 * Move-in/Move-out Logs
 
-  REQ-3: The system shall allow students to generate and download the following documents:
+ REQ-3: The system shall allow students to generate and download the following documents:
 
-* Billing Statement  
-* Proof of Accommodation / Accommodation Notice  
+* Billing Statement 
+* Proof of Accommodation / Accommodation Notice 
 * Clearance Form
 
-  REQ-4: The system shall provide filter options for reports, including:
+ REQ-4: The system shall provide filter options for reports, including:
 
-* Date range  
-* Dormitory  
-* Applicant/Student status  
-* Payment status  
-  REQ-5: The system shall display generated reports in a readable format (tables, charts, or graphs) within the web interface.
+* Date range 
+* Dormitory 
+* Applicant/Student status 
+* Payment status 
+ REQ-5: The system shall display generated reports in a readable format (tables, charts, or graphs) within the web interface.
 
-  REQ-6: 	The system shall support export of reports in at least the following formats: PDF, CSV, and Excel.  
-  REQ-7: 	The system shall log all report generation and document download actions in the audit trail, including user identity, timestamp, and report/document type.  
-  REQ-8: 	The system shall restrict access to reports and documents based on the user roles:  
-* Housing administrators: full access  
-* Dormitory managers: access limited based on their assigned dormitories  
+ REQ-6: 	The system shall support export of reports in at least the following formats: PDF, CSV, and Excel. 
+ REQ-7: 	The system shall log all report generation and document download actions in the audit trail, including user identity, timestamp, and report/document type. 
+ REQ-8: 	The system shall restrict access to reports and documents based on the user roles: 
+* Housing administrators: full access 
+* Dormitory managers: access limited based on their assigned dormitories 
 * Students: access is limited to their own documents and basic occupancy information
 
-  REQ-9: 	The system shall ensure that generated documents reflect the most up-to-date information from the database at the time of request with a maximum allowance of 10 minutes.
+ REQ-9: 	The system shall ensure that generated documents reflect the most up-to-date information from the database at the time of request with a maximum allowance of 10 minutes.
 
-  REQ-10: The system shall automatically generate an Accommodation Notice in PDF format once the Housing Administrator or Landlord grants final approval and assigns a room
+ REQ-10: The system shall automatically generate an Accommodation Notice in PDF format once the Housing Administrator or Landlord grants final approval and assigns a room
 
-  REQ-11: The system shall include the university logo, official headers, and timestamps on all generated official documents.
+ REQ-11: The system shall include the university logo, official headers, and timestamps on all generated official documents.
 
-  8. ## **Activity Logs** {#activity-logs}
+ 8. ## **Activity Logs** {#activity-logs}
 
 4.8.1	Description and Priority
 
@@ -894,83 +876,82 @@ This feature maintains a log of every transaction, identified by the user ID, pa
 
 4.8.2	Stimulus/Response Sequences
 
-1. A Dormitory Manager or Housing Administrator navigates to the “Activity Logs” Dashboard  
-2. The system filters which activity logs to show based on their role and assigned dormitory, if any  
-   1. If the search returns any activity logs, transactions are displayed in a tabular format with user ID, partial IP address that is masked by the backend, transaction type, timestamp, and specific data modified, if any.  
-   2. If the search does not return any activity logs, the user is shown a message that there are no activity logs available.  
-3. The viewer can narrow their search with any of these filters: user ID, partial IP address, specific transaction type, and a date range.  
-4. If any activity logs appear based on the filtered search, they are displayed. Otherwise, the user is shown a message that there are no activity logs available.  
-5. If the viewer wants to see the specific activity, they may click “View” on the identified transaction.  
+1. A Dormitory Manager or Housing Administrator navigates to the “Activity Logs” Dashboard 
+2. The system filters which activity logs to show based on their role and assigned dormitory, if any 
+ 1. If the search returns any activity logs, transactions are displayed in a tabular format with user ID, partial IP address that is masked by the backend, transaction type, timestamp, and specific data modified, if any. 
+ 2. If the search does not return any activity logs, the user is shown a message that there are no activity logs available. 
+3. The viewer can narrow their search with any of these filters: user ID, partial IP address, specific transaction type, and a date range. 
+4. If any activity logs appear based on the filtered search, they are displayed. Otherwise, the user is shown a message that there are no activity logs available. 
+5. If the viewer wants to see the specific activity, they may click “View” on the identified transaction. 
 6. The system details which specifically changed.
 
 4.8.3	Functional Requirements
 
 REQ-1: 	The system shall generate an audit log entry for every transaction within the system. Each entry must include: 
 
-* User ID: the unique identifier of the actor  
-* Timestamp: precise time of the transaction  
-* Partial IP address  
-* Transaction Type: categorization of the transaction (e.g. create user, approve payment)  
+* User ID: the unique identifier of the actor 
+* Timestamp: precise time of the transaction 
+* Partial IP address 
+* Transaction Type: categorization of the transaction (e.g. create user, approve payment) 
 * Activity Info: the specific data modified
 
-  REQ-2: 	The system shall capture the user's IP address, but must apply a masking algorithm at the backend level to display only a partial IP address to the viewer. The system shall only display the first two octets of the IP address (e.g. 192.168.x.x)
+ REQ-2: 	The system shall capture the user's IP address, but must apply a masking algorithm at the backend level to display only a partial IP address to the viewer. The system shall only display the first two octets of the IP address (e.g. 192.168.x.x)
 
-  REQ-3: 	The system shall enforce boundaries on data visibility based on user roles. Housing administrators shall have unrestricted access to all activity logs. Dorm managers shall only see logs related to their dormitory, actions performed by other managers assigned to the same dormitory, and students occupying their dormitory. Students shall see only logs of their activity.
+ REQ-3: 	The system shall enforce boundaries on data visibility based on user roles. Housing administrators shall have unrestricted access to all activity logs. Dorm managers shall only see logs related to their dormitory, actions performed by other managers assigned to the same dormitory, and students occupying their dormitory. Students shall see only logs of their activity.
 
-  REQ-4:	 The system shall ensure that once an activity log is written to the database, it cannot be modified or deleted through the application interface, even by housing administrators.
+ REQ-4:	 The system shall ensure that once an activity log is written to the database, it cannot be modified or deleted through the application interface, even by housing administrators.
 
-  REQ-5:	 The "Activity Logs" dashboard shall allow users to narrow results based on the following parameters:
+ REQ-5:	 The "Activity Logs" dashboard shall allow users to narrow results based on the following parameters:
 
-* User ID  
-* Date range  
-* Partial IP address  
+* User ID 
+* Date range 
+* Partial IP address 
 * Transaction type
 
-  REQ-6: 	The system shall provide a “View” function for each log entry. Upon using this, the system shall display a detailed comparison on the specific data fields that were altered during the transaction.
-
+ REQ-6: 	The system shall provide a “View” function for each log entry. Upon using this, the system shall display a detailed comparison on the specific data fields that were altered during the transaction.
 
 5. # **Other Nonfunctional Requirements** {#other-nonfunctional-requirements}
 
-   1. ## **Performance Requirements** {#performance-requirements}
+ 1. ## **Performance Requirements** {#performance-requirements}
 
-**5.1.1 Page Load Time**  
+**5.1.1 Page Load Time** 
 *The system shall have 2-3 seconds of loading time for each page under normal operating conditions with up to 500 concurrent users and peak load conditions with up to 1000 simultaneous users during the housing application period.* 
 
-	**5.1.2 Authentication Performance**  
+	**5.1.2 Authentication Performance** 
 *The system shall complete authentication within 3 seconds and shall provide error message for failed authentication attempts within 2 seconds. The immediate feedback from failed attempts minimizes confusion and reduces repeated login submissions that may increase system load. This will also allow users to have sufficient time to secure credential validation.* 
 
 **5.1.3 CRUD Operations**
 
 * ***Dormitories and Housing***
 
-  *The system shall complete CRUD operations within 2-3 seconds for a single record while listing all dormitories within 5 seconds under normal operating conditions.*
+ *The system shall complete CRUD operations within 2-3 seconds for a single record while listing all dormitories within 5 seconds under normal operating conditions.*
 
 * ***Rooms and Bed Spaces***
 
-  *The system shall complete CRUD operations within 2-3 seconds per room while full listing of all rooms shall complete within 5 seconds under normal operating conditions. Updating room availability shall reflect in the database within 1 second.*
+ *The system shall complete CRUD operations within 2-3 seconds per room while full listing of all rooms shall complete within 5 seconds under normal operating conditions. Updating room availability shall reflect in the database within 1 second.*
 
 * ***Student Users***
 
-  *The system shall complete CRUD operations on a student record within 2-3 seconds while listing of all student profiles shall complete within 5 seconds under normal operating conditions.*
+ *The system shall complete CRUD operations on a student record within 2-3 seconds while listing of all student profiles shall complete within 5 seconds under normal operating conditions.*
 
 * ***Accommodation applications***
 
-  *The system shall complete CRUD operations on a single application within 2-3 seconds while retrieval of all applications shall complete within 5 seconds. Submitting application shall complete within 3 seconds. Application rejection/approval shall complete within 2 seconds and status updates shall reflect in real-time with at most 1 second delay. All under normal operating conditions.*
+ *The system shall complete CRUD operations on a single application within 2-3 seconds while retrieval of all applications shall complete within 5 seconds. Submitting application shall complete within 3 seconds. Application rejection/approval shall complete within 2 seconds and status updates shall reflect in real-time with at most 1 second delay. All under normal operating conditions.*
 
 * ***Housing Administrators/Landlords***
 
-  *The system shall complete CRUD operations within 2-3 seconds per record under normal operating conditions.*
+ *The system shall complete CRUD operations within 2-3 seconds per record under normal operating conditions.*
 
 	*If CRUD operation fails, the system shall notify the user with error messages within 2 seconds. The immediate and real-time updates ensure system responsiveness and accurate information for both students and administrators.*
 
-**5.1.4 Report Generation and Document Export**  
+**5.1.4 Report Generation and Document Export** 
 *The system shall generate summary and administrative reports within 5 seconds. Export and downloading of documents shall complete within 10 seconds under normal operating conditions.* 
 
 2. ## **Safety Requirements**
 
 UPLB CASA is a web-based information system. At the same time, it does not directly control physical hardware or infrastructure; the following safety requirement must be observed to prevent harm arising from data loss.
 
-**5.2.1  Data Integrity and Loss Prevention**   
+**5.2.1 Data Integrity and Loss Prevention** 
 The system shall ensure that no accommodation, assignment record, billing entry, or student documents are permanently lost due to accidental deletion or system failure. All deletions of critical records shall require administrator-level confirmation. The system shall maintain database backups at regular intervals to enable recovery in case of failure. 
 
 3. ## **Security Requirements**
@@ -979,27 +960,24 @@ The system shall ensure that no accommodation, assignment record, billing entry,
 
 * The system shall enforce role-based access control to prevent unauthorized actions. Students shall not be permitted to approve their own applications, modify room assignments, or access other students’ personal records. Dormitory managers shall only access records for their assigned dormitory. Unauthorized access attempts shall be logged and flagged.
 
-
 	**5.3.2 Audit Trail Preservation**
 
 * The system shall maintain a complete, tamper-evident audit trail of all significant actions, including logins, application submissions, approvals, rejections, room assignments, and billing updates. This audit log shall not be editable by any user, including administrators, to ensure accountability and prevent concealment of errors or misconduct.
-
 
 	**5.3.3 Compliance with University and Data Privacy Policies**
 
 * The system shall comply with the Republic of the Philippines Data Privacy Act of 2012 (RA 10173\) and the University of the Philippines System’s data governance policies. Student personal data, housing records, and financial information shall be treated as confidential and shall not be disclosed to unauthorized parties. Consent for data collection and use shall be obtained from students during registration.
 
-
 	**5.3.4 Document Upload Safety**
 
 * The system must check every file that a student or manager uploads to the platform. This safety step ensures that only allowed file types, like PDFs or images for proof of enrollment, are accepted. By blocking hidden scripts or dangerous file formats, the system prevents hackers from sending viruses that could steal data or break the website.
 
-	  
+	 
 	**5.3.5 Data Encryption Standards**
 
 * The system must protect all information as it moves between the user’s device and the university servers. By using standard encryption (like HTTPS), the system ensures that private details cannot be read by outsiders if they try to intercept the data. This keeps information safe even on public internet connections.
 
-	  
+	 
 	**5.3.6 Housing Data Access Safeguards** 
 
 * The system must not allow the landlord or UP Housing Office to have access to data of dormitories or apartments that they are not assigned to. Upon login, the server shall display information only associated with their assigned housings.
@@ -1008,7 +986,7 @@ The system shall ensure that no accommodation, assignment record, billing entry,
 
 * The system must tag users who are not logged in with a UP email address. These users will be labelled as non-UP users, and they are either a dormitory manager, landlord, or system administrator. This helps clearly distinguish the students from the higher authorities.
 
-  4. ## **Software Quality Attributes**
+ 4. ## **Software Quality Attributes**
 
 ***Availability:** The system must be accessible more than or equal to 90% of the time during peak registration periods, to ensure uninterrupted access for all users.*
 
@@ -1040,11 +1018,11 @@ Users can only log in using a valid UP Mail or Google account.
 
 Each user is assigned to a role:
 
-- Student  
-- Dormitory Manager  
-- Housing Administrator, which may be either:  
-  	\- UP Housing Administrator  
-  	\- Private Landlord  
+- Student 
+- Dormitory Manager 
+- Housing Administrator, which may be either: 
+ 	\- UP Housing Administrator 
+ 	\- Private Landlord 
 - System Administrator
 
 Users may only perform actions allowed for their assigned role.
@@ -1053,36 +1031,36 @@ Users may only perform actions allowed for their assigned role.
 
 Students are only allowed to:
 
-- Look for available dormitories and rooms  
-- Submit and manage their own accommodation application  
-- View their own application status, room assignment,and  billing and payment records  
+- Look for available dormitories and rooms 
+- Submit and manage their own accommodation application 
+- View their own application status, room assignment,and billing and payment records 
 - Upload required documents
 
 Students are not allowed to:
 
-- Apply for accommodation outside the given application period  
-- Submit more than one active accommodation application at the same time  
-- Assign or change room or bed assignments  
-- Manage any accommodation application (including their own)  
-- Change billing rates or payment statuses  
-- View or access other students’ personal, accommodation, or billing information  
+- Apply for accommodation outside the given application period 
+- Submit more than one active accommodation application at the same time 
+- Assign or change room or bed assignments 
+- Manage any accommodation application (including their own) 
+- Change billing rates or payment statuses 
+- View or access other students’ personal, accommodation, or billing information 
 - Change their assigned role or system privileges
 
 **5.5.3 Dormitory Manager**
 
-Each dormitory may only have one dormitory manager.  
+Each dormitory may only have one dormitory manager. 
 A dormitory manager can handle multiple dormitories.
 
 Dormitory Managers may only:
 
-- Review, approve, or reject housing requests  
-- Conduct initial screening of applications  
-- Assign rooms and manage occupancy  
+- Review, approve, or reject housing requests 
+- Conduct initial screening of applications 
+- Assign rooms and manage occupancy 
 - View records for dormitories assigned to them
 
 Dormitory Managers are not allowed to:
 
-- Access or manage other dormitories beyond their assignment  
+- Access or manage other dormitories beyond their assignment 
 - Perform final approval of applications
 
 If there is no Dormitory Manager (e.g., off-campus dormitories), initial approval and room availability check access is given to the landlord as well.
@@ -1091,55 +1069,53 @@ If there is no Dormitory Manager (e.g., off-campus dormitories), initial approva
 
 The Housing Administrator role can be:
 
-- UP Housing Administrator  
+- UP Housing Administrator 
 - Private Landlord (for non-UP dormitories)
-
 
 Only the UP Housing Administrators may:
 
-- Give final approval or rejection of accommodation applications for UP-managed dormitories.  
-- Set application periods, billing periods, and accommodation rates  
-- Manage and approve payments  
+- Give final approval or rejection of accommodation applications for UP-managed dormitories. 
+- Set application periods, billing periods, and accommodation rates 
+- Manage and approve payments 
 - Manage UP-managed housing facilities.
 
 Private Landlords may:
 
-- Perform initial screening and availability checks  
-- Provide final approval or rejection for privately managed housing   
+- Perform initial screening and availability checks 
+- Provide final approval or rejection for privately managed housing 
 - Manage their own housing units
 
 Housing Administrators cannot:
 
-- Access system-level configurations.  
-- Assign or modify user roles  
+- Access system-level configurations. 
+- Assign or modify user roles 
 - Access housing data outside their assigned dormitories.
-
 
 **5.5.5 System Administrator**
 
 The System Administrator may:
 
-- Control the overall system   
-- Manage accommodations and user accounts  
-- Validate student status  
-- Assign and modify user roles  
-- Access the master data  
+- Control the overall system 
+- Manage accommodations and user accounts 
+- Validate student status 
+- Assign and modify user roles 
+- Access the master data 
 - Deactivate accounts
 
 The System Administrator is not responsible for the following, but nonetheless could bypass:
 
-- Participating in the accommodation screening or approval process  
-- Managing room assignments  
+- Participating in the accommodation screening or approval process 
+- Managing room assignments 
 - Managing billing and payment decisions
 
 **5.5.6 Data Privacy**
 
 Users may only view information related to their role:
 
-- Students: view only their own records  
-- Dormitory Managers: view records for students currently assigned to their dormitories  
-- UP Housing Administrators: view records for UP-managed dormitories  
-- Landlords: view records for their own housing units  
+- Students: view only their own records 
+- Dormitory Managers: view records for students currently assigned to their dormitories 
+- UP Housing Administrators: view records for UP-managed dormitories 
+- Landlords: view records for their own housing units 
 - System Administrators: can access all system records including the Housing Administrators
 
 **5.5.7 Billing and Payment Responsibilities**
@@ -1166,14 +1142,14 @@ Activity logs are auto-generated and are not editable or deletable by any user.
 
 Application for dormitories with separate dorm manager and landlords must undergo:
 
-1. Initial screening by the Dormitory Manager  
+1. Initial screening by the Dormitory Manager 
 2. Final approval or rejection by the Housing Administrator
 
 Accommodation application under this management shall not be approved unless it has successfully completed both levels of review.
 
 If a housing or dormitory doesn’t have a dorm manager, applications:
 
-- Won’t require initial approval, and  
+- Won’t require initial approval, and 
 - Will only need final approval from the landlord
 
 **5.5.12 Account Deactivation Policy**
@@ -1184,9 +1160,9 @@ All previous records associated with the account, including their accommodation 
 
 Accounts may only be considered for deactivation if:
 
-- The user is no longer enrolled, employed, or officially affiliated with the university.  
-- The user has already graduated, or permanently moved out of the university housing.  
-- The account has been inactive for an extended period  
+- The user is no longer enrolled, employed, or officially affiliated with the university. 
+- The user has already graduated, or permanently moved out of the university housing. 
+- The account has been inactive for an extended period 
 - The account violates university housing policies or system usage rules
 
 **Appendix A: Glossary**
@@ -1195,22 +1171,22 @@ UPLB \- University of the Philippines \- Los Baños
 
 **Appendix B: Analysis Models**
 
-**Figure A1:**  
-*Use Case Diagram*  
+**Figure A1:** 
+*Use Case Diagram* 
 ![][image2]
 
-**Figure A2:**  
+**Figure A2:** 
 *Activity Diagram*
 
 **![][image3]**
 
 **Appendix C: Optional Features**
 
-* Smart Allocation Engine: automatically recommend student housing based on predefined preferences and room availability  
-* Advanced Analytics: provide data-driven insights on dorm occupancy trends  
-* Dark Mode: a low-light, high-contrast user-interface  
-* Automated Overdue Alerts: monitor payment deadlines and lease expirations  
-* Transient Module: allow temporary guests to stay for a few days at a time  
+* Smart Allocation Engine: automatically recommend student housing based on predefined preferences and room availability 
+* Advanced Analytics: provide data-driven insights on dorm occupancy trends 
+* Dark Mode: a low-light, high-contrast user-interface 
+* Automated Overdue Alerts: monitor payment deadlines and lease expirations 
+* Transient Module: allow temporary guests to stay for a few days at a time 
 * Support for Multiple Housing Applications: allow students to apply to multiple housing applications at a time.
 
 [image1]: <data:image/png;base64,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>
